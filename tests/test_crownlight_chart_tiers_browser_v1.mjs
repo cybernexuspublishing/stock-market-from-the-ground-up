@@ -61,7 +61,7 @@ assert.equal(await page.locator('.cl-locked-studio').count(),remainingLocks);
 if(remainingLocks){
  await page.locator('.cl-locked-studio').first().click();
  const modal=page.locator('#cl-chart-tier-purchase-dialog');
- await page.waitForFunction(()=>/Available balance: 53 Sparks/.test(
+ await page.waitForFunction(()=>/Available balance: 53 Lumens/.test(
   document.querySelector('#cl-chart-tier-purchase-dialog')?.textContent||''));
  assert.equal(await modal.isVisible(),true);
  assert.match(await modal.innerText(),/Cost: (8|15) Sparks/);

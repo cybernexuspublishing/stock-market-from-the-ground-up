@@ -87,8 +87,8 @@ function stopCharts(){
  state.charts=[];state.view?.querySelector('[data-cl-tier-panels]')?.replaceChildren();document.body.classList.remove('cl-tier-enhanced');
 }
 const requirements={
- ADVANCED:'Requires an eligible intermediate membership (such as an active Founding 30-Day plan), or an eligible temporary Crownlight Sparks Studio pass when available.',
- PROFESSIONAL:'Requires an eligible premium membership (such as an active Founding 60-Day, Full, or Lifetime plan), or an eligible temporary Crownlight Sparks Studio pass when available.'
+ ADVANCED:'Requires an eligible intermediate membership (such as an active Founding 30-Day plan), or an eligible temporary Crownlight Lumens Studio pass when available.',
+ PROFESSIONAL:'Requires an eligible premium membership (such as an active Founding 60-Day, Full, or Lifetime plan), or an eligible temporary Crownlight Lumens Studio pass when available.'
 };
 function remainingText(ms){
  const total=Math.max(0,Math.ceil(ms/1000));
@@ -106,7 +106,7 @@ function updateCountdown(){
  output.hidden=false;
  output.textContent=remaining<=0
   ?'Temporary '+state.accessTier+' Studio access expired. Rechecking authorization…'
-  :'Temporary '+state.accessTier+' '+(state.accessKind==='SPARKS'?'Sparks pass':'QA access')+
+  :'Temporary '+state.accessTier+' '+(state.accessKind==='SPARKS'?'Lumens pass':'QA access')+
    ' · Remaining '+remainingText(remaining)+' · Ends '+new Date(expiry).toLocaleString();
  if(remaining<=0&&!state.expireRechecked){
   state.expireRechecked=true;
@@ -117,7 +117,7 @@ function updateCountdown(){
 async function sparksToken(){
  const client=await window.getSupabaseClient();
  const session=(await client.auth.getSession()).data?.session;
- if(!session?.access_token)throw Error('Sign in to redeem Crownlight Sparks.');
+ if(!session?.access_token)throw Error('Sign in to redeem Crownlight Lumens.');
  return session.access_token;
 }
 async function loadSparkOffers(){
@@ -143,7 +143,7 @@ async function loadSparkOffers(){
 async function redeemSparkOffer(offer,button,feedback){
  if(!state.verified||state.allowed.includes(offer.tier))return;
  if(!Number.isSafeInteger(state.sparkBalance)||state.sparkBalance<offer.costSparks){
-  feedback.textContent='Insufficient Crownlight Sparks. No credits were deducted.';return
+  feedback.textContent='Insufficient Crownlight Lumens. No credits were deducted.';return
  }
  if(button.disabled)return;
  button.disabled=true;feedback.textContent='Verifying wallet and redeeming…';
@@ -172,22 +172,22 @@ async function redeemSparkOffer(offer,button,feedback){
      Date.parse(data.expiresAt)<=Date.now())
    throw Error('Provider receipt requires reconciliation; do not buy again.');
   confirmed=true;
-  feedback.textContent='Sparks transaction verified; rechecking chart access…';
+  feedback.textContent='Lumens transaction verified; rechecking chart access…';
   await permission();
   if(state.verified&&state.authUserId===memberId&&state.allowed.includes(offer.tier)){
    retry.confirm(memberId,offer.sku,receipt);
    feedback.textContent='Pass verified until '+new Date(data.expiresAt).toLocaleString()+'.'+
-     (data.alreadyRedeemed?' Original purchase receipt reused; no additional Sparks spent.':'');
+     (data.alreadyRedeemed?' Original purchase receipt reused; no additional Lumens spent.':'');
    await loadSparkOffers();
    void choose(offer.tier);
   }else{
-   feedback.textContent='Sparks transaction was confirmed, but chart access verification has not completed. Refresh permissions; do not redeem again.';
+   feedback.textContent='Lumens transaction was confirmed, but chart access verification has not completed. Refresh permissions; do not redeem again.';
   }
  }catch(error){
   feedback.textContent=confirmed?
    'Purchase receipt confirmed but Studio verification is incomplete. Refresh before any other action.':
    'Redemption not confirmed: '+String(error.message||error)+
-    '. Retrying this offer reuses the SAME transaction ID to prevent duplicate Sparks charges.';
+    '. Retrying this offer reuses the SAME transaction ID to prevent duplicate Lumens charges.';
   if(!confirmed)button.disabled=false;
   if(/PRICE_CHANGED/.test(feedback.textContent))void loadSparkOffers();
  }
@@ -212,29 +212,29 @@ function explainLockedTier(){
  }
  if(!locked)host.append(el('p','','Your account can use all three Chart Studios. No additional membership is required.'));
  const spark=el('p','cl-chart-tier-sparks-explanation',
-  state.sparkLoading?'Checking current Sparks prices and member balance…':
-  state.sparkLoadError?'Sparks options temporarily unavailable: '+state.sparkLoadError:
-  state.sparkBalance!==null?'Verified wallet balance: '+state.sparkBalance+' Sparks.':
-  'Open this panel to view current Sparks pass prices and available wallet balance.');
+  state.sparkLoading?'Checking current Lumens prices and member balance…':
+  state.sparkLoadError?'Lumens options temporarily unavailable: '+state.sparkLoadError:
+  state.sparkBalance!==null?'Verified wallet balance: '+state.sparkBalance+' Lumens.':
+  'Open this panel to view current Lumens pass prices and available wallet balance.');
  host.append(spark);
  if(state.sparksAvailable&&state.sparkOffers.length){
   const prices=el('div','cl-chart-sparks-prices');
   for(const offer of state.sparkOffers){
    if(!state.visible.includes(offer.tier)||state.allowed.includes(offer.tier))continue;
    const row=el('div','cl-chart-sparks-pass');
-   row.append(el('strong','',offer.label),el('span','',offer.costSparks+' Sparks'));
-   const action=el('button','btn secondary','Redeem '+offer.costSparks+' Sparks');
+   row.append(el('strong','',offer.label),el('span','',offer.costSparks+' Lumens'));
+   const action=el('button','btn secondary','Redeem '+offer.costSparks+' Lumens');
    action.type='button';action.disabled=state.sparkBalance===null||state.sparkBalance<offer.costSparks;
-   action.title=action.disabled?'Insufficient Sparks or wallet unavailable.':'Redeem a temporary Chart Studio pass';
+   action.title=action.disabled?'Insufficient Lumens or wallet unavailable.':'Redeem a temporary Chart Studio pass';
    const feedback=el('span','cl-chart-sparks-feedback');feedback.setAttribute('role','status');
    action.onclick=()=>void redeemSparkOffer(offer,action,feedback);
    row.append(action,feedback);prices.append(row);
   }
   host.append(prices);
  }
- const refresh=el('button','btn secondary','Refresh Sparks offers');
+ const refresh=el('button','btn secondary','Refresh Lumens offers');
  refresh.type='button';refresh.onclick=()=>void loadSparkOffers();
- const shop=el('a','cl-chart-tier-sparks-link','Review Crownlight Sparks');
+ const shop=el('a','cl-chart-tier-sparks-link','Review Crownlight Lumens');
  shop.href='/store-sparks.html';
  host.append(refresh,shop);
 }
@@ -246,7 +246,7 @@ async function showLockedTier(tier){
  const title=el('h2','',names[tier]);
  const close=el('button','btn secondary','Close');close.type='button';
  close.onclick=()=>dialog.close();
- const intro=el('p','','Loading your available Sparks and current pass prices…');
+ const intro=el('p','','Loading your available Lumens and current pass prices…');
  fill([title,intro,close]);
  if(!dialog.open)dialog.showModal();
  await loadSparkOffers();
@@ -256,28 +256,28 @@ async function showLockedTier(tier){
  const offers=state.sparkOffers.filter(o=>o.tier===tier);
  const details=el('div','cl-tier-price-details');
  details.append(el('p','',requirements[tier]));
- if(owned)details.append(el('p','', 'This Studio is already unlocked. No Sparks purchase is needed.'));
- else if(!verified)details.append(el('p','','Account access could not be verified. No Sparks will be spent.'));
+ if(owned)details.append(el('p','', 'This Studio is already unlocked. No Lumens purchase is needed.'));
+ else if(!verified)details.append(el('p','','Account access could not be verified. No Lumens will be spent.'));
  else if(!state.sparksAvailable||!offers.length){
-  details.append(el('p','',state.sparkLoadError||'No authorized Sparks passes are currently offered for this Studio.'));
+  details.append(el('p','',state.sparkLoadError||'No authorized Lumens passes are currently offered for this Studio.'));
  }else{
-  details.append(el('p','cl-tier-wallet','Available balance: '+(balance===null?'Unavailable':balance)+' Sparks'));
+  details.append(el('p','cl-tier-wallet','Available balance: '+(balance===null?'Unavailable':balance)+' Lumens'));
   for(const offer of offers){
    const row=el('div','cl-tier-offer');
    const remaining=balance===null?null:balance-offer.costSparks;
    row.append(el('strong','',offer.label),
-    el('span','', 'Cost: '+offer.costSparks+' Sparks'),
-    el('span','', 'Remaining after purchase: '+(remaining===null?'Unavailable':Math.max(0,remaining))+' Sparks'));
+    el('span','', 'Cost: '+offer.costSparks+' Lumens'),
+    el('span','', 'Remaining after purchase: '+(remaining===null?'Unavailable':Math.max(0,remaining))+' Lumens'));
    const feedback=el('p','cl-chart-sparks-feedback');
    feedback.setAttribute('role','status');
-   const action=el('button','btn','Confirm redemption · '+offer.costSparks+' Sparks');
+   const action=el('button','btn','Confirm redemption · '+offer.costSparks+' Lumens');
    action.type='button';action.disabled=balance===null||remaining<0||!verified;
    action.onclick=()=>void redeemSparkOffer(offer,action,feedback);
    row.append(action,feedback);details.append(row);
   }
  }
  const compare=el('a','btn secondary','Compare memberships');compare.href='/membership.html';
- const shop=el('a','btn secondary','View Sparks');shop.href='/store-sparks.html';
+ const shop=el('a','btn secondary','View Lumens');shop.href='/store-sparks.html';
  fill([title,details,compare,shop,close]);
  close.focus();
 }
@@ -290,7 +290,7 @@ function renderLockedButtons(){
   if(!state.visible.includes(tier)||isEntitled(tier))continue;
   const button=el('button','cl-locked-studio');
   button.type='button';
-  button.setAttribute('aria-label', 'Locked: '+names[tier]+'. View Sparks cost and balance');
+  button.setAttribute('aria-label', 'Locked: '+names[tier]+'. View Lumens cost and balance');
   button.append(el('span','cl-locked-icon','🔒'),el('span','',names[tier]));
   button.onclick=()=>void showLockedTier(tier);
   host.append(button);
@@ -549,7 +549,7 @@ function createControls(){
  const header=el('div','cl-chart-tier-bar');
  const label=el('label','', 'Chart Studio experience');
  const select=el('select');select.setAttribute('aria-label','Choose a Chart Studio; locked tiers are unavailable');
- select.title='Choose an included Studio, or click a lock-marked Studio name to review Sparks pricing.';
+ select.title='Choose an included Studio, or click a lock-marked Studio name to review Lumens pricing.';
  for(const k of state.visible){const op=new Option(names[k]+' · Locked',k);op.disabled=true;select.append(op)}
  select.onchange=()=>void choose(select.value);
  label.append(select);
@@ -559,7 +559,7 @@ function createControls(){
  const timer=el('p','cl-chart-tier-countdown');timer.dataset.clTierCountdown='';timer.hidden=true;
  timer.setAttribute('role','status');timer.setAttribute('aria-live','off');
  const dialog=el('dialog','cl-chart-price-dialog');dialog.id='cl-chart-tier-purchase-dialog';
- dialog.setAttribute('aria-label','Review locked Chart Studio Sparks cost');
+ dialog.setAttribute('aria-label','Review locked Chart Studio Lumens cost');
  document.body.append(dialog);
  header.append(label,locked,state.notice);panel.append(header,timer);
 
