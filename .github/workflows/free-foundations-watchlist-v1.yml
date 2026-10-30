@@ -23,6 +23,8 @@ on:
       - 'assets/js/free-watchlist-v1.js'
       - 'assets/js/free-watchlist-review-v1.js'
       - 'assets/css/free-watchlist-review-v1.css'
+      - 'assets/css/watchlist-talia-v4.css'
+      - 'assets/js/watchlist-talia-workstation-v4.js'
       - 'tests/test_free_watchlist_review_v1.mjs'
       - 'assets/js/dashboard.js'
       - 'dashboard.html'
