@@ -79,8 +79,23 @@ try{
  await page.waitForTimeout(100);
  assert.equal(record.payload.archived,false,'restoration must be persisted by authenticated API');
  assert.equal(writes,3,'only the three expected server-revision PATCH writes');
+ const monitor=region.locator('.cl-wi-monitor');
+ await monitor.locator('label').filter({hasText:'Manual price trigger / lower reference'}).locator('input').fill('155.22');
+ await monitor.locator('label').filter({hasText:'Pattern-monitor evidence'}).locator('input')
+  .fill('Manual fictional price threshold for evidence review, not a buy signal.');
+ await monitor.getByRole('button',{name:'Save manual pattern-monitor rule'}).click();
+ await page.waitForFunction(()=>document.querySelector('.cl-wi-monitor [role=status]')?.textContent.includes('1 manually saved'),null,{timeout:10000});
+ assert.equal(record.payload.monitoringRules.length,1,'manual monitor persisted under same private record');
+ await monitor.locator('label').filter({hasText:'Observed price from user-provided snapshot'}).locator('input').fill('156.4');
+ await monitor.locator('label').filter({hasText:'Observation source / data rights'}).locator('input')
+  .fill('Personal fictional CSV snapshot, source unverified');
+ await monitor.getByRole('button',{name:'Evaluate and record a manual research review'}).click();
+ await page.waitForFunction(()=>document.querySelector('.cl-wi-monitor [role=status]')?.textContent.includes('1 of 1'),null,{timeout:10000});
+ assert.equal(record.payload.researchHistory.at(-1).kind,'MANUAL_PATTERN_REVIEW');
+ assert.equal(writes,5,'only authenticated revision-guarded PATCH changes are persisted');
  assert.equal(await region.getByText('Saved scanner/discovery filters').count(),1);
- console.log('PASS Chrome Watchlist V2 integration: authenticated optimistic PATCH, folder/tag/stage, archive/restore, saved scanner criteria, legacy mount preserved');
+ assert.equal(await region.getByRole('button',{name:'Attach saved plan to owned Journal record'}).count(),1);
+ console.log('PASS Chrome Watchlist V2: private optimistic writes, folder/tag/stage, archive/restore, saved scanner filter, manual monitor and Journal link UI');
 }finally{
  await browser?.close();
  await new Promise(resolve=>server.close(resolve));
