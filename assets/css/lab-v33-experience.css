@@ -991,3 +991,11 @@ body.gu-lab-member #player-restart-mode:disabled {
  body.gu-lab-member #player-reference-select{width:100%}
  body.gu-lab-member .prototype-bar .optionrow>label{width:100%}
 }
+
+/* V4.2 beta: use the full available instructional viewport for Lab work. */
+@media(min-width:1100px){
+ html:not(.gu-lab-embedded) body.gu-lab-member>#app>.shell,
+ html:not(.gu-lab-embedded) body.gu-lab-member>#app>.gu-lab-breadcrumb{
+  max-width:none!important;width:100%!important;margin-inline:auto!important;
+ }
+}

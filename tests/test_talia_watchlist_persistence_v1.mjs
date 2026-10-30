@@ -17,6 +17,10 @@ for(const forbidden of ['GRANT INSERT ON public.gu_talia_watchlist_checkpoints_v
  assert(!migration.includes(forbidden),'Unsafe SQL: '+forbidden);
 }
 assert(client.includes("'/api/talia-watchlist-reports-v1'"));
+assert(client.includes("Close & Next — Submit answer"),'Checkpoint confirmation must have an explicit next action');
+assert(client.includes("if(advance){"),'Next must only occur after awaited server confirmation');
+assert(client.includes("if(autoplay&&"),'Autoplay must pause at an answer gate');
+assert(!client.includes('wallet_spend'),'Autoplay and formative retries never spend Lumens');
 assert(client.includes('let persistentReport=null'),'Private report state must be declared');
 assert(!/\bpersistedReport\b/.test(client),'Undeclared persistedReport state crashed the member report');
 assert(client.includes("request('POST',pendingRequest.body)"));

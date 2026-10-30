@@ -78,3 +78,8 @@ body.gu-bc-learning #gu-bc-source-case a:focus-visible{
  body.gu-bc-learning .gu-bc-lesson,
  body.gu-bc-learning .gu-bc-index{padding:14px}
 }
+
+/* V4.2 beta: no fixed width ceiling in the active 30-day Boot Camp. */
+body.gu-bc-learning main.section>.wrap{max-width:none!important;width:calc(100% - clamp(20px,3vw,64px))!important}
+body.gu-bc-learning .gu-bc-shell{max-width:none;width:100%}
+@media(max-width:800px){body.gu-bc-learning main.section>.wrap{width:calc(100% - 20px)!important}}

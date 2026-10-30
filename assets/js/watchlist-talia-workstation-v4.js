@@ -55,7 +55,7 @@
   // Their DOM reading order remains lesson first, chart second on narrow screens.
   const workspace=make('div',undefined,'cl-talia-workspace');
   const coachColumn=make('div',undefined,'cl-talia-coach-column');
-  workspace.append(coachColumn);rootEl.append(workspace);
+  rootEl.append(workspace);
   const lesson=make('div',undefined,'cl-talia-lesson'),indicator=make('p',undefined,'cl-talia-step-label'),
     heading=make('h3'),narration=make('p',undefined,'cl-talia-narration'),
     transcript=make('p',undefined,'cl-talia-transcript');
@@ -92,7 +92,8 @@
   const priceTable=make('table',undefined,'cl-talia-price-table');
   priceTable.setAttribute('aria-label','Accessible OHLCV for the latest revealed fictional candle');
   chartSection.append(chartControls,chartDiv,readout,priceTable);
-  workspace.append(chartSection);
+  // Visible evidence is first and Talia is second, both synchronized by stage.
+  workspace.append(chartSection,coachColumn);
   const question=make('section',undefined,'cl-talia-prompt');
   question.append(make('h3','Talia’s decision checkpoint'));
   const cue=make('p');
@@ -105,13 +106,15 @@
     'Treating an indicator as certain','Ignoring spread, borrow or liquidity',
     'Missing invalidation / risk plan','Other misconception']);
   mistakeLabel.append(mistake);
-  const save=make('button','Save permanent ungraded research checkpoint','btn');
+  const save=make('button','Save permanent ungraded research checkpoint','btn secondary');
+  const submitNext=make('button','Close & Next — Submit answer','btn cl-talia-submit-next');
+  submitNext.type='button';
   const retry=make('button','Retry with more instruction · Free','btn secondary');
   const result=make('p',undefined,'cl-talia-result');result.setAttribute('role','status');
   result.setAttribute('aria-live','polite');
-  question.append(cue,response,mistakeLabel,save,retry,result);
-  const reviewGrid=make('div',undefined,'cl-talia-review-grid');
-  reviewGrid.append(question);rootEl.append(reviewGrid);
+  question.append(cue,response,mistakeLabel,submitNext,save,retry,result);
+  question.setAttribute('aria-label','Research checkpoint and server-confirmed submission');
+  coachColumn.append(question);
   const report=make('section',undefined,'cl-talia-report');
   report.append(make('h3','Your Talia Watchlist Research Report'));
   const reportText=make('p','Checking your private, permanently saved research report. This does not represent official assessment mastery.');
@@ -124,7 +127,7 @@
   const clearSaved=make('button','Delete all saved Talia research','btn secondary');
   report.append(reportText,metrics,make('h4','Research checkpoints and recurring errors'),history,copy,
    loadSaved,older,clearSaved,reportStatus);
-  reviewGrid.append(report);
+  rootEl.append(report);
   const nav=make('div',undefined,'cl-talia-nav');
   const previous=make('button','Previous research action','btn secondary');
   const next=make('button','Next research action','btn');
@@ -132,9 +135,44 @@
   lab.href='labs.html';nav.append(previous,next,lab);coachColumn.append(nav);
   const footer=make('p','All guidance and ordinary retries are included for every member who can access this learning screen. The original Free watchlist still has 20 stored symbols. Advanced persistence, alerts and trade plans require separate entitlement. No Lumens are spent.','cl-talia-disclosure');
   rootEl.append(footer);
+  // Guided autoplay is opt-in, does not grade, spend Lumens or transmit a draft.
+  let autoplay=false,autoTimer=null,questionReady=true;
+  const autoTools=make('div',undefined,'cl-talia-auto-tools');
+  const autoToggle=make('button','Start guided autoplay · optional','btn secondary');autoToggle.type='button';
+  autoToggle.setAttribute('aria-pressed','false');
+  const autoStatus=make('p','Manual instruction. Optional autoplay stops for each research question.','cl-talia-auto-status');
+  autoStatus.setAttribute('role','status');autoStatus.setAttribute('aria-live','polite');
+  autoTools.append(autoToggle,autoStatus);
+  lesson.insertBefore(autoTools,coachActions);
   let bars=C.fictional(caseId);
   function stopTyping(){if(typing!==null){root.clearInterval(typing);typing=null}}
-  function showFull(){stopTyping();typingAt=transcript.textContent.length;narration.textContent=transcript.textContent;play.textContent='Replay written explanation'}
+  function stopAutoChart(){if(autoTimer!==null){root.clearTimeout(autoTimer);autoTimer=null}}
+  function showFull(){
+   stopTyping();typingAt=transcript.textContent.length;narration.textContent=transcript.textContent;
+   play.textContent='Replay written explanation';
+   if(autoplay&&!questionReady){
+    questionReady=true;question.hidden=false;submitNext.disabled=false;
+    autoStatus.textContent='Paused at question '+(step+1)+' of 8. Submit your answer with Close & Next to continue.';
+   }
+  }
+  function syncChartToLesson(){
+   stopAutoChart();
+   if(!autoplay)return;
+   // Only the FICTIONAL chart advances with the lesson. No private replay
+   // is available here. Predict and Practice freeze prior evidence.
+   if(!['Predict','Practice'].includes(currentStep())&&visible<bars.length){
+    autoTimer=root.setTimeout(()=>{
+     autoTimer=null;
+     if(disposed||!autoplay||!rootEl.isConnected)return;
+     visible++;draw();
+    },650);
+   }else draw();
+  }
+  function updateAutoUI(){
+   autoToggle.textContent=autoplay?'Pause guided autoplay':'Start guided autoplay · optional';
+   autoToggle.setAttribute('aria-pressed',String(autoplay));
+   if(!autoplay){question.hidden=false;questionReady=true;submitNext.disabled=false}
+  }
   const reduced=()=>root.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches===true;
   function runTyping(reset=false){
    stopTyping();if(reset){typingAt=0;narration.textContent=''}
@@ -152,6 +190,22 @@
    runTyping(typingAt>=transcript.textContent.length);
   });
   full.addEventListener('click',showFull);
+  autoToggle.addEventListener('click',()=>{
+   autoplay=!autoplay;stopAutoChart();updateAutoUI();
+   if(autoplay){
+    if(typingAt>=transcript.textContent.length){
+     questionReady=true;question.hidden=false;
+     autoStatus.textContent='Paused at question '+(step+1)+' of 8. Submit your answer to continue.';
+    }else{
+     questionReady=false;question.hidden=true;submitNext.disabled=true;
+     autoStatus.textContent='Playing action '+(step+1)+' of 8. The fictional chart and tutor are synchronized.';
+     syncChartToLesson();if(typing===null)runTyping(false);
+    }
+   }else{
+    stopAutoChart();stopTyping();play.textContent='Resume written explanation';
+    autoStatus.textContent='Guided autoplay paused. Manual instruction and the question are available.';
+   }
+  });
   function currentStep(){return C.STEPS[step]}
   const recent=()=>checkpoints.filter(x=>x.topic===topicId&&x.step===currentStep()&&x.fictionalCase===caseId);
   function renderNarration(){
@@ -160,9 +214,14 @@
     ' · Primary skill dimension: '+dimension(stage);
    heading.textContent=current.title;
    transcript.textContent=C.stageText(current,stage);
+   questionReady=!autoplay;question.hidden=autoplay;submitNext.disabled=autoplay;
+   if(autoplay){
+    autoStatus.textContent='Playing action '+(step+1)+' of 8. Next checkpoint requires your own answer.';
+    syncChartToLesson();
+   }
    runTyping(true);
    cue.textContent=C.prompt(current,stage)+' Record at least 25 characters of reasoning; an unresolved question is a valid response.';
-   previous.disabled=step===0;next.disabled=step===7;
+   previous.disabled=step===0;next.disabled=autoplay||step===7;
    const saved=recent();
    response.value=saved.length?saved[saved.length-1].answer:'';
    mistake.value=saved.length?saved[saved.length-1].mistake:'NONE';
@@ -186,6 +245,8 @@
    more.append(make('p',extraText('transfer')));
   });
   topics.addEventListener('change',()=>{
+   stopAutoChart();autoplay=false;updateAutoUI();
+   autoStatus.textContent='New subject selected. Guided autoplay is paused.';
    topicId=topics.value;step=0;
    // The chart should illustrate the selected research topic without
    // requiring the member to discover a second indicator dropdown.
@@ -195,6 +256,8 @@
    renderNarration();draw();renderReport();
   });
   scenarios.addEventListener('change',()=>{
+   stopAutoChart();autoplay=false;updateAutoUI();
+   autoStatus.textContent='New fictional example selected. Playback is paused.';
    caseId=scenarios.value;bars=C.fictional(caseId);visible=12;draw();
   });
   overlay.addEventListener('change',()=>{seriesMode=overlay.value;draw()});
@@ -209,8 +272,13 @@
   }
   nextCandle.addEventListener('click',reveal);
   restart.addEventListener('click',()=>{visible=12;draw()});
-  previous.addEventListener('click',()=>{if(step>0){step--;renderNarration()}});
-  next.addEventListener('click',()=>{if(step<7){step++;renderNarration()}});
+  previous.addEventListener('click',()=>{
+   if(step>0){stopAutoChart();autoplay=false;updateAutoUI();step--;renderNarration()}
+  });
+  next.addEventListener('click',()=>{
+   if(autoplay){autoStatus.textContent='Submit the current answer before progressing.';return}
+   if(step<7){step++;renderNarration()}
+  });
   async function member(){
    const sb=await root.getSupabaseClient?.();
    if(!sb?.auth?.getSession)throw Error('Sign-in is required to load a private Talia report.');
@@ -282,8 +350,9 @@
    }catch(e){reportStatus.textContent='Deletion not verified: '+e.message}
    finally{saving=false;clearSaved.disabled=false}
   });
-  save.addEventListener('click',async()=>{
+  async function submitResearchAnswer(advance=false){
    if(saving)return;
+   if(advance&&autoplay&&!questionReady){result.textContent='Finish this explanation before submitting.';return}
    const value=response.value.trim();
    if(value.length<25){
     result.textContent='Please record at least 25 characters of evidence, uncertainty or NO TRADE reasoning.';return;
@@ -299,7 +368,7 @@
    if(pendingRequest?.signature!==signature){
     pendingRequest={signature,body:{...event,eventId:root.crypto.randomUUID()}};
    }
-   saving=true;save.disabled=true;
+   saving=true;save.disabled=true;submitNext.disabled=true;
    result.textContent='Saving the original research evidence to your private account…';
    try{
     const {data}=await request('POST',pendingRequest.body);
@@ -311,11 +380,23 @@
     result.textContent='Permanently saved and verified at '+data.saved.at+
      (data.alreadySaved?' (idempotent retry).':'')+' Ungraded educational evidence only.';
     renderReport();
+    if(advance){
+     if(step<7){
+      stopAutoChart();step++;renderNarration();
+      if(autoplay)autoStatus.textContent='Checkpoint saved. Now teaching action '+(step+1)+' of 8.';
+     }else{
+      autoplay=false;stopAutoChart();updateAutoUI();
+      autoStatus.textContent='All eight checkpoints saved. This remains ungraded educational research.';
+     }
+    }
    }catch(e){
     result.textContent='Not confirmed saved: '+e.message+
      ' Retry without changing the answer to reuse the same checkpoint identifier.';
-   }finally{saving=false;save.disabled=false}
-  });
+    if(autoplay)autoStatus.textContent='Submission failed. Playback stays paused; your answer remains available.';
+   }finally{saving=false;save.disabled=false;submitNext.disabled=autoplay&&!questionReady}
+  }
+  save.addEventListener('click',()=>void submitResearchAnswer(false));
+  submitNext.addEventListener('click',()=>void submitResearchAnswer(true));
   retry.addEventListener('click',()=>{
    more.append(make('p',extraText('depth')));
    result.textContent='Try again using clearer evidence, source time, alternative interpretation and invalidation. Additional attempts are free.';
@@ -446,7 +527,7 @@
    if(n?.classList.contains('cl-talia-indicator-caption'))n.textContent=modeText;
    else chartDiv.insertAdjacentElement('afterend',make('p',modeText,'cl-talia-indicator-caption'));
   }
-  function reset(){++authGeneration;stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;persistentReport=null;loaded=false;loadedCount=0;pendingRequest=null;reportUserId='';older.hidden=true;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
+  function reset(){autoplay=false;stopAutoChart();updateAutoUI();autoStatus.textContent='Account changed. Guided autoplay stopped.';++authGeneration;stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;persistentReport=null;loaded=false;loadedCount=0;pendingRequest=null;reportUserId='';older.hidden=true;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
    topics.value=topicId;scenarios.value=caseId;overlay.value=seriesMode;bars=C.fictional('trend');
    response.value='';renderNarration();renderReport();draw();
   }
@@ -459,7 +540,7 @@
    rootEl.scrollIntoView?.({block:'start',behavior:'smooth'});
    return true;
   }
-  function dispose(){disposed=true;++epoch;sessionSubscription?.unsubscribe?.();stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
+  function dispose(){autoplay=false;stopAutoChart();disposed=true;++epoch;sessionSubscription?.unsubscribe?.();stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
   renderNarration();renderReport();draw();
   Promise.resolve().then(()=>void loadReport());
   // A restored signed-in report must never remain visible after an account switch.

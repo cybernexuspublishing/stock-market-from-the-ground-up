@@ -197,6 +197,12 @@ try{
   const {context,page,problems}=await makePage(width,'free-watchlist.html');
   await page.locator('#free-watchlist-content').waitFor({state:'visible',timeout:14000});
   await page.locator('.cl-talia-workspace .cl-talia-chart-card').waitFor({state:'visible',timeout:14000});
+  const autoButton=page.getByRole('button',{name:'Start guided autoplay · optional'});
+  assert.equal(await autoButton.count(),1,'Members choose whether to play instruction automatically');
+  await autoButton.click();
+  assert.equal(await page.locator('.cl-talia-prompt').isVisible(),false,'Autoplay must hide a question while teaching');
+  await page.getByRole('button',{name:'Pause guided autoplay'}).click();
+  assert.equal(await page.locator('.cl-talia-prompt').isVisible(),true,'Pausing restores the accessible question');
   const geometry=await page.evaluate(()=>{
    const lesson=document.querySelector('.cl-talia-workspace .cl-talia-lesson').getBoundingClientRect();
    const chart=document.querySelector('.cl-talia-workspace .cl-talia-chart-card').getBoundingClientRect();
@@ -204,10 +210,10 @@ try{
     chart:{x:chart.x,y:chart.y,right:chart.right},viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth};
   });
   if(width>=1280){
-   assert(geometry.chart.x>=geometry.lesson.right-3,'Desktop instruction and ECharts must be side by side '+width+' '+JSON.stringify(geometry));
+   assert(geometry.lesson.x>=geometry.chart.right-3,'Desktop ECharts must be left of Talia '+width+' '+JSON.stringify(geometry));
    assert(Math.abs(geometry.chart.y-geometry.lesson.y)<12,'Chart and explanation start on same row '+width);
   }else{
-   assert(geometry.chart.y>=geometry.lesson.bottom-4,'Small screen uses reading-order stacking '+width);
+   assert(geometry.lesson.y>=geometry.chart.y-4,'Small screen chart precedes Talia in reading order '+width);
   }
   assert(geometry.scrollWidth<=width+8,'No horizontal overflow in updated research classroom '+width);
   await page.locator('.cl-talia-selectors select').first().selectOption('averages');

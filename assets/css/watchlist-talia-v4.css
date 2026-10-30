@@ -121,3 +121,28 @@
 @container (max-width:1050px){
  .cl-talia-workspace,.cl-talia-review-grid{grid-template-columns:minmax(0,1fr)}
 }
+
+/* V4.2: synchronized chart-first instructional player. */
+.cl-talia-v4 .cl-talia-workspace{grid-template-columns:minmax(0,1.2fr) minmax(0,.8fr);align-items:start}
+.cl-talia-v4 .cl-talia-coach-column{gap:12px}
+.cl-talia-v4 .cl-talia-auto-tools{border:1px solid #44758a;border-radius:10px;padding:10px 12px;background:#092439;margin:12px 0}
+.cl-talia-v4 .cl-talia-auto-tools .btn{min-height:44px;max-width:100%}
+.cl-talia-v4 .cl-talia-auto-tools button[aria-pressed="true"]{background:#176b63;border-color:#7cd6c4;color:#fff}
+.cl-talia-v4 .cl-talia-auto-status{margin:8px 0 0;color:#d1e6f3;font-size:.86rem}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-prompt{margin:0;padding:15px}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-prompt[hidden]{display:none!important}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-prompt textarea{width:100%;box-sizing:border-box;min-height:105px}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-prompt .cl-talia-submit-next{width:100%;margin:10px 0 7px;min-height:44px;white-space:normal}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-prompt .btn.secondary{margin-bottom:6px;white-space:normal}
+.cl-talia-v4 .cl-talia-workspace .cl-talia-chart{height:520px}
+.cl-talia-v4>.cl-talia-report{margin-top:16px}
+.cl-talia-v4>.cl-talia-report .cl-talia-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}
+@media(max-width:1120px){
+ .cl-talia-v4 .cl-talia-workspace{grid-template-columns:minmax(0,1fr)}
+ .cl-talia-v4>.cl-talia-report .cl-talia-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:620px){
+ .cl-talia-v4 .cl-talia-workspace .cl-talia-chart{height:340px}
+ .cl-talia-v4>.cl-talia-report .cl-talia-metrics{grid-template-columns:minmax(0,1fr)}
+}
+@container(max-width:1050px){.cl-talia-v4 .cl-talia-workspace{grid-template-columns:minmax(0,1fr)}}

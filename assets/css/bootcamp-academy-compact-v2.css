@@ -278,3 +278,16 @@ body.gu-bc-learning.academy-classroom-active .academy-classroom-library{
  padding:10px 0;border-top:1px solid #36566e
 }
 body.gu-bc-learning.academy-classroom-active .academy-classroom-library[hidden]{display:none!important}
+
+/* V4.2 beta: Academy teaching occupies the full center reading area. */
+body.gu-bc-learning.academy-classroom-active .gu-learning-ad-layout{
+ max-width:none!important;width:100%!important;grid-template-columns:minmax(0,1fr)!important;
+}
+body.gu-bc-learning.academy-classroom-active .gu-learning-ad-layout>.gu-learning-side-rail{display:none!important}
+body.gu-bc-learning.academy-classroom-active .gu-learning-ad-core>.wrap{
+ width:calc(100% - clamp(20px,3vw,62px))!important;max-width:none!important;margin-inline:auto!important
+}
+body.gu-bc-learning.academy-classroom-active .academy-study-grid{
+ grid-template-columns:clamp(185px,15vw,250px) minmax(0,1fr)!important
+}
+@media(max-width:1050px){body.gu-bc-learning.academy-classroom-active .academy-study-grid{grid-template-columns:minmax(0,1fr)!important}}
