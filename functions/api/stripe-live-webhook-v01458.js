@@ -1,4 +1,3 @@
-import {applyVerifiedBookEvent} from '../_lib/book-stripe-live-v1.js';
 /* v0.14.0.58 | Independent LIVE Stripe webhook candidate. Disabled by default.
  * No preview or shadow access can grant real memberships. Signed, provider-verified
  * events alone may invoke the service-only SQL entitlement ledger, after launch.
@@ -326,6 +325,84 @@ async function storeZeroMonthlyQA(request,e,raw){
  }catch{return resp('Zero QA grant processing unavailable; retry',503)}
 }
 
+// Independent book event subprocessor: included inline to preserve the verified
+// standalone GU58 webhook's data-URL test harness. Only signed GU58 events reach here.
+const BOOK_LIVE_PRICE='price_1UVBsDJL0O4GGVBHdqAaP15z';
+const BOOK_LIVE_CODE='FOUNDATION_BOOK_1';
+const BOOK_LIVE_AMOUNT=1099;
+function bookTag(s){
+ const m=s?.metadata||{},has=Object.keys(m).some(k=>k.startsWith('gu_book_live_'));
+ if(!has)return null;
+ if(!uuid(m.gu_book_live_intent)||!uuid(m.gu_book_live_member)||
+  m.gu_book_live_code!==BOOK_LIVE_CODE||s.client_reference_id!==m.gu_book_live_intent)
+  throw Error('Book intent metadata invalid');
+ return {id:m.gu_book_live_intent,user:m.gu_book_live_member};
+}
+async function bookApply(c,data){
+ const req=await fetch(c.base+'/rest/v1/rpc/gu_book_live_apply_v1',{
+  method:'POST',cache:'no-store',
+  headers:{apikey:c.key,...(c.key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.key}),
+   'content-type':'application/json'},
+  body:JSON.stringify(data)});
+ if(!req.ok)throw Error('Book payment ledger rejected event: '+req.status);
+ const output=await req.json();
+ if(output?.ok!==true)throw Error('Book payment not confirmed in database');
+}
+async function bookVerifiedEvent(c,e){
+ const obj=e.data?.object;
+ if(!obj)return false;
+ if(['checkout.session.completed','checkout.session.async_payment_succeeded',
+  'checkout.session.async_payment_failed','checkout.session.expired'].includes(e.type)){
+  const meta=obj.metadata||{};
+  if(!Object.keys(meta).some(k=>k.startsWith('gu_book_live_')))return false;
+  if(!ident(obj.id,'cs_live'))throw Error('Invalid book LIVE session');
+  const s=await getStripe(c,'checkout/sessions/'+encodeURIComponent(obj.id));
+  if(s.id!==obj.id||s.livemode!==true)throw Error('Book session not LIVE');
+  const m=bookTag(s);
+  if(!m)throw Error('Unbound book metadata');
+  if(['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(e.type)){
+   if(s.payment_status!=='paid')return true;
+   if(s.mode!=='payment'||s.status!=='complete'||s.currency!=='usd'||
+    s.amount_subtotal!==BOOK_LIVE_AMOUNT||!ident(s.payment_intent,'pi'))
+    throw Error('Unverified paid Book Session');
+   const [lines,pi]=await Promise.all([
+    getStripe(c,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2'),
+    getStripe(c,'payment_intents/'+encodeURIComponent(s.payment_intent))
+   ]);
+   if(lines.data?.length!==1||lines.has_more===true||
+    lines.data[0].price?.id!==BOOK_LIVE_PRICE||lines.data[0].quantity!==1||
+    lines.data[0].amount_subtotal!==BOOK_LIVE_AMOUNT||
+    pi.id!==s.payment_intent||pi.livemode!==true||pi.status!=='succeeded'||
+    pi.currency!=='usd'||Number(pi.amount_received)<BOOK_LIVE_AMOUNT||
+    pi.metadata?.gu_book_live_intent!==m.id||pi.metadata?.gu_book_live_member!==m.user||
+    pi.metadata?.gu_book_live_code!==BOOK_LIVE_CODE)
+    throw Error('Unverified book price or PaymentIntent');
+   await bookApply(c,{p_event:e.id,p_id:m.id,p_kind:'paid',p_session:s.id,
+    p_pi:pi.id,p_price:BOOK_LIVE_PRICE,p_amount:BOOK_LIVE_AMOUNT});
+   return true;
+  }
+  if(e.type==='checkout.session.expired'&&s.status!=='expired')return true;
+  await bookApply(c,{p_event:e.id,p_id:m.id,
+   p_kind:e.type==='checkout.session.expired'?'expired':'failed'});
+  return true;
+ }
+ if(!['charge.refunded','charge.dispute.created'].includes(e.type))return false;
+ const cid=e.type==='charge.refunded'?obj.id:obj.charge;
+ if(!ident(cid,'ch'))return false;
+ const charge=await getStripe(c,'charges/'+encodeURIComponent(cid));
+ if(charge.id!==cid||charge.livemode!==true||!ident(charge.payment_intent,'pi'))return false;
+ const pi=await getStripe(c,'payment_intents/'+encodeURIComponent(charge.payment_intent));
+ const intent=pi.metadata?.gu_book_live_intent,member=pi.metadata?.gu_book_live_member;
+ if(!intent&&!member)return false;
+ if(!uuid(intent)||!uuid(member)||pi.livemode!==true||
+    pi.metadata?.gu_book_live_code!==BOOK_LIVE_CODE)throw Error('Book refund metadata invalid');
+ if(e.type==='charge.refunded'&&Number(charge.amount_refunded)<Number(charge.amount))
+  return true; // A partial refund does not automatically revoke full-book access.
+ await bookApply(c,{p_event:e.id,p_id:intent,
+  p_kind:e.type==='charge.refunded'?'refunded':'disputed',p_pi:pi.id});
+ return true;
+}
+
 export async function onRequestPost({request,env}){
  let raw;
  try{raw=await boundedStripeBody(request)}
@@ -343,7 +420,7 @@ export async function onRequestPost({request,env}){
  try{
   const account=await getStripe(c,'account');
   if(account.id!==c.account)throw Error('Unexpected LIVE Stripe merchant account.');
-  const bookApplied=await applyVerifiedBookEvent({...c,service:c.key},event);
+  const bookApplied=await bookVerifiedEvent(c,event);
   if(bookApplied===true)return resp('book-live-verified',200);
     const action=await processEvent(c,event);if(!action)return resp('ignored',200);
   const result=await apply(c,action);if(!result?.ok)throw Error('No verified result');return resp('verified',200);

@@ -20,7 +20,8 @@ assert(!ui.includes("Book purchases follow the separate publishing-rights and ap
 const middleware=source('functions/_middleware.js');
 assert(middleware.includes("'/api/book-stripe-live-checkout-v1'"));
 const webhook=source('functions/api/stripe-live-webhook-v01458.js');
-assert(webhook.includes('applyVerifiedBookEvent({...c,service:c.key},event)'));
+assert(webhook.includes('bookVerifiedEvent(c,event)'));
+assert(!webhook.startsWith('import '),'Legacy GU58 tests require a self-contained webhook module');
 assert.equal(BOOK_CODE,'FOUNDATION_BOOK_1');
 assert.equal(BOOK_AMOUNT,1099);
 assert.equal(BOOK_PRICE,'price_1UVBsDJL0O4GGVBHdqAaP15z');
@@ -33,5 +34,5 @@ const denied=await onRequestPost({request:new Request(url,{method:'POST',headers
 assert.equal(denied.status,403);
 assert.equal(await applyVerifiedBookEvent({}, {type:'customer.created',data:{object:{}}}),null);
 assert.equal(await applyVerifiedBookEvent({}, {type:'checkout.session.completed',
- data:{object:{metadata:{gu58_intent:'11111111-1111-4111-8111-111111111111'}}}),null);
+ data:{object:{metadata:{gu58_intent:'11111111-1111-4111-8111-111111111111'}}}}),null);
 console.log('PASS Stripe LIVE book contract: off by default, one-time 1099 verified SKU, protected entitlement, signed-webhook integration and no automatic payments.');
