@@ -71,7 +71,7 @@ jobs:
           node-version: '22'
       - name: Install pinned no-cost browser test dependencies
         run: |
-          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 klinecharts@10.1.0 lightweight-charts@5.2.1
           npx playwright install --with-deps chromium
       - name: Test workspace cross-tab conflicts and Alpaca Paper retry in Chromium
         run: node tests/test_crownlight_chart_studio_v3_browser.mjs
