@@ -110,8 +110,17 @@
   }
   function options(){
    const labels=bars.map(b=>time(b.ms));
+   const last=bars[bars.length-1];
+   const guides=last?[['HIGH',last.h,'#eecb87'],['OPEN',last.o,'#99c9ef'],
+    ['CLOSE',last.c,'#e3eff6'],['LOW',last.l,'#ebaa84']].map(([name,price,color])=>({
+     name,yAxis:price,lineStyle:{color,type:'dashed',width:1.1},
+     label:{show:true,formatter:name+' $'+price.toFixed(2),
+      position:'end',distance:7,color,fontSize:12,fontWeight:'bold'}
+    })): [];
    const series=[{name:'Fictional OHLC',type:'candlestick',data:bars.map(b=>[b.o,b.c,b.l,b.h]),
-    xAxisIndex:0,yAxisIndex:0,barWidth:17,barMaxWidth:23,itemStyle:{color:palette.up,color0:palette.down,borderColor:palette.up,borderColor0:palette.down}}];
+    xAxisIndex:0,yAxisIndex:0,barWidth:17,barMaxWidth:23,
+    itemStyle:{color:palette.up,color0:palette.down,borderColor:palette.up,borderColor0:palette.down},
+    markLine:{silent:true,symbol:['none','none'],animation:false,precision:2,data:guides}}];
    if(nine.checked&&bars.length>=9)series.push({name:'EMA 9',type:'line',data:ema(bars,9),xAxisIndex:0,yAxisIndex:0,showSymbol:false,connectNulls:false,
     lineStyle:{color:palette.ema9,width:2},itemStyle:{color:palette.ema9}});
    if(twenty.checked&&bars.length>=20)series.push({name:'EMA 20',type:'line',data:ema(bars,20),xAxisIndex:0,yAxisIndex:0,showSymbol:false,connectNulls:false,
@@ -124,8 +133,8 @@
     tooltip:{trigger:'axis',axisPointer:{type:'cross'},confine:true},
     legend:{top:5,textStyle:{color:palette.muted}},
     grid:volume.checked?
-     [{left:65,right:25,top:48,height:'56%'},{left:65,right:25,top:'77%',height:'13%'}]:
-     [{left:65,right:25,top:48,bottom:60},{left:65,right:25,top:'77%',height:'13%'}],
+     [{left:65,right:150,top:48,height:'56%'},{left:65,right:150,top:'77%',height:'13%'}]:
+     [{left:65,right:150,top:48,bottom:60},{left:65,right:150,top:'77%',height:'13%'}],
     xAxis:[
      {type:'category',gridIndex:0,data:labels,boundaryGap:true,axisLabel:{color:palette.muted,hideOverlap:true}},
      {type:'category',gridIndex:1,data:labels,boundaryGap:true,show:volume.checked,axisLabel:{color:palette.muted}}],
@@ -140,7 +149,10 @@
   }
   function paint(){
    if(!plot||dataset!==CODE)return;
-   if(bars.length)plot.setOption(options(),{notMerge:true,lazyUpdate:false});
+   if(bars.length){
+    chart.setAttribute('aria-label','Server-revealed fictional candlesticks with horizontal High Open Close Low price guides for latest completed observation.');
+    plot.setOption(options(),{notMerge:true,lazyUpdate:false});
+   }
    else plot.clear();
   }
   async function openChart(){
