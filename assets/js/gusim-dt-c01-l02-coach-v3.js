@@ -199,7 +199,7 @@
   }
   function reset(){
    stop();cancelTyping();isCase=false;stepIndex=0;observed=[];answered.clear();
-   measurements?.setStep(0);
+   measurements?.reset();
    reflectionText.value='';checkpointAt=0;checkpoint=false;
    state={sessionId:'',locked:false,busy:false};lastSession='';
    transportState.textContent='Select the Lesson 2 scenario to open guided playback.';
