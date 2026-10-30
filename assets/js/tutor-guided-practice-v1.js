@@ -345,6 +345,48 @@
    return {value:lo+(maxIdx+0.5)*width,series:[],
     note:'Eight-bin approximate price-of-control proxy: FULL candle share volume assigned to HLC3 bin, not exact per-price traded volume or actual market profile.'};
   }
+  if(k==='psar'){
+   if(bars.length<3)return {value:null,series:[],note:'PSAR needs at least 3 completed bars.'};
+   const series=Array(bars.length).fill(null);let up=bars[1].close>=bars[0].close,ep=up?Math.max(bars[0].high,bars[1].high):Math.min(bars[0].low,bars[1].low);
+   let sar=up?Math.min(bars[0].low,bars[1].low):Math.max(bars[0].high,bars[1].high),af=.02;series[1]=sar;
+   for(let i=2;i<bars.length;i++){
+    let next=sar+af*(ep-sar);
+    next=up?Math.min(next,bars[i-1].low,bars[i-2].low):Math.max(next,bars[i-1].high,bars[i-2].high);
+    if(up?bars[i].low<next:bars[i].high>next){up=!up;sar=ep;ep=up?bars[i].high:bars[i].low;af=.02}
+    else{sar=next;const extend=up?bars[i].high>ep:bars[i].low<ep;if(extend){ep=up?bars[i].high:bars[i].low;af=Math.min(.2,af+.02)}}
+    series[i]=sar;
+   }
+   return {value:series[n],series,note:'Fictional PSAR variant uses first-two-close initial direction, AF .02 step capped .20, two-bar clamp and wick crossing; not a broker stop price.'};
+  }
+  if(k==='supertrend'){
+   const atr=math.atr(bars,10),series=Array(bars.length).fill(null);
+   let up=true,top=null,bottom=null;
+   for(let i=0;i<bars.length;i++){
+    if(!finite(atr[i]))continue;
+    const mid=(bars[i].high+bars[i].low)/2,bt=mid+3*atr[i],bb=mid-3*atr[i];
+    if(top===null){top=bt;bottom=bb;series[i]=bb;continue}
+    const previousClose=bars[i-1].close;
+    top=bt<top||previousClose>top?bt:top;
+    bottom=bb>bottom||previousClose<bottom?bb:bottom;
+    if(up&&bars[i].close<bottom)up=false;else if(!up&&bars[i].close>top)up=true;
+    series[i]=up?bottom:top;
+   }
+   return {value:series[n],series,note:'Fictional Supertrend specified as (H+L)/2 ± 3 Wilder ATR(10), carried bands, closing-price reversal; vendor variants may differ.'};
+  }
+  if(k==='pivot'){
+   const high=21.40,low=17.90,close=19.50,value=(high+low+close)/3;
+   return {value,series:[],note:'CLASSROOM PRIOR-SESSION fixture: H=$21.40, L=$17.90, C=$19.50 gives classic pivot (H+L+C)/3. NOT claimed as the preceding session of the fictional one-minute candles.'};
+  }
+  if(k==='matchedrvol'){
+   const observed=bars.reduce((total,b)=>total+b.volume,0),historical=[];
+   for(let day=0;day<5;day++){let sum=0;for(let i=0;i<bars.length;i++)sum+=14500+((i*173+day*701)%5500)+(day%2)*500;historical.push(sum)}
+   const base=historical.reduce((a,b)=>a+b,0)/historical.length;
+   return {value:base>0?observed/base:null,series:[],note:'FIVE INVENTED comparison-session cumulative volumes at the same elapsed minute. Not a real historical volume/float vendor figure.'};
+  }
+  if(k==='pricerelative'){
+   const denom=100+0.03*n+Math.sin(n/5)*0.05;
+   return {value:denom>0?bars[n].close/denom:null,series:[],note:'Fictional security close divided by time-aligned separately constructed benchmark (base 100, drift 0.03/bar, sine 0.05). Not a real ETF/sector price or corporate-action-adjusted series.'};
+  }
   if(k==='study-concept')return {value:null,series:[],note:'Interpretation-only study: the formula is described but NOT numerically computed in this exercise. Reference: '+state.unit.formulaOrRule};
   if(k==='strategy-case')return {value:null,series:[],note:'Fictional chart background only; no source-named setup, signal, entry or market fill is claimed to have occurred.'};
   return {value:null,series:[],note:'Study calculation unavailable.'};
@@ -438,7 +480,7 @@
   const slider=add(controls,'input');slider.type='range';slider.id='tgp-bars';
   slider.min=state.unit.metric==='kst'?'45':['macd','macdhist'].includes(state.unit.metric)?'36':['ppo','pvo'].includes(state.unit.metric)?'26':'16';slider.max='48';slider.step='1';slider.value=String(state.showBars);
   slider.addEventListener('input',e=>{state.showBars=Number(e.target.value);render()});
-  if(!['macd','macdhist','ppo','pvo','vwap','rvol','anchoredvwap','dollarvolume','force','adl','ribbon','kst','chaikinosc','vwapbands','volprofile','study-concept','strategy-case'].includes(state.unit.metric)){
+  if(!['macd','macdhist','ppo','pvo','vwap','rvol','anchoredvwap','dollarvolume','force','adl','ribbon','kst','chaikinosc','vwapbands','volprofile','psar','supertrend','pivot','matchedrvol','pricerelative','study-concept','strategy-case'].includes(state.unit.metric)){
    const periodLabel=add(controls,'label','Indicator length: '+state.period+' bars','tgp-field-label');periodLabel.htmlFor='tgp-period';
    const period=add(controls,'input');period.type='range';period.id='tgp-period';period.min='5';period.max='20';
    period.step='1';period.value=String(state.period);
@@ -692,7 +734,7 @@
    if(!r.ok)throw Error('Teaching asset missing');
    const data=await r.json(),units=data?.modules;
    if(data?.kind!=='talia_guided_practice_original_ungraded_v1'||data?.indicatorCount!==61||
-     data?.watchlistCount!==22||data?.strategyCount!==50||data?.eventCount!==1||data?.numericIndicatorCount!==48||data?.interpretationOnlyIndicatorCount!==13||!Array.isArray(units)||units.length!==134||
+     data?.watchlistCount!==22||data?.strategyCount!==50||data?.eventCount!==1||data?.numericIndicatorCount!==53||data?.interpretationOnlyIndicatorCount!==8||!Array.isArray(units)||units.length!==134||
      !root.CrownlightIndicatorMath)throw Error('Teaching catalog or indicator math unavailable');
    const ids=new Set();
    for(const m of units){

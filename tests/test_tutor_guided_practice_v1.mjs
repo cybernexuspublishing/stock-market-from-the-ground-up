@@ -209,10 +209,10 @@ for(const [modulesList,sourceList] of [[allIndicator,sourceIndicators],[allWatch
 }
 const numeric=allIndicator.filter(m=>m.metric!=='study-concept');
 const qualitative=allIndicator.filter(m=>m.metric==='study-concept');
-assert.equal(numeric.length,48,'48 source-described synthetic calculations are numerical, with exact variants and no proprietary breadth-data output');
-assert.equal(qualitative.length,13,'13 remaining source-only or multi-series topics must not invent calculations');
-assert.equal(modules.numericIndicatorCount,48);
-assert.equal(modules.interpretationOnlyIndicatorCount,13);
+assert.equal(numeric.length,53,'53 declared synthetic numeric/fixture calculations; remaining 8 are separate-data or proprietary concepts');
+assert.equal(qualitative.length,8,'8 remaining proprietary/multi-universe/option-driven subjects cannot invent values');
+assert.equal(modules.numericIndicatorCount,53);
+assert.equal(modules.interpretationOnlyIndicatorCount,8);
 for(const g of qualitative){
  assert.equal(g.practiceLevel,'interpretation_without_numeric_calculation');
  assert(g.formulaOrRule.length>10&&g.uncertainty.length>30,'Formula reference and limits must be taught');
@@ -331,4 +331,29 @@ assert.equal(api.metric(bars.slice(0,12),'kama',12).value,null,'KAMA requires de
 assert.equal(kama.series.length,48);
 const hist=api.metric(bars.slice(0,48),'histvol',12);
 assert(hist.value>=0&&hist.note.includes('252×390'),'One-minute yearly-scaling assumption required');
-console.log('PASS Talia Guided Practice 134: 61 indicators (48 synthetic numeric,13 source interpretation),22 watchlists,50 strategy research,1 SEC event; warmup, source/algorithm limits and ungraded isolation.');
+
+const batch06={
+ STUDY_PARABOLIC_SAR:'psar',STUDY_SUPERTREND:'supertrend',STUDY_PIVOT_POINTS:'pivot',
+ STUDY_MATCHED_TIME_RVOL:'matchedrvol',STUDY_PRICE_RELATIVE:'pricerelative'
+};
+for(const [code,metricName] of Object.entries(batch06)){
+ const topic=allIndicator.find(x=>x.guideCode===code);
+ assert(topic&&topic.metric===metricName&&topic.practiceLevel==='calculated_synthetic_with_explicit_fixture');
+ const result=api.metric(bars.slice(0,40),metricName,12);
+ assert(Number.isFinite(result.value),'New declared fixture calculation must evaluate: '+code);
+ assert(result.note.length>80,'Fixture caveat must be displayed: '+code);
+}
+const psar=api.metric(bars.slice(0,40),'psar',12);
+assert.equal(psar.series.length,40,'PSAR price-scale series has all completed bars');
+assert.equal(api.metric(bars.slice(0,2),'psar',12).value,null,'No PSAR without initialization');
+const superTrend=api.metric(bars.slice(0,40),'supertrend',12);
+assert.equal(superTrend.series.length,40);
+assert.equal(api.metric(bars.slice(0,9),'supertrend',12).value,null,'Fixed 10-bar ATR warmup');
+const priorPivot=api.metric(bars.slice(0,40),'pivot',12);
+assert(Math.abs(priorPivot.value-19.6)<1e-10,'Explicit fictional prior session HLC classic pivot');
+assert(priorPivot.note.includes('NOT claimed as the preceding session'),'Do not pretend source is same chart');
+const matched=api.metric(bars.slice(0,40),'matchedrvol',12);
+assert(matched.value>0&&matched.note.includes('FIVE INVENTED'),'No invented real historical volume');
+const relative=api.metric(bars.slice(0,40),'pricerelative',12);
+assert(relative.value>0&&relative.note.includes('Fictional security'),'Benchmark explicitly invented');
+console.log('PASS Talia Guided Practice 134: 61 indicators (53 calculated synthetic,8 data-dependent/proprietary),22 watchlists,50 strategy research,1 SEC event; no fabricated source or fill.');

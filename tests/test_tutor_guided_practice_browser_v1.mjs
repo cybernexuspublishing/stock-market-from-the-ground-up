@@ -133,6 +133,21 @@ try{
   await page.locator('#tgp-select').selectOption('IND-55'); // Proprietary SCTR unavailable
   await next();await next();
   assert.match(await page.locator('#tutor-guided-practice').innerText(),/Not calculated/);
+
+  await page.locator('#tgp-select').selectOption('IND-36'); // Parabolic SAR
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/PSAR variant/);
+  assert.equal(await page.locator('.tgp-candle-chart').count(),1);
+  await page.locator('#tgp-select').selectOption('IND-43'); // Prior-session pivot fixture
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/CLASSROOM PRIOR-SESSION fixture/);
+  await page.locator('#tgp-select').selectOption('IND-47'); // Matched-clock invented comparisons
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/FIVE INVENTED/);
+  await page.locator('#tgp-select').selectOption('IND-54'); // Price relative synthetic benchmark
+  await next();await next();
+  assert.match(await page.locator('#tutor-guided-practice').innerText(),/synthetic benchmark/);
+  assert.equal(tutorPosts,0,'Fixture indicators must never invoke optional paid model');
   assert.equal(tutorPosts,0,'No numeric source or strategy lesson can auto-call a paid tutor model');
   assert.equal(tutorPosts,0,'Event and named strategy exercises never trigger paid Tutor provider calls');
   assert.equal(tutorPosts,0,'Batch 03 cannot auto-call optional paid inference');
