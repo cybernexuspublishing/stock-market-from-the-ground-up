@@ -64,8 +64,8 @@ if(remainingLocks){
  await page.waitForFunction(()=>/Available balance: 53 Lumens/.test(
   document.querySelector('#cl-chart-tier-purchase-dialog')?.textContent||''));
  assert.equal(await modal.isVisible(),true);
- assert.match(await modal.innerText(),/Cost: (8|15) Sparks/);
- assert.match(await modal.innerText(),/Remaining after purchase: (45|38) Sparks/);
+ assert.match(await modal.innerText(),/Cost: (8|15) Lumens/);
+ assert.match(await modal.innerText(),/Remaining after purchase: (45|38) Lumens/);
  assert.equal(await modal.getByRole('button',{name:/Confirm redemption/}).count(),1);
  await page.keyboard.press('Escape');
  assert.equal(await modal.isVisible(),false);
@@ -247,7 +247,7 @@ if(tier==='PROFESSIONAL'){
   window.CrownlightChartTiers.getStatus().charts===0);
  assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Revoked Studio cannot leave premium canvases');
  // Regrant in the deterministic fixture, then advance the clock past a
- // short-lived Sparks pass and confirm the 1-second countdown rechecks server.
+ // short-lived Lumens pass and confirm the 1-second countdown rechecks server.
  grantedTier='PROFESSIONAL';
  await page.evaluate(()=>window.__qaTokenRefresh());
  await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().tier==='PROFESSIONAL');
@@ -257,8 +257,8 @@ if(tier==='PROFESSIONAL'){
  await page.evaluate(()=>window.__qaExpireClock());
  await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().tier==='STANDARD'&&
   window.CrownlightChartTiers.getStatus().charts===0,null,{timeout:6000});
- assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Expired Sparks pass must remove Professional charts');
- console.log('PASS account-switch cleanup, entitlement revocation and expiring Sparks downgrade (mocked backend, real browser).');
+ assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Expired Lumens pass must remove Professional charts');
+ console.log('PASS account-switch cleanup, entitlement revocation and expiring Lumens downgrade (mocked backend, real browser).');
  await page.evaluate(()=>window.__qaSignOut());
  await page.waitForFunction(()=>window.CrownlightChartTiers.getStatus().verified===false);
  assert.equal(await page.locator('.cl-tier-kline-canvas').count(),0,'Sign out must scrub the private Professional workspace');
