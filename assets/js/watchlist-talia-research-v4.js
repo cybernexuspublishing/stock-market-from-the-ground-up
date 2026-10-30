@@ -171,7 +171,9 @@
   const vals=[entry,stop,budget,slippage,spread].map(Number);
   if(!vals.every(Number.isFinite)||entry<=0||stop<0||budget<=0||slippage<0||spread<0||entry===stop)return null;
   const riskPerShare=Math.abs(entry-stop)+slippage+spread;
-  return {riskPerShare,shares:Math.floor(budget/riskPerShare),modeledLoss:Math.floor(budget/riskPerShare)*riskPerShare};
+  // Tolerance avoids one-share errors due to decimal floating-point representation.
+  const shares=Math.floor((budget+1e-10)/riskPerShare);
+  return {riskPerShare,shares,modeledLoss:shares*riskPerShare};
  }
  // First-party, fully fictional deterministic series. NOT an external price or replay API.
  function fictional(kind='trend'){
