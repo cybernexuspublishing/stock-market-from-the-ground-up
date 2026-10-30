@@ -5,7 +5,7 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 const ORIGIN='https://stock-market-from-the-ground-up-d1r.pages.dev';
 const EXPECTED_USER='f42f9301-18e6-43a3-8531-32d371fd22c1';
-const EXPECTED_TIER='ADVANCED';
+const EXPECTED_TIER='PROFESSIONAL';
 const ranks={STANDARD:0,ADVANCED:1,PROFESSIONAL:2};
 const email=process.env.LAB_QA_EMAIL||'',pass=process.env.LAB_QA_PASSWORD||'';
 if(EXPECTED_TIER==='PREPARED'){
