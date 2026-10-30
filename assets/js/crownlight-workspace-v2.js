@@ -211,7 +211,7 @@ async function persist(){
 async function restore(){
  const epoch=++permissionEpoch;
  permissionReady=Tier()?.getStatus().verified===true;
- if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE',drawingContext:null};syncEnabled=true;linked=false;storeAvailable=false;workspaceRevision=null;
+ if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE',drawingContext:null,drawingSets:[]};syncEnabled=true;linked=false;storeAvailable=false;workspaceRevision=null;
   const box=ui?.querySelector('[data-cl-studies]');if(box)box.value='';
   const toggle=ui?.querySelector('[data-cl-sync]');if(toggle)toggle.checked=true;
   applyLayout();
@@ -262,7 +262,7 @@ function controls(){
 function scrubMemberWorkspace(){
  // Any in-flight GET for the previous member must not restore stale settings.
  permissionEpoch++;permissionReady=false;loadingWorkspace=false;storeAvailable=false;workspaceRevision=null;
- workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE',drawingContext:null};
+ workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE',drawingContext:null,drawingSets:[]};
  syncEnabled=true;linked=false;
  if(ui){
   const studies=ui.querySelector('[data-cl-studies]');if(studies)studies.value='';
