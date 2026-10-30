@@ -32,7 +32,11 @@ globalThis.fetch=async(url,options={})=>{
   description:'Approved plan',active:true,public_visible:true,checkout_enabled:true,
   price_cents:6999,billing_interval:'month'}]);
  if(u.endsWith('/rpc/v014_owner_plan_visibility')){writes++;pause=JSON.parse(options.body).p_pause_checkout;return respond({ok:true,checkoutEnabled:false})}
- if(u.includes('/user_market_data_connections?'))return respond([]);
+ if(u.includes('/user_market_data_connections?')||u.includes('/user_secure_credentials?')){
+  assert.match(u,/user_id=eq\.123e4567-e89b-42d3-a456-426614174000/,
+   'Private credential reads must be scoped to the authenticated owner');
+  return respond([]);
+ }
  if(u.includes('/site_settings?'))return respond([{value:true}]);
  if(u.includes('/rest/v1/commons_topics?'))return respond([{id:14}]);
  if(u.includes('/rpc/v014_community_report')){writes++;return respond({ok:true})}
