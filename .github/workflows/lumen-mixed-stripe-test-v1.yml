@@ -9,6 +9,8 @@ on:
       - 'functions/api/lumen-mixed-test-checkout.js'
       - 'functions/api/gu39-stripe-webhook.js'
       - 'supabase/migrations/20261029_lumen_mixed_stripe_test_shadow_end_to_end_v1.sql'
+      - 'supabase/migrations/20261029_lumen_mixed_test_event_replay_guard_v1.sql'
+      - 'supabase/migrations/20261029_lumen_mixed_test_shadow_indexes_v1.sql'
       - 'tests/test_lumen_mixed_stripe_test_end_to_end_v1.mjs'
       - 'assets/js/owner-lumen-mixed-test-v1.js'
       - 'admin-lumen-mixed-test.html'
