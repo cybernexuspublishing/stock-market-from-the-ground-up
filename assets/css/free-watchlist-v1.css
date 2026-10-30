@@ -33,3 +33,22 @@
 .free-watchlist-fictional-chart{margin-top:16px}
 #free-fictional-chart{width:100%;height:480px;min-height:480px}
 @media(max-width:700px){#free-fictional-chart{height:390px;min-height:390px}}
+
+
+/* V4.1 full-width research classroom: use available desktop width without
+ * altering other site pages or changing the 20-record Free entitlement. */
+.wrap.free-watchlist{max-width:1480px}
+.free-watchlist h1{font-size:clamp(2.1rem,3vw,3.1rem);line-height:1.12;letter-spacing:-.025em}
+.free-watchlist .free-watchlist-intro{max-width:90ch}
+.free-watchlist .free-watchlist-method{margin:12px 0 16px;padding:13px 18px}
+.free-watchlist .free-watchlist-method summary{cursor:pointer;font-weight:700;color:#e9f4fa;font-size:1.05rem}
+.free-watchlist .free-watchlist-method[open] summary{margin-bottom:12px}
+.free-watchlist .free-watchlist-method p,.free-watchlist .free-watchlist-method ol{max-width:98ch}
+.free-watchlist-layout{grid-template-columns:minmax(0,.94fr) minmax(0,1.06fr)}
+.free-watchlist .free-watchlist-review,.free-watchlist .free-watchlist-fictional-chart{grid-column:1/-1;min-width:0}
+.free-watchlist .free-watchlist-fictional-chart{margin-top:0}
+.free-watchlist .free-watchlist-fictional-chart summary{cursor:pointer;color:#dfeefa;font-weight:700;font-size:1.05rem}
+.free-watchlist .free-watchlist-fictional-chart[open] summary{margin-bottom:12px}
+.free-watchlist .free-watchlist-results{align-self:start}
+@media(max-width:1000px){.free-watchlist-layout{grid-template-columns:minmax(0,1fr)}}
+@media(max-width:620px){.wrap.free-watchlist{padding-inline:14px}.free-watchlist h1{font-size:2rem}}

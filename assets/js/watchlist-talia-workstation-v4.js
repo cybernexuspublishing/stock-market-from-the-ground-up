@@ -51,6 +51,11 @@
   rootEl.append(selectors);
   const activeSymbol=make('p','Current member-entered symbol: none selected. Fictional teaching bars are independent of any saved ticker.','cl-talia-disclosure');
   rootEl.append(activeSymbol);
+  // Keep Talia's instruction and the current evidence visible together.
+  // Their DOM reading order remains lesson first, chart second on narrow screens.
+  const workspace=make('div',undefined,'cl-talia-workspace');
+  const coachColumn=make('div',undefined,'cl-talia-coach-column');
+  workspace.append(coachColumn);rootEl.append(workspace);
   const lesson=make('div',undefined,'cl-talia-lesson'),indicator=make('p',undefined,'cl-talia-step-label'),
     heading=make('h3'),narration=make('p',undefined,'cl-talia-narration'),
     transcript=make('p',undefined,'cl-talia-transcript');
@@ -67,7 +72,7 @@
   coachActions.append(play,full,deeper,example);lesson.append(coachActions);
   const more=make('div',undefined,'cl-talia-more');more.setAttribute('role','status');
   lesson.append(more);
-  rootEl.append(lesson);
+  coachColumn.append(lesson);
   const chartSection=make('section',undefined,'cl-talia-chart-card');
   chartSection.append(make('h3','Illustrative evidence workspace'));
   const context=make('p','Originally authored fictional 5-minute candles. NOT a market feed, current security, authorized historical case or private server replay. Later candles remain hidden in the practice example until revealed.','cl-talia-disclosure');
@@ -87,7 +92,7 @@
   const priceTable=make('table',undefined,'cl-talia-price-table');
   priceTable.setAttribute('aria-label','Accessible OHLCV for the latest revealed fictional candle');
   chartSection.append(chartControls,chartDiv,readout,priceTable);
-  rootEl.append(chartSection);
+  workspace.append(chartSection);
   const question=make('section',undefined,'cl-talia-prompt');
   question.append(make('h3','Talia’s decision checkpoint'));
   const cue=make('p');
@@ -105,7 +110,8 @@
   const result=make('p',undefined,'cl-talia-result');result.setAttribute('role','status');
   result.setAttribute('aria-live','polite');
   question.append(cue,response,mistakeLabel,save,retry,result);
-  rootEl.append(question);
+  const reviewGrid=make('div',undefined,'cl-talia-review-grid');
+  reviewGrid.append(question);rootEl.append(reviewGrid);
   const report=make('section',undefined,'cl-talia-report');
   report.append(make('h3','Your Talia Watchlist Research Report'));
   const reportText=make('p','Checking your private, permanently saved research report. This does not represent official assessment mastery.');
@@ -118,12 +124,12 @@
   const clearSaved=make('button','Delete all saved Talia research','btn secondary');
   report.append(reportText,metrics,make('h4','Research checkpoints and recurring errors'),history,copy,
    loadSaved,older,clearSaved,reportStatus);
-  rootEl.append(report);
+  reviewGrid.append(report);
   const nav=make('div',undefined,'cl-talia-nav');
   const previous=make('button','Previous research action','btn secondary');
   const next=make('button','Next research action','btn');
   const lab=make('a','Open the canonical nine-stage Learning Labs','btn secondary');
-  lab.href='labs.html';nav.append(previous,next,lab);rootEl.append(nav);
+  lab.href='labs.html';nav.append(previous,next,lab);coachColumn.append(nav);
   const footer=make('p','All guidance and ordinary retries are included for every member who can access this learning screen. The original Free watchlist still has 20 stored symbols. Advanced persistence, alerts and trade plans require separate entitlement. No Lumens are spent.','cl-talia-disclosure');
   rootEl.append(footer);
   let bars=C.fictional(caseId);
@@ -235,7 +241,7 @@
     const {data,uid}=await request('GET',undefined,'?limit=100&offset=0');
     if(disposed)return;
     checkpoints.splice(0,checkpoints.length,...data.history.map(normalize).reverse());
-    persistedReport=data.report;reportUserId=uid;loaded=true;loadedCount=data.history.length;
+    persistentReport=data.report;reportUserId=uid;loaded=true;loadedCount=data.history.length;
     older.hidden=!data.hasMore;
     reportStatus.textContent='Private report restored from the server. All counts include earlier saved checkpoints.';
     renderNarration();renderReport();
@@ -253,7 +259,7 @@
     checkpoints.unshift(...incoming);
     loadedCount+=data.history.length;
     older.hidden=!data.hasMore;
-    persistedReport=data.report;renderReport();
+    persistentReport=data.report;renderReport();
     reportStatus.textContent='Older member-owned checkpoints loaded from the server.';
    }catch(e){reportStatus.textContent=e.message}
    finally{older.disabled=false}
@@ -264,7 +270,7 @@
    try{
     const {data}=await request('DELETE',{confirm:'DELETE_ALL_TALIA_RESEARCH'});
     checkpoints.length=0;revisions.length=0;reveals.length=0;loadedCount=0;
-    persistedReport=data.report;pendingRequest=null;
+    persistentReport=data.report;pendingRequest=null;
     older.hidden=true;renderNarration();renderReport();
     reportStatus.textContent='Server confirmed deletion of '+data.deletedCheckpoints+' research checkpoints and the member report.';
    }catch(e){reportStatus.textContent='Deletion not verified: '+e.message}
@@ -295,7 +301,7 @@
      const prior=recent()[0];checkpoints.push(normalize(data.saved));loadedCount++;
      if(prior)revisions.push({topic:topicId,step:event.step,at:data.saved.at});
     }
-    persistedReport=data.report;pendingRequest=null;
+    persistentReport=data.report;pendingRequest=null;
     result.textContent='Permanently saved and verified at '+data.saved.at+
      (data.alreadySaved?' (idempotent retry).':'')+' Ungraded educational evidence only.';
     renderReport();
@@ -343,8 +349,8 @@
     'Generated '+new Date().toISOString(),'Source: member-entered fictional educational exercises, not market data',
     'No official assessment grade, trade outcome or entitlement is implied.',
     'Watchlist records on this page: '+selectedRecordCount,
-    'Server summary includes '+(persistedReport?.totalAttempts||0)+' total saved checkpoints; '+checkpoints.length+' details loaded.',
-    ...C.DIMS.map(d=>d+': '+(persistedReport?.dimensionCounts?.[d]||0)+' server-saved ungraded checkpoint(s)'),
+    'Server summary includes '+(persistentReport?.totalAttempts||0)+' total saved checkpoints; '+checkpoints.length+' details loaded.',
+    ...C.DIMS.map(d=>d+': '+(persistentReport?.dimensionCounts?.[d]||0)+' server-saved ungraded checkpoint(s)'),
     ...checkpoints.map(e=>[e.at,e.topic,e.step,e.dimension,e.fictionalCase,
      'symbol '+(e.symbol||'NONE'),'cutoff '+e.cutoff,'misconception '+e.mistake,'reasoning '+e.answer].join(' | '))
    ].join('\n');
@@ -374,7 +380,7 @@
    const indicators=[],palette={up:'#31c6a2',down:'#e77b91',blue:'#8ec6ed',gold:'#f1c778'};
    const guides=[['H',latest.high,'#f1ca87'],['O',latest.open,'#83c9f4'],
     ['C',latest.close,'#daeefc'],['L',latest.low,'#eaa883']].map(([k,p,c])=>({
-    yAxis:p,label:{show:true,formatter:k+' $'+p.toFixed(2),position:'end',color:c},
+    yAxis:p,label:{show:k==='H'||k==='L',formatter:k+' $'+p.toFixed(2),position:'end',color:c},
     lineStyle:{color:c,type:'dashed',width:1}}));
    const price={name:'Fictional OHLC',type:'candlestick',xAxisIndex:0,yAxisIndex:0,
     data:set.map(x=>[x.open,x.close,x.low,x.high]),barMaxWidth:16,
@@ -434,7 +440,7 @@
    if(n?.classList.contains('cl-talia-indicator-caption'))n.textContent=modeText;
    else chartDiv.insertAdjacentElement('afterend',make('p',modeText,'cl-talia-indicator-caption'));
   }
-  function reset(){++authGeneration;stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;persistedReport=null;loaded=false;loadedCount=0;pendingRequest=null;reportUserId='';older.hidden=true;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
+  function reset(){++authGeneration;stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;persistentReport=null;loaded=false;loadedCount=0;pendingRequest=null;reportUserId='';older.hidden=true;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
    topics.value=topicId;scenarios.value=caseId;overlay.value=seriesMode;bars=C.fictional('trend');
    response.value='';renderNarration();renderReport();draw();
   }

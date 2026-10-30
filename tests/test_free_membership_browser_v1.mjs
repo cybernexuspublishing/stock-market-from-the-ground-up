@@ -196,6 +196,20 @@ try{
   data.watchlist=new Map();
   const {context,page,problems}=await makePage(width,'free-watchlist.html');
   await page.locator('#free-watchlist-content').waitFor({state:'visible',timeout:14000});
+  await page.locator('.cl-talia-workspace .cl-talia-chart-card').waitFor({state:'visible',timeout:14000});
+  const geometry=await page.evaluate(()=>{
+   const lesson=document.querySelector('.cl-talia-workspace .cl-talia-lesson').getBoundingClientRect();
+   const chart=document.querySelector('.cl-talia-workspace .cl-talia-chart-card').getBoundingClientRect();
+   return {lesson:{x:lesson.x,y:lesson.y,right:lesson.right,bottom:lesson.bottom},
+    chart:{x:chart.x,y:chart.y,right:chart.right},viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth};
+  });
+  if(width>=1280){
+   assert(geometry.chart.x>=geometry.lesson.right-3,'Desktop instruction and ECharts must be side by side '+width+' '+JSON.stringify(geometry));
+   assert(Math.abs(geometry.chart.y-geometry.lesson.y)<12,'Chart and explanation start on same row '+width);
+  }else{
+   assert(geometry.chart.y>=geometry.lesson.bottom-4,'Small screen uses reading-order stacking '+width);
+  }
+  assert(geometry.scrollWidth<=width+8,'No horizontal overflow in updated research classroom '+width);
   await page.locator('#free-watchlist-symbol').fill('GUSIM');
   await page.locator('#free-watchlist-status').selectOption('NO_TRADE');
   await page.locator('#free-watchlist-source-kind').selectOption('FICTIONAL');

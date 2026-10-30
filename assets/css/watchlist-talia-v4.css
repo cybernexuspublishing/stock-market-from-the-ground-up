@@ -71,3 +71,46 @@
  .cl-talia-v4 .cl-talia-number-fields{grid-template-columns:minmax(0,1fr)}
  .cl-talia-v4 .cl-talia-selectors label,.cl-talia-v4 .cl-talia-chart-controls label{min-width:0}
 }
+
+
+/* V4.1: one instructional workspace; instructor and ECharts stay side by side.
+ * Correct DOM reading order is retained when the panels stack.
+ * These selectors are scoped to the common Free / Advanced Talia instructor. */
+.cl-talia-v4{width:100%;margin:14px 0 18px;padding:clamp(14px,1.4vw,22px)}
+.cl-talia-v4 .cl-talia-head{margin-bottom:8px}
+.cl-talia-v4 .cl-talia-selectors{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:14px;margin:12px 0}
+.cl-talia-v4 .cl-talia-selectors label{min-width:0;display:grid;gap:6px}
+.cl-talia-v4 .cl-talia-selectors select{width:100%;max-width:100%}
+.cl-talia-workspace{display:grid;grid-template-columns:minmax(0,.86fr) minmax(0,1.14fr);
+ align-items:start;gap:16px;margin-top:14px}
+.cl-talia-coach-column{display:flex;flex-direction:column;min-width:0;gap:12px}
+.cl-talia-v4 .cl-talia-workspace .cl-talia-lesson,
+.cl-talia-v4 .cl-talia-workspace .cl-talia-chart-card{margin:0;min-width:0;padding:clamp(12px,1.3vw,18px)}
+.cl-talia-v4 .cl-talia-narration{min-height:0;font-size:.94rem;line-height:1.72;overflow-wrap:anywhere}
+.cl-talia-v4 .cl-talia-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch;gap:8px;margin:14px 0 12px}
+.cl-talia-v4 .cl-talia-actions button{width:100%;min-width:0;white-space:normal;padding:9px 11px}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-nav{margin:0;align-items:stretch;gap:8px}
+.cl-talia-v4 .cl-talia-coach-column .cl-talia-nav > *{flex:1 1 160px;text-align:center}
+.cl-talia-v4 .cl-talia-workspace .cl-talia-chart{height:430px;max-width:100%}
+.cl-talia-v4 .cl-talia-chart-controls{align-items:end;gap:9px}
+.cl-talia-v4 .cl-talia-chart-controls label{flex:1 1 230px;min-width:0}
+.cl-talia-v4 .cl-talia-chart-controls button{flex:0 1 auto;white-space:normal}
+.cl-talia-v4 .cl-talia-readout{overflow-wrap:anywhere}
+.cl-talia-review-grid{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);align-items:start;gap:16px;margin-top:16px}
+.cl-talia-v4 .cl-talia-review-grid > *{margin:0;min-width:0}
+.cl-talia-v4 .cl-talia-report > button{margin:5px 6px 5px 0;white-space:normal}
+.cl-talia-v4 .cl-talia-report .cl-talia-metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.cl-talia-v4 .cl-talia-report .cl-talia-metric{min-width:0}
+.cl-talia-v4 .cl-talia-review-grid textarea{box-sizing:border-box;max-width:100%}
+.cl-talia-v4 .cl-talia-v4-footer{margin-top:12px}
+@media(max-width:1120px){
+ .cl-talia-workspace,.cl-talia-review-grid{grid-template-columns:minmax(0,1fr)}
+ .cl-talia-v4 .cl-talia-workspace .cl-talia-chart{height:420px}
+}
+@media(max-width:620px){
+ .cl-talia-v4 .cl-talia-selectors{grid-template-columns:minmax(0,1fr)}
+ .cl-talia-v4 .cl-talia-actions{grid-template-columns:minmax(0,1fr)}
+ .cl-talia-v4 .cl-talia-workspace .cl-talia-chart{height:330px}
+ .cl-talia-v4 .cl-talia-review-grid{gap:12px}
+ .cl-talia-v4 .cl-talia-report .cl-talia-metrics{grid-template-columns:minmax(0,1fr)}
+}
