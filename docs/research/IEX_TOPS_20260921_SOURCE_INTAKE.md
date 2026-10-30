@@ -5,7 +5,7 @@ Document control
 - ID: SMFGU-HR-IEX-20260921-INTAKE-001
 - Version: 1.0
 - Date: 2026-10-29
-- Status: OWNER DOWNLOADED ORIGINAL / LOCAL SHA-256 REPORTED / FULL GZIP INTEGRITY UNCHECKED / NOT APPROVED FOR CUSTOMER DISPLAY
+- Status: OWNER LOCAL FULL-STREAM INTEGRITY VERIFIED / TRADE RECONCILIATION PENDING / NOT APPROVED FOR CUSTOMER DISPLAY
 - File: docs/research/IEX_TOPS_20260921_SOURCE_INTAKE.md
 - Google Drive location: proposed Website / Research / Historical Replay / Source Evidence; not uploaded
 - Google Drive document ID: not assigned
@@ -23,11 +23,11 @@ Document control
 ## Canonical dated cases at the source date
 | Ticker | Linked canonical Lab | Current approval |
 |---|---|---|
-| BTTC | DT-C36-L01 | Draft, source not acquired |
-| GRML | DT-C35-L01 | Draft, source not acquired |
-| HUBC | DT-C51-L01 | Draft, only four SIP minute observations returned in earlier research; do not fabricate missing minutes |
-| MBRX | DT-C51-L02 | Draft, source not acquired |
-| VRME | DT-C37-L01 | Draft, source not acquired |
+| BTTC | DT-C36-L01 | Draft; original archive verified locally; symbol-specific bars pending |
+| GRML | DT-C35-L01 | Draft; original archive verified locally; symbol-specific bars pending |
+| HUBC | DT-C51-L01 | Draft; original archive verified locally; HUBC sparse SIP comparison needs review, do not fabricate minutes |
+| MBRX | DT-C51-L02 | Draft; original archive verified locally; symbol-specific bars pending |
+| VRME | DT-C37-L01 | Draft; original archive verified locally; symbol-specific bars pending |
 
 ## Required acquisition and review (not yet completed)
 1. Authorized IEX account operator signs into https://iextrading.com/trading/market-data/ and obtains the original 2026-09-21 TOPS capture through the official portal. Do not purchase a data plan or accept additional fees without explicit owner permission.
@@ -75,3 +75,34 @@ py $script --file $file --date 2026-09-21 --sha256 01D84281611CB7DF8523F5BA2EA77
 ```
 
 **Next milestone:** full-stream local report with valid gzip CRC, recorded PCAP/PCAPNG type, exact compressed byte count and matching SHA; only then proceed to private trade extraction and per-symbol data inspection.
+
+## Full owner-local integrity result — accepted for source-intake only
+
+The owner provided the original `IEX_20260921_integrity.json` from an offline Python 3.13.3 verification of their own downloaded file. Its reported evidence:
+
+- Format: **PCAPNG**.
+- Exact original compressed bytes: **10,282,646,165** (official listed size matched).
+- Decompressed bytes streamed without extracting to disk: **45,277,889,392**.
+- Full SHA-256: `01d84281611cb7df8523f5ba2ea77db8b61af5aefcd7c420e142dde792b4008b` (matches owner's prior PowerShell fingerprint).
+- Full gzip stream CRC, EOF and size: **passed**.
+- Reported status: `LOCAL_ARCHIVE_INTEGRITY_VERIFIED_NOT_APPROVED_FOR_PUBLICATION`.
+- Packet sequence, individual trades, conditions, issuer/security changes, independent market prices, and commercial member-display licensing: **not accepted**.
+- The owner retains the 10 GB source on their local Windows machine; no original raw file uploaded to GitHub or Supabase.
+- Production Supabase intake record updated for exactly five 2026-09-21 draft rows under `metadata.iex_local_archive_intake`; original licensing flags stayed false, no candles ingested, and all five remain draft.
+
+### Next owner-local full-session trade reconciliation
+
+The existing IEX-TP PCAPNG stream reader and full-day reconciliation tool now support `--file` without network access. The tool checks the complete original file hash, scans recorded trade reports and trade-break events, checks per-session IEX-TP sequence gaps, and prepares **first-30-minute IEX-only trade-derived OHLCV** in a private JSON review output. Bar interpretation remains provisional until independent trade-condition/symbol history verification.
+
+```powershell
+$file = "$env:USERPROFILE\Downloads\data_feeds_20260921_20260921_IEXTP1_TOPS1.6.pcap.gz"
+$toolsDir = "$env:USERPROFILE\Downloads\IEX_Private_Tools"
+New-Item -ItemType Directory -Force -Path $toolsDir | Out-Null
+$source = "https://raw.githubusercontent.com/cybernexuspublishing/stock-market-from-the-ground-up/main/scripts/market-data"
+@("iex_tops.py","pcapng_iex_reader.py","iex_historical_archive_probe.py","iex_full_session_reconcile_v1.py") | ForEach-Object {
+  Invoke-WebRequest -Uri "$source/$_" -OutFile (Join-Path $toolsDir $_)
+}
+py (Join-Path $toolsDir "iex_full_session_reconcile_v1.py") --file "$file" --date 2026-09-21 --symbols "BTTC,GRML,HUBC,MBRX,VRME" --expected-sha256 "01d84281611cb7df8523f5ba2ea77db8b61af5aefcd7c420e142dde792b4008b" --expected-bytes 10282646165 --output "$env:USERPROFILE\Downloads\IEX_20260921_five_symbol_review.json"
+```
+
+Output is **not** a license release, nor an accepted retail dataset. Keep it private until an authorized independent reviewer accepts source, market scope, conditions, gaps, corporate actions and lesson-specific checks. The five historical cases do not become visible to paying members from this command.
