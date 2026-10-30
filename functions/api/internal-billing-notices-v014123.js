@@ -19,7 +19,7 @@ function cfg(e){
   secret=String(e.GU_BILLING_TASK_SECRET||''),
   resend=String(e.GU_BILLING_RESEND_API_KEY||''),
   from=String(e.GU_BILLING_FROM_EMAIL||''),
-  origin=String(e.GU_BILLING_SITE_ORIGIN||'');
+  origin=String(e.PUBLIC_SITE_URL||e.GU_BILLING_SITE_ORIGIN||'');
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!db||!pub||
   secret.length<32||!/^re_[A-Za-z0-9_-]{12,}$/.test(resend)||
   !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(from)||!/^https:\/\/[a-z0-9.-]+(?::443)?$/.test(origin))
