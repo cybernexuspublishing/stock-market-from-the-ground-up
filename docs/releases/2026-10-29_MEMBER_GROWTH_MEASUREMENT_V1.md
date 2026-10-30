@@ -57,3 +57,23 @@ Repeat these measurements weekly and after promotional posts. Report new non-QA 
 | Version | Date | Description |
 |---|---|---|
 | 1.0 | 2026-10-29 CT | Established provider-backed acquisition baseline, Owner-only verified funnel and re-enabled daily growth watch |
+
+
+## Final production privacy and deployment acceptance — October 30, 2026 UTC
+
+- Cloudflare deployment containing the strengthened shared route policy: `5e86f7cd9eaac34705807b50d721a170b2bea2c3` — **success**. Subsequent `main` deployments have also succeeded. Source fixtures passed during the Pages build.
+- GitHub Actions: [Owner Growth Funnel V1 production and security run 41006627810](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41006627810) — **success**.
+- Exact passing output: `PASS owner growth funnel V1: OWNER auth, QA exclusion, verified email, real Free5 starts, read-only and no identity leak`.
+- Exact passing output: `PASS Owner Free5 isolation QA: server-verified Owner role, private read checks, noindex and zero-credential UI`.
+- Exact passing output: `PASS production Owner growth privacy: owner page noindex, anonymous 401, forged token 403, no data leak`.
+- During acceptance, a previous smoke run discovered that the shared middleware classified newly added Owner HTML as public despite static `data-route-access="staff"`. This was corrected by registering both `owner-growth-funnel` and `owner-free5-isolation-qa` as STAFF routes in `assets/js/route-policy.js`, which is consumed by Pages middleware and the service worker. The final production test verifies the effective access marker, not merely source HTML.
+- Reporting backend authentication, aggregation, privacy limits and real anonymous/rejected-token boundaries are **accepted**. A real signed-in Owner run of the new dashboard remains available for further user-level assurance and must not be represented as executed merely because CI passed.
+- The enabled existing daily watch is scheduled for 08:00 America/Chicago; an enabled scheduled task is not proof that a future report has already been delivered.
+
+**Release classification:** Production deployed; owner-only member-funnel source and privacy acceptance **PASSED**; operational notification receipt and genuinely authenticated Owner-browser dashboard rendering have not yet been observed.
+
+### Revision history
+
+| Version | Date | Change |
+|---|---|---|
+| 1.1 | 2026-10-30 UTC | Recorded positive production deny tests, hardened shared STAFF route policy for both Owner pages, confirmed Cloudflare and CI acceptance |
