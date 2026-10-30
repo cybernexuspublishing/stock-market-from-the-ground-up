@@ -11,6 +11,7 @@ const email=process.env.LAB_QA_EMAIL||'';
 const password=process.env.LAB_QA_PASSWORD||'';
 const secondEmail=process.env.LAB_QA_SECOND_EMAIL||'';
 const secondPassword=process.env.LAB_QA_SECOND_PASSWORD||'';
+const expectedQaId=process.env.LAB_QA_EXPECTED_USER_ID||'f42f9301-18e6-43a3-8531-32d371fd22c1';
 const report={scope:'Real production Chromium, signed-in Free Foundations Day 1',
  checkedAt:new Date().toISOString(),checks:[],blocked:[],failures:[],completed:false,
  constraints:['Never overwrite a pre-existing Day 1 record',
@@ -52,6 +53,7 @@ if(!email||!password){
   const context=await browser.newContext({viewport:{width:390,height:900},serviceWorkers:'block'});
   const page=await context.newPage();
   const signed=await authenticate(page,email,password);
+  assert.equal(signed.id,expectedQaId,'Signed-in member does not match the authorized noncommercial QA identity. Refusing any progress writes.');
   note('checks','Verified real QA sign-in at mobile viewport with an account-bound session.');
   const original=await progress(page.request,signed.access);
   assert.equal(original.status,200,'Signed-in private program GET requires success');
