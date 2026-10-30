@@ -88,6 +88,9 @@
   }
   function describe(){
    count.textContent=bars.length+' revealed fictional candle'+(bars.length===1?'':'s');
+   nine.disabled=bars.length<9;twenty.disabled=bars.length<20;
+   nine.title=nine.disabled?'Requires 9 completed server-revealed closes':'EMA 9 based on observed bars';
+   twenty.title=twenty.disabled?'Requires 20 completed server-revealed closes':'EMA 20 based on observed bars';
    lockNotice.textContent=locked?'Decision locked; replay controls can advance':'Lock your decision before advancing';
    if(!bars.length){
     summary.textContent='No completed observation revealed.';
@@ -108,12 +111,12 @@
   function options(){
    const labels=bars.map(b=>time(b.ms));
    const series=[{name:'Fictional OHLC',type:'candlestick',data:bars.map(b=>[b.o,b.c,b.l,b.h]),
-    xAxisIndex:0,yAxisIndex:0,itemStyle:{color:palette.up,color0:palette.down,borderColor:palette.up,borderColor0:palette.down}}];
-   if(nine.checked)series.push({name:'EMA 9',type:'line',data:ema(bars,9),xAxisIndex:0,yAxisIndex:0,showSymbol:false,connectNulls:false,
+    xAxisIndex:0,yAxisIndex:0,barWidth:17,barMaxWidth:23,itemStyle:{color:palette.up,color0:palette.down,borderColor:palette.up,borderColor0:palette.down}}];
+   if(nine.checked&&bars.length>=9)series.push({name:'EMA 9',type:'line',data:ema(bars,9),xAxisIndex:0,yAxisIndex:0,showSymbol:false,connectNulls:false,
     lineStyle:{color:palette.ema9,width:2},itemStyle:{color:palette.ema9}});
-   if(twenty.checked)series.push({name:'EMA 20',type:'line',data:ema(bars,20),xAxisIndex:0,yAxisIndex:0,showSymbol:false,connectNulls:false,
+   if(twenty.checked&&bars.length>=20)series.push({name:'EMA 20',type:'line',data:ema(bars,20),xAxisIndex:0,yAxisIndex:0,showSymbol:false,connectNulls:false,
     lineStyle:{color:palette.ema20,width:2},itemStyle:{color:palette.ema20}});
-   if(volume.checked)series.push({name:'Revealed volume',type:'bar',xAxisIndex:1,yAxisIndex:1,
+   if(volume.checked)series.push({name:'Revealed volume',type:'bar',barWidth:21,barMaxWidth:26,xAxisIndex:1,yAxisIndex:1,
     data:bars.map(b=>({value:b.v,itemStyle:{color:b.c>=b.o?palette.up:palette.down}}))});
    const zoomAxes=volume.checked?[0,1]:[0];
    return {animation:false,backgroundColor:'transparent',
