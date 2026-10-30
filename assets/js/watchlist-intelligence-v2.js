@@ -61,7 +61,26 @@
    selectLabel('Reference type',annotationKind),annotationPrice.wrap,annotationAt.wrap,
    annotationFrame.wrap,annotationNote.wrap,annotate,showChart,graph,annotationList);
   const monitor=mk('section',undefined,'cl-wi-monitor');
-  const reviewList=mk('ul');monitor.append(mk('h3','In-page research review reminders'),reviewList);
+  const reviewList=mk('ul'),ruleType=mk('select'),
+   ruleLow=input('Manual price trigger / lower reference',28),
+   ruleHigh=input('Upper reference for range rules',28),
+   ruleReason=input('Pattern-monitor evidence / no-trade limitation',360),
+   ruleAt=input('Rule observation time with UTC offset',40),
+   ruleSave=mk('button','Save manual pattern-monitor rule','btn secondary'),
+   observedPrice=input('Observed price from user-provided snapshot',28),
+   observedAt=input('Observed time with UTC offset',40),
+   observedSource=input('Observation source / data rights',180),
+   ruleEvaluate=mk('button','Evaluate and record a manual research review','btn secondary'),
+   ruleResults=mk('p');
+  for(const k of C.MONITOR_TYPES)option(ruleType,k,k.replaceAll('_',' '));
+  for(const button of [ruleSave,ruleEvaluate])button.type='button';
+  ruleResults.setAttribute('role','status');
+  monitor.append(mk('h3','In-page research review reminders'),reviewList,
+   mk('h3','Manual pattern monitoring'),
+   mk('p','Define a research review rule and apply it only to a dated, member-provided price observation. No automatic polling, push alerts, trading signals or broker integration.'),
+   selectLabel('Pattern-monitor criterion',ruleType),ruleLow.wrap,ruleHigh.wrap,
+   ruleAt.wrap,ruleReason.wrap,ruleSave,observedPrice.wrap,observedAt.wrap,
+   observedSource.wrap,ruleEvaluate,ruleResults);
   const scanner=mk('section',undefined,'cl-wi-scanner'),savedSet=mk('select'),
    sourceNote=input('Authorized scanner snapshot / source-rights note',180),
    sourceAt=input('Snapshot observation time with timezone offset',40),
@@ -73,12 +92,17 @@
    selectLabel('Saved scanner/discovery filters',savedSet),sourceNote.wrap,sourceAt.wrap,scanFile,scanButton,scanList);
   const guidance=mk('section',undefined,'cl-wi-guidance'),guidanceText=mk('p');
   const journalPlan=input('Optional existing saved Trade-Plan snapshot ID',16),
+   journalEntryId=input('Optional existing Journal record ID for server-verified research link',16),
    journalGo=mk('button','Verify plan and open authenticated Journal handoff','btn secondary'),
-   lab=mk('a','Open existing authorized Labs','btn secondary');
-  journalGo.type='button';lab.href='labs.html';
+   journalLink=mk('button','Attach saved plan to owned Journal record','btn secondary'),
+   tradePlanGo=mk('button','Open the existing Trade-Plan Builder for this candidate','btn secondary'),
+   lab=mk('a','Open existing authorized Labs','btn secondary'),
+   bootcamp=mk('a','Explore existing Boot Camp lessons','btn secondary');
+  journalGo.type='button';journalLink.type='button';tradePlanGo.type='button';
+  lab.href='labs.html';bootcamp.href='bootcamp-academy.html';
   guidance.append(mk('h3','Talia research questions and learning handoffs'),guidanceText,
    mk('p','The existing Advanced Trade-Plan Builder remains available above. Enter an existing saved plan ID to use the Journal’s authenticated, read-only transfer; no Journal record, brokerage activity, or mastery is created automatically.'),
-   journalPlan.wrap,journalGo,lab);
+   journalPlan.wrap,journalGo,journalEntryId.wrap,journalLink,tradePlanGo,lab,bootcamp);
   const body=mk('div',undefined,'cl-wi-body');
   edit.append(folder.wrap,tags.wrap,selectLabel('Eight-stage candidate review',stage),archiveLabel,
    pointTime.wrap,reviewNote.wrap,actionRow,timeline,annotations);
@@ -156,6 +180,9 @@
    archived.checked=x.archived;reviewNote.field.value='';pointTime.field.value=safeTime();
    annotationAt.field.value=safeTime();annotationPrice.field.value='';
    annotationNote.field.value='';
+   ruleAt.field.value=safeTime();observedAt.field.value=safeTime();
+   ruleReason.field.value='';ruleResults.textContent=(Array.isArray(p.monitoringRules)?p.monitoringRules.length:0)+
+    ' manually saved research review rules. No automated notification service is active.';
    for(const event of [...x.history].reverse())
     checkpointList.append(mk('li',(event.at||'Unknown time')+' · '+(event.kind||'REVIEW')+' · '+(event.note||'No note')));
    if(!x.history.length)checkpointList.append(mk('li','No recorded research checkpoints yet. Older changes cannot be inferred.'));
@@ -214,6 +241,64 @@
      series:[{type:'scatter',symbolSize:12,data:data.map((x,i)=>[i,x.price])}]});
     chart.resize();
     status(notices,'ECharts displays manually saved reference levels only—not historical candles, a price series or live quote.');
+   }catch(e){status(notices,e.message)}
+  };
+  ruleSave.onclick=async()=>{
+   if(busy)return;
+   const rec=getSelected();if(!rec)return;
+   busy=true;
+   try{
+    const payload=C.monitoringRule(rec,{type:ruleType.value,low:ruleLow.field.value,
+     high:ruleHigh.field.value,at:ruleAt.field.value,note:ruleReason.field.value});
+    await editPayload(rec,payload);await refresh();
+    status(notices,'Dated manual research rule saved with an audit checkpoint; no automatic monitoring activated.');
+   }catch(e){status(notices,e.message||'Manual rule save failed.')}finally{busy=false}
+  };
+  ruleEvaluate.onclick=async()=>{
+   if(busy)return;
+   const rec=getSelected();if(!rec)return;
+   busy=true;
+   try{
+    const d=C.evaluateMonitoring(rec,{price:observedPrice.field.value,
+     at:observedAt.field.value,sourceNote:observedSource.field.value});
+    if(!d.results.length)throw Error('Save at least one manual monitoring rule first.');
+    const flags=d.results.filter(x=>x.matched);
+    const message=flags.length+' of '+d.results.length+
+     ' member-defined criteria require manual evidence review; not a buy/sell signal.';
+    const update=C.checkpoint(rec,{action:'MANUAL_PATTERN_REVIEW',at:d.at,
+     note:'Manual snapshot review: '+message+' Source: '+d.sourceNote});
+    await editPayload(rec,update);await refresh();
+    ruleResults.textContent=message;
+    status(notices,'Manual pattern review saved to the private research trail; no automatic alerts or orders.');
+   }catch(e){status(notices,e.message||'Manual pattern review could not be verified.')}finally{busy=false}
+  };
+  tradePlanGo.onclick=()=>{
+   const rec=getSelected();
+   if(!rec)return;
+   const button=[...document.querySelectorAll('#w-list button')].find(x=>
+    x.getAttribute('aria-label')==='Open trade plan for '+rec.title);
+   if(!button)return status(notices,'Existing Trade-Plan Builder link is unavailable. Use the saved candidate list above.');
+   button.click();status(notices,'Opened the existing Trade-Plan Builder. No plan or trade was saved automatically.');
+  };
+  journalLink.onclick=async()=>{
+   try{
+    const journalId=journalEntryId.field.value.trim(),planId=journalPlan.field.value.trim();
+    if(![journalId,planId].every(x=>/^[1-9][0-9]{0,15}$/.test(x)&&Number.isSafeInteger(Number(x))))
+     throw Error('Enter existing positive integer Journal and saved plan record IDs.');
+    const {sb,token,uid}=await auth();
+    // Journal and source-plan ownership, ticker identity, event chronology,
+    // locking rules and current premium access are verified server-side.
+    const response=await fetch('/api/journal-research-links-v1',{
+     method:'POST',credentials:'same-origin',cache:'no-store',
+     headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+     body:JSON.stringify({journalId:Number(journalId),planId:Number(planId)})});
+    const d=await response.json().catch(()=>null);
+    const after=(await sb.auth.getSession()).data?.session;
+    if(after?.user?.id!==uid||!alive())throw Error('Member identity changed during Journal linking.');
+    if(!response.ok||d?.ok!==true||d.linked!==true)
+     throw Error(d?.error||'Server could not verify an owned, source-consistent Journal link.');
+    status(notices,'Authenticated research link '+(d.alreadyLinked?'already exists.':'recorded.')+
+      ' Existing Journal entry unchanged; no trade, grade or new quota usage was created.');
    }catch(e){status(notices,e.message)}
   };
   journalGo.onclick=async()=>{
