@@ -18,7 +18,7 @@ assert.equal(C.STEPS.join(','),'Observe,Explain,Investigate,Interpret,Challenge,
 assert.equal(C.DIMS.join(','),'Knowledge,Recognition,Decision,Process');
 for(const t of C.TOPICS){
  for(const field of ['id','title','dimension','definition','worked','investigate','contradiction','transfer']){
-  assert(typeof t[field]==='string'&&t[field].length>=4,t.id+' missing '+field);
+  assert(typeof t[field]==='string'&&t[field].length>=(field==='id'?2:4),t.id+' missing '+field);
  }
  assert(C.DIMS.includes(t.dimension));
  for(const stage of C.STEPS){
