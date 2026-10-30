@@ -73,3 +73,24 @@ jobs:
         run: node tests/test_watchlist_intelligence_v2_browser.mjs
       - name: Test Chart Studio authenticated saved research and account isolation
         run: node tests/test_watchlist_v3_chart_browser.mjs
+
+  broad-regression-baseline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned free Playwright and Apache ECharts for comparison
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 echarts@6.1.0
+          npx playwright install --with-deps chromium
+      - name: Compare 153 focused JavaScript tests against pre-V2 main
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/watchlist-baseline" 78b3b93ccf70252127265cd7c16589e2bd7d4ae2
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/watchlist-baseline/node_modules"
+          WATCHLIST_DIAG_OUTPUT="$RUNNER_TEMP/watchlist-v3-report" node scripts/watchlist-regression-diff-v2.mjs "$RUNNER_TEMP/watchlist-baseline" "$GITHUB_WORKSPACE"
