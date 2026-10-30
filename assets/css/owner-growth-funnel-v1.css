@@ -1,0 +1,11 @@
+/* Owner-only aggregate funnel, no private member details */
+.gu-growth-owner{max-width:1160px}.gu-owner-growth-controls{display:flex;gap:14px;align-items:end;flex-wrap:wrap}
+.gu-owner-growth-controls label{display:grid;gap:5px;font-weight:700}.gu-owner-growth-controls select{border:1px solid #416784;background:#0b2237;color:#edf5fb;border-radius:7px;padding:10px}
+.gu-owner-growth-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:15px}
+.gu-owner-growth-metric{border:1px solid #355871;border-radius:12px;background:#0b233a;padding:16px;min-width:0}
+.gu-owner-growth-metric strong{display:block;font-size:clamp(1.5rem,3vw,2rem);color:#f0d082;font-variant-numeric:tabular-nums}
+.gu-owner-growth-metric span{display:block;color:#c9d7e2}.gu-owner-growth-metric small{display:block;color:#a8bbc9;margin-top:6px}
+.gu-owner-growth-tablewrap{overflow-x:auto}.gu-owner-growth-tablewrap table{min-width:580px}
+.gu-growth-owner :is(button,select,a):focus-visible{outline:3px solid #e0eafb;outline-offset:3px}
+@media(max-width:780px){.gu-owner-growth-metrics{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.gu-owner-growth-metrics{grid-template-columns:1fr}.gu-owner-growth-controls :is(button,select){width:100%}}
