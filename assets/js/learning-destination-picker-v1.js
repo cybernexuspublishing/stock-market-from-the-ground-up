@@ -11,6 +11,17 @@
  const browse='lab'; // The Academy has its own dedicated seven-program chooser.
  const selected=new URLSearchParams(location.search).get('lab')||'';
  const retry=document.getElementById('player-catalog-retry');
+ const panel=document.getElementById('player-catalog-browser');
+ const toggle=document.getElementById('player-catalog-toggle');
+ // This is an accessible search/combo box, not the legacy mixed select.
+ // Standalone QA fixtures without a toggle continue to display their rows.
+ const useDropdown=Boolean(panel&&toggle);
+ const setOpen=open=>{
+  if(!useDropdown)return;
+  panel.hidden=!open;
+  toggle.setAttribute('aria-expanded',String(open));
+  search.setAttribute('aria-expanded',String(open));
+ };
  const title=document.getElementById('player-catalog-label');
  const allLink=document.getElementById('player-lab-id');
  let records=[],release=null,rights=null,account='',epoch=0,loaded=false;
@@ -29,7 +40,9 @@
   'store-membership-ondemand-monthly.html':
   bookStore[row.book]||'store-tool-interactive-learning.html';
  const academySale='store-membership-ondemand-monthly.html';
- const errorMsg=message=>{status.textContent=message;retry.hidden=false;};
+ const errorMsg=message=>{
+  status.textContent=message;retry.hidden=false;setOpen(true);
+ };
  const read=async endpoint=>{
   const controller=new AbortController(),time=setTimeout(()=>controller.abort(),8500);
   try{const response=await fetch(endpoint,{cache:'no-store',signal:controller.signal});
@@ -153,7 +166,11 @@
     released:new Set([...availability.publishedIds,...availability.guidedBetaIds]),
     trainingOnly:new Set(Array.isArray(availability.trainingOnlyIds)?availability.trainingOnlyIds:[])
    }:null;
-  loaded=true;render();void loadRights();
+  loaded=true;render();
+  // Existing query deep links open matching results. Ordinary entry points
+  // remain compact but loaded, never stuck showing a loading option.
+  if(useDropdown&&search.value.trim())setOpen(true);
+  void loadRights();
  }
  function initialize(){
   title.textContent=browse==='lab'?'Choose a Lab':'Choose a Boot Camp';
@@ -169,8 +186,29 @@
   // The previous "initial compact" state made the selector look unloaded.
   const requested=new URLSearchParams(location.search).get('q')||'';
   if(requested&&!search.value)search.value=requested.slice(0,100);
-  search.addEventListener('input',render);
-  retry?.addEventListener('click',()=>void load());
+  setOpen(Boolean(requested));
+  search.addEventListener('input',()=>{setOpen(true);render()});
+  search.addEventListener('focus',()=>setOpen(true));
+  toggle?.addEventListener('click',()=>{
+   const open=!panel.hidden;setOpen(!open);
+   if(!open)search.focus();
+  });
+  search.addEventListener('keydown',event=>{
+   if(event.key==='Escape'){setOpen(false);search.blur();}
+   if(event.key==='ArrowDown'&&useDropdown){
+    event.preventDefault();setOpen(true);
+    host.querySelector('a')?.focus();
+   }
+  });
+  panel?.addEventListener('keydown',event=>{
+   if(event.key==='Escape'){event.preventDefault();setOpen(false);search.focus();}
+  });
+  document.addEventListener('pointerdown',event=>{
+   if(!useDropdown||panel.hidden)return;
+   if(!panel.contains(event.target)&&!search.contains(event.target)&&
+      !toggle.contains(event.target))setOpen(false);
+  });
+  retry?.addEventListener('click',()=>{setOpen(true);void load()});
   document.addEventListener('visibilitychange',()=>{if(!document.hidden&&loaded)void loadRights()});
   void load();
  }

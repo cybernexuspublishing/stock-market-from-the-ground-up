@@ -38,6 +38,9 @@ assert(picker.includes("'store-membership-ondemand-monthly.html'"),'Existing Aca
 assert(!picker.includes('/api/checkout'),'Discovery must not start a payment');
 assert(!picker.includes('innerHTML'),'Catalog metadata must be painted using safe textContent');
 assert(html.includes('id="player-catalog-search"')&&html.includes('Choose a Lab'));
+assert(html.includes('id="player-catalog-toggle"')&&html.includes('role="combobox"'),'Lab selector has a searchable dropdown');
+assert(picker.includes('setOpen(true)')&&picker.includes("event.key==='Escape'"),'Keyboard and pointer dropdown open/close controls');
+assert(css.includes('#player-catalog-browser[hidden]'),'Dropdown hides only on explicit collapsed state');
 assert(html.includes('learning-destination-picker-v1.js'));
 assert(html.includes('learning-destination-picker-v1.css'));
 assert(player.includes("q('player-title').textContent=bootcampBrowse?'Choose a Boot Camp':'Choose a Lab'"),'No Lab ID should not leave loading message');
