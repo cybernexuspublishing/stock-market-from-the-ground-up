@@ -1,3 +1,4 @@
+# QA-only noncharging James_Test acceptance rerun 2026-10-30; no credential changes, LIVE charges, or Lumen debits.
 name: Crownlight Chart Studio — James_Test Authenticated Production Acceptance
 on:
   workflow_dispatch:

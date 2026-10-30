@@ -9,6 +9,13 @@ try{
   const page=await browser.newPage({viewport:{width,height:900},serviceWorkers:'block'}),errors=[];
   page.on('pageerror',e=>errors.push(e.message));
   await page.goto(base+'/index.html',{waitUntil:'domcontentloaded'});
+  // Respect the actual opt-in panel via its documented decline action before
+  // testing unrelated Lab controls. This is an isolated localhost test context.
+  const analyticsChoice=page.locator('#smfgu-analytics-choice');
+  if(await analyticsChoice.isVisible()){
+   await analyticsChoice.getByRole('button',{name:'Decline analytics'}).click();
+   assert.equal(await analyticsChoice.isVisible(),false,'Declining optional analytics closes the panel');
+  }
   await page.addScriptTag({url:base+'/assets/js/lab-engine-v32-universal.js'});
   await page.evaluate(async()=>{
    const target=document.createElement('section');target.id='universal-test';document.body.append(target);
