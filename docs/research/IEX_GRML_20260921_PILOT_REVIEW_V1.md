@@ -8,10 +8,10 @@
 | File | `docs/research/IEX_GRML_20260921_PILOT_REVIEW_V1.md` |
 | Type | Markdown, repository-controlled historical case review |
 | Document ID | SMFGU-HR-IEX-GRML-20260921-001 |
-| Version | 1.0 |
+| Version | 1.3 |
 | Date | October 30, 2026 |
 | Google Drive location | Proposed Website / Research / Historical Replay / Case Reviews (not uploaded; Drive file ID unassigned) |
-| Status | **TECHNICAL REVIEW CANDIDATE — DO NOT PUBLISH** |
+| Status | **PRIVATE DRAFT INGESTED — DO NOT PUBLISH; LESSON & AUTHENTICATED POSITIVE QA PENDING** |
 | Dependencies | Original IEX TOPS archive; original fingerprint; corrected sparse-minute accounting; security identifier/corporate-action confirmation; market-data rights review; independent second-source sample verification; editorial/Talia review; signed-in production QA |
 | Purpose | Preserve the owner-selected first GRML pilot and explicit criteria for release without modifying member entitlements or licensing flags |
 
@@ -137,3 +137,36 @@ The directly applicable **IEX Historical Data Terms** expressly contemplate hist
 | Version | Date | Change |
 |---|---|---|
 | 1.2 | 2026-10-30 | Independently supplied IEX vendor 30-of-30 OHLCV comparison; Nasdaq reverse split evidence; contractual conflict identified and release held; private SQL/RLS gate reviewed. |
+
+
+## Private draft ingested — Version 1.3 (October 30, 2026)
+
+### Rights decision: owner-confirmed authorization (supersedes the previous request-for-clarification hold)
+
+The project owner explicitly confirmed in conversation that **IEX authorized both of the stated uses**: (1) storage of IEX-derived historical candle records in private Supabase/PostgreSQL and (2) display of those historical candles to paying members of this educational website. This **owner-reported grant is the controlling product-owner direction**. A copy of the underlying written IEX confirmation was not attached, reviewed or independently authenticated in this project. Do not describe it as independently legally verified or attorney-approved, and preserve any later written evidence in restricted legal records. The earlier v1.2 request to contact IEX again is superseded; do not make duplicate outreach solely for the same issue.
+
+**This confirmation authorizes private ingestion but is not an instruction to publish GRML without technical, editorial, and real-browser acceptance.** To avoid accidental member access, the existing `licensed_for_member_display=false`, `license_publication_reviewed=false`, `historical_evidence_verified=false`, and `ondemand_training_approved=false` flags remain false at the draft stage. The owner confirmation is separately recorded in `metadata.owner_attested_iex_permission`, including the precise permission scope, date and provenance.
+
+### Verified private database import
+
+- Dataset: `HR_GRML_20260921`; existing 14 Lab associations preserved, no new Lab identity created.
+- Source: owner-uploaded corrected IEX TOPS source reconciliation JSON, SHA-256 `8dcaf24b259df7087b15e9a395d3d2dca62db94d903363eac22728fca06cca5c`.
+- Original archive referenced by reconciliation report: `01d84281611cb7df8523f5ba2ea77db8b61af5aefcd7c420e142dde792b4008b` (10,282,646,165 compressed bytes). Original archive remains on the owner's machine; only derived GRML candles were imported.
+- Transaction preflight enforced exact source/date/venue, `draft` status, no existing bars, 30 continuous timestamps from 09:30 through 09:59 ET, valid OHLC precision, no volume-only minutes, and 2,473 conserved events / 213,618 conserved shares.
+- Supabase transaction inserted precisely 30 private `gu_replay_bars_v01492` rows, indexes 0–29, unadjusted IEX-only one-minute OHLCV. Independent postflight SELECT returned `bars=30`, `first_idx=0`, `last_idx=29`, `shares=213618`.
+- Dataset `source_feed` was corrected from stale `ALPACA_SIP_RESEARCH_ONLY` to `IEX_HIST_TOPS_1.6_OWNER_ORIGINAL`; venue scope now `IEX_SINGLE_VENUE_NOT_SIP`. Required IEX attribution and historical-terms URL are stored in `source_attribution`.
+- Final production status remains `draft`. Member-display and training-approval flags remain **false**. No Stripe transactions, Crownlight Sparks debits, or entitlements changed.
+- Earlier separate-provider (Alpaca IEX) 30/30 matching OHLCV comparison is retained as technical corroboration; it is not the source of the imported bars and is not independent exchange-of-origin certification.
+- This is a **PRIVATE DRAFT DATA INGESTION ACCEPTANCE**, not a commercial member playback, publication or legal counsel approval.
+
+### Remaining acceptance before member exposure
+
+1. Inspect and affirm the Talia GRML lesson's bar-by-bar coaching checkpoints, no-lookahead aggregation for 1/3/5/15-minute views, corporate-action context and IEX-only scope notice.
+2. Confirm server entitlement and RLS isolation, including authenticated/non-authenticated draft-denial tests and negative cross-account access. Keep published catalog empty for this case until approval.
+3. When individually authorized for release, record the reviewer and date, update publication flags consistently using the existing server validation gate, and run genuine logged-in positive end-to-end replay against this **exact** source: first decision lock, controlled advance, replay timing, review cursor, restart/resume, finalization, and account separation.
+4. Capture exact deployed commit, signed QA result and rollback instructions. No bulk activation of the other 88 historical cases.
+
+### Revision history addition
+| Version | Date | Change |
+|---|---|---|
+| 1.3 | 2026-10-30 | Owner confirms permitted Supabase retention and paid-member educational display; 30 source-verified GRML bars privately imported and postflight checked; member publication remains off. |
