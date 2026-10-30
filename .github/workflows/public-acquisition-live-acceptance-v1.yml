@@ -1,0 +1,72 @@
+name: Public Acquisition V1 — Real Browser & Free Foundations QA
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/public-acquisition-live-acceptance-v1.yml'
+      - 'tests/test_public_15_page_browser_production_v1.mjs'
+      - 'tests/test_live_free_foundations_browser_v1.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: public-acquisition-live-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  public-pages:
+    name: 15 public pages — real production Chromium mobile/desktop
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned headless Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Source parse and production 15-page browser acceptance
+        run: |
+          node --check tests/test_public_15_page_browser_production_v1.mjs
+          node tests/test_public_15_page_browser_production_v1.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: public-15-production-browser
+          path: artifacts/public-acquisition/production-browser.json
+          if-no-files-found: warn
+          retention-days: 30
+  free-foundations:
+    name: Real QA sign-in — Free5 Day 1 persistence and privacy
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned headless Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Genuine QA sign-in, Day 1 save/reload and separate-member isolation
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+          LAB_QA_SECOND_EMAIL: ${{ secrets.LAB_QA_SECOND_EMAIL }}
+          LAB_QA_SECOND_PASSWORD: ${{ secrets.LAB_QA_SECOND_PASSWORD }}
+        run: |
+          node --check tests/test_live_free_foundations_browser_v1.mjs
+          node tests/test_live_free_foundations_browser_v1.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: free5-real-qa-browser
+          path: artifacts/public-acquisition/free5-production-browser.json
+          if-no-files-found: warn
+          retention-days: 30
