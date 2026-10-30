@@ -41,7 +41,7 @@ async function signIn(){
 }
 async function api(token,path,method='GET',body){
  const r=await fetch(origin+path,{method,headers:{authorization:'Bearer '+token,
-  ...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,
+  ...(method!=='GET'?{origin}:{}),...(body?{'content-type':'application/json'}:{})},body:body?JSON.stringify(body):undefined,
   cache:'no-store',signal:AbortSignal.timeout(20000)});
  const data=await r.json().catch(()=>({}));
  return {status:r.status,data};
@@ -58,7 +58,7 @@ assert.equal(existing.status,200,'Workspace must accept a genuine signed-in memb
 assert.equal(existing.data.ok,true);
 const previous=existing.data.updatedAt?existing.data.workspace:null;
 const sample={selected:'ADVANCED',sync:true,studies:['EMA','RSI'],
- drawings:[],layout:'SIDE_BY_SIDE'};
+ drawings:[],layout:'SIDE_BY_SIDE',expectedUpdatedAt:existing.data.updatedAt??null};
 const saved=await api(initial,'/api/chart-workspace','PUT',sample);
 assert.equal(saved.status,200,'Live chart workspace save did not return HTTP 200');
 assert.equal(saved.data.ok,true);
@@ -81,7 +81,7 @@ assert.equal(reread.status,200);
 assert.deepEqual(reread.data.workspace.studies,['EMA','RSI']);
 console.log('PASS workspace survived reauthentication with fresh real QA session');
 if(previous){
- const restore=await api(second.access_token,'/api/chart-workspace','PUT',previous);
+ const restore=await api(second.access_token,'/api/chart-workspace','PUT', {...previous,expectedUpdatedAt:reread.data.updatedAt??null});
  assert.equal(restore.status,200,'Restore preexisting James_Test workspace');
  console.log('PASS preexisting QA workspace restored');
 }else{

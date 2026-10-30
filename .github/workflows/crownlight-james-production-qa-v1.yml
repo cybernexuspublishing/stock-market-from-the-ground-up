@@ -21,7 +21,8 @@ concurrency:
   cancel-in-progress: true
 jobs:
   authentic-chart-member:
-    name: Real James_Test sign-in / workspace / Sparks quote
+    name: Real James_Test sign-in / workspace / Lumens quote
+    needs: real-password-http-contract
     runs-on: ubuntu-latest
     timeout-minutes: 12
     steps:

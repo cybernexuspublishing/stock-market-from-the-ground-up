@@ -142,7 +142,7 @@ try{
  const testWorkspace={selected:'ADVANCED',sync:false,studies:['EMA','RSI'],
   drawings:[{name:'segment',points:[
    {timestamp:revealed[0].timestamp,value:revealed[0].close},
-   {timestamp:revealed[1].timestamp,value:revealed[1].close}]}],layout:'SIDE_BY_SIDE'};
+   {timestamp:revealed[1].timestamp,value:revealed[1].close}]}],layout:'SIDE_BY_SIDE',expectedUpdatedAt:current.data.updatedAt??null};
  const put=await api('/api/chart-workspace','PUT',testWorkspace);
  assert.equal(put.status,200,'Real production workspace PUT must succeed');
  assert.equal(put.data.ok,true);updated=true;
@@ -191,7 +191,7 @@ try{
  assert.equal(restored.data.workspace.selected,'ADVANCED');
  console.log('PASS genuine cross-session workspace restore via production API');
  if(existing?.updatedAt){
-  const restore=await api('/api/chart-workspace','PUT',existing.workspace);
+  const restore=await api('/api/chart-workspace','PUT',{...existing.workspace,expectedUpdatedAt:restored.data.updatedAt??null});
   assert.equal(restore.status,200,'Restore previous QA workspace settings after acceptance');
   console.log('PASS prior QA workspace settings restored');
  }else{
