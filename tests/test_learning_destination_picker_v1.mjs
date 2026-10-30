@@ -52,5 +52,8 @@ assert(academy.includes('filterAcademyCatalog();'),'Academy search filters exist
 assert(registry.includes('labAccessProductPage(x)'),'Locked Lab Registry routes to actual product information');
 assert(css.includes('.gu-picker-locked')&&css.includes('.academy-program--locked'),'Locked content visible and greyed');
 assert(academy.includes("p.ticker")&&academy.includes("p.skill"),'Academy search uses source metadata including tickers when present');
+assert(academy.includes('loadAcademySearchMetadata()')&&academy.includes("fetch('/data/labs.json'"),'Academy searches public Lab-linked tickers');
+const academySource=file('functions/_lib/bootcamp-academy-v014168.js');
+assert(academySource.includes('searchLabIds')&&academySource.includes('curriculum.flatMap'),'Seven Boot Camps expose only public Lab association IDs for search');
 assert(html.includes('id="player-catalog-results"')&&!html.includes('href="bootcamp-academy.html">Choose a Boot Camp</a>'),'Lab chooser shows only Labs');
 console.log('PASS searchable 419-Lab and 7-Boot-Camp discovery, lock states, product routes, no private bypass');

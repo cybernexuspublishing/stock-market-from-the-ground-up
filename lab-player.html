@@ -100,7 +100,7 @@
  <div class="gu-learning-picker-fields">
   <label for="player-catalog-search" id="player-catalog-label">Choose a Lab</label>
   <div class="gu-picker-combobox">
-   <input type="search" id="player-catalog-search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-haspopup="listbox" placeholder="Search Lab ID, title, skill or ticker (e.g., VWAP)" aria-describedby="player-catalog-status" aria-controls="player-catalog-results">
+   <input type="search" id="player-catalog-search" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-haspopup="dialog" placeholder="Search Lab ID, title, skill or ticker (e.g., VWAP)" aria-describedby="player-catalog-status" aria-controls="player-catalog-browser">
    <button type="button" id="player-catalog-toggle" class="btn secondary" aria-expanded="false" aria-controls="player-catalog-browser" aria-label="Show or hide available and locked Labs">Browse all Labs <span aria-hidden="true">▾</span></button>
   </div>
  </div>
@@ -108,7 +108,7 @@
  <a class="link" href="dashboard.html?tab=support" id="player-report-issue">Report a Lab Problem</a>
 </div>
 <p id="player-catalog-status" class="gu-picker-status" role="status" aria-live="polite">Choose a Lab. Search the public catalog; locked content remains visible.</p>
-<div class="gu-learning-picker-browser" id="player-catalog-browser" hidden>
+<div class="gu-learning-picker-browser" id="player-catalog-browser" role="dialog" aria-label="Lab search results" hidden>
  <div id="player-catalog-results" class="gu-learning-picker-results" aria-label="Searchable learning catalog"></div>
  <button type="button" id="player-catalog-retry" class="btn secondary" hidden>Retry catalog loading</button>
 </div>

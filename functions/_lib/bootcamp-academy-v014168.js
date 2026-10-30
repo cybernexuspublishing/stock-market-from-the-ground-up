@@ -316,4 +316,11 @@ export const freeFoundationsProgram=Object.freeze({
  })))
 });
 export const academyByCode=Object.freeze({...Object.fromEntries(academyPrograms.map(program=>[program.code,program])),free5:freeFoundationsProgram});
-export const academyCatalog=Object.freeze(academyPrograms.map(({curriculum,...summary})=>summary));
+// Only public Lab identifiers are exposed for discovery. We do NOT publish
+// authored lessons, answer keys, member progress, replay bars, or assessments.
+export const academyCatalog=Object.freeze(academyPrograms.map(({curriculum,...summary})=>Object.freeze({
+ ...summary,
+ searchLabIds:Object.freeze([...new Set(curriculum.flatMap(day=>
+  (Array.isArray(day.relatedLabs)?day.relatedLabs:[]).map(ref=>String(ref?.id||''))))
+ ].filter(id=>/^[A-Za-z0-9_-]{3,90}$/.test(id)).sort())
+})));

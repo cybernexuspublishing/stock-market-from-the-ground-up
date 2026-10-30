@@ -11,6 +11,25 @@
  const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
  let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0;
+ // Enrich course search using ONLY public, already published Lab metadata.
+ // Private course material and member entitlements never enter the index.
+ async function loadAcademySearchMetadata(){
+  try{
+   const response=await fetch('/data/labs.json',{cache:'no-store'});
+   if(!response.ok)throw Error('Public Lab metadata unavailable');
+   const rows=await response.json();
+   if(!Array.isArray(rows))throw Error('Malformed public Lab metadata');
+   const publicLabs=new Map(rows.filter(row=>typeof row.id==='string').map(row=>[row.id,row]));
+   academyBrowsePrograms=academyBrowsePrograms.map(p=>{
+    const linked=(Array.isArray(p.searchLabIds)?p.searchLabIds:[]).map(id=>publicLabs.get(id)).filter(Boolean);
+    return{...p,
+     tickers:[...new Set(linked.map(l=>String(l.ticker||'').trim().toUpperCase()).filter(Boolean))],
+     searchTerms:linked.flatMap(l=>[l.concept,l.chapterTitle,l.skill]).filter(Boolean).join(' ')
+    };
+   });
+   filterAcademyCatalog();
+  }catch{ /* Titles, IDs and topic search remain usable if enrichment fails. */ }
+ }
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
   progress=new Map(),drafts=new Map(),selfCheckDrafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
  const status=message=>{get('academy-status').textContent=message};
@@ -65,7 +84,8 @@
   let visible=0;
   for(const p of academyBrowsePrograms){
    const card=get('academy-program-'+p.code);if(!card)continue;
-   const values=[p.code,p.title,p.summary,p.theme,p.level,p.skill,p.ticker,
+   const values=[p.code,p.title,p.summary,p.theme,p.level,p.skill,p.ticker,p.searchTerms,
+    ...(Array.isArray(p.searchLabIds)?p.searchLabIds:[]),
     ...(Array.isArray(p.tickers)?p.tickers:[]),String(p.days)].filter(Boolean).join(' ').normalize('NFKD').toLowerCase();
    const match=term.split(/\s+/).filter(Boolean).every(t=>values.includes(t));
    card.hidden=!match;if(match)visible++;
@@ -719,6 +739,7 @@
   try{
    const programs=(await request('catalog')).programs;
    catalog(programs);
+   void loadAcademySearchMetadata();
    void verifyAcademyBrowseRights();
    status('Explore the seven Boot Camps. Sign in with eligible training access to save your progress.');
   }catch(error){status(error.message||'The Academy catalog cannot be verified.')}
