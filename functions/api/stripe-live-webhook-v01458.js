@@ -330,13 +330,22 @@ async function storeZeroMonthlyQA(request,e,raw){
 const BOOK_LIVE_PRICE='price_1UVBsDJL0O4GGVBHdqAaP15z';
 const BOOK_LIVE_CODE='FOUNDATION_BOOK_1';
 const BOOK_LIVE_AMOUNT=1099;
+const BOOK_LIVE_OFFERS=Object.freeze({
+ 'FOUNDATION_BOOK_1':Object.freeze({price:'price_1UVBsDJL0O4GGVBHdqAaP15z',amount:1099}),
+ 'FOUNDATION_BOOK_2':Object.freeze({price:'price_1UVBsFJL0O4GGVBHP75QJV4N',amount:1099}),
+ 'FOUNDATION_BOOK_3':Object.freeze({price:'price_1UVBsLJL0O4GGVBH37PPBw4s',amount:1199}),
+ 'DAY_TRADING_BOOK_1':Object.freeze({price:'price_1UVBsPJL0O4GGVBH1cdsLBT3',amount:1499}),
+ 'READING_THE_TAPE':Object.freeze({price:'price_1UVBsSJL0O4GGVBHjElhhG8W',amount:1499})
+});
+
 function bookTag(s){
  const m=s?.metadata||{},has=Object.keys(m).some(k=>k.startsWith('gu_book_live_'));
  if(!has)return null;
- if(!uuid(m.gu_book_live_intent)||!uuid(m.gu_book_live_member)||
-  m.gu_book_live_code!==BOOK_LIVE_CODE||s.client_reference_id!==m.gu_book_live_intent)
+ const offer=BOOK_LIVE_OFFERS[m.gu_book_live_code];
+ if(!offer||!uuid(m.gu_book_live_intent)||!uuid(m.gu_book_live_member)||
+  s.client_reference_id!==m.gu_book_live_intent)
   throw Error('Book intent metadata invalid');
- return {id:m.gu_book_live_intent,user:m.gu_book_live_member};
+ return {id:m.gu_book_live_intent,user:m.gu_book_live_member,offer,code:m.gu_book_live_code};
 }
 async function bookApply(c,data){
  const req=await fetch(c.base+'/rest/v1/rpc/gu_book_live_apply_v1',{
@@ -363,22 +372,22 @@ async function bookVerifiedEvent(c,e){
   if(['checkout.session.completed','checkout.session.async_payment_succeeded'].includes(e.type)){
    if(s.payment_status!=='paid')return true;
    if(s.mode!=='payment'||s.status!=='complete'||s.currency!=='usd'||
-    s.amount_subtotal!==BOOK_LIVE_AMOUNT||!ident(s.payment_intent,'pi'))
+    s.amount_subtotal!==m.offer.amount||!ident(s.payment_intent,'pi'))
     throw Error('Unverified paid Book Session');
    const [lines,pi]=await Promise.all([
     getStripe(c,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2'),
     getStripe(c,'payment_intents/'+encodeURIComponent(s.payment_intent))
    ]);
    if(lines.data?.length!==1||lines.has_more===true||
-    lines.data[0].price?.id!==BOOK_LIVE_PRICE||lines.data[0].quantity!==1||
-    lines.data[0].amount_subtotal!==BOOK_LIVE_AMOUNT||
+    lines.data[0].price?.id!==m.offer.price||lines.data[0].quantity!==1||
+    lines.data[0].amount_subtotal!==m.offer.amount||
     pi.id!==s.payment_intent||pi.livemode!==true||pi.status!=='succeeded'||
-    pi.currency!=='usd'||Number(pi.amount_received)<BOOK_LIVE_AMOUNT||
+    pi.currency!=='usd'||Number(pi.amount_received)<m.offer.amount||
     pi.metadata?.gu_book_live_intent!==m.id||pi.metadata?.gu_book_live_member!==m.user||
-    pi.metadata?.gu_book_live_code!==BOOK_LIVE_CODE)
+    pi.metadata?.gu_book_live_code!==m.code)
     throw Error('Unverified book price or PaymentIntent');
    await bookApply(c,{p_event:e.id,p_id:m.id,p_kind:'paid',p_session:s.id,
-    p_pi:pi.id,p_price:BOOK_LIVE_PRICE,p_amount:BOOK_LIVE_AMOUNT});
+    p_pi:pi.id,p_price:m.offer.price,p_amount:m.offer.amount});
    return true;
   }
   if(e.type==='checkout.session.expired'&&s.status!=='expired')return true;
@@ -395,7 +404,7 @@ async function bookVerifiedEvent(c,e){
  const intent=pi.metadata?.gu_book_live_intent,member=pi.metadata?.gu_book_live_member;
  if(!intent&&!member)return false;
  if(!uuid(intent)||!uuid(member)||pi.livemode!==true||
-    pi.metadata?.gu_book_live_code!==BOOK_LIVE_CODE)throw Error('Book refund metadata invalid');
+    !BOOK_LIVE_OFFERS[pi.metadata?.gu_book_live_code])throw Error('Book refund metadata invalid');
  if(e.type==='charge.refunded'&&Number(charge.amount_refunded)<Number(charge.amount))
   return true; // A partial refund does not automatically revoke full-book access.
  await bookApply(c,{p_event:e.id,p_id:intent,

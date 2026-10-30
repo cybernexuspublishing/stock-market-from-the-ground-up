@@ -3,6 +3,16 @@ export const BOOK_CODE='FOUNDATION_BOOK_1';
 export const BOOK_PRODUCT='prod_VVF91RJdGeiACx';
 export const BOOK_PRICE='price_1UVBsDJL0O4GGVBHdqAaP15z';
 export const BOOK_AMOUNT=1099;
+export const BOOK_OFFERS=Object.freeze({
+ 'FOUNDATION_BOOK_1':Object.freeze({"code":"FOUNDATION_BOOK_1","product":"prod_VVF91RJdGeiACx","price":"price_1UVBsDJL0O4GGVBHdqAaP15z","amount":1099,"name":"Stock Market Foundations — Book I"}),
+ 'FOUNDATION_BOOK_2':Object.freeze({"code":"FOUNDATION_BOOK_2","product":"prod_VVF9wc6b7YQs2g","price":"price_1UVBsFJL0O4GGVBHP75QJV4N","amount":1099,"name":"Stock Market Foundations — Book II"}),
+ 'FOUNDATION_BOOK_3':Object.freeze({"code":"FOUNDATION_BOOK_3","product":"prod_VVF9qOuhSENuNW","price":"price_1UVBsLJL0O4GGVBH37PPBw4s","amount":1199,"name":"Stock Market Foundations — Book III WITH RCT"}),
+ 'DAY_TRADING_BOOK_1':Object.freeze({"code":"DAY_TRADING_BOOK_1","product":"prod_VVF98mZY1vlf3n","price":"price_1UVBsPJL0O4GGVBH1cdsLBT3","amount":1499,"name":"Day Trading"}),
+ 'READING_THE_TAPE':Object.freeze({"code":"READING_THE_TAPE","product":"prod_VVF92FwnEje0ow","price":"price_1UVBsSJL0O4GGVBHjElhhG8W","amount":1499,"name":"Reading the Tape"})
+});
+export const getBookOffer=code=>Object.prototype.hasOwnProperty.call(BOOK_OFFERS,String(code))?
+ BOOK_OFFERS[String(code)]:null;
+
 const headers={'content-type':'application/json; charset=utf-8','cache-control':'no-store, private','x-content-type-options':'nosniff'};
 export const reply=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
 export const fail=(message,status=503)=>Object.assign(new Error(message),{status});
@@ -38,29 +48,30 @@ export async function db(c,fn,args,token=null){
  else if(k.startsWith('eyJ'))h.authorization='Bearer '+k;
  return read(c.base+'/rest/v1/rpc/'+fn,{method:'POST',headers:h,body:JSON.stringify(args)});
 }
-export async function accountAndPrice(c){
+export async function accountAndPrice(c,offer=BOOK_OFFERS[BOOK_CODE]){
  const [account,price,product]=await Promise.all([
-  stripe(c,'account'),stripe(c,'prices/'+BOOK_PRICE),stripe(c,'products/'+BOOK_PRODUCT)
+  stripe(c,'account'),stripe(c,'prices/'+offer.price),stripe(c,'products/'+offer.product)
  ]);
- if(account.id!==c.account||price.id!==BOOK_PRICE||price.product!==BOOK_PRODUCT||
+ if(!offer||account.id!==c.account||price.id!==offer.price||price.product!==offer.product||
   price.active!==true||price.livemode!==true||price.type!=='one_time'||
-  price.unit_amount!==BOOK_AMOUNT||price.currency!=='usd'||price.recurring!=null||
-  product.id!==BOOK_PRODUCT||product.active!==true||product.livemode!==true)
+  price.unit_amount!==offer.amount||price.currency!=='usd'||price.recurring!=null||
+  product.id!==offer.product||product.active!==true||product.livemode!==true||product.metadata?.site_sku!=='book:'+offer.code)
   throw fail('Stripe LIVE Book I product/price/account mismatch.');
  return {account,price,product};
 }
-export async function bookRights(c){
- const rows=await read(c.base+'/rest/v1/catalog_products?select=product_code,product_type,active,store_visible,sales_status,kdp_select,direct_digital_enabled,website_checkout_enabled,metadata&product_code=eq.'+BOOK_CODE+'&limit=1',
+export async function bookRights(c,offer=BOOK_OFFERS[offer.code]){
+ if(!offer)return false;
+ const rows=await read(c.base+'/rest/v1/catalog_products?select=product_code,product_type,active,store_visible,sales_status,kdp_select,direct_digital_enabled,website_checkout_enabled,metadata&product_code=eq.'+offer.code+'&limit=1',
   {headers:{apikey:c.service,...(c.service.startsWith('eyJ')?{authorization:'Bearer '+c.service}:{})}});
- const books=await read(c.base+'/rest/v1/gu_digital_books_v01430?select=sales_enabled,downloads_enabled,exclusive_until,rights_attested_at,asset_path&product_code=eq.'+BOOK_CODE+'&limit=1',
+ const books=await read(c.base+'/rest/v1/gu_digital_books_v01430?select=sales_enabled,downloads_enabled,exclusive_until,rights_attested_at,asset_path&product_code=eq.'+offer.code+'&limit=1',
   {headers:{apikey:c.service,...(c.service.startsWith('eyJ')?{authorization:'Bearer '+c.service}:{})}});
  const p=rows[0],d=books[0];
  const r=p?.metadata?.website_price_by_format_cents_v135?.digital;
  const ready=p?.product_type==='book'&&p.active===true&&p.store_visible===true&&p.sales_status==='published'&&
   p.kdp_select===false&&p.direct_digital_enabled===true&&p.website_checkout_enabled===true&&
-  Number(r)===BOOK_AMOUNT&&d?.sales_enabled===true&&d?.downloads_enabled===true&&
+  Number(r)===offer.amount&&d?.sales_enabled===true&&d?.downloads_enabled===true&&
   !!d.rights_attested_at&&!!d.exclusive_until&&Date.parse(d.exclusive_until)<=Date.now()&&
-  new RegExp('^'+BOOK_CODE+'/[a-f0-9-]{36}\\.epub$').test(d.asset_path||'');
+  new RegExp('^'+offer.code+'/[a-f0-9-]{36}\\.epub$').test(d.asset_path||'');
  if(!ready)return false;
  const file=await read(c.base+'/rest/v1/storage.objects?select=name&bucket_id=eq.gu-digital-ebooks&name=eq.'+encodeURIComponent(d.asset_path)+'&limit=1',
   {headers:{apikey:c.service,...(c.service.startsWith('eyJ')?{authorization:'Bearer '+c.service}:{})}}).catch(()=>null);
@@ -89,26 +100,26 @@ export async function user(c,req){
 function tag(s){
  const m=s?.metadata||{};
  if(!isBookEventTag(s))return null;
- if(!uuid(m.gu_book_live_intent)||!uuid(m.gu_book_live_member)||m.gu_book_live_code!==BOOK_CODE||
-   s.client_reference_id!==m.gu_book_live_intent)
+ const offer=getBookOffer(m.gu_book_live_code);
+ if(!offer||!uuid(m.gu_book_live_intent)||!uuid(m.gu_book_live_member)||s.client_reference_id!==m.gu_book_live_intent)
   throw Error('BOOK_LIVE_METADATA_MISMATCH');
- return {id:m.gu_book_live_intent,user:m.gu_book_live_member};
+ return {id:m.gu_book_live_intent,user:m.gu_book_live_member,offer};
 }
 async function proof(c,id){
  if(!/^cs_live_[A-Za-z0-9_]+$/.test(String(id||'')))throw Error('NOT_LIVE_SESSION');
  const s=await stripe(c,'checkout/sessions/'+encodeURIComponent(id)),m=tag(s);
  if(!m||s.id!==id||s.livemode!==true||s.mode!=='payment'||s.payment_status!=='paid'||
-  s.status!=='complete'||s.currency!=='usd'||s.amount_subtotal!==BOOK_AMOUNT||
+  s.status!=='complete'||s.currency!=='usd'||s.amount_subtotal!==m.offer.amount||
   !/^pi_[A-Za-z0-9_]+$/.test(s.payment_intent||''))throw Error('BOOK_NOT_VERIFIED_PAID');
  const [items,pi]=await Promise.all([
   stripe(c,'checkout/sessions/'+encodeURIComponent(id)+'/line_items?limit=2'),
   stripe(c,'payment_intents/'+encodeURIComponent(s.payment_intent))
  ]);
- if(items.data?.length!==1||items.has_more===true||items.data[0]?.price?.id!==BOOK_PRICE||
-  items.data[0]?.quantity!==1||items.data[0]?.amount_subtotal!==BOOK_AMOUNT||
+ if(items.data?.length!==1||items.has_more===true||items.data[0]?.price?.id!==m.offer.price||
+  items.data[0]?.quantity!==1||items.data[0]?.amount_subtotal!==m.offer.amount||
   pi.id!==s.payment_intent||pi.livemode!==true||pi.status!=='succeeded'||
-  pi.currency!=='usd'||Number(pi.amount_received)<BOOK_AMOUNT||
-  pi.metadata?.gu_book_live_intent!==m.id||pi.metadata?.gu_book_live_member!==m.user)
+  pi.currency!=='usd'||Number(pi.amount_received)<m.offer.amount||
+  pi.metadata?.gu_book_live_intent!==m.id||pi.metadata?.gu_book_live_member!==m.user||pi.metadata?.gu_book_live_code!==m.offer.code)
   throw Error('BOOK_PROVIDER_PAYMENT_PROOF_MISMATCH');
  return {s,m,pi};
 }
@@ -128,7 +139,7 @@ export async function applyVerifiedBookEvent(c,event){
    if(s.payment_status!=='paid')return true; // wait for the successful delayed-payment event
    const v=await proof(c,obj.id);
    const d=await db(c,'gu_book_live_apply_v1',{p_event:event.id,p_id:v.m.id,p_kind:'paid',
-    p_session:s.id,p_pi:v.pi.id,p_price:BOOK_PRICE,p_amount:BOOK_AMOUNT});
+    p_session:s.id,p_pi:v.pi.id,p_price:v.m.offer.price,p_amount:v.m.offer.amount});
    if(d.ok!==true)throw Error('BOOK_LIVE_GRANT_UNCONFIRMED');
    return true;
   }
@@ -145,7 +156,7 @@ export async function applyVerifiedBookEvent(c,event){
  const pi=await stripe(c,'payment_intents/'+encodeURIComponent(charge.payment_intent));
  const id=pi.metadata?.gu_book_live_intent,userId=pi.metadata?.gu_book_live_member;
  if(!id&&!userId)return null;
- if(!uuid(id)||!uuid(userId)||pi.livemode!==true)throw Error('BOOK_REVERSAL_METADATA_INVALID');
+ if(!uuid(id)||!uuid(userId)||pi.livemode!==true||!getBookOffer(pi.metadata?.gu_book_live_code))throw Error('BOOK_REVERSAL_METADATA_INVALID');
  if(event.type==='charge.refunded'&&Number(charge.amount_refunded||0)<Number(charge.amount||0))
   return true; // partial refunds do not automatically revoke the whole eBook license
  const d=await db(c,'gu_book_live_apply_v1',{p_event:event.id,p_id:id,
