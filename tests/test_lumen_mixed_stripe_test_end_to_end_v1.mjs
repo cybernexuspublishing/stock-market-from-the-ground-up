@@ -57,6 +57,14 @@ globalThis.fetch=async(url,opts={})=>{
  }
  if(path.endsWith('/gu_mixed_qa_access_v1'))
   return send([...access].map(([intent_id,active])=>({intent_id,active})));
+ if(path.endsWith('/rpc/gu_mixed_qa_cancel_unbound_v1')){
+  const p=JSON.parse(opts.body),i=intents.get(p.p_id);
+  if(!mode)return send({ok:false,error:'OWNER_TEST_MODE_DISABLED'});
+  if(!i||i.user_id!==p.p_user||i.status!=='reserved'||i.stripe_session_id)
+   return send({ok:false,error:'PAYMENT_SESSION_REQUIRES_RECONCILIATION'});
+  i.status='released';wallet+=i.lumens_reserved;
+  return send({ok:true,released:true,lumensRestored:i.lumens_reserved,shadowOnly:true});
+ }
  if(path.endsWith('/rpc/gu_mixed_qa_seed_v1')){
   const b=JSON.parse(opts.body);
   if([...intents.values()].some(x=>['reserved','bound','disputed','review'].includes(x.status)))
@@ -103,6 +111,9 @@ globalThis.fetch=async(url,opts={})=>{
  if(path==='/v1/prices/price_1UW4f3JY9FI7byHBWiVEFL8Z')
   return send({id:'price_1UW4f3JY9FI7byHBWiVEFL8Z',product:'prod_VX8wHOixVrXRMd',
    livemode:false,active:true,unit_amount:1999,currency:'usd',type:'one_time'});
+ if(path==='/v1/checkout/sessions'&&method==='GET'&&
+   !u.searchParams.has('payment_intent'))
+   return send({data:[...sessions.values()],has_more:false});
  if(path==='/v1/checkout/sessions'&&method==='POST'){
   if(rejectNextStripeCheckout){
    rejectNextStripeCheckout=false;
@@ -158,6 +169,11 @@ const req=(action,more={})=>new Request('https://example.pages.dev/api/lumen-mix
  'content-type':'application/json'},body:JSON.stringify({action,...more})});
 const post=async(...args)=>{const r=await onRequestPost({request:req(...args),env});
  return {status:r.status,body:await r.json()}};
+const readOwner=async(view)=>{
+ const url='https://example.pages.dev/api/lumen-mixed-test-checkout'+(view?'?view='+view:'');
+ const r=await onRequestGet({request:new Request(url,{headers:{authorization:'Bearer QA_OWNER'}}),env});
+ return {status:r.status,body:await r.json()};
+};
 const event=async(type,data,id)=>{
  const payload=JSON.stringify({id,type,livemode:false,account:'acct_1URGkDJY9FI7byHB',
  created:Math.floor(Date.now()/1000),data:{object:data}});
@@ -254,6 +270,36 @@ try{
  assert.match(sourceJs,/requestId:item.request_id/);
  assert.match(sourceHtml,/<select id="qa-intent"/);
  assert.match(sourceHtml,/id="qa-history-empty"/);
+ // The Owner can review provider prerequisites without creating a session.
+ const readinessResult=await readOwner('readiness');
+ assert.equal(readinessResult.body.ok,true);
+ assert.equal(readinessResult.body.ownerTestMode,true);
+ assert.equal(readinessResult.body.fixtureReady,true);
+ assert.equal(readinessResult.body.ready,true);
+ // Provider rejection must not permanently lock the Owner TEST wallet.
+ result=await post('seed',{balance:80});
+ id='cccccccc-cccc-4ccc-8ccc-000000000006';
+ rejectNextStripeCheckout=true;
+ const beforeCancelSessions=stripeCreates;
+ result=await post('checkout',{requestId:id,lumens:64});
+ assert.equal(result.status,409);
+ assert.equal(wallet,16);
+ const rejectedIntent=[...intents.values()].at(-1);
+ assert.equal(rejectedIntent.status,'reserved');
+ result=await post('cancel_unbound',{intentId:rejectedIntent.id});
+ assert.equal(result.body.ok,true);
+ assert.equal(result.body.lumensRestored,64);
+ assert.equal(rejectedIntent.status,'released');
+ assert.equal(wallet,80);
+ assert.equal(stripeCreates,beforeCancelSessions);
+ // These protections must remain present in the Owner console.
+ const recoveryUi=readFileSync(new URL('../assets/js/owner-lumen-mixed-test-v1.js',import.meta.url),'utf8');
+ assert.match(recoveryUi,/Release unused TEST reservation/);
+ assert.match(recoveryUi,/qa-provider-readiness/);
+ const recoveryHtml=readFileSync(new URL('../admin-lumen-mixed-test.html',import.meta.url),'utf8');
+ assert.match(recoveryHtml,/id="qa-provider-readiness"/);
+ const cancelSql=readFileSync(new URL('../supabase/migrations/20261029_lumen_mixed_test_unbound_cancel_v1.sql',import.meta.url),'utf8');
+ assert.match(cancelSql,/REVOKE ALL ON FUNCTION public\.gu_mixed_qa_cancel_unbound_v1/);
  // No non-Owner can access the QA checkout.
  owner=false;result=await post('seed',{balance:10});
  assert.equal(result.status,403);owner=true;
