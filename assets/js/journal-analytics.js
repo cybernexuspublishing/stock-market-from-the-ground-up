@@ -4,7 +4,7 @@
  */
 (()=>{'use strict';
  const $=id=>document.getElementById(id);
- let sb=null,activeUserId=null,requestCounter=0;
+ let sb=null,activeUserId=null,requestCounter=0,echartsEquity=null;
  const fmt=(n,d=2)=>n==null?'—':Number(n).toLocaleString(undefined,
   {minimumFractionDigits:d,maximumFractionDigits:d});
  const money=n=>n==null?'—':Number(n).toLocaleString(undefined,
@@ -18,7 +18,7 @@
   'analytics-plan-adherence','analytics-excursion'
  ];
  function erasePrivateAnalytics(reason){
-  requestCounter++;activeUserId=null;
+  requestCounter++;activeUserId=null;echartsEquity?.dispose();echartsEquity=null;
   $('analytics-content').hidden=true;
   for(const id of privateResultIds)$(id)?.replaceChildren();
   $('analytics-gate').textContent=reason||'Sign in again to view private Journal Analytics.';
@@ -45,7 +45,8 @@
    cell.textContent='No eligible closed records for these filters.';row.append(cell);host.append(row);}
  }
  function renderEquity(points){
-  const host=$('analytics-equity-chart');host.replaceChildren();
+  const host=$('analytics-equity-chart');echartsEquity?.dispose();echartsEquity=null;
+  host.style.height='auto';host.replaceChildren();
   if(!points.length){const p=document.createElement('p');p.textContent='No resolved trades to plot.';host.append(p);return}
   const values=points.map(p=>Number(p.value)).filter(Number.isFinite),lo=Math.min(0,...values),
     hi=Math.max(0,...values),range=Math.max(hi-lo,1);
@@ -64,6 +65,40 @@
   tip.textContent='Journal net results from '+money(points[0].value)+' to '+money(points.at(-1).value);
   svg.append(tip);host.append(svg);
  }
+ async function renderEChartsEquity(points,revision,userId){
+  if(!Array.isArray(points)||!points.length)return;
+  const adapter=window.CrownlightJournalEquityV1;
+  if(!adapter)return;
+  // The existing SVG is a fully functional fallback, retained until
+  // verified asynchronous ECharts initialization succeeds.
+  try{
+   const series=adapter.prepare(points);
+   const E=await window.CrownlightECharts?.load?.();
+   if(!E||revision!==requestCounter||activeUserId!==userId||
+     $('analytics-content')?.hidden===true)return;
+   const host=$('analytics-equity-chart');
+   if(!host)return;
+   // Never show an old member's or filter's data after auth changes.
+   const now=(await sb.auth.getSession()).data?.session;
+   if(now?.user?.id!==userId||revision!==requestCounter)return;
+   const fallback=host.firstChild;
+   const staging=document.createElement('div');
+   staging.style.cssText='width:100%;height:320px;min-height:320px';
+   host.append(staging);
+   const next=E.init(staging,'dark',{renderer:'canvas'});
+   try{next.setOption(adapter.option(series),true);next.resize()}
+   catch(err){next.dispose();staging.remove();throw err}
+   if(revision!==requestCounter||activeUserId!==userId){
+    next.dispose();staging.remove();return;
+   }
+   echartsEquity?.dispose();echartsEquity=next;
+   if(fallback)fallback.remove();
+   // The numeric ledger and detailed methodology remain available below.
+  }catch{
+   // The original static SVG and tabular data continue to work without ECharts.
+  }
+ }
+ window.addEventListener('resize',()=>echartsEquity?.resize());
  function renderMethods(items){
   const host=$('analytics-metric-methods');host.replaceChildren();
   if(!Array.isArray(items)||items.length!==7||items.some(v=>
@@ -166,6 +201,7 @@
     throw Error('The account session changed; analytics are hidden.')}
    if(!res.ok||data?.ok!==true)throw Error(data?.error||'Private analytics unavailable.');
    $('analytics-gate').textContent='';$('analytics-content').hidden=false;render(data);
+   void renderEChartsEquity(data.equity,seq,userId);
   }catch(e){if(seq!==requestCounter)return;$('analytics-content').hidden=true;
    $('analytics-gate').textContent=e?.message||'Private analytics unavailable.';}
  }
