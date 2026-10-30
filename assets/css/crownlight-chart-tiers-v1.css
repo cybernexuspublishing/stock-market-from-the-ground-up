@@ -83,3 +83,12 @@
 .cl-tier-offer span{font-size:.81rem}
 .cl-tier-offer .btn{justify-self:start}
 .cl-chart-price-dialog > .btn{display:inline-block;margin:5px 8px 0 0}
+
+/* Private per-dataset research annotations, backed by member-revision CAS. */
+.cl-workspace-collections-manager{display:flex;flex-wrap:wrap;gap:10px;align-items:flex-end;margin:8px 0 12px;min-width:0}
+.cl-workspace-collections-manager label{display:flex;flex-direction:column;gap:5px;font-size:.86rem;min-width:0;max-width:100%}
+.cl-workspace-collections-manager select{background:#0c192d;color:#e8f3ff;border:1px solid #577a9a;border-radius:7px;padding:8px;min-height:38px;max-width:min(360px,100%);width: min(360px,100%)}
+.cl-workspace-collections-manager button{min-height:38px;border-radius:7px;padding:8px 12px;background:#392632;color:#ffe9ef;border:1px solid #956678}
+.cl-workspace-collections-manager button:disabled{opacity:.45;cursor:not-allowed}
+.cl-workspace-collections{overflow-wrap:anywhere;font-size:.83rem;line-height:1.5;margin:8px 0}
+@media(max-width:620px){.cl-workspace-collections-manager{align-items:stretch}.cl-workspace-collections-manager label,.cl-workspace-collections-manager select{width:100%}.cl-workspace-collections-manager button{width:100%}}
