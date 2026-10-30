@@ -6,6 +6,8 @@
 let workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};
 let permissionEpoch=0,loadingWorkspace=false,linked=false,guard=false,syncEnabled=true;
 let workspaceRevision=null,savingWorkspace=false;
+// Track saved overlay IDs per live chart instance to avoid duplicate drawings.
+const restoredOverlays=new WeakMap();
 let ui=null,notice=null,permissionReady=false,storeAvailable=false;
 const Tier=()=>window.CrownlightChartTiers;
 const msg=t=>{if(notice)notice.textContent=t};
@@ -49,13 +51,25 @@ function activeDrawings(){
  return out;
 }
 function applyOverlays(){
- const primary=getCharts()[0]?.chart;if(!primary)return;
+ const charts=getCharts();
  const bars=Tier()?.getRevealedBars?.()||[];
  const last=bars.at(-1)?.timestamp||0,first=bars[0]?.timestamp||0;
- for(const drawing of workspace.drawings||[]){
-  const points=(drawing.points||[]).filter(p=>p.timestamp>=first&&p.timestamp<=last);
-  if(points.length!==drawing.points?.length||!points.length)continue;
-  try{primary.createOverlay({name:drawing.name,points})}catch{}
+ if(!charts.length||!last)return;
+ // Professional charts share the same already-revealed bars. Apply restored
+ // research drawings to both views, never to future/unrevealed timestamps.
+ for(const entry of charts){
+  const chart=entry?.chart;if(!chart)continue;
+  let applied=restoredOverlays.get(chart);
+  if(!applied){applied=new Set();restoredOverlays.set(chart,applied)}
+  for(const drawing of workspace.drawings||[]){
+   const points=(drawing.points||[]).filter(p=>p.timestamp>=first&&p.timestamp<=last);
+   if(points.length!==drawing.points?.length||!points.length)continue;
+   const key=JSON.stringify({name:drawing.name,points});
+   if(applied.has(key))continue;
+   try{const result=chart.createOverlay({name:drawing.name,points});
+    if(result!==false&&result!==null)applied.add(key);
+   }catch(e){console.warn('Saved chart drawing could not be restored:',e?.message)}
+  }
  }
 }
 function applyStudies(){
@@ -67,7 +81,8 @@ function applyStudies(){
 }
 function synchronize(source,event,type){
  const charts=getCharts();
- if(!syncEnabled||guard||charts.length!==2||!permissionReady)return;
+ if(!syncEnabled||guard||charts.length!==2||!permissionReady||
+   Tier()?.getStatus?.()?.selected!=='PROFESSIONAL')return;
  const target=charts.find(c=>c!==source);if(!target)return;
  try{
   guard=true;
@@ -75,6 +90,9 @@ function synchronize(source,event,type){
    if(typeof event?.x!=='number')return;
    const info=source.chart.convertFromPixel({x:event.x},{paneId:'candle_pane'});
    if(!Number.isSafeInteger(info?.timestamp))return;
+   // Crosshair synchronization is by the bar's actual timestamp, not the
+   // other chart's X pixel, and must never seek an unrevealed observation.
+   if(!(target.chart.getDataList?.()||[]).some(b=>b.timestamp===info.timestamp))return;
    const translated=target.chart.convertToPixel({timestamp:info.timestamp},{paneId:'candle_pane'});
    if(Number.isFinite(translated?.x))target.chart.executeAction('onCrosshairChange',{x:translated.x,paneId:'candle_pane'});
   }else{
@@ -87,7 +105,9 @@ function synchronize(source,event,type){
     const space=source.chart.getBarSpace();
     if(Number.isFinite(space))target.chart.setBarSpace(Math.max(1,Math.min(50,space)));
    }
-   if(Number.isSafeInteger(stamp))target.chart.scrollToTimestamp(stamp,0);
+   if(Number.isSafeInteger(stamp)&&
+      (target.chart.getDataList?.()||[]).some(b=>b.timestamp===stamp))
+    target.chart.scrollToTimestamp(stamp,0);
   }
  }catch(e){console.warn('Crownlight sync skipped',e?.message)}
  finally{queueMicrotask(()=>{guard=false})}
@@ -98,7 +118,7 @@ function wireSync(){
  charts.forEach(chart=>{
   if(chart.syncWired)return;
   chart.syncWired=true;
-  for(const event of ['onCrosshairChange','onScroll','onZoom']){
+  for(const event of ['onCrosshairChange','onScroll','onZoom','onVisibleRangeChange']){
    chart.chart.subscribeAction(event,data=>synchronize(chart,data,event));
   }
  });
@@ -195,15 +215,15 @@ window.addEventListener('crownlight:tier-permission',()=>{permissionEpoch++;void
 window.addEventListener('crownlight:tier-mounted',e=>{
  applyLayout();
  if(e.detail?.tier==='PROFESSIONAL')wireSync();
- if(e.detail?.tier!=='STANDARD'&&!loadingWorkspace){applyStudies();applyOverlays()}
- if(loadingWorkspace&&e.detail?.tier!=='STANDARD'){applyStudies();applyOverlays()}
+ if(e.detail?.tier!=='STANDARD'){applyStudies();applyOverlays()}
 });
 window.addEventListener('crownlight:revealed-bars',()=>{
  // Never restore drawings that reference bars later than the last revealed bar.
  if(getCharts().length===2)wireSync();
+ applyOverlays();
 });
 function init(){controls();applyLayout()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady,layout:workspace.layout}),
+window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady,layout:workspace.layout,selected:workspace.selected,revision:workspaceRevision}),
  synchronize,restore,persist};
 })();
