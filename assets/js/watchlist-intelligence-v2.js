@@ -135,6 +135,13 @@
   rootBox.append(head,body);
   host.append(rootBox);
   const getSelected=()=>current.find(x=>String(x.id)===candidateSelect.value);
+  const studySelected=mk('button','Study selected candidate with Talia','btn secondary');studySelected.type='button';
+  studySelected.addEventListener('click',()=>{
+   const record=getSelected();
+   if(!record){status(learningWarning,'Select a saved candidate before opening Talia’s research workstation.');return}
+   taliaWork?.focusRecord?.({symbol:String(record.title||'')});
+  });
+  guidance.append(studySelected);
   async function auth(){
    const sb=await root.getSupabaseClient?.(),s=(await sb?.auth.getSession())?.data?.session;
    if(!s?.user?.id||!s.access_token||!alive())throw Error('Verified member Workbench session unavailable.');
