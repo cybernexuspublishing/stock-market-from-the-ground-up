@@ -89,6 +89,11 @@ try{
  assert.equal(r.status,503);assert.equal(secRequests,3);
  const html=readFileSync(new URL('../advanced-tool.html',import.meta.url),'utf8');
  assert.match(html,/watchlist-sec-research-v1\.js/);
- assert.match(readFileSync(new URL('../assets/js/watchlist-sec-research-v1.js',import.meta.url),'utf8'),/getSupabaseClient/);
+ const ui=readFileSync(new URL('../assets/js/watchlist-sec-research-v1.js',import.meta.url),'utf8');
+ assert.match(ui,/getSupabaseClient/);
+ assert.match(ui,/CrownlightECharts\?\.load\?\./,'Financial plotting uses the existing ECharts loader');
+ assert.match(ui,/result\.contains\(plot\)/,'Stale account or detached chart must fail closed');
+ assert.match(ui,/financial reporting period|periodEnd/,'Plot must retain reporting-period chronology');
+ assert.match(ui,/accessible numeric reference/,'Numeric fallback must remain when charts fail');
  console.log('PASS official SEC issuer research: strict ticker-CIK, primary sources, timestamps, missing data, entitlement and disabled-source boundaries');
 }finally{globalThis.fetch=old}

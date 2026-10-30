@@ -39,3 +39,12 @@ This source batch requires explicit server activation and an identified User-Age
 6. Mark BETA READY only when all owner-defined gates are individually verified. Owner routine approvals are delegated; real-money spending and external rights remain separate.
 
 **No changes in this batch to:** Supabase schemas/data, member entitlements, Lumen balances, Stripe LIVE, master Lab grading, historical replay, or actual brokerage orders.
+
+## 2026-10-30 implementation evidence addendum
+- `858ad6ef`: guarded server-side SEC issuer API, XBRL normalization, member UI, automated test; **dedicated scanner/research CI passed**. Matching Cloudflare production deployed, but SEC retrieval remains disabled without verified server configuration and global fair-use coordination.
+- `020f5edf`: repaired D08 legacy source test to mock both member-scoped Tiingo and Alpaca credentials. **D08 and scanner CI passed** on this exact SHA; no production credential or entitlement modification.
+- `32d6c632`: corrected acceptance/publication timestamps and blocked unverified intraday historical replay; scanner and D08 CI passed; matching Cloudflare deployment succeeded.
+- `45b4eccd`: Talia browser test now asserts the actual fictional benchmark disclosure; dedicated scanner/D08 tests passed, but sitewide CI revealed a different obsolete branding assertion.
+- `7ca3c735`: source fidelity test updated to canonical `Crownlight Lumens Wallet` text; no wallet or debit behavior change.
+- Additional feature under this checkpoint: read-only ECharts bar comparison of SEC-reported XBRL observations, never represented as matched-period growth or live quotes.
+- **NOT accepted beta-ready:** unknown member-account browser testing; server SEC feature gating; global SEC rate coordination; full company financial chronology and live source verification; genuine Stripe TEST lifecycle and entitlement expiration tests; integration cross-product acceptance.
