@@ -45,6 +45,28 @@
    metric('Plans locked',data.plansLocked);
    metric('Documented adherence',data.planAdherence.documented+'/'+data.denominator);
    metric('Plan adherence (documented only)',data.planAdherence.rate===null?'Not measured':data.planAdherence.rate+'%');
+   const linked=data.researchToJournal||{},execution=data.recordedExecution||{};
+   metric('Journal records with existing saved-plan research links',
+    (linked.linkedJournalRecords??'Unknown')+' / '+(linked.denominator??data.denominator));
+   metric('Distinct linked saved plan references',linked.linkedPlanReferences??'Unknown');
+   metric('Recorded closed paper/live observations',execution.denominator??'Unknown');
+   const measured=(item,suffix='')=>item?.known?
+    (item.average.toLocaleString('en-US',{maximumFractionDigits:4})+suffix+' ('+item.known+'/'+item.denominator+' recorded)'):
+    'Unknown (0/'+(item?.denominator??0)+' recorded)';
+   metric('Average adverse planned-versus-entered price difference',
+    execution.plannedVsRecordedEntryAdversePct?.known?
+     execution.plannedVsRecordedEntryAdversePct.average.toFixed(2)+'% ('+
+     execution.plannedVsRecordedEntryAdversePct.known+'/'+execution.denominator+' recorded)':
+     'Unknown (0/'+(execution.denominator??0)+' recorded)');
+   metric('Recorded average fees',measured(execution.fees,' USD'));
+   metric('Recorded net P&L (member-reported, known records only)',
+    execution.netPnl?.known?
+     execution.netPnl.sum.toLocaleString('en-US',{maximumFractionDigits:2})+' USD ('+
+     execution.netPnl.known+'/'+execution.denominator+' recorded)':
+     'Unknown (0/'+(execution.denominator??0)+' recorded)');
+   metric('Average recorded R multiple',measured(execution.realizedR,' R'));
+   metric('Average recorded MFE per share',measured(execution.mfePerShare,' USD'));
+   metric('Average recorded MAE per share',measured(execution.maePerShare,' USD'));
    for(const [name,value] of Object.entries(data.sourceCoverage)){
     metric(name.replaceAll('_',' ')+' notes present',value.present+' / '+value.denominator,source);
    }
@@ -53,7 +75,7 @@
     strategies.append(el);
    }
    if(!data.byStrategy.length){const li=document.createElement('li');li.textContent='No recorded strategies in the selected period.';strategies.append(li)}
-   status.textContent=data.denominator+' private member-reported records included. Missing source notes are not evidence of bad process; written notes are not proof of source reliability. No win probability is inferred.';
+   status.textContent=data.denominator+' private member-reported records included. Monetary outcomes, MFE/MAE and execution differences use their own nonmissing samples; no broker verification or predictive win probability is implied.';
    chart?.dispose();chart=null;chartNode.replaceChildren();
    try{
     const engine=await window.CrownlightECharts?.load?.();

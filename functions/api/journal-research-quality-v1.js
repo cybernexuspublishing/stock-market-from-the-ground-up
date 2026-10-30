@@ -21,7 +21,7 @@ export async function onRequest({request,env}){
   const headers={apikey:secret,accept:'application/json'};
   if(/^eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/.test(secret))
    headers.authorization='Bearer '+secret;
-  const fields='id,trade_date,journal_type,status,decision,setup,evidence,thesis,invalidation,entry_trigger,catalyst_context,no_trade_condition,plan_locked_at,plan_followed';
+  const fields='id,trade_date,journal_type,status,decision,setup,evidence,thesis,invalidation,entry_trigger,catalyst_context,no_trade_condition,plan_locked_at,plan_followed,direction,planned_entry,actual_entry,planned_stop,planned_target,actual_exit,share_quantity,fees,gross_pnl,net_pnl,r_multiple,mfe_per_share,mae_per_share';
   const rows=[];
   for(let offset=0;offset<=3000;offset+=500){
    const count=offset===3000?1:500;
@@ -36,7 +36,23 @@ export async function onRequest({request,env}){
    if(offset<3000)rows.push(...page);
    if(page.length<count)break;
   }
-  const result=journalResearchQuality(rows,{type,days,today:new Date().toISOString().slice(0,10)});
+  // Owner-scoped existing Journal research links, not a second Journal store.
+  // Fail rather than silently truncate linked-record denominators.
+  const links=[];
+  for(let offset=0;offset<=3000;offset+=500){
+   const count=offset===3000?1:500;
+   const endpoint=base+'/rest/v1/gu_journal_research_links_v1?select=journal_id,workbench_record_id'+
+    '&user_id=eq.'+encodeURIComponent(member.userId)+
+    '&order=journal_id.asc,id.asc&limit='+count+'&offset='+offset;
+   const response=await fetch(endpoint,{headers,cache:'no-store'}).catch(()=>null);
+   if(!response?.ok)throw err('Private Journal link analysis unavailable.',503);
+   const page=await response.json().catch(()=>null);
+   if(!Array.isArray(page)||page.length>count)throw err('Private Journal link analysis unavailable.',503);
+   if(offset===3000&&page.length)throw err('More than 3000 links: full linkage analysis unavailable rather than truncated.',409);
+   if(offset<3000)links.push(...page);
+   if(page.length<count)break;
+  }
+  const result=journalResearchQuality(rows,{type,days,today:new Date().toISOString().slice(0,10),researchLinks:links});
   return out({ok:true,...result});
  }catch(e){const status=[400,401,403,405,409].includes(e?.status)?e.status:503;
   return out({ok:false,error:status===503?'Private research report unavailable.':e.message},status)}
