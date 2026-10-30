@@ -126,3 +126,24 @@
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 1.2 | 2026-10-29 | Verified 30/30 live public browser checks, actual QA Day 1 save/reload, Supabase persistence and anonymous denial; separated unavailable second-account isolation | Public browser and progress accepted; full member isolation open |
+
+
+## James_Test versus Owner — read-only cross-account isolation check
+
+**Execution:** October 29, 2026 (America/Chicago), GitHub Actions run `40996189970`, production `main` commit `05fd46f441153902eff00c9905c47dbe32705ebe`.
+
+- Live Chromium signed in as the genuine James_Test QA identity, reopened Free Foundations Day 1, and independently recovered its existing fictional QA reflection without rewriting it.
+- A signed-out request was denied access to private Academy progress.
+- A signed-in request supplying fabricated `user_id` and `member_id` selectors returned the same James_Test-scoped records as the normal authenticated request, not a different member's data.
+- The genuine authenticated browser was refused direct SELECT access to `gu_bootcamp_academy_progress_v014168`.
+- Production Supabase read-only checks identified two distinct `free5` enrollments: one James_Test account and one account with the authoritative OWNER role in `admin_user_roles`. James_Test has the one pre-existing QA reflection, while Owner has no `free5` progress row.
+- Both `gu_bootcamp_academy_enrollments_v014168` and `gu_bootcamp_academy_progress_v014168` have RLS enabled, no `SELECT` grant to `anon` or `authenticated`, and no direct client policies. The `/api/bootcamp-academy` server code uses `auth.userId` for owner-filtered reads and private save RPC calls.
+- **Live result:** `FREE5_PRODUCTION_QA {"checks":8,"blocked":1,"failed":0,"complete":false}`. All eight performed checks passed. The GitHub Actions job exits `2` intentionally because no independently authenticated Owner test session was available.
+- **Not proven:** a successful Owner password-authenticated/browser session and Owner-side attempt to retrieve James_Test's reflection. That step requires legitimate Owner sign-in using the site's ordinary authentication, not a synthetic session, service-role impersonation, fabricated CAPTCHA, or copied member token.
+- No Owner record, password, membership, entitlement, payment, or customer data was changed. Never substitute this structural/access-control result for a completed two-account browser test.
+
+**Acceptance classification:** Real James_Test session and privacy probes **PASSED**; distinct OWNER account and safe database separation **CONFIRMED**; independently signed-in Owner attempt **OPEN**.
+
+| Version | Date | Change | Status |
+|---|---|---|---|
+| 1.3 | 2026-10-29 | James_Test authenticated IDOR/direct-table negative probes; OWNER distinct-enrollment/RLS evidence; preserved Owner-login limitation | 8/8 performed checks passed; two-authenticated-member acceptance not asserted |
