@@ -13,42 +13,66 @@
   return n;
  };
  const chapters=[
-  {title:'Start — What day trading demands',text:
-   'I’m Talia. Before we press Play, I want you to learn how a trader decides whether an opportunity is worth taking. Day trading is opening and closing a position in the same trading day. It requires preparation, attention, a defined risk limit, evidence-based decisions and the discipline to choose NO TRADE. We will inspect one completed fictional candle first. Nothing on this screen promises a gain or tells you what the next candle will do.',
-   question:'Which is a responsible day-trading decision when information is insufficient?',
-   choices:['Enter immediately so you do not miss the move.','WATCH or NO TRADE until the plan has enough evidence.','Assume the next green candle is guaranteed.'],best:1,
-   why:'Correct process: WATCH and NO TRADE are legitimate choices. Your decision should be supported by evidence and a defined risk boundary.',
-   retry:'A fast entry is not required. An incomplete setup is a valid reason to wait or avoid the trade.'},
-  {title:'I Do — Read what the first candle actually says',text:
-   'Look at the single green or red candle currently revealed. Its Open is the first price of this five-minute interval. High and Low are the extremes; Close is its final price. The body runs between Open and Close, and the wicks represent the remaining range. The volume bar describes traded shares in this fictional interval. These observations are real values within our invented scenario, but they cannot tell us the price of the next bar.',
-   question:'What can you establish from one completed candle?',
-   choices:['Its open, high, low, close and reported volume.','Exactly where the following candle will close.','Whether a market order would definitely fill at the close.'],best:0,
-   why:'OHLCV gives bounded, completed observations. It does not certify the future path or real execution.',
-   retry:'Read the completed OHLCV values. Do not infer the next candle or a guaranteed fill.'},
-  {title:'I Do — Prepare before considering an entry',text:
-   'A defensible intraday plan identifies the session and chart interval, the level or structure being evaluated, the evidence required for a trigger, a point of invalidation, and the maximum planned loss. If you cannot identify the trigger and invalidation, do not invent one from a single candle. EMA lines and volume can add context once enough completed data exist, but they are not independent instructions to buy or sell.',
-   question:'What must be identified before considering a simulated ENTER?',
-   choices:['Only whether the current candle is green.','A trigger, invalidation, risk limit and relevant visible evidence.','A target price based on unrevealed candles.'],best:1,
-   why:'A defined trigger, invalidation, risk budget and the observed context support disciplined decision-making.',
-   retry:'The current candle color alone does not supply a complete plan or risk budget.'},
-  {title:'We Do — Compare choices without predicting',text:
-   'Let us walk through a decision together. The current candle is only one observation. Ask what the candle shows about its close relative to its open, whether the volume has meaningful comparison bars, and which levels remain unknown. If a signal or risk estimate is missing, say so. You may select WATCH to gather evidence or NO TRADE because the setup does not qualify. We are practicing reasoning, not rewarding a particular order.',
-   question:'A candle closes higher, but you have no defined invalidation. What should you do?',
-   choices:['Enter because the candle is green.','Set a stop after the next bar appears.','Continue watching or choose NO TRADE until risk is defined.'],best:2,
-   why:'When invalidation is missing, waiting or declining the setup is consistent with the learning objective.',
-   retry:'A later stop is not a substitute for a risk plan established before entry.'},
-  {title:'We Do — Commit evidence before more information',text:
-   'Now use the decision controls below this chart. Choose ENTER, WATCH, NO TRADE or OBSERVE and write what the revealed candle actually shows. Add what would change your view, even if your choice is NO TRADE. The server locks that first decision before allowing later candles. After locking it, the Play Candles button can request each next bar in order. Playback cannot skip the server and will pause for Talia checkpoints.',
-   question:'Why must the decision be locked before later candles appear?',
-   choices:['To protect the original observation from hindsight.','To earn a verified market profit.','To make the next candle follow the plan.'],best:0,
-   why:'The observation boundary prevents later information from silently changing the originally documented decision.',
-   retry:'The lock protects the decision timeline; it does not execute a trade or affect fictional prices.'},
-  {title:'You Do — Practice, pause and review',text:
-   'After the first decision is locked, press Play Candles or Reveal Next Bar. You will see only candles supplied by the protected server. Every few candles I will pause playback and ask you to review the evidence. Compare the new observations with what you originally expected, including any invalidation. Your decision process matters more than the fictional outcome. Never treat an educational OHLCV simulation as a verified fill or an official competency grade.',
-   question:'What is the purpose of the teaching checkpoints?',
-   choices:['To change the previous locked answer after seeing new bars.','To compare new evidence with the recorded original reasoning.','To discover an automatic profitable entry.'],best:1,
-   why:'A checkpoint is a chance to reflect on newly released evidence without rewriting the prior decision.',
-   retry:'Review the decision process against evidence known at each point. Do not use hindsight as proof of prior certainty.'}
+  {title:'Welcome — What Day Trading Demands',text:
+   'I’m Talia. Welcome to your guided learning workstation. We will first review what a completed candle represents, then learn the arithmetic that lets you describe a candle accurately. After that, we will practice deciding whether to ENTER, WATCH or choose NO TRADE. Day trading means opening and closing a position on the same trading day. Careful preparation, risk boundaries and patience are more important than clicking quickly. Nothing on this screen is verified market history or a trading recommendation.',
+   question:'What is a sound response when the evidence is insufficient?',
+   choices:['Enter quickly to avoid missing a move.','WATCH or NO TRADE while gathering evidence.','Assume a green candle predicts a gain.'],best:1,
+   why:'Correct process: WAITING and NO TRADE are valid outcomes. An incomplete setup does not require entry.',
+   retry:'The first job is to identify evidence and uncertainty; speed is not proof that a trade is justified.'},
+  {title:'What Is a Percentage? — I Do',text:
+   'A percentage describes a part of a whole using one hundred equal parts. If the part is one quarter of the whole, that is 25 percent because 0.25 × 100 = 25. To calculate a percentage, we first identify the part and the whole; then divide the part by the whole and multiply by 100. We will use this on one fictional candle, with the real body as the part and full High-to-Low range as the whole. Do not calculate until these definitions make sense.',
+   question:'What must you identify before calculating a percentage?',
+   choices:['Only whether a candle is green.','The part and the whole being compared.','The next candle price.'],best:1,
+   why:'A percentage is meaningful only when the part and its reference whole are clearly defined.',
+   retry:'Ask: a percentage of what? First find the measured part and the total against which it is compared.'},
+  {title:'Candle Experiment — We Do',text:
+   'Watch the chart. The High and Low are the price extremes in this completed candle. Open is its first price and Close is its last price. The body is the distance between Open and Close, while the wicks extend toward the High and Low. Change the Close slider and notice the body and color respond while the full price range remains fixed. All four labels remain beside their actual levels with horizontal guides; the OHLC table gives an accessible second reference.',
+   question:'What changes when you move Close but keep High and Low fixed?',
+   choices:['The real-body size may change, while the full range stays fixed.','The next candle is guaranteed to rise.','The original High-to-Low range must change.'],best:0,
+   why:'Body size depends on Open and Close; full range depends on High and Low.',
+   retry:'Recheck the formulas: body is |Close − Open|, while range is High − Low.'},
+  {title:'Calculate the Real Body — I Do',text:
+   'Real body = absolute value of Close minus Open. Absolute value means measure the size of the difference without a negative sign. For the original worked example, Open is $20.00 and Close is $21.20. Subtract $21.20 − $20.00 = $1.20. If the candle closed below its open, the body would still be a positive length. The real body is not the entire candle range. Use the separate Check My Calculation question and retry freely.',
+   question:'Which prices define the candle body?',
+   choices:['High and Low.','Open and Close.','Volume and Close.'],best:1,
+   why:'The real body spans the opening and closing prices, regardless of direction.',
+   retry:'Focus on the filled rectangle: its ends are the Open and Close, not the entire wick range.'},
+  {title:'Calculate the Full Range — I Do',text:
+   'Full range = High minus Low. For the worked example, High is $22.00 and Low is $19.00, so $22.00 − $19.00 = $3.00. This measures the full distance from the highest to the lowest fictional price in the candle, including both body and wicks. It does not establish whether a profitable trade was available. Answer the range question separately, with unlimited free instructional retries.',
+   question:'Which prices define the full candle range?',
+   choices:['Open and Close.','High and Low.','The first and second candle closes.'],best:1,
+   why:'Full range measures the distance between High and Low.',
+   retry:'The full range includes every price level spanned by the candle, not only the body.'},
+  {title:'Calculate the Percentage — We Do',text:
+   'Now combine what we already learned. First, calculate the real body: $1.20. Second, calculate the full range: $3.00. Third, divide the body by the range: $1.20 ÷ $3.00 = 0.40. Fourth, multiply by 100 to get 40.0 percent. We now know the real body occupies 40 percent of the candle’s full vertical range. That is a description of the completed candle, not a forecast. Try the percentage calculation yourself and request more instruction whenever needed.',
+   question:'Why do we divide real body by full range?',
+   choices:['To compare the body with the candle’s total measured height.','To guarantee the next price direction.','To calculate the number of shares traded.'],best:0,
+   why:'The division expresses the body as a proportion of the entire candle range.',
+   retry:'A percentage is part ÷ whole × 100; here the part is body and the whole is full range.'},
+  {title:'Independent Assessment — Protected Boundary',text:
+   'In a formal assessment you must work independently. The first graded response must be recorded by the authenticated protected assessment service; an instructional screen cannot issue a grade. The separate fictional self-check below is ungraded, and it records your first response for learning review only. Reveal and Skip are not permitted on a formal graded question. You can continue learning with a different candle, but a new formally scored attempt must come from the official assessment system.',
+   question:'Which system can assign an official mastery score?',
+   choices:['A local illustrative chart.','The authenticated protected assessment service after editorial approval.','A simulated Question Pass wallet.'],best:1,
+   why:'Official grading uses the reviewed question bank and protected attempt records.',
+   retry:'Neither an illustrative chart nor a simulated credit balance is an assessment authority.'},
+  {title:'Review & Retry — We Do',text:
+   'Review your original reasoning without rewriting the first answer. You can always ask for an explanation and try a new illustrated candle. For a real formal assessment, the prior graded attempt must remain intact and a new protected attempt uses distinct questions according to the approved assessment policy. The current demonstration tracks ungraded observations only. Be especially careful not to confuse a completed-candle statistic with evidence of a future price move.',
+   question:'What should happen to the first official graded submission when you retry?',
+   choices:['Overwrite it with the new answer.','Preserve it and open a separately recorded, independently graded new attempt.','Convert a revealed answer into mastery.'],best:1,
+   why:'Preserving the first formal attempt prevents retrospective alteration and supports an auditable progress record.',
+   retry:'An additional assessment should be independently recorded; a past submitted result must not be silently replaced.'},
+  {title:'Transfer Challenge — You Do',text:
+   'You now have another authored fictional candle. Calculate its real body, full range and body percentage without copying the worked-case numbers. Then explain what those measurements tell you about the completed interval, and what they cannot tell you about the next one. Finally, ask whether the observed evidence, trigger and invalidation are sufficient to support ENTER, WATCH or NO TRADE.',
+   question:'What makes this a genuine transfer exercise?',
+   choices:['Using a new example and applying the same method.','Repeating the earlier answer without looking.','Assuming the next bar moves in the same direction.'],best:0,
+   why:'Applying the method to different inputs shows broader understanding without predicting market behavior.',
+   retry:'The purpose is to transfer the procedure to unfamiliar observations, not memorize one answer.'},
+  {title:'Learning Report — Review Your Progress',text:
+   'You have practiced naming Open, High, Low and Close, measuring the real body and full range, and interpreting the body as a percentage of the range. You have also practiced careful intraday decisions, including the option not to trade. Review your recorded practice attempts and assistance use below. A guided lesson or simulated Question Pass never certifies independent mastery; the official protected assessment result remains authoritative.',
+   question:'What does completing this guided demonstration prove?',
+   choices:['A guaranteed future profitable trade.','Completion of guided learning; independent mastery still requires protected assessment.','An automatically approved certificate.'],best:1,
+   why:'Guided teaching and repeated practice support learning but do not substitute for independent protected grading.',
+   retry:'Learning activity and independently verified competency results have different evidentiary standards.'}
  ];
  function init(){
   const panel=$('dt-c01-l02-echarts'),session=$('vr-session'),advance=$('vr-advance');
@@ -85,6 +109,10 @@
   const feedback=create('p','dt-l02-feedback');feedback.setAttribute('role','status');
   feedback.setAttribute('aria-live','polite');
   check.append(checkHeading,question,choices,feedback);coach.append(check);
+  // The full ten-step calculator is a subordinate instructional sequence,
+  // not a replacement official grade or the protected replay.
+  const measurements=root.CrownlightCandleV28?.create?.({controlled:true})||null;
+  if(measurements)coach.append(measurements.element);
   const reflection=create('label','dt-l02-reflect','What do you notice or still need to verify? (optional)');
   const reflectionText=create('textarea','');reflectionText.rows=2;reflectionText.maxLength=1200;
   reflectionText.placeholder='Record your observation here. Use the server decision box below to lock the official replay rationale.';
@@ -136,9 +164,10 @@
    const item=chapters[stepIndex];
    progress.textContent='Teaching step '+(stepIndex+1)+' of '+chapters.length;
    lessonTitle.textContent=item.title;
-   const narrative=item.text+(stepIndex===1?'\n\n'+firstBarCopy():'');
+   const narrative=item.text+(stepIndex===2?'\n\n'+firstBarCopy():'');
    full.textContent=narrative;transcript.textContent='';typingAt=0;
    prior.disabled=stepIndex===0;next.disabled=stepIndex===chapters.length-1;
+   measurements?.setStep(stepIndex);
    question.textContent=item.question;choices.replaceChildren();feedback.textContent='';
    const previousAnswer=answered.get(stepIndex);
    item.choices.forEach((choice,index)=>{
@@ -170,6 +199,7 @@
   }
   function reset(){
    stop();cancelTyping();isCase=false;stepIndex=0;observed=[];answered.clear();
+   measurements?.setStep(0);
    reflectionText.value='';checkpointAt=0;checkpoint=false;
    state={sessionId:'',locked:false,busy:false};lastSession='';
    transportState.textContent='Select the Lesson 2 scenario to open guided playback.';
@@ -238,11 +268,11 @@
    if(!b||!Number.isSafeInteger(Number(b.index))||Number(b.index)>=TOTAL)return;
    if(observed.at(-1)?.index===b.index)return;
    observed.push({...b});
-   if(stepIndex===1)showLesson();
+   if(stepIndex===2)showLesson();
    if(playing&&observed.length>1&&(observed.length-1)%3===0&&observed.length!==checkpointAt){
     checkpointAt=observed.length;checkpoint=true;
     stop('Talia checkpoint: pause to compare what was actually observed with your recorded reasoning.');
-    stepIndex=5;showLesson();
+    stepIndex=7;showLesson();
    }
    if(observed.length>=TOTAL)stop('You reached the last fictional bar. Review the result; no additional candle can be released.');
    renderTransport();
