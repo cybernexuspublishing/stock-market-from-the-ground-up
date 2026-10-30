@@ -15,4 +15,17 @@ assert(parent.includes('<input type="hidden" id="dlg-p-ddurl"'), 'Legacy direct 
 assert(!parent.includes('<label>Direct digital checkout URL</label>'), 'Do not display redundant manual book checkout URL');
 assert(parent.includes("direct_digital_checkout_url:document.getElementById('dlg-p-ddurl').value"), 'Preserve stored legacy URL on Admin Save');
 assert(!/p_sales:true,p_downloads:true/.test(source),'No automatic LIVE sales activation');
+
+const styles=read('assets/css/admin-book-editor-v1.css');
+const html=read('admin.html');
+assert(parent.includes("d.classList.toggle('admin-book-editor',options.bookEditor===true)"),'Book layout is scoped to its editor');
+assert(parent.includes('if(options.stayOpen===true){status('),'Book Save must keep the editor open after success');
+assert(parent.includes('else d.close()'),'Non-book dialogs must retain normal close-on-save behavior');
+assert(parent.includes('stayOpen:true,bookEditor:true'),'Book editor must opt in to persistent Save');
+assert(source.includes('editionFields.append('),'Rights and upload fields must be in compact layout');
+assert(source.includes('actions.append(upload,prepare,historyButton,previewTools,save,draftSave)'),'All six book actions should be grouped side by side');
+assert(styles.includes('.gu-digital-actions'),'Responsive book action layout must exist');
+assert(styles.includes('overflow-y:auto'),'Book body must remain scrollable above Save/Cancel');
+assert(styles.includes('grid-template-columns:repeat(3,minmax(0,1fr))'),'Use three columns of file actions on desktop');
+assert(html.includes('assets/css/admin-book-editor-v1.css?v=20261030-1'),'Book editor stylesheet must load');
 console.log('PASS admin book save: main Save coordinates protected rights, clear KDP/provider errors, draft save with sales OFF');
