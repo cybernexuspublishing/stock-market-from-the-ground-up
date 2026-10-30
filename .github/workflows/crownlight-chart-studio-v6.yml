@@ -8,6 +8,7 @@ on:
       - 'assets/js/crownlight-chart-tiers-v1.js'
       - 'functions/api/chart-workspace.js'
       - 'functions/api/marketdata.js'
+      - 'simulator.html'
       - 'tests/test_crownlight_chart_provider_inventory_v6.mjs'
       - 'tests/test_crownlight_workspace_sync_v6_browser.mjs'
       - '.github/workflows/crownlight-chart-studio-v6.yml'
@@ -32,6 +33,7 @@ jobs:
           node --check functions/api/marketdata.js
           node tests/test_crownlight_chart_provider_inventory_v6.mjs
           node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_tiers_v1.mjs
           node tests/test_crownlight_chart_studio_v3_integrity.mjs
           node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
           node tests/test_crownlight_provider_entitlement_v1.mjs
