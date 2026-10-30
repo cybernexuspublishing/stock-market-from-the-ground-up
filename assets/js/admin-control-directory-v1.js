@@ -13,7 +13,7 @@ const entries=[
  ['Staff & Permissions','Members & Access','[data-panel="roles"]','Roles & Permissions'],
  ['Showcase Demo Logins','Members & Access','#admin-create-account-direct','Create Showcase Account;Synthetic Showcase Account',true],
  ['Test Accounts','Members & Access','[data-panel="settings"]','Membership Test Accounts;QA Accounts',true],
- ['Lab Library','Learning Administration',null,'Lab Registry Management','/admin-operations.html'],
+ ['Lab Library','Learning Administration',null,'Lab Registry Management',false,'/admin-operations.html'],
  ['Lab Preview','Learning Administration',null,'Read-only Member Lab Preview',false,'/admin-lab-preview.html'],
  ['Question Bank','Learning Administration',null,'Instructor Question Bank',false,'/training-editor.html'],
  ['Tutor Content & Feedback','Learning Administration','[data-panel="content"]','Content & Tutor;Content & Market Tutor'],
@@ -43,7 +43,7 @@ const entries=[
  ['Advertising Sales','Website Management',null,'Marketing & Social Media;Advertising',true,'/admin-advertising.html'],
  ['Social Media Planner','Website Management',null,'Social Operations',true,'/admin-advertising.html'],
  ['Client Website Drafts (Grant Web Solutions)','Website Management',null,'Grant Web Solutions Client Drafts',false,'/gws-projects.html'],
- ['Operations Center','Support & Operations',null,'Site Operations Center;Operations & Intelligence'],
+ ['Operations Center','Support & Operations',null,'Site Operations Center;Operations & Intelligence',false,'/admin-operations.html'],
  ['Launch Readiness','Support & Operations','[data-admin-prelive]','Pre-LIVE Acceptance Center',true],
  ['Integrations Status','Support & Operations','[data-panel="system"]','System & Integrations'],
  ['Stripe Sync Check','Support & Operations','[data-panel="commerce"]','Stripe Shadow;Stripe Catalog',true],
@@ -56,7 +56,38 @@ const entries=[
 const $=(sel,root=document)=>root.querySelector(sel);
 const getCtx=()=>typeof ADMIN!=='undefined'?ADMIN.ctx:window.ADMIN?.ctx;
 const owner=()=>getCtx()?.roles?.includes('OWNER')===true;
+// Use the real, permission-filtered sidebar as the authoritative dynamic
+// inventory. Never clone its controls, duplicate their handlers, or expose
+// items hidden from the signed-in role.
+function navUsable(node){
+ return !!(node?.isConnected&&!node.disabled&&!node.hidden&&
+  !node.closest('[hidden],[aria-hidden="true"],.cc-owner-hidden,.cc-preserved-module-roots')&&
+  !node.matches('[data-cc-group-toggle],.cc-admin-group-title')&&
+  node.getAttribute('aria-hidden')!=='true'&&
+  !node.closest('details:not([open])')?.classList.contains('cc-group-more'));
+}
+function liveEntries(){
+ const tabs=$('#admin-tabs');
+ if(!tabs)return [];
+ const known=new Set(entries.filter(canShow).map(x=>x.label.toLowerCase()));
+ const used=new Set(),found=[];
+ for(const node of tabs.querySelectorAll('button,a[href]')){
+  if(!navUsable(node))continue;
+  const label=String(node.getAttribute('aria-label')||node.textContent||'')
+   .replace(/\\s+/g,' ').trim().slice(0,140);
+  if(!label||known.has(label.toLowerCase()))continue;
+  const key=node.dataset.ccControlKey||node.id||node.getAttribute('href')||
+   Object.entries(node.dataset).map(([k,v])=>k+':'+v).join('|')||label;
+  if(used.has(key))continue;used.add(key);
+  const group=node.closest('[data-cc-nav-group]')?.dataset.ccNavGroup||
+   'Support & Operations';
+  found.push({label,group,aliases:node.dataset.ccLegacyLabel||'',
+   ownerOnly:false,liveNode:node});
+ }
+ return found;
+}
 function canShow(entry){
+ if(entry.liveNode)return navUsable(entry.liveNode);
  if(entry.ownerOnly&&!owner())return false;
  if((getCtx()?.roles||[]).includes('SHOWCASE_VIEWER')&&(['Support & Operations','Security & Governance'].includes(entry.group)||entry.ownerOnly))return false;
  if(entry.href)return true; // Existing standalone pages enforce their own server permissions.
@@ -66,7 +97,7 @@ function canShow(entry){
 function openEntry(entry,message){
  if(!canShow(entry)){message.textContent='This control is not available for your role.';return;}
  if(entry.href&&entry.href!='/admin.html#membership-test'){location.assign(entry.href);return;}
- let target=entry.target?$('#admin-tabs '+entry.target):null;
+ let target=entry.liveNode|| (entry.target?$('#admin-tabs '+entry.target):null);
  if(!target){
   target=[...document.querySelectorAll('#admin-tabs button,#admin-tabs a')].find(x=>x.textContent.trim().toLowerCase()===entry.label.toLowerCase()&&!x.hidden&&!x.disabled);
  }
@@ -98,8 +129,10 @@ function mount(){
  panel.append(heading,field,results,notice);app.append(panel);
  const render=()=>{
   const q=field.value.trim().toLowerCase();results.replaceChildren();
-  const visible=entries.filter(e=>canShow(e)&&(!q||[e.label,e.group,e.aliases].join(' ').toLowerCase().includes(q)));
-  for(const group of G){
+  const visible=[...entries,...liveEntries()].filter(e=>canShow(e)&&
+   (!q||[e.label,e.group,e.aliases].join(' ').toLowerCase().includes(q)));
+  const groups=[...new Set([...G,...visible.map(e=>e.group)])];
+  for(const group of groups){
    const matching=visible.filter(e=>e.group===group);if(!matching.length)continue;
    const section=document.createElement('section');section.className='cc-directory-group';
    const h=document.createElement('h2');h.textContent=group;section.append(h);
@@ -115,13 +148,26 @@ function mount(){
   if(!visible.length){const none=document.createElement('p');none.textContent='No matching authorized control. Try the previous name.';results.append(none);}
  };
  field.addEventListener('input',render);panel.dataset.ccReady='true';render();
+ // Sidebar modules mount asynchronously. Update the directory when an
+ // authorized control appears, changes its label or becomes unavailable.
+ const tabs=$('#admin-tabs');
+ if(tabs){
+  let scheduled=false;
+  new MutationObserver(()=>{
+   if(scheduled||!panel.classList.contains('active'))return;
+   scheduled=true;
+   setTimeout(()=>{scheduled=false;if(panel.isConnected&&panel.classList.contains('active'))render()},120);
+  }).observe(tabs,{subtree:true,childList:true,characterData:true,
+   attributes:true,attributeFilter:['hidden','disabled','aria-hidden','class','data-cc-nav-group']});
+ }
+ panel.__ccRender=render;
  return panel;
 }
 function open(q=''){
  const p=mount();if(!p)return false;
  document.querySelectorAll('#admin-app .admin-panel').forEach(x=>x.classList.remove('active'));
  document.querySelectorAll('#admin-tabs button').forEach(x=>x.classList.remove('active'));
- p.classList.add('active');const f=$('#cc-directory-search');
+ p.classList.add('active');p.__ccRender?.();const f=$('#cc-directory-search');
  if(q){f.value=q;f.dispatchEvent(new Event('input',{bubbles:true}));}f.focus();
  history.replaceState(null,'','#find-a-tool');return true;
 }
