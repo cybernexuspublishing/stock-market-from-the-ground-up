@@ -13,6 +13,8 @@ function scrubLabPlayerOnIdentityChange(nextUserId){
  }
  const workspace=document.getElementById('lab-player-content');
  if(workspace)workspace.hidden=true;
+ const toolbar=document.getElementById("player-learning-toolbar");if(toolbar)toolbar.hidden=true;
+ window.CrownlightLearningProgress?.unmount?.("gu-learning-progress");
  const gate=document.getElementById('lab-player-gate');
  if(gate){
   gate.replaceChildren();
@@ -604,7 +606,9 @@ async function initPlayer(){let loadEpoch=null;try{const id=new URLSearchParams(
   // The searchable public destination picker mounts independently of Lab authorization.
   q('player-title').textContent=labTopic(lab);
   const bookTitle=({1:'Foundations I',2:'Foundations II',3:'Foundations III',4:'Day Trading',5:'Reading the Tape'})[Number(lab.book)]||'Interactive Learning';
-  q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
+  q('player-location').textContent=bookTitle+' · Lab Engine v3.2 + Learning v3.3 · '+lab.id;q('lab-player-gate').innerHTML='';q('lab-player-content').hidden=false;
+   q('player-learning-toolbar').hidden=false;
+   window.CrownlightLearningProgress?.mount?.('gu-learning-progress');document.title=`${labTopic(lab)} | Interactive Lab ${lab.id}`;if(payload.sourceStatus==='canonical_registry_safe_orientation_only'){
   q('player-access-note').replaceChildren(compactSourceDisclosure('About this Lab’s source material',
    'This Lab provides authorized conceptual instruction. Historical charts, private question reviews and assessment certification require their own approved evidence. No mastery score is implied.'));
  }else if(payload.sourceStatus==='private_unreviewed_conceptual_orientation')q('player-access-note').replaceChildren();else if(PLAYER.access.isMember)q('player-access-note').innerHTML='<div class="oknotice"><strong>Full Learning Access:</strong> Guided, Practice and Blind Decision are available. Assessment requires a published Owner-reviewed question bank.</div>';else if(PLAYER.access.redeemedBooks.has(Number(lab.book)))q('player-access-note').innerHTML='<div class="oknotice"><strong>Book-owner companion access:</strong> Guided mode for this book remains available. Advanced modes require active Full Learning Access.</div>';else if(window.SiteAccess?.SAMPLE_LABS?.has(lab.id)===true)q('player-access-note').innerHTML='<div class="notice"><strong>Free sample:</strong> This Guided lab is open as a sample. Advanced modes require Full Learning Access.</div>';else q('player-access-note').innerHTML='<div class="notice"><strong>Free Reader:</strong> Redeem this book in Settings or activate membership for Guided access.</div>';// Both the visible mode menu and the accessibility select use one state

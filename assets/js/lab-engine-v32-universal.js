@@ -25,6 +25,10 @@ function paintPrototypeProgress(index,percent=null,done=false){
  const number=lookup('player-progress-value');if(number)number.textContent=pct+'%';
  const fill=lookup('player-progress-fill');if(fill)fill.style.width=pct+'%';
  const bar=lookup('player-stage-progress');if(bar){bar.setAttribute('aria-valuenow',String(pct));bar.setAttribute('aria-valuetext',DISPLAY_STEPS[shown]+' · stage '+(shown+1)+' of 10');}
+ if(typeof CustomEvent==='function'&&typeof document.dispatchEvent==='function')
+  document.dispatchEvent(new CustomEvent('gu-learning-visible-progress',{detail:{
+   index:shown,label:DISPLAY_STEPS[shown],percent:pct,total:10
+  }}));
 }
 
 const sessions=new WeakMap();

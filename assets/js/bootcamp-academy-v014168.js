@@ -41,6 +41,7 @@
  function clean(){
   program=null;days=[];enrolled=false;progress.clear();drafts.clear();selfCheckDrafts.clear();progressAvailable=false;dayIndex=1;
   ++renderSerial;busy=false;get('academy-workspace').hidden=true;
+  globalThis.CrownlightLearningProgress?.unmount?.('academy-learning-progress');
   get('academy-lab-slot').replaceChildren();get('academy-reflection').value='';
   get('academy-save-status').textContent='';
   // Hidden DOM still belongs to the previous member. Remove its content rather
@@ -505,6 +506,7 @@
 
  function renderDay(){
   const d=days[dayIndex-1];if(!d)return;
+  globalThis.CrownlightLearningProgress?.reset?.('academy-learning-progress');
   ++renderSerial;const renderEpoch=renderSerial;
   get('academy-stage-label').textContent=(d.programCode==='free5'?'Lesson ':'Day ')+dayIndex+' of '+days.length+' · '+(d.phaseLabel||'Guided learning');
   get('academy-day-title').textContent=d.title;
@@ -649,6 +651,7 @@
    get('academy-course-summary').textContent=program.summary;
    get('academy-workspace').hidden=false;
    document.body.classList.add('academy-classroom-active');
+   globalThis.CrownlightLearningProgress?.mount?.('academy-learning-progress');
    // Free's 12-topic knowledge reference belongs inside the selected classroom,
    // not above the lesson as a separate catalog section.
    const library=get('academy-free-knowledge');
