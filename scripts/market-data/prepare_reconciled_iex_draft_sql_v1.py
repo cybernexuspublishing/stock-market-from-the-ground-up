@@ -27,6 +27,19 @@ def prepare(doc,code):
  if not isinstance(v,dict) or not isinstance(v.get('bars'),list):
   raise ValueError('Symbol is not present in verified original capture')
  rows=v['bars']
+ audit=v.get('volume_conservation')
+ if not isinstance(audit,dict) or audit.get('passed') is not True:
+  raise ValueError('Updated full-day event and volume conservation evidence is required')
+ if v.get('volume_only_minutes'):
+  raise ValueError('Volume-only minutes require a separately reviewed representation; do not discard their shares')
+ if audit.get('volume_only_volume')!=0 or audit.get('volume_only_events')!=0:
+  raise ValueError('Unrepresented venue-only volume or trade events require review')
+ if audit.get('price_bar_volume')!=sum(b.get('volume',0) for b in rows):
+  raise ValueError('Bar-volume total does not match source venue-volume audit')
+ if audit.get('price_bar_events')!=sum(b.get('observed_trades',0) for b in rows):
+  raise ValueError('Price-bar trade events do not match source audit')
+ if audit.get('all_venue_volume')!=audit.get('price_bar_volume'):
+  raise ValueError('Total venue volume cannot be represented by the available OHLCV bars')
  if len(rows)<2 or len(rows)>60:raise ValueError('No bounded source interval')
  normalized=[]
  prev=None
