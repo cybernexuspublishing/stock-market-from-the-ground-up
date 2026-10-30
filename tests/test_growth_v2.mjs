@@ -78,7 +78,7 @@ assert((desk.match(/data-gu-copy-post/g)||[]).length===15,'Twelve original posts
 assert(desk.includes('free-foundations-challenge.html')&&desk.includes('candle-practice.html'),
  'Public educational URLs missing from source copy');
 new Script(deskCode,{filename:'growth-manual-publishing-v2.js'});
-assert(!/\\bfetch\\s*\\(|XMLHttpRequest|localStorage\\.|sessionStorage\\.|window\\.open|navigator\\.share|mailto:/i.test(deskCode),
+assert(!/\bfetch\s*\(|XMLHttpRequest|localStorage\.|sessionStorage\.|window\.open|navigator\.share|mailto:/i.test(deskCode),
  'Owner publishing desk must not publish or contact anyone');
 assert(deskCode.includes('navigator.clipboard.writeText'),'Manual copy action expected');
 console.log('PASS Growth V2: optional calendar download, public-only feed discovery, verified IndexNow gating and no contact capture');
