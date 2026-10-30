@@ -84,7 +84,7 @@ try{
  assert.equal(await page.evaluate(()=>window.__charts[1].actions.length),n,
   'Disabling sync must stop mirroring actions immediately');
  await page.locator('[data-cl-sync]').check();
- await page.locator('[data-cl-layout]').selectOption('STACKED');
+ await page.locator('select[data-cl-layout]').selectOption('STACKED');
  await page.locator('[data-cl-studies]').fill('EMA, RSI, RSI');
  await page.locator('[data-cl-save]').click();
  await page.waitForFunction(()=>document.querySelector('.cl-workspace-status')?.textContent.includes('revision protection'));
