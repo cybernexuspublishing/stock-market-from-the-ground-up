@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import vm from 'node:vm';
+const file='assets/js/lab-dt-c01-l02-teaching-v2.js';
+const js=fs.readFileSync(file,'utf8');
+const engine=fs.readFileSync('assets/js/lab-engine-v32-universal.js','utf8');
+const page=fs.readFileSync('lab-player.html','utf8');
+const simulator=fs.readFileSync('simulator.html','utf8');
+const replay=fs.readFileSync('assets/js/verified-replay-v01492.js','utf8');
+const chart=fs.readFileSync('assets/js/lesson-gusim-dt-c01-l02-echarts-v1.js','utf8');
+const css=fs.readFileSync('assets/css/lesson-gusim-dt-c01-l02-echarts-v1.css','utf8');
+const math={};
+new vm.Script(js).runInNewContext({window:math});
+const spec=math.CrownlightDT01L02Lesson;
+assert.equal(spec.id,'DT-C01-L02');
+assert.equal(spec.dataset,'GUSIM_DT_C01_L02');
+for(const i of [0,1,2,4,6,7,8]){
+ const plan=spec.lesson(i);
+ assert(plan.blocks?.length>=2,'Stage '+i+' must have individual instruction');
+ assert.equal(plan.objectives?.length,3);
+ assert(plan.limitation.includes('fictional'));
+}
+assert(spec.lesson(0).blocks.join(' ').includes('I am Talia'));
+assert(spec.lesson(1).blocks.join(' ').includes('EMA 20'));
+assert(spec.lesson(1).blocks.join(' ').includes('NO TRADE'));
+assert(spec.lesson(2).blocks.join(' ').includes('Experiment'));
+assert(spec.lesson(4).blocks.join(' ').includes('server'));
+assert(js.includes("root.CrownlightECharts?.load?.()"),'Use only self-hosted ECharts existing loader');
+assert(js.includes('separate')||js.includes('NOT the hidden GUSIM'));
+assert(!/fetch\s*\(|localStorage|sessionStorage|supabase|stripe|gradeAttempt/i.test(js));
+assert(page.includes('lab-dt-c01-l02-teaching-v2.js'));
+assert(page.includes('lab-dt-c01-l02-teaching-v2.css'));
+assert(page.indexOf('lab-dt-c01-l02-teaching-v2.js')<page.indexOf('lab-engine-v32-universal.js'),'Lesson asset precedes shared engine');
+assert(engine.includes("if(labId==='DT-C01-L02')"));
+for(const stage of ['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'])
+ assert(engine.includes("'"+stage+"'"),'Keep shared stage '+stage);
+assert(simulator.includes("location.replace('/lab-player.html?lab=DT-C01-L02')"),'Old deep link must redirect to guided teaching');
+assert(simulator.includes('lessonPractice'));
+assert(replay.includes("replayParams.get('lessonPractice')==='1'"),'Case-specific practice must not cross-resume another case');
+assert(replay.includes("$('vr-code').addEventListener('input'"),'Keep dropdown selection aligned with dataset code');
+assert(chart.includes("session.classList.add('dt-l02-active')"));
+assert(chart.includes("basicChart.hidden=true"),'Only one primary chart after ECharts loaded');
+assert(css.includes('grid-template-areas:"heading" "session" "source" "lesson"'), 'Practice chart must not be compressed beside plan');
+console.log('PASS DT-C01-L02 shared nine-stage Talia teaching, specific ECharts demonstration, protected practice and consistent replay layout');
