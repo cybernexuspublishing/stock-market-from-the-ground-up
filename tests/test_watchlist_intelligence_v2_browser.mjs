@@ -105,7 +105,11 @@ try{
  await scanner.locator('input[type=file]').setInputFiles({name:'fictional.csv',mimeType:'text/csv',
   buffer:Buffer.from('symbol,price,change_pct,volume,rvol,float,spread_pct\\nFAKE,4,10,2000000,2,8000000,1.5\\n')});
  await scanner.getByRole('button',{name:'Evaluate saved scanner criteria'}).click();
- await scanner.getByText(/1 \/ 1 supplied snapshot rows matched/).waitFor();
+ await page.waitForTimeout(400);
+ const scanOutput=await scanner.innerText();
+ const statusOutput=await region.locator('p[role=status]').first().innerText();
+ assert.match(scanOutput,/1 \/ 1 supplied snapshot rows matched/,
+   'Saved scanner integration failed. Panel: '+scanOutput.slice(-450)+'; status: '+statusOutput);
  assert.equal(writes,5,'scanner inspection cannot mutate a saved Watchlist record');
  await page.evaluate(()=>window.__watchlistAuthListener('SIGNED_OUT',null));
  assert.equal(await region.isHidden(),true,'private panel must hide on sign-out');
