@@ -85,15 +85,22 @@
  const day=el('input');day.id='cl-studio-date-v4';day.type='date';day.value='2024-05-07';
  const sample=el('button','Verify historical sample — no import');
  sample.type='button';sample.className='btn secondary';sample.id='cl-studio-sample-v4';
+ const importSample=el('button','Use verified bars in ungraded chart');
+ importSample.type='button';importSample.className='btn secondary';
+ importSample.id='cl-studio-import-v5';importSample.hidden=true;
  const sourceResult=el('p','No historical provider request made.');
  sourceResult.setAttribute('role','status');sourceResult.id='cl-studio-sample-status-v4';
  controls.append(refresh);
- sourceControls.append(label('Personal provider',provider),label('Ticker',ticker),label('Trading date',day),sample);
+ sourceControls.append(label('Personal provider',provider),label('Ticker',ticker),label('Trading date',day),sample,importSample);
  panel.append(h,disclaimer,controls,status,results,sourceTitle,warning,sourceControls,sourceResult);
  section.parentNode.insertBefore(panel,section);
- let memberId=null,active=true,epoch=0,client=null,inFlight=false,verifiedSources=[];
+ let memberId=null,active=true,epoch=0,client=null,inFlight=false,verifiedSources=[],lastSample=null;
+ const invalidateSample=()=>{lastSample=null;importSample.hidden=true};
+ provider.addEventListener('change',invalidateSample);
+ ticker.addEventListener('input',invalidateSample);
+ day.addEventListener('change',invalidateSample);
  function clear(){
-  epoch++;memberId=null;verifiedSources=[];
+  epoch++;memberId=null;verifiedSources=[];invalidateSample();
   status.textContent='Private member session ended. Reload after signing in.';
   results.replaceChildren();sourceResult.textContent='';
   sourceControls.querySelectorAll('input').forEach(e=>{e.value=''});
@@ -146,8 +153,9 @@
      const value=parse(result.value);ready++;
      if(name==='Chart Studio tier')add(name,value.tier+'; '+value.reason+
        (value.temporary?'; expires '+(value.expiresAt||'unknown'):''));
-     if(name==='Private workspace')add(name,value.layout+'; saved tier '+value.selected+
-      '; synchronized: '+(value.sync?'yes':'no')+'; revision '+value.revision);
+     if(name==='Private workspace')add(name,value.layout+'; saved chart interface '+value.selected+
+      ' (separate from membership entitlement); synchronized: '+(value.sync?'yes':'no')+
+      '; last save '+value.revision);
      if(name==='Sparks temporary passes')add(name,value.activePasses.length+' active; '+value.offers+
       ' catalog offers available (no redemption requested)');
      if(name==='Personal provider connections'){
@@ -167,6 +175,7 @@
   if(inFlight)return;
   inFlight=true;sample.disabled=true;
   const attempt=++epoch;
+  invalidateSample();
   sourceResult.textContent='Preparing personally authorized historical request…';
   try{
    const who={...(await member()),epoch:attempt};
@@ -181,12 +190,57 @@
    const data=await get(URLS.bars+'?'+q,who);
    const validation=root.CrownlightSourceIntegrityV3.validateProvider(data,{provider:source,ticker:sym});
    if(!active||attempt!==epoch)return;
+   lastSample={ownerId:who.id,provider:source,ticker:sym,date,payload:data};
+   importSample.hidden=false;
    sourceResult.textContent='Historical response validated: '+validation.candles.length+' chronological bars for '+sym+
     ' on '+date+' ('+validation.feed+'). Classification: '+validation.classification+
-    '. No bars imported; not licensed for member-wide redistribution, graded replay or consolidated-market claims.';
-  }catch(e){if(active)sourceResult.textContent='Historical sample not verified: '+String(e.message||e).slice(0,220)+
+    '. No bars imported. Select “Use verified bars in ungraded chart” to start local practice without another provider request. No member-wide redistribution, graded replay or consolidated-market claims.';
+  }catch(e){invalidateSample();if(active)sourceResult.textContent='Historical sample not verified: '+String(e.message||e).slice(0,220)+
    '. Existing chart and provider connections were not changed.'}
   finally{inFlight=false;sample.disabled=false}
+ };
+ /* No implicit import or additional Tiingo charge: require an explicit
+  * member action, recheck the separate Simulator entitlement, and use the
+  * already validated personal OHLCV response held only in this browser.
+  */
+ importSample.onclick=async()=>{
+  if(inFlight)return;
+  inFlight=true;importSample.disabled=true;
+  try{
+   const saved=lastSample,who=await member();
+   if(!saved||saved.ownerId!==who.id||saved.provider!==provider.value||
+      saved.ticker!==ticker.value.trim().toUpperCase()||saved.date!==day.value)
+    throw Error('Historical sample changed. Verify it again before importing.');
+   if(!root.GroundUpSimulatorMemberReadyV1){
+    const toggle=document.getElementById('sim-mode-csv');
+    if(!toggle||typeof root.GroundUpSimulatorImportVerifiedProviderV1!=='function')
+     throw Error('Simulator is unavailable. Open the Market Simulator and verify your sample again.');
+    let timer,onReady;
+    const waitForLegacy=new Promise((resolve,reject)=>{
+     onReady=()=>{clearTimeout(timer);resolve()};
+     timer=setTimeout(()=>{root.removeEventListener('groundup:legacy-simulator-ready',onReady);
+      reject(Error('Simulator authentication is incomplete. Switch to Fictional / CSV Practice and retry.'))},8000);
+     root.addEventListener('groundup:legacy-simulator-ready',onReady,{once:true});
+    });
+    toggle.click();
+    if(!root.GroundUpSimulatorMemberReadyV1)await waitForLegacy;
+    else{clearTimeout(timer);root.removeEventListener('groundup:legacy-simulator-ready',onReady)}
+   }
+   if(typeof root.GroundUpSimulatorImportVerifiedProviderV1!=='function')
+    throw Error('Ungraded Simulator import is not available.');
+   const result=await root.GroundUpSimulatorImportVerifiedProviderV1(saved);
+   if(!result?.ok||!Number.isSafeInteger(result.bars))
+    throw Error('Simulator did not acknowledge the personal sample.');
+   const latest=await member();
+   if(!active||latest.id!==saved.ownerId)return;
+   invalidateSample();
+   sourceResult.textContent='Loaded '+result.bars+
+    ' personal historical bars into ungraded Chart Studio; '+result.revealed+
+    ' opening bars are visible. Next Bar reveals later observations. No trade, grade or redistribution was created.';
+   document.getElementById('cl-chart-visibility-toolbar')?.scrollIntoView?.({block:'start',behavior:'auto'});
+  }catch(e){if(active)sourceResult.textContent='Chart import not completed: '+
+   String(e.message||e).slice(0,230)+'. Existing chart was preserved.'}
+  finally{inFlight=false;importSample.disabled=false}
  };
  if(typeof root.addEventListener==='function'){
   root.addEventListener('crownlight:member-changed',clear);
