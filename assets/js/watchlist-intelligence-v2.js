@@ -318,7 +318,7 @@
    try{
     const updated=C.checkpoint(rec,{
      action:'TALIA_RESEARCH_REFLECTION',note:learningNote.value.trim(),
-     at:new Date().toISOString().replace(/\\.\\d{3}Z$/,'Z')});
+     at:safeTime()});
     await editPayload(rec,updated);await refresh();
     status(notices,'Ungraded Talia research reflection saved privately; no Lab mastery awarded.');
    }catch(e){status(notices,e.message||'Research reflection unavailable')}
