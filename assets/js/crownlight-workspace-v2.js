@@ -30,7 +30,8 @@ async function endpoint(method,data){
   ...(data?{'content-type':'application/json'}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store'});
  const reply=await r.json().catch(()=>null);
  if(!r.ok){const err=new Error(r.status===403?'Chart membership is not eligible':
-  r.status===409?'WORKSPACE_CHANGED':'Workspace temporarily unavailable');err.code=r.status===409?reply?.error:null;throw err}
+  r.status===409?(reply?.error||'WORKSPACE_CHANGED'):'Workspace temporarily unavailable');
+  err.code=r.status===409?reply?.error:null;throw err}
  if(reply?.ok!==true)throw Error('Workspace not verified');return reply;
 }
 function activeDrawings(){
@@ -125,6 +126,8 @@ async function persist(){
   if(e.code==='WORKSPACE_CHANGED'){
    storeAvailable=false;
    msg('Another tab saved newer workspace settings. Select Restore to review them; your changes were not overwritten.');
+  }else if(e.code==='PREMIUM_WORKSPACE_PRESERVED'){
+   msg('Your saved higher-tier workspace is protected. You can continue using Standard charts, but this save was not applied. Restore eligible higher-tier access before changing the saved layout.');
   }else msg('Workspace not saved: '+e.message);
  }finally{savingWorkspace=false}
 }
