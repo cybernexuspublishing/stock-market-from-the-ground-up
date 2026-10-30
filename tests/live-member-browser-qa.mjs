@@ -75,7 +75,14 @@ try{
   else throw error;
  }
  assert(['signed_out','navigated_on_signout'].includes(signOut),'Supabase sign-out must complete or redirect');
- await page.goto(origin+'/dashboard.html?tab=support',{waitUntil:'domcontentloaded',timeout:30000});
+ // A successfully signed-out member may be immediately redirected by the
+ // session guard to /signin, interrupting the requested Dashboard navigation.
+ // The redirect is expected; a private Support panel appearing is not.
+ try{
+  await page.goto(origin+'/dashboard.html?tab=support',{waitUntil:'domcontentloaded',timeout:30000});
+ }catch(error){
+  if(!/interrupted by another navigation|ERR_ABORTED/i.test(String(error?.message||'')))throw error;
+ }
  await page.waitForTimeout(2200);
  assert.equal(await page.locator('#member-support-panel').isVisible(),false,
   'Signed-out user must not see private Support panel');
