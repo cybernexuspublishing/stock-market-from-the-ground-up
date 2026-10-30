@@ -22,7 +22,7 @@
   if(txt!==undefined)el.textContent=txt;
   return el;
  }
- function create(){
+ function create({controlled=false}={}){
   const host=make('section','gu-v28-candle'),chart=make('div','gu-v28-echart');
   host.setAttribute('aria-label','Interactive candlestick measurement prerequisite · Prototype 2.8');
   const intro=make('div','gu-v28-intro');
@@ -84,7 +84,7 @@
   const nav=make('div','gu-v28-nav');
   const previous=make('button','btn secondary','Previous teaching step');previous.type='button';
   const next=make('button','btn secondary','Next teaching step');next.type='button';
-  nav.append(previous,next);host.append(nav);
+  nav.append(previous,next);nav.hidden=controlled===true;host.append(nav);
   const state={stage:0,close:WORKED.close,credits:3,attempts:{},revealed:new Set(),
    assisted:new Set(),firstIndependent:null,retryIndependent:null,mastery:'Not Yet Assessed'};
   let plot=null,disposed=false,resize=null,pending='',instance=0;
