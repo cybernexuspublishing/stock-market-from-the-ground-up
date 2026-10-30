@@ -11,6 +11,10 @@ on:
       - 'assets/js/simulator.js'
       - 'simulator.html'
       - 'supabase/migrations/20261030_crownlight_chart_workspace_cas_v3.sql'
+      - 'supabase/migrations/20261030_chart_workspace_preserve_premium_v4.sql'
+      - 'assets/js/crownlight-sparks-redemption-retry-v1.js'
+      - 'assets/js/crownlight-chart-tiers-v1.js'
+      - 'tests/test_crownlight_chart_entitlement_continuity_v4.mjs'
       - 'tests/test_crownlight_chart_studio_v3_integrity.mjs'
       - 'tests/test_crownlight_chart_studio_v3_browser.mjs'
       - 'tests/test_crownlight_chart_workspace_v2.mjs'
@@ -33,6 +37,8 @@ jobs:
       - name: Check Chart Studio and paper source syntax
         run: |
           node --check functions/api/chart-workspace.js
+          node --check assets/js/crownlight-sparks-redemption-retry-v1.js
+          node --check assets/js/crownlight-chart-tiers-v1.js
           node --check functions/api/chart-tier-access.js
           node --check functions/api/alpaca-paper.js
           node --check assets/js/crownlight-workspace-v2.js
@@ -42,6 +48,7 @@ jobs:
       - name: Member tier, workspace revision, and personal provider-integrity acceptance
         run: |
           node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
           node tests/test_crownlight_chart_studio_v3_integrity.mjs
           node tests/test_crownlight_chart_tiers_v1.mjs
           node tests/test_crownlight_provider_entitlement_v1.mjs
@@ -58,6 +65,7 @@ jobs:
         run: |
           bash scripts/build-pages.sh
           test -f public/assets/js/crownlight-data-source-integrity-v3.js
+          test -f public/assets/js/crownlight-sparks-redemption-retry-v1.js
           test -f public/simulator.html
           test ! -e public/supabase
           test ! -d public/functions
