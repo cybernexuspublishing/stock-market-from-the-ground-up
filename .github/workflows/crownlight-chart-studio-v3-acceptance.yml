@@ -14,6 +14,8 @@ on:
       - 'tests/test_crownlight_chart_studio_v3_integrity.mjs'
       - 'tests/test_crownlight_chart_studio_v3_browser.mjs'
       - 'tests/test_crownlight_chart_workspace_v2.mjs'
+      - 'tests/test_crownlight_chart_studio_v2.mjs'
+      - 'tests/test_crownlight_workbench_browser_v3.mjs'
       - '.github/workflows/crownlight-chart-studio-v3-acceptance.yml'
 permissions:
   contents: read
