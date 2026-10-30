@@ -59,3 +59,17 @@
 #tp-builder #tp-timeline .tp-chart{height:430px;min-height:310px}
 #tp-builder #tp-timeline>label{display:block;margin:17px 0 6px;font-weight:700}
 #tp-builder #tp-timeline>input[type=file]{width:100%;padding:11px;border:1px solid #355e74;background:#0b2537;border-radius:9px;color:#d7eaf3}
+
+/* Educational order lifecycle — private in-memory scenario only. */
+#tp-builder .tp-order-lifecycle{min-width:0}
+#tp-builder .tp-order-lifecycle>p{max-width:86ch;line-height:1.6}
+#tp-builder .tp-order-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+#tp-builder .tp-order-inputs label{display:flex;flex-direction:column;gap:6px;font-size:.83rem;font-weight:650;color:#c3dce9}
+#tp-builder .tp-order-inputs input{box-sizing:border-box;width:100%;min-width:0;min-height:42px;
+ padding:10px 11px;border:1px solid #426079;border-radius:8px;background:#091d2b;color:#eaf6ff;font:inherit}
+#tp-builder .tp-order-history{max-width:100%;overflow-x:auto;margin:18px 0}
+#tp-builder .tp-order-history table{width:100%;min-width:580px;border-collapse:collapse;font-size:.81rem}
+#tp-builder .tp-order-history th,#tp-builder .tp-order-history td{border-bottom:1px solid #355469;text-align:left;padding:9px;vertical-align:top}
+#tp-builder .tp-order-history th{color:#d2e4ef}
+#tp-builder .tp-order-lifecycle button:disabled{opacity:.46;cursor:not-allowed}
+@media(max-width:710px){#tp-builder .tp-order-inputs{grid-template-columns:minmax(0,1fr)}}
