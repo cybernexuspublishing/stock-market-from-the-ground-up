@@ -65,5 +65,6 @@ lines.push('','The comparison is not the previously reported 215-script Windows 
 writeFileSync(join(dest,'watchlist-regression-comparison.md'),lines.join('\n')+'\n');
 if(process.env.GITHUB_STEP_SUMMARY)appendFileSync(process.env.GITHUB_STEP_SUMMARY,lines.join('\n')+'\n');
 console.log(JSON.stringify(summary));
+console.log('BASELINE_FAILURES '+JSON.stringify(reports.filter(x=>x.difference==='preexisting_failure').map(x=>({test:x.test,before:x.before.reason,after:x.after.reason,diagnostic:x.after.diagnostic}))).slice(0,9500));
 console.log('FAILURES '+JSON.stringify(reports.filter(x=>x.difference==='new_failure'||x.difference==='changed_failure').map(x=>({test:x.test,difference:x.difference,after:x.after}))).slice(0,8000));
 if(summary.newFailures||summary.changedFailures)process.exitCode=1;
