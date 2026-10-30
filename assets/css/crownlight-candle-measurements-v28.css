@@ -1,0 +1,31 @@
+/* Prototype 2.8 authored instructional measurement module. */
+.gu-v28-candle{background:#0a2134;border:1px solid #466c84;border-radius:15px;padding:18px;
+ color:#d9eaf5;margin:14px 0;font-size:.93rem;min-width:0}
+.gu-v28-candle h4,.gu-v28-candle h5{margin:0 0 9px;color:#fff}
+.gu-v28-candle p{line-height:1.62;margin:8px 0;color:#d0e0eb}
+.gu-v28-intro{border-bottom:1px solid #35556e;padding-bottom:12px}
+.gu-v28-progress{margin:10px 0 14px;color:#e4ce94;font-weight:700}
+.gu-v28-wallet{padding:13px;border:1px solid #52697c;background:#112739;border-radius:10px;margin:12px 0}
+.gu-v28-wallet .gu-v28-balance{font-weight:750;color:#fff}
+.gu-v28-explanation{padding:12px 16px;background:#102f40;border-left:3px solid #dfbd7a;border-radius:6px}
+.gu-v28-workspace{display:grid;grid-template-columns:minmax(0,2fr) minmax(195px,.85fr);gap:14px;margin-top:15px}
+.gu-v28-workspace[hidden],.gu-v28-slider-label[hidden],.gu-v28-question[hidden]{display:none!important}
+.gu-v28-echart{height:410px;width:100%;min-width:0;border:1px solid #32556c;border-radius:10px}
+.gu-v28-reference{background:#092435;border:1px solid #345a72;border-radius:10px;padding:14px;align-self:stretch}
+.gu-v28-ohlc{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.gu-v28-ohlc th,.gu-v28-ohlc td{padding:10px;border-bottom:1px solid #355369;text-align:left}
+.gu-v28-ohlc td{text-align:right}
+.gu-v28-slider-label{margin-top:14px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.gu-v28-slider-label input{width:min(100%,340px);accent-color:#28c6a2}
+.gu-v28-slider-label output{color:#edcf8c}
+.gu-v28-question{background:#0c2939;margin-top:15px;padding:14px;border-radius:11px;border:1px solid #3b6379}
+.gu-v28-question input[type=number]{width:160px;min-height:38px;border:1px solid #65849c;
+ background:#081f2d;color:#fff;padding:8px;border-radius:6px;margin:4px 9px 7px 0}
+.gu-v28-question button{margin:4px 7px 5px 0;white-space:normal}
+.gu-v28-feedback{padding:8px 0;min-height:1.4em}
+.gu-v28-confirm{padding:12px;border:1px solid #c0a56c;border-radius:8px;background:#263448;margin:10px 0}
+.gu-v28-assessment{margin-top:12px;padding:14px;background:#1d2a3e;border-radius:10px}
+.gu-v28-nav{display:flex;gap:11px;flex-wrap:wrap;margin-top:16px}
+.gu-v28-nav button{min-height:39px}
+@media(max-width:850px){.gu-v28-workspace{grid-template-columns:1fr}.gu-v28-echart{height:350px}}
+@media(max-width:450px){.gu-v28-candle{padding:12px}.gu-v28-echart{height:300px}}
