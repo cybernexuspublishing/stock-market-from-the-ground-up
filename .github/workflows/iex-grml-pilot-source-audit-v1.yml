@@ -1,0 +1,38 @@
+name: IEX September 21 GRML Pilot Source Audit — Private
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/market-data/iex_full_session_reconcile_v1.py'
+      - 'scripts/market-data/pcapng_iex_reader.py'
+      - 'scripts/market-data/prepare_reconciled_iex_draft_sql_v1.py'
+      - 'tests/test_iex_20260921_sparse_volume_conservation_v1.py'
+      - 'tests/test_iex_local_full_session_reconcile_v1.py'
+      - 'tests/test_prepare_reconciled_iex_draft_sql_v1.py'
+      - 'tests/test_iex_historical_pcapng_reader_v1.py'
+      - 'docs/research/IEX_TOPS_20260921_SOURCE_INTAKE.md'
+      - '.github/workflows/iex-grml-pilot-source-audit-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-source-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify private extractor and SQL draft syntax
+        run: |
+          python -m py_compile scripts/market-data/iex_full_session_reconcile_v1.py scripts/market-data/pcapng_iex_reader.py scripts/market-data/prepare_reconciled_iex_draft_sql_v1.py
+      - name: Review source event conservation, sparse-minute accounting, packet handling, and no-publication guards
+        run: |
+          python tests/test_iex_20260921_sparse_volume_conservation_v1.py
+          python tests/test_iex_historical_pcapng_reader_v1.py
+          python tests/test_iex_local_full_session_reconcile_v1.py
+          python tests/test_prepare_reconciled_iex_draft_sql_v1.py
+          python tests/test_iex_historical_trade_eligibility_v1.py
