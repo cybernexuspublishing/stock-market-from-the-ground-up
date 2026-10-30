@@ -63,6 +63,17 @@ try{
     window.CrownlightPaperTerminal.initialize({getSession:async()=>({access_token:'mock-token'})});
     window.confirm=()=>false;
    },entitlement!=='free');
+   await page.waitForTimeout(1200);
+   const labProbe=await page.evaluate(()=>({
+    optionCount:document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length,
+    pickerPresent:!!document.querySelector('#sim-lab-picker'),
+    sourcePresent:!!document.querySelector('#cl-replay-import'),
+    scripts:[...document.scripts].map(s=>s.src.split('/').at(-1)),
+    bodyStart:document.querySelector('#sim-content')?.innerText?.slice(0,260)
+   }));
+   if(labProbe.optionCount!==419)throw Error('LAB_PICKER_FIXTURE_MISMATCH '+JSON.stringify({
+    ...labProbe,errors:errors.slice(0,9),entitlement,width
+   }));
    await page.waitForFunction(()=>document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length===419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]').count(),419);
    // Regression: an asynchronous legacy layout move must also be repaired, not just
