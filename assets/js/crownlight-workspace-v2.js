@@ -5,6 +5,7 @@
 (()=>{'use strict';
 let workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};
 let permissionEpoch=0,loadingWorkspace=false,linked=false,guard=false,syncEnabled=true;
+let workspaceRevision=null,savingWorkspace=false;
 let ui=null,notice=null,permissionReady=false,storeAvailable=false;
 const Tier=()=>window.CrownlightChartTiers;
 const msg=t=>{if(notice)notice.textContent=t};
@@ -27,8 +28,10 @@ async function endpoint(method,data){
  const token=await sessionToken();if(!token)throw Error('Sign in required');
  const r=await fetch('/api/chart-workspace',{method,headers:{authorization:'Bearer '+token,
   ...(data?{'content-type':'application/json'}:{})},body:data?JSON.stringify(data):undefined,cache:'no-store'});
- if(!r.ok)throw Error(r.status===403?'Chart membership is not eligible':'Workspace temporarily unavailable');
- const reply=await r.json();if(reply.ok!==true)throw Error('Workspace not verified');return reply;
+ const reply=await r.json().catch(()=>null);
+ if(!r.ok){const err=new Error(r.status===403?'Chart membership is not eligible':
+  r.status===409?'WORKSPACE_CHANGED':'Workspace temporarily unavailable');err.code=r.status===409?reply?.error:null;throw err}
+ if(reply?.ok!==true)throw Error('Workspace not verified');return reply;
 }
 function activeDrawings(){
  const primary=getCharts()[0]?.chart;
@@ -102,20 +105,33 @@ function wireSync(){
  msg('Professional time, zoom, and crosshair synchronization '+(syncEnabled?'on':'off')+'.');
 }
 async function persist(){
- if(!permissionReady){msg('Sign in and verify access before saving.');return}
+ if(savingWorkspace)return;
+ if(!permissionReady||!storeAvailable){msg('Restore your private workspace before saving.');return}
+ const epoch=permissionEpoch;
+ savingWorkspace=true;
  workspace.selected=Tier().getStatus().selected;
  workspace.sync=syncEnabled;
  workspace.layout=Tier().getStatus().selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(ui?.querySelector('[data-cl-layout]')?.value)?ui.querySelector('[data-cl-layout]').value:'SIDE_BY_SIDE';
  workspace.drawings=activeDrawings();
  const studies=(ui?.querySelector('[data-cl-studies]')?.value||'');
  workspace.studies=[...new Set(studies.split(',').map(s=>s.trim().toUpperCase()).filter(x=>['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'].includes(x)))].slice(0,8);
- try{const r=await endpoint('PUT',workspace);workspace=r.workspace;storeAvailable=true;msg('Workspace saved privately. Changes restore after sign-in.')}
- catch(e){msg('Workspace not saved: '+e.message)}
+ try{
+  const r=await endpoint('PUT',{...workspace,expectedUpdatedAt:workspaceRevision});
+  if(epoch!==permissionEpoch||!permissionReady)return;
+  workspace=r.workspace;workspaceRevision=r.updatedAt||null;storeAvailable=true;
+  msg('Workspace saved privately with revision protection. Changes restore after sign-in.');
+ }catch(e){
+  if(epoch!==permissionEpoch)return;
+  if(e.code==='WORKSPACE_CHANGED'){
+   storeAvailable=false;
+   msg('Another tab saved newer workspace settings. Select Restore to review them; your changes were not overwritten.');
+  }else msg('Workspace not saved: '+e.message);
+ }finally{savingWorkspace=false}
 }
 async function restore(){
  const epoch=++permissionEpoch;
  permissionReady=Tier()?.getStatus().verified===true;
- if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};syncEnabled=true;linked=false;storeAvailable=false;
+ if(!permissionReady){workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};syncEnabled=true;linked=false;storeAvailable=false;workspaceRevision=null;
   const box=ui?.querySelector('[data-cl-studies]');if(box)box.value='';
   const toggle=ui?.querySelector('[data-cl-sync]');if(toggle)toggle.checked=true;
   applyLayout();
@@ -124,7 +140,7 @@ async function restore(){
  try{
   const r=await endpoint('GET');
   if(epoch!==permissionEpoch||!Tier()?.getStatus().verified)return;
-  workspace=r.workspace;storeAvailable=true;syncEnabled=workspace.sync!==false;
+  workspace=r.workspace;workspaceRevision=r.updatedAt||null;storeAvailable=true;syncEnabled=workspace.sync!==false;
   if(ui){
    const toggle=ui.querySelector('[data-cl-sync]');if(toggle)toggle.checked=syncEnabled;
    const indicators=ui.querySelector('[data-cl-studies]');if(indicators)indicators.value=(workspace.studies||[]).join(', ');
@@ -133,7 +149,7 @@ async function restore(){
   msg(r.updatedAt?'Private workspace loaded.':'Workspace ready; save to retain changes across sessions.');
   if(workspace.selected!=='STANDARD'&&Tier().getStatus().allowed.includes(workspace.selected))
    await Tier().choose(workspace.selected);
- }catch(e){if(epoch===permissionEpoch){storeAvailable=false;msg('Private workspace not available; current chart continues without saved settings.')}}finally{loadingWorkspace=false}
+ }catch(e){if(epoch===permissionEpoch){storeAvailable=false;workspaceRevision=null;msg('Private workspace not available; current chart continues without saved settings.')}}finally{loadingWorkspace=false}
 }
 function controls(){
  const parent=document.getElementById('cl-chart-tier-switcher');
@@ -161,7 +177,7 @@ function controls(){
 }
 function scrubMemberWorkspace(){
  // Any in-flight GET for the previous member must not restore stale settings.
- permissionEpoch++;permissionReady=false;loadingWorkspace=false;storeAvailable=false;
+ permissionEpoch++;permissionReady=false;loadingWorkspace=false;storeAvailable=false;workspaceRevision=null;
  workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE'};
  syncEnabled=true;linked=false;
  if(ui){
