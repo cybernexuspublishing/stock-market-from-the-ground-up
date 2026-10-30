@@ -41,6 +41,19 @@
       page_location: location.origin + location.pathname,
       page_referrer: safeReferrer()
     });
+    // Account creation is verified at /api/account before a one-time marker
+    // is written. Report it only on a PUBLIC page after prior consent.
+    // Never include the account email, name, account ID, or URL query string.
+    try {
+      const pending = sessionStorage.getItem('smfgu_pending_signup_v1');
+      if (pending !== null) {
+        sessionStorage.removeItem('smfgu_pending_signup_v1');
+        const age = Date.now() - Number(pending);
+        if (Number.isFinite(age) && age >= 0 && age <= 15 * 60 * 1000) {
+          window.gtag('event', 'sign_up', { method: 'email' });
+        }
+      }
+    } catch { /* Consent is not permission to bypass browser storage restrictions. */ }
     const loader = document.createElement('script');
     loader.async = true;
     loader.src = 'https://www.googletagmanager.com/gtag/js?id=' + encodeURIComponent(MEASUREMENT_ID);
