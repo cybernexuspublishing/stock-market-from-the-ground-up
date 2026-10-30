@@ -17,6 +17,7 @@ async function api(payload){
 }
 function draw(){
  if(!state)return;
+ renderHistory();
  by('qa-wallet').textContent='Available shadow Lumens: '+state.availableLumens;
  by('qa-mode').textContent=state.enabled?'Owner TEST payment mode: Enabled. No LIVE payments are used.':'Owner TEST payment mode: Disabled. Use the Admin Payment Center Owner TEST switch before making Stripe TEST purchases.';
  const used=Number(by('qa-lumens').value);
@@ -30,14 +31,75 @@ function draw(){
   ' | Remaining TEST Lumens: '+(state.availableLumens-used)+
   (ok?'':' | Invalid Stripe remainder (minimum $0.50)');
  by('qa-pay').disabled=lock||!state.enabled||!ok;
- const list=by('qa-history');list.replaceChildren();
- for(const i of state.intents||[]){
-  const item=document.createElement('li'),btn=document.createElement('button');
-  btn.type='button';btn.textContent='Select '+i.id.slice(0,8);
-  btn.addEventListener('click',()=>{by('qa-intent').value=i.id;say('Selected TEST intent '+i.id)});
-  item.textContent=i.status+' — '+i.lumens_reserved+' shadow Lumens, '+money(i.cash_due_cents)+' TEST cash — ';
-  item.append(btn);list.append(item);
+}
+function renderHistory(){
+ const orders=Array.isArray(state?.intents)?state.intents:[];
+ const picker=by('qa-intent'),list=by('qa-history');
+ const previous=picker.value;picker.replaceChildren();list.replaceChildren();
+ const emptyOption=document.createElement('option');
+ emptyOption.value='';emptyOption.textContent=orders.length?'Choose a TEST order':'No TEST orders yet';
+ picker.append(emptyOption);
+ for(const order of orders){
+  const option=document.createElement('option');option.value=order.id;
+  option.textContent=order.status.toUpperCase()+' · '+money(order.cash_due_cents)+' cash · '+order.lumens_reserved+' Lumens · '+order.id.slice(0,8);
+  picker.append(option);
  }
+ const preferred=orders.find(x=>x.id===previous)||
+  orders.find(x=>x.status==='bound'||x.status==='reserved')||orders[0];
+ if(preferred)picker.value=preferred.id;
+ const selected=orders.find(x=>x.id===picker.value);
+ by('qa-expire').disabled=lock||!state.enabled||selected?.status!=='bound';
+ by('qa-refund').disabled=lock||!state.enabled||selected?.status!=='fulfilled';
+ const hint=by('qa-history-empty');
+ hint.hidden=orders.length>0;
+ if(orders.length===0)hint.textContent='No TEST orders have been created. Start with Step 1 (set a shadow balance), then Step 2 (create a TEST checkout).';
+ for(const order of orders){
+  const item=document.createElement('li');
+  const title=document.createElement('strong');
+  title.textContent='TEST order '+order.id.slice(0,8)+' · '+order.status.toUpperCase();
+  item.append(title);
+  const detail=document.createElement('span');
+  detail.textContent=' · '+order.lumens_reserved+' Lumens · '+money(order.cash_due_cents)+' TEST cash.';
+  item.append(detail);
+  const actionBtn=document.createElement('button');actionBtn.type='button';
+  if(order.status==='reserved'||order.status==='bound'){
+   actionBtn.textContent=order.status==='reserved'?'Resume TEST checkout':'Open existing TEST checkout';
+   actionBtn.disabled=lock||!state.enabled;
+   actionBtn.addEventListener('click',()=>action(()=>continueOrder(order)));
+   item.append(actionBtn);
+   if(order.status==='reserved'){
+    const note=document.createElement('small');
+    note.textContent=' This order is reserved but not linked to Stripe yet. Resuming uses the same order number and will not reserve Lumens twice.';
+    item.append(note);
+   }
+  }else if(order.status==='fulfilled'){
+   actionBtn.textContent='Select for TEST refund';
+   actionBtn.addEventListener('click',()=>{picker.value=order.id;syncSelection();});
+   item.append(actionBtn);
+  }else{
+   const note=document.createElement('small');
+   note.textContent=order.status==='released'?' Reservation released.':' No new action is available for this status.';
+   item.append(note);
+  }
+  list.append(item);
+ }
+}
+function syncSelection(){
+ const item=(state?.intents||[]).find(x=>x.id===by('qa-intent').value);
+ by('qa-expire').disabled=lock||!state?.enabled||item?.status!=='bound';
+ by('qa-refund').disabled=lock||!state?.enabled||item?.status!=='fulfilled';
+}
+async function continueOrder(item){
+ const r=await api({action:'checkout',lumens:item.lumens_reserved,requestId:item.request_id});
+ if(r.checkoutUrl){
+  const url=new URL(r.checkoutUrl);
+  if(url.protocol!=='https:'||url.hostname!=='checkout.stripe.com')
+    throw Error('Unexpected TEST provider redirect.');
+  location.assign(url.href);return;
+ }
+ await refresh();
+ if(r.fullyCovered){say('Full-Lumen TEST order settled without a Stripe payment.');return;}
+ say('TEST checkout requires review: '+String(r.error||r.notice||'Unknown status'));
 }
 async function refresh(){
  state=await api();draw();return state;
@@ -48,6 +110,7 @@ async function action(fn){
  finally{lock=false;draw()}
 }
 by('qa-lumens').addEventListener('input',draw);
+by('qa-intent').addEventListener('change',syncSelection);
 by('qa-refresh').addEventListener('click',()=>action(async()=>{await refresh();say('QA ledger refreshed. Real wallet unchanged.')}));
 by('qa-set').addEventListener('click',()=>action(async()=>{
  const balance=Number(by('qa-seed').value);
@@ -76,5 +139,11 @@ for(const [name,el] of [['expire','qa-expire'],['refund','qa-refund']]){
 const q=new URL(location.href).searchParams.get('result');
 if(q==='success')say('Returned from Stripe TEST. Refresh the ledger to verify signed-webhook fulfillment.');
 if(q==='cancelled')say('TEST checkout canceled in browser. Expire the unpaid session to trigger signed credit restoration.');
-refresh().then(()=>{if(!q)say('QA checkout ready for Owner tests.')}).catch(e=>say(e.message));
+refresh().then(()=>{
+ if(q)return;
+ const unfinished=(state?.intents||[]).filter(x=>x.status==='reserved');
+ say(unfinished.length?
+  'A TEST order is reserved but has no completed provider checkout. Use Resume TEST checkout in Recent shadow orders.':
+  'QA checkout ready. Select an existing order below or create a new one.');
+}).catch(e=>say(e.message));
 })();
