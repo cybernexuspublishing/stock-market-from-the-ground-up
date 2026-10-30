@@ -1,0 +1,39 @@
+name: Crownlight Watchlist Baseline JS Regression Comparison
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/watchlist-regression-diff-v2.mjs'
+      - '.github/workflows/crownlight-watchlist-regression-v2.yml'
+permissions:
+  contents: read
+jobs:
+  isolated-before-after:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Checkout latest main without modifying source
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Create detached read-only baseline checkout from pre-Watchlist V2 commit
+        run: |
+          git worktree add --detach "$RUNNER_TEMP/crownlight-watchlist-baseline" 78b3b93ccf70252127265cd7c16589e2bd7d4ae2
+          git -C "$RUNNER_TEMP/crownlight-watchlist-baseline" rev-parse HEAD
+          git status --short
+      - name: Compare focused no-LIVE Node tests with baseline
+        env:
+          WATCHLIST_DIAG_OUTPUT: ${{ runner.temp }}/watchlist-diagnostics
+        run: node scripts/watchlist-regression-diff-v2.mjs "$RUNNER_TEMP/crownlight-watchlist-baseline" "$GITHUB_WORKSPACE"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: watchlist-js-baseline-comparison
+          path: ${{ runner.temp }}/watchlist-diagnostics/
+          if-no-files-found: warn
+          retention-days: 14
