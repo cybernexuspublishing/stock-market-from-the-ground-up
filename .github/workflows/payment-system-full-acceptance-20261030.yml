@@ -1,0 +1,66 @@
+name: SMFGU Comprehensive Stripe Payment Acceptance 2026-10-30
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/payment-system-full-acceptance-20261030.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source-contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        suite: [webhooks, checkout, billing, commerce]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Run payment acceptance tests
+        shell: bash
+        env:
+          GROUP: ${{ matrix.suite }}
+        run: |
+          set -uo pipefail
+          case "$GROUP" in
+            webhooks) FILES="test_stripe_test_unified_webhook_20261030.mjs test_stripe_cloudflare_binding_aliases_20261030.mjs test_f600_signed_sandbox_webhook_v014217.mjs test_f600_live_signed_lifecycle_v014219.mjs test_ad_sandbox_signed_stripe_v014244.mjs test_v014068_stable_webhook.mjs test_v014071_zero_live_webhook.mjs test_v014072_zero_store_signed_webhook.mjs test_v014155_webhook_body_limits.mjs test_book_stripe_live_signed_webhook_mock_v1.mjs";;
+            checkout) FILES="test_book_stripe_test_pipeline_v1.mjs test_v014054_checkout_safety.mjs test_v014057_sandbox_acceptance.mjs test_v014066_test_price_integrity.mjs test_v014040_catalog_and_auth.mjs test_v014041_unified_catalog.mjs test_v014064_checkout_wiring.mjs test_v014071_zero_live_checkout.mjs test_v014072_zero_store_checkout.mjs test_v014140_live_checkout_recovery.mjs test_founding14_staged_checkout_v1.mjs test_founding_members_public_names.mjs test_v014058_live_fulfillment.mjs test_v014033_payment_catalog.mjs";;
+            billing) FILES="test_v014108_owner_live_acceptance.mjs test_v014122_member_billing_portal.mjs test_v014123_billing_notice_worker.mjs test_v014128_billing_cron_alerts.mjs test_v014129_stripe_only_cron.mjs test_v014130_billing_worker_routing_config.mjs test_v014131_stable_billing_endpoint.mjs test_v014132_billing_fetch_diagnostics.mjs test_v014133_billing_redirect_policy.mjs test_v014134_owner_billing_evidence.mjs test_v014155_portal_and_entitlement_boundaries.mjs test_book_stripe_live_fulfillment_v1.mjs test_founder_payment_gates_v014199.mjs test_live_commerce_readiness_v1.mjs";;
+            commerce) FILES="test_lumen_mixed_stripe_test_end_to_end_v1.mjs test_lumen_mixed_checkout_quote_v1.mjs test_lumen_fully_paid_tool_v1.mjs test_owner_stripe_sync_and_captcha_v1.mjs test_admin_stripe_test_provider_v014256.mjs test_admin_prelive_v014247.mjs test_founder_catalog_provider_v014264.mjs test_founder_full_price_checkout_guard_v014268.mjs test_v014056_unified_payment_readiness.mjs test_v014067_live_merchant_readiness.mjs test_v014089_checkout_readiness_no_charge.mjs test_v01438_stripe_lifecycle_mock.mjs test_v01438_stripe_guards.mjs test_james_free_member_commerce_20261030.mjs";;
+            *) echo "Unknown suite"; exit 2;;
+          esac
+          failed=0
+          total=0
+          for file in $FILES; do
+            total=$((total+1))
+            if node --test "tests/$file"; then
+              echo "PASS tests/$file"
+            else
+              echo "::error::FAIL tests/$file"
+              failed=$((failed+1))
+            fi
+          done
+          echo "### $GROUP Stripe payment tests" >> "$GITHUB_STEP_SUMMARY"
+          echo "Total: $total; Failed: $failed" >> "$GITHUB_STEP_SUMMARY"
+          if [ "$failed" -ne 0 ]; then exit 1; fi
+  deployed-api:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify deployed TEST webhook denies unsigned events and Book TEST readiness
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE=https://stock-market-from-the-ground-up-d1r.pages.dev
+          status=$(curl -sS --max-time 15 -o /tmp/webhook-get.txt -w '%{http_code}' "$BASE/api/stripe-test-webhook")
+          test "$status" = 405 || { echo "::error::Webhook GET expected 405, got $status"; exit 1; }
+          status=$(curl -sS --max-time 15 -o /tmp/webhook-unsigned.txt -w '%{http_code}' -H 'content-type: application/json' --data-binary '{"id":"evt_unsigned_2026","livemode":false}' "$BASE/api/stripe-test-webhook")
+          test "$status" = 401 || { echo "::error::Unsigned webhook expected 401, got $status"; exit 1; }
+          status=$(curl -sS --max-time 15 -o /tmp/book-ready.json -w '%{http_code}' "$BASE/api/book-stripe-test-checkout-v1")
+          test "$status" = 200 || { echo "::error::Book TEST readiness expected 200, got $status"; exit 1; }
+          jq -e '.ok == true and .testing == true and .ready == true' /tmp/book-ready.json >/dev/null || { echo "::error::Book TEST not ready"; exit 1; }
+          echo 'PASS unified webhook 405/401 and Book I TEST price/provider readiness'
