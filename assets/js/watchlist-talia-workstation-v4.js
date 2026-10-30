@@ -154,6 +154,9 @@
   const recent=()=>checkpoints.filter(x=>x.topic===topicId&&x.step===currentStep()&&x.fictionalCase===caseId);
   function renderNarration(){
    const current=C.byId(topicId),stage=currentStep();
+   riskLab.hidden=!['risk','spread','thesis','compare','shorts'].includes(topicId);
+   rvolLab.hidden=!['rvol','pricevolume','building','sector','compare'].includes(topicId);
+   calculators.hidden=riskLab.hidden&&rvolLab.hidden;
    indicator.textContent='Research action '+(step+1)+' of 8 · '+stage+
     ' · Primary skill dimension: '+dimension(stage);
    heading.textContent=current.title;
