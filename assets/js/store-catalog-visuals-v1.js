@@ -10,6 +10,7 @@ const books=Object.freeze({
  DAY_TRADING_BOOK_1:'assets/images/books/day-trading-book-1.webp',
  READING_THE_TAPE:'assets/images/books/reading-the-tape.webp'
 });
+const memberships=Object.freeze({"FREE":"assets/images/memberships/SMFGU_Free_Product.webp","FOUNDING_14":"assets/images/memberships/SMFGU_Founding_14_Day_Product.webp","FOUNDING_30":"assets/images/memberships/SMFGU_Founding_30_Day_Product.webp","FOUNDING_60":"assets/images/memberships/SMFGU_Founding_60_Day_Product.webp"});
 const tools=Object.freeze({
  INTERACTIVE_LEARNING:'assets/img/store-tools/interactive-learning.svg',
  JOURNAL_ANALYTICS:'assets/img/store-tools/journal-analytics.svg',
@@ -50,9 +51,9 @@ const fallback=Object.freeze({
 function resolve(item){
  const sku=String(item?.sku||item?.toolCode||'').split(':').pop();
  const category=String(item?.category||'').toLowerCase();
- const book=books[sku],tool=tools[sku],topic=concepts[sku];
- const src=book||tool||(topic?'assets/images/skill-illustrations/'+topic+'.svg':fallback[category]||fallback.feature);
- return {src,alt:book?'Cover of '+String(item?.name||'the book'):'Educational illustration for '+String(item?.name||'this product')};
+ const book=books[sku],membership=memberships[sku],tool=tools[sku],topic=concepts[sku];
+ const src=book||membership||tool||(topic?'assets/images/skill-illustrations/'+topic+'.svg':fallback[category]||fallback.feature);
+ return {src,alt:book?'Cover of '+String(item?.name||'the book'):membership?'Membership artwork for '+String(item?.name||'the membership'):'Educational illustration for '+String(item?.name||'this product')};
 }
 window.GroundUpCatalogVisuals=Object.freeze({resolve});
 })();

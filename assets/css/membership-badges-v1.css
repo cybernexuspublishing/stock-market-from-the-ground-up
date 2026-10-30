@@ -1,0 +1,18 @@
+/* Verified account badges are separate from avatar and membership entitlements. */
+[data-community-avatar-user] .gu-member-badge-icon{
+ width:25px;height:25px;object-fit:cover;border-radius:7px;vertical-align:middle;
+ margin-left:5px;border:1px solid #76c4a7;box-shadow:0 0 8px #37b77755;
+ flex-shrink:0;background:#081923
+}
+.gu-profile-membership{
+ display:flex;align-items:center;gap:12px;max-width:420px;
+ margin:12px 0;padding:11px 14px;border:1px solid #357561;
+ border-radius:12px;background:#082d2b;box-sizing:border-box
+}
+.gu-profile-membership-icon{width:65px;height:65px;object-fit:cover;border-radius:10px;flex-shrink:0;border:1px solid #6acc9d}
+.gu-profile-membership strong{display:block;color:#e8fff5}
+.gu-profile-membership span{display:block;font-size:.84rem;line-height:1.4;color:#b1d1c7}
+@media(max-width:550px){
+ [data-community-avatar-user] .gu-member-badge-icon{width:21px;height:21px}
+ .gu-profile-membership-icon{width:51px;height:51px}
+}

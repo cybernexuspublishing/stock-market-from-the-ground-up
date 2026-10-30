@@ -253,3 +253,12 @@ html body[data-gu-workspace="site"] main.gu-redesign-store #store-founder-plans 
 .gu-redesign-store #store-founder-plans .catalog-founder-card:nth-child(2) .gu-echarts-product-art{border-color:#806d4d!important}
 .gu-redesign-store #store-founder-plans .catalog-founder-card.is-extended .gu-echarts-product-art{border-color:#8069a3!important}
 @media(max-width:560px){.gu-redesign-store #store-founder-plans .catalog-founder-card .gu-echarts-product-art{height:222px!important}}
+
+/* Approved founder product artwork supersedes on-card ECharts for membership SKUs. */
+.gu-redesign-store #store-founder-plans .gu-membership-product-art,
+.gu-redesign-store .catalog-free-member-card .gu-membership-product-art{
+ display:block;object-fit:contain;aspect-ratio:160/213;width:min(100%,190px);
+ height:auto;margin:12px auto 16px;border-radius:12px;border:1px solid #3d7288;
+ background:#061c30;box-shadow:0 7px 22px #0008;
+}
+.gu-redesign-store .catalog-free-member-card .gu-membership-product-art{width:min(100%,150px)}

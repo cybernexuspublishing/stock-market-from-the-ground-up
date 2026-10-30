@@ -394,7 +394,7 @@
   new IntersectionObserver(entries=>{for(const e of entries)if(e.isIntersecting){
    observer.unobserve(e.target);void render(e.target);
   }},{rootMargin:'180px'}):null;
- const selectors=['#store-founder-plans .catalog-founder-card',
+ const selectors=[
   '#store-panel-sparks .store-crownlight-package',
   '#store-tools .v11-tool-card',
   '#store-panel-current .gu-store-type-card',

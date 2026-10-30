@@ -151,6 +151,7 @@ async function foundingCatalog(){
   target.innerHTML=displayIndices.map(i=>{const p=plans[i],canJoin=accepting&&eligible.get(codes[i])===true;return `<article class="catalog-founder-card ${i===2?'is-extended':''}">
  <div class="catalog-founder-orbit" aria-hidden="true"></div>
  <div class="catalog-founder-top"><span class="eyebrow">Founding ${i===0?'Starter':i===1?'Standard':'Extended'}</span><span class="catalog-founder-duration">${esc(p.billingIntervalDays)} DAYS</span></div>
+ <img class="gu-membership-product-art" src="/assets/images/memberships/SMFGU_Founding_${[14,30,60][i]}_Day_Product.webp" alt="Founding ${[14,30,60][i]}-Day membership artwork" width="160" height="213" loading="lazy">
  <span class="store-beta-ribbon">${canJoin?'Founding Beta · Enrollment OPEN':'Founding Beta · Enrollment unavailable'}</span>
  <h3>${esc(p.name)}</h3><div class="catalog-founder-price">${dollars(p.recurringCents)}<small>every ${esc(p.billingIntervalDays)} days</small></div>
  <p class="catalog-founder-highlight">${esc(p.foundingDiscountBps/100)}% OFF eligible purchases</p>
