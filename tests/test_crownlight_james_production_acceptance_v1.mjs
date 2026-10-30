@@ -84,9 +84,9 @@ try{
  const entitlement=await api('/api/chart-tier-access');
  assert.equal(entitlement.status,200);
  assert.equal(entitlement.data.eligible,true);
- assert.equal(entitlement.data.tier,'ADVANCED','James_Test must have its live temporary Advanced Chart QA grant');
+ assert.equal(entitlement.data.tier,'PROFESSIONAL','James_Test existing ADMIN role takes precedence over the scoped Advanced QA grant');
  assert(entitlement.data.allowed.includes('ADVANCED'));
- console.log('PASS live Chart Studio ADVANCED tier authorization');
+ console.log('PASS live Professional admin override and allowed Advanced Chart Studio selection');
  await page.waitForFunction(()=>window.CrownlightChartTiers?.getRevealedBars?.().length>=2,{timeout:20000});
  const revealed=await page.evaluate(()=>window.CrownlightChartTiers.getRevealedBars());
  assert(revealed.length>=2 && Number.isSafeInteger(revealed[0].timestamp));
