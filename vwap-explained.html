@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VWAP Explained for Beginners | The Stock Market: From the Ground Up</title>
+<meta name="description" content="Learn what volume-weighted average price measures, how it differs from a simple average and why a VWAP cross is not a trading signal.">
+<link rel="stylesheet" href="/assets/css/styles.css">
+<script src="/config.js"></script><script defer src="/assets/js/site.js"></script>
+<style>
+.gu-edu-article{max-width:900px;margin:0 auto}.gu-edu-article p{line-height:1.72;max-width:82ch}
+.gu-edu-section{border-bottom:1px solid rgba(125,157,180,.2);padding:1.15rem 0}
+.gu-edu-related ul{columns:2;list-style:disc;padding-left:1.5rem}
+.gu-edu-related li{break-inside:avoid;margin:.45rem 0}
+.gu-edu-nav{display:flex;gap:1rem;flex-wrap:wrap;align-items:center;justify-content:space-between}
+.gu-edu-article a:focus-visible{outline:3px solid #a3d9fd;outline-offset:3px}
+@media(max-width:600px){.gu-edu-related ul{columns:1}.gu-edu-article{padding-inline:2px}}
+</style></head>
+<body><header class="site-header"><div class="wrap nav gu-edu-nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks" aria-label="Education navigation"><a href="learn.html">Learning</a> <a href="books.html">Books</a> <a href="lab-samples.html">Sample Labs</a> <a href="store.html">Store</a></nav></div></header>
+<main class="section"><article class="wrap gu-edu-article">
+<p class="eyebrow">FREE EDUCATION / BEGINNER GUIDES</p>
+<h1>VWAP Explained for Beginners</h1><p class="section-intro">VWAP combines traded prices and traded volume into one reference. It describes trading activity; it does not know the next price.</p>
+<p class="small">Educational overview from The Stock Market: From the Ground Up, published by Crown &amp; Lantern Press. Illustrative prices and scenarios below are fictional, not historical market observations or recommendations.</p>
+<p><strong>By the end of this guide, you should be able to:</strong> explain the concept in your own words, interpret the fictional example, identify at least one limitation, and decide what to study next.</p>
+<section class="gu-edu-section"><h2>What VWAP means</h2><p>Volume-weighted average price is an average in which trades with more volume have a greater influence than trades with less volume. A session VWAP typically accumulates price-volume information during a defined trading session and resets when the configured session restarts. The precise implementation can vary by chart platform and data source.</p></section>
+<section class="gu-edu-section"><h2>Simple calculation with fictional trades</h2><p>For an illustration using two fictional executions, imagine 100 shares trade at $100.00 and 50 shares at $101.00. The combined value traded is $15,050, and total volume is 150 shares. VWAP for those trades is $15,050 divided by 150, or about $100.33. An ordinary two-price arithmetic average would be $100.50; volume weighting places the reference closer to the larger trade. Candle-based VWAP implementations often use a representative candle price and volume rather than every execution.</p></section>
+<section class="gu-edu-section"><h2>Context matters more than a cross</h2><p>Price above VWAP means the latest observed price is above that defined weighted reference; it does not automatically mean price will keep rising. Price below VWAP does not guarantee decline. A reclaim above VWAP, a rejection below it and sideways movement around it can all occur in the same session. A setup needs a defined observation window and a clear invalidation condition.</p></section>
+<section class="gu-edu-section"><h2>Check settings and source consistency</h2><p>Confirm whether extended hours are included, what time the calculation resets, which market-data feed is used, and whether the chart is adjusted. Changing any of those inputs can change the plotted reference. Do not compare two charts as if their VWAP values were identical when they measure different sessions.</p></section>
+<section class="gu-edu-section"><h2>Practice without placing an order</h2><p>Take an explicitly fictional chart, note the session, mark price relative to VWAP, identify nearby highs and lows, and record what evidence would contradict your interpretation. Add volume and time-of-day context before deciding whether there is a plan, watch condition or no trade.</p></section>
+<section class="gu-edu-section"><h2>Check your understanding</h2><p>What did the example actually establish? Which observation would change your interpretation? What is still unknown, and when is <strong>No Trade</strong> the more defensible answer? Write a short response before reviewing additional information.</p>
+<p>For guided instruction, continue with <a href="lab-samples.html">sample interactive Labs</a> or <a href="bootcamp-academy.html?program=free5">Free Foundations</a> (member sign-in required). <a href="books.html">Browse the Foundations books</a> for the prerequisite curriculum.</p></section>
+<section class="gu-edu-section gu-edu-related"><h2>Continue learning</h2><ul><li><a href="how-stock-market-works.html">How the Stock Market Works</a></li><li><a href="how-to-read-candlestick-charts.html">How to Read Candlestick Charts</a></li><li><a href="bid-ask-spread-explained.html">Bid, Ask and Spread Explained</a></li><li><a href="stock-trading-risk-management.html">Stock Trading Risk Management Basics</a></li></ul></section>
+<p class="small">This content is general education, not individualized investment, legal, tax or brokerage advice. Trading and investing involve a risk of loss. Confirm current rules and product terms with official providers and regulators.</p>
+<p class="small">Independent references: <a href="https://www.investor.gov/" rel="noopener noreferrer">SEC Investor.gov</a> and <a href="https://www.finra.org/investors" rel="noopener noreferrer">FINRA Investor Resources</a>.</p>
+</article></main>
+<footer class="footer"><div class="wrap"><p><a href="about.html">About the publisher</a> · <a href="philosophy.html">Teaching philosophy</a> · <a href="privacy.html">Privacy</a> · <a href="terms.html">Terms</a></p><p class="small">Crown &amp; Lantern Press · The Stock Market: From the Ground Up</p></div></footer>
+</body></html>
