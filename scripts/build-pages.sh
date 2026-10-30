@@ -20,6 +20,9 @@ node --check assets/js/gusim-dt-c01-l02-coach-v3.js
 node tests/test_gusim_dt_c01_l02_coach_v3.mjs
 node --check assets/js/crownlight-candle-measurements-v28.js
 node tests/test_crownlight_candle_v28.mjs
+node --check assets/js/watchlist-talia-research-v4.js
+node --check assets/js/watchlist-talia-workstation-v4.js
+node tests/test_talia_watchlist_v4.mjs
 for asset in assets/js/journal-visual-v3.js assets/js/journal-trade-story-v3.js; do
   node --check "$asset"
 done
