@@ -13,7 +13,8 @@ try{
  writeFileSync(join(root,'index.html'),html('Public homepage'));
  writeFileSync(join(root,'about.html'),html('Author biography'));
  const lessons=['how-stock-market-works','how-to-read-candlestick-charts','vwap-explained','bid-ask-spread-explained','stock-trading-risk-management'];
- const otherPublic=['books','store','learn','tools','lab-samples','membership','help','philosophy',...lessons];
+ const newGuides=['candle-practice','free-foundations-challenge','market-vs-limit-orders','support-resistance-basics'];
+ const otherPublic=['books','store','learn','tools','lab-samples','membership','help','philosophy',...lessons,...newGuides];
  for(const slug of otherPublic)writeFileSync(join(root,slug+'.html'),html('Public '+slug));
  writeFileSync(join(root,'admin.html'),html('Private Admin'));
  writeFileSync(join(root,'dashboard.html'),html('Private member dashboard'));
@@ -26,7 +27,7 @@ try{
  const sitemap=readFileSync(join(root,'sitemap.xml'),'utf8');
  assert(sitemap.includes('<loc>'+origin+'/</loc>'));
  assert(sitemap.includes('<loc>'+origin+'/about.html</loc>'));
- assert.equal((sitemap.match(/<url><loc>/g)||[]).length,15,'Exactly 15 eligible public pages');
+ assert.equal((sitemap.match(/<url><loc>/g)||[]).length,19,'Exactly 19 eligible public pages');
  assert(!sitemap.includes('/admin.html')&&!sitemap.includes('/dashboard.html')&&!sitemap.includes('/privacy.html'));
  assert(readFileSync(join(root,'admin.html'),'utf8').includes('noindex,nofollow'));
  assert(readFileSync(join(root,'dashboard.html'),'utf8').includes('noindex,nofollow'));
@@ -46,7 +47,7 @@ try{
   assert(page.includes('<meta property="og:url" content="'+url+'">'),'Social URL mismatch: '+slug);
   assert.equal((page.match(/<meta property="og:title"/g)||[]).length,1,'Duplicate social metadata: '+slug);
   assert.equal((page.match(/ga4-consent-v1\.js/g)||[]).length,1,'Duplicate analytics controller: '+slug);
-  if(slug==='index'||lessons.includes(slug)){
+  if(slug==='index'||lessons.includes(slug)||['market-vs-limit-orders','support-resistance-basics'].includes(slug)){
    const raw=page.match(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/i)?.[1];
    assert(raw,'Public structured data missing: '+slug);
    const record=JSON.parse(raw);
@@ -76,5 +77,5 @@ try{
   'Rebuilding must not duplicate the consent controller');
  assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/rel="canonical"/g)||[]).length,1,
   'Rebuilding must not duplicate canonical elements');
- console.log('PASS public SEO: 15 unique titles/descriptions, canonicals, social tags, consent isolation, sitemap, protected noindex, rebuild');
+ console.log('PASS public SEO: 19 unique titles/descriptions, canonicals, social tags, consent isolation, sitemap, protected noindex, rebuild');
 }finally{rmSync(root,{recursive:true,force:true})}
