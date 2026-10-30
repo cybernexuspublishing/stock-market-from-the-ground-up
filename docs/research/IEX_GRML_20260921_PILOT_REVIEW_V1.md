@@ -8,7 +8,7 @@
 | File | `docs/research/IEX_GRML_20260921_PILOT_REVIEW_V1.md` |
 | Type | Markdown, repository-controlled historical case review |
 | Document ID | SMFGU-HR-IEX-GRML-20260921-001 |
-| Version | 1.5 |
+| Version | 1.6 |
 | Date | October 30, 2026 |
 | Google Drive location | Proposed Website / Research / Historical Replay / Case Reviews (not uploaded; Drive file ID unassigned) |
 | Status | **PRIVATE DRAFT INGESTED — DO NOT PUBLISH; LESSON & AUTHENTICATED POSITIVE QA PENDING** |
@@ -230,3 +230,21 @@ The one-account QA publication is NOT the commercial release: other members are 
 | Version | Date | Change |
 |---|---|---|
 | 1.5 | 2026-10-30 | GRML QA-only source published to a single pinned test identity; real HTTP and Chromium short-path positive acceptance passed in run 41021303067; full 30m and second-account acceptance remain separate. |
+
+## Full-session authenticated GRML acceptance — Version 1.6 (October 30, 2026)
+
+**PASS for one dedicated QA identity against real production GRML data. NOT a general paid-member release.**
+
+- Workflow: `GRML Genuine Authenticated Historical QA — Noncharging`, run **41021629882**, https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41021629882 .
+- HTTP stage completed successfully: actual password-authenticated pinned QA member, entitlement/restricted catalog, 09:30 Eastern first authentic candle, negative pre-lock advance, first-decision immutability, **29 protected advances covering all 30 genuine one-minute candles**, atomic expected-index stale-call denial, no unrevealed candles, bounded 30-bar visible history, guest session denial, server resume and completed finish.
+- Real Chromium stage completed successfully: genuine QA website sign-in, first-candle Talia teaching, locked decision, complete **30-minute opening session**, all eight authored Talia checkpoints at 1/3/5/10/15/20/25/30 source candles, no partial higher-timeframe bars, **30 × 1m, 10 × 3m, 6 × 5m and 2 × 15m** completed aggregates, protected session restoration at final cursor, journal/finish and sign-out that clears locally held observations.
+- Separate fixture CI `Historical Replay Classroom V1` run **41021753214** passed source plus Chromium checks for no-lookahead, teaching feedback and review-focus behavior.
+- The GRML script now synchronizes Talia's narrative stage to the **visible review focus**, not the server's latest revealed cursor, preventing stage-ahead instruction when looking backward.
+- The real browser test did **not** independently demonstrate forbidden GRML access from a *second* authenticated QA account. Strict QA-allowlist code and anonymous/session denial tests exist, but a second signed-in identity remains a distinct acceptance requirement before expanding member availability.
+- Source data remain stored privately behind Supabase RLS, authenticated replay session ownership and restricted `qa_release_only=true`. Exactly one QA account is allowlisted. The other historical cases were not released, and no Stripe or Crownlight Sparks transaction occurred.
+- **Owner release decision:** keep the QA-only allowlist enabled. Do not convert to general paying-member access until second-account isolation and final owner-facing operational review are recorded. No duplicate legal request to IEX is required for the owner's already-confirmed use scope.
+
+### Revision history addition
+| Version | Date | Change |
+|---|---|---|
+| 1.6 | 2026-10-30 | Full actual-account 30-candle HTTP/Chromium GRML acceptance passed, eight Talia stages and four intervals verified; QA-only remains pending independent second-account isolation test. |
