@@ -7,7 +7,7 @@ import {chromium} from 'playwright';
 const js=readFileSync('assets/js/historical-replay-classroom-v1.js','utf8');
 const modified=js.replace(
  "if(document.readyState==='loading')",
- "window.__qaGrml={configure:(n,completed)=>{dataset={code:'HR_GRML_20260921',ticker:'GRML'};bars=Array.from({length:n},(_,i)=>({ms:Date.parse('2026-09-21T13:30:00Z')+i*60000,o:4,h:5,l:3,c:4,v:200}));renderGrmlLesson(completed);},reset};\nif(document.readyState==='loading')"
+ "window.__qaGrml={configure:(n,completed)=>{dataset={code:'HR_GRML_20260921',ticker:'GRML'};bars=Array.from({length:n},(_,i)=>({ms:Date.parse('2026-09-21T13:30:00Z')+i*60000,o:4,h:5,l:3,c:4,v:200}));renderGrmlLesson(completed);},reset,answerCount:()=>grmlAnswers.size};\nif(document.readyState==='loading')"
 );
 assert.notEqual(modified,js,'Teaching UI test needs access to controlled fixture observations');
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
@@ -36,6 +36,8 @@ try{
  await page.evaluate(()=>window.__qaGrml.configure(30,[]));
  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Separate decision quality/);
  await page.evaluate(()=>window.__qaGrml.reset());
- assert.equal(await page.locator('#hr-grml-lesson').isVisible(),true,'Without a fixture-backed chart, reset still leaves the panel in the static DOM; UI component clears it on full repaint');
+ assert.equal(await page.evaluate(()=>window.__qaGrml.answerCount()),0,'Reset/sign-out discards every ungraded answer');
+ await page.evaluate(()=>window.__qaGrml.configure(1,[]));
+ assert.equal(await page.locator('.hr-grml-feedback').count(),0,'New session cannot inherit earlier feedback');
  console.log('PASS isolated browser GRML coaching: visible-only evidence, eight-stage selection, wrong-answer feedback, retry, transfer and all major review transitions.');
 }finally{await browser.close();}
