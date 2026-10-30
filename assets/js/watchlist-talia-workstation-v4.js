@@ -27,6 +27,8 @@
   let selectedRecordCount=Array.isArray(records)?records.filter(x=>x&&typeof x==='object').length:0;
   let selectedSymbol='';
   const checkpoints=[],revisions=[],reveals=[];
+  let persistentReport=null,loaded=false,loadedCount=0,pendingRequest=null,saving=false,
+   reportUserId='',authGeneration=0;
   const rootEl=make('section',undefined,'cl-talia-v4');
   rootEl.setAttribute('aria-label','Talia interactive watchlist research instruction');
   const head=make('div',undefined,'cl-talia-head');
@@ -97,7 +99,7 @@
     'Treating an indicator as certain','Ignoring spread, borrow or liquidity',
     'Missing invalidation / risk plan','Other misconception']);
   mistakeLabel.append(mistake);
-  const save=make('button','Record ungraded research checkpoint','btn');
+  const save=make('button','Save permanent ungraded research checkpoint','btn');
   const retry=make('button','Retry with more instruction · Free','btn secondary');
   const result=make('p',undefined,'cl-talia-result');result.setAttribute('role','status');
   result.setAttribute('aria-live','polite');
@@ -105,12 +107,16 @@
   rootEl.append(question);
   const report=make('section',undefined,'cl-talia-report');
   report.append(make('h3','Your Talia Watchlist Research Report'));
-  const reportText=make('p','This member-session report covers research practice, not official assessment mastery.');
+  const reportText=make('p','Checking your private, permanently saved research report. This does not represent official assessment mastery.');
   const metrics=make('div',undefined,'cl-talia-metrics');
   const history=make('ol',undefined,'cl-talia-history');
   const copy=make('button','Copy research report','btn secondary');
-  const reportStatus=make('p',undefined,'cl-talia-result');
-  report.append(reportText,metrics,make('h4','Research checkpoints and recurring errors'),history,copy,reportStatus);
+  const reportStatus=make('p',undefined,'cl-talia-result');reportStatus.setAttribute('role','status');
+  const loadSaved=make('button','Refresh saved research report','btn secondary');
+  const older=make('button','Load older saved checkpoints','btn secondary');older.hidden=true;
+  const clearSaved=make('button','Delete all saved Talia research','btn secondary');
+  report.append(reportText,metrics,make('h4','Research checkpoints and recurring errors'),history,copy,
+   loadSaved,older,clearSaved,reportStatus);
   rootEl.append(report);
   const nav=make('div',undefined,'cl-talia-nav');
   const previous=make('button','Previous research action','btn secondary');
@@ -192,17 +198,109 @@
   restart.addEventListener('click',()=>{visible=12;draw()});
   previous.addEventListener('click',()=>{if(step>0){step--;renderNarration()}});
   next.addEventListener('click',()=>{if(step<7){step++;renderNarration()}});
-  save.addEventListener('click',()=>{
+  async function member(){
+   const sb=await root.getSupabaseClient?.();
+   if(!sb?.auth?.getSession)throw Error('Sign-in is required to load a private Talia report.');
+   const {data:{session}}=await sb.auth.getSession();
+   if(!session?.user?.id||!session?.access_token)throw Error('Sign in to save and review your report.');
+   if(reportUserId&&reportUserId!==session.user.id)throw Error('Member account changed. Refresh your private report.');
+   return {uid:session.user.id,token:session.access_token};
+  }
+  async function request(method='GET',payload,query=''){
+   const actor=await member(),generation=authGeneration;
+   const res=await root.fetch('/api/talia-watchlist-reports-v1'+query,{
+    method,cache:'no-store',credentials:'same-origin',
+    headers:{authorization:'Bearer '+actor.token,...(payload!==undefined?{'content-type':'application/json'}:{})},
+    ...(payload!==undefined?{body:JSON.stringify(payload)}:{})
+   });
+   const data=await res.json().catch(()=>({}));
+   if(disposed||generation!==authGeneration)throw Error('Report session changed. Reload the report.');
+   const current=await member();
+   if(current.uid!==actor.uid)throw Error('Account changed during report request.');
+   if(!res.ok||data.ok!==true)throw Error(data.error||'Private research report could not be verified.');
+   return {data,uid:actor.uid};
+  }
+  function normalize(row){
+   return {eventId:row.eventId,topic:row.topic,step:row.step,dimension:row.dimension,
+    answer:row.answer,misconception:row.misconception,fictionalCase:row.fictionalCase,
+    cutoff:row.cutoff,symbol:row.symbol||'',at:row.at};
+  }
+  async function loadReport(){
+   if(disposed||saving)return;
+   loadSaved.disabled=true;
+   reportStatus.textContent='Checking the authenticated private report service…';
+   try{
+    const {data,uid}=await request('GET',undefined,'?limit=100&offset=0');
+    if(disposed)return;
+    checkpoints.splice(0,checkpoints.length,...data.history.map(normalize).reverse());
+    persistedReport=data.report;reportUserId=uid;loaded=true;loadedCount=data.history.length;
+    older.hidden=!data.hasMore;
+    reportStatus.textContent='Private report restored from the server. All counts include earlier saved checkpoints.';
+    renderNarration();renderReport();
+   }catch(e){
+    loaded=false;reportStatus.textContent=e.message+' No checkpoint will be shown as permanently saved until the server confirms it.';
+   }finally{loadSaved.disabled=false}
+  }
+  loadSaved.addEventListener('click',()=>void loadReport());
+  older.addEventListener('click',async()=>{
+   if(!loaded||saving)return;older.disabled=true;
+   try{
+    const {data}=await request('GET',undefined,'?limit=100&offset='+loadedCount);
+    const seen=new Set(checkpoints.map(x=>x.eventId));
+    const incoming=data.history.map(normalize).reverse().filter(x=>!seen.has(x.eventId));
+    checkpoints.unshift(...incoming);
+    loadedCount+=data.history.length;
+    older.hidden=!data.hasMore;
+    persistedReport=data.report;renderReport();
+    reportStatus.textContent='Older member-owned checkpoints loaded from the server.';
+   }catch(e){reportStatus.textContent=e.message}
+   finally{older.disabled=false}
+  });
+  clearSaved.addEventListener('click',async()=>{
+   if(saving||!loaded||!root.confirm('Permanently delete every saved Talia research checkpoint and report for this account? This cannot be undone.'))return;
+   saving=true;clearSaved.disabled=true;
+   try{
+    const {data}=await request('DELETE',{confirm:'DELETE_ALL_TALIA_RESEARCH'});
+    checkpoints.length=0;revisions.length=0;reveals.length=0;loadedCount=0;
+    persistedReport=data.report;pendingRequest=null;
+    older.hidden=true;renderNarration();renderReport();
+    reportStatus.textContent='Server confirmed deletion of '+data.deletedCheckpoints+' research checkpoints and the member report.';
+   }catch(e){reportStatus.textContent='Deletion not verified: '+e.message}
+   finally{saving=false;clearSaved.disabled=false}
+  });
+  save.addEventListener('click',async()=>{
+   if(saving)return;
    const value=response.value.trim();
-   if(value.length<25){result.textContent='Please record at least 25 characters. You may describe missing information, WATCH, REJECT or NO TRADE; retries are free.';return}
+   if(value.length<25){
+    result.textContent='Please record at least 25 characters of evidence, uncertainty or NO TRADE reasoning.';return;
+   }
+   if(!loaded){
+    result.textContent='Your permanent private report must load successfully before new checkpoints can be saved. Select Refresh saved research report.';return;
+   }
+   if(!root.crypto?.randomUUID){result.textContent='Secure unique checkpoint identifiers are not available in this browser.';return}
    const event={topic:topicId,step:currentStep(),dimension:dimension(currentStep()),
-    answer:value.slice(0,1400),mistake:mistake.value,symbol:selectedSymbol,cutoff:visible,
-    fictionalCase:caseId,at:new Date().toISOString()};
-   const prior=recent()[0];
-   checkpoints.push(event);
-   if(prior)revisions.push({topic:topicId,step:event.step,at:event.at});
-   result.textContent='Research practice recorded for this browser session at '+event.at+'. Not an independently graded answer or persistent watchlist save.';
-   renderReport();
+    answer:value.slice(0,1400),misconception:mistake.value,symbol:selectedSymbol,
+    cutoff:visible,fictionalCase:caseId};
+   const signature=JSON.stringify(event);
+   if(pendingRequest?.signature!==signature){
+    pendingRequest={signature,body:{...event,eventId:root.crypto.randomUUID()}};
+   }
+   saving=true;save.disabled=true;
+   result.textContent='Saving the original research evidence to your private account…';
+   try{
+    const {data}=await request('POST',pendingRequest.body);
+    if(!checkpoints.some(x=>x.eventId===data.saved.eventId)){
+     const prior=recent()[0];checkpoints.push(normalize(data.saved));loadedCount++;
+     if(prior)revisions.push({topic:topicId,step:event.step,at:data.saved.at});
+    }
+    persistedReport=data.report;pendingRequest=null;
+    result.textContent='Permanently saved and verified at '+data.saved.at+
+     (data.alreadySaved?' (idempotent retry).':'')+' Ungraded educational evidence only.';
+    renderReport();
+   }catch(e){
+    result.textContent='Not confirmed saved: '+e.message+
+     ' Retry without changing the answer to reuse the same checkpoint identifier.';
+   }finally{saving=false;save.disabled=false}
   });
   retry.addEventListener('click',()=>{
    more.append(make('p',extraText('depth')));
@@ -212,36 +310,39 @@
   function renderReport(){
    metrics.replaceChildren();history.replaceChildren();
    for(const dim of C.DIMS){
-    const matching=checkpoints.filter(x=>x.dimension===dim);
+    const total=loaded?Number(persistentReport?.dimensionCounts?.[dim]||0):
+     checkpoints.filter(x=>x.dimension===dim).length;
     const box=make('div',undefined,'cl-talia-metric');
-    box.append(make('strong',dim),make('span',matching.length+' recorded research attempt'+(matching.length===1?'':'s')));
+    box.append(make('strong',dim),make('span',total+' permanently recorded ungraded attempt'+(total===1?'':'s')));
     metrics.append(box);
    }
-   const mistakes=new Map();
-   for(const entry of checkpoints){
-    if(entry.mistake!=='NONE')mistakes.set(entry.mistake,(mistakes.get(entry.mistake)||0)+1);
+   const problems=loaded?Object.entries(persistentReport?.misconceptionCounts||{}):
+    [...checkpoints.reduce((m,x)=>(x.misconception!=='NONE'&&m.set(x.misconception,(m.get(x.misconception)||0)+1),m),new Map())];
+   const total=loaded?Number(persistentReport?.totalAttempts||0):0;
+   const unique=loaded?Object.keys(persistentReport?.topicCounts||{}).length:0;
+   reportText.textContent=loaded?
+    'Permanent member-owned research · '+total+' total ungraded checkpoint(s) in '+unique+
+    ' research subjects · '+checkpoints.length+' detailed checkpoint(s) currently loaded · '+
+    selectedRecordCount+' watchlist record(s) on this page. Research activity does not create an official grade or validate a market outcome.':
+    'Private report has not been loaded from the authenticated server. No permanent save has been verified. Official mastery: Not Yet Assessed.';
+   if(!checkpoints.length)history.append(make('li',loaded?'No saved research checkpoints yet. Start with Observe.':'Load the report to view stored checkpoints.'));
+   for(const [key,n] of problems){
+    history.append(make('li',key.replaceAll('_',' ')+' recorded '+n+' time'+(n===1?'':'s')+'; revisit the relevant explanation and independent Lab.'));
    }
-   const unique=new Set(checkpoints.map(x=>x.topic+'|'+x.step));
-   reportText.textContent='Ungraded member-session evidence · '+unique.size+' distinct subject/action checkpoints across '+
-    new Set(checkpoints.map(x=>x.topic)).size+' subjects · '+revisions.length+' written revisions · '+
-    reveals.length+' fictional bar reveals · '+selectedRecordCount+' member-owned watchlist records available on this page. '+
-    'Not Yet Assessed remains the only formal mastery status shown here.';
-   if(!checkpoints.length)history.append(make('li','No practice checkpoints yet. Start with Observe.'));
-   for(const [key,count] of mistakes){
-    history.append(make('li',key.replaceAll('_',' ')+' noted '+count+' time'+(count===1?'':'s')+'. Revisit Talia’s explanations and the related Lab.'));
-   }
-   for(const x of checkpoints.slice(-10).reverse()){
-    history.append(make('li',x.at+' · '+C.byId(x.topic).title+' · '+x.step+' · '+
-     'evidence cutoff: fictional bar '+x.cutoff+' · '+(x.mistake==='NONE'?'No misconception selected':x.mistake.replaceAll('_',' '))));
+   for(const x of checkpoints.slice(-20).reverse()){
+    history.append(make('li',x.at+' · '+C.byId(x.topic).title+' · '+x.step+
+     ' · fictional bar '+x.cutoff+' · '+(x.symbol||'No member-entered symbol')+
+     ' · '+(x.misconception==='NONE'?'No misconception selected':x.misconception.replaceAll('_',' '))));
    }
   }
   function reportString(){
    return [
-    'Crownlight Talia — Watchlist Research Report (UNGRADED, IN-SESSION)',
+    'Crownlight Talia — Permanent Member Research Report (UNGRADED)',
     'Generated '+new Date().toISOString(),'Source: member-entered fictional educational exercises, not market data',
     'No official assessment grade, trade outcome or entitlement is implied.',
-    'Advanced records seen: '+selectedRecordCount,
-    ...C.DIMS.map(d=>d+': '+checkpoints.filter(x=>x.dimension===d).length+' practice checkpoint(s)'),
+    'Watchlist records on this page: '+selectedRecordCount,
+    'Server summary includes '+(persistedReport?.totalAttempts||0)+' total saved checkpoints; '+checkpoints.length+' details loaded.',
+    ...C.DIMS.map(d=>d+': '+(persistedReport?.dimensionCounts?.[d]||0)+' server-saved ungraded checkpoint(s)'),
     ...checkpoints.map(e=>[e.at,e.topic,e.step,e.dimension,e.fictionalCase,
      'symbol '+(e.symbol||'NONE'),'cutoff '+e.cutoff,'misconception '+e.mistake,'reasoning '+e.answer].join(' | '))
    ].join('\n');
@@ -250,7 +351,7 @@
    try{
     if(!root.navigator?.clipboard?.writeText)throw Error('Copy unavailable');
     await root.navigator.clipboard.writeText(reportString());
-    reportStatus.textContent='Copied the research report to your clipboard. It is not a persistent server-saved assessment.';
+    reportStatus.textContent='Copied the available report. Original checkpoints remain privately stored on the server; this is not an official assessment.';
    }catch{
     reportStatus.textContent='Clipboard unavailable in this browser. Checkpoint history remains visible above; do not assume it was saved.';
    }
@@ -331,7 +432,7 @@
    if(n?.classList.contains('cl-talia-indicator-caption'))n.textContent=modeText;
    else chartDiv.insertAdjacentElement('afterend',make('p',modeText,'cl-talia-indicator-caption'));
   }
-  function reset(){stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
+  function reset(){++authGeneration;stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;persistedReport=null;loaded=false;loadedCount=0;pendingRequest=null;reportUserId='';older.hidden=true;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
    topics.value=topicId;scenarios.value=caseId;overlay.value=seriesMode;bars=C.fictional('trend');
    response.value='';renderNarration();renderReport();draw();
   }
@@ -346,6 +447,7 @@
   }
   function dispose(){disposed=true;++epoch;stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
   renderNarration();renderReport();draw();
+  Promise.resolve().then(()=>void loadReport());
   Promise.resolve().then(async()=>{
    try{
     if(disposed||!rootEl.isConnected)return;
