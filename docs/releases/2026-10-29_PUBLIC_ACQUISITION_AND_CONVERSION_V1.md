@@ -76,3 +76,32 @@
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 1.0 | 2026-10-29 | Five public guides, linked discovery navigation, build-time metadata/schema, sitemap and source checks | Source delivery; deployment acceptance pending |
+
+
+## Acceptance batch evidence — 2026-10-29 (America/Chicago)
+
+**Combined scope:** Public discovery and responsive readiness; authenticated Free Foundations acceptance; GA4 event reporting; Google search discovery. Stripe financial verification remains an independent safety gate.
+
+| Check | Evidence | Result |
+|---|---|---|
+| Cloudflare production release | Production deployment `eb9fa162-a0dd-4d2e-8896-34c913e314b8`, SHA `edd6ead0b627d1ae9d7b9f56f4d779411a4a8071`, all five deployment stages succeeded | Passed |
+| 15 public pages | Cloudflare build log: `PASS public SEO: 15 unique titles/descriptions, canonicals, social tags, consent isolation, sitemap, protected noindex, rebuild` | Passed in build fixture, not independently browser-audited |
+| New guides and navigation | Cloudflare build log: `PASS public acquisition V1: five public lessons, source links, risk disclosures, responsive layout and protected Free Academy deep links` | Passed in source tests |
+| Opt-in Analytics rules | Cloudflare log: `PASS GA4: opt-in public intents, confirmed signup handoff, 15-minute expiry, no PII, no purchase fabrication` | Passed in source/fixture tests; live receipt pending |
+| Free Foundations database | Read-only Supabase query on `gu_bootcamp_academy_enrollments_v014168`: 2 `free5` enrollment rows; on `gu_bootcamp_academy_progress_v014168`: 0 `free5` progress rows | Enrollment exists, persisted reflection acceptance not proven |
+| Academy audit | `gu_bootcamp_academy_audit_v014295`: 2 `free5` `enrollment_created` events; no `free5` `day_started` or `reflection_updated` events in available data | No evidence that either account attempted a save |
+| Access controls | Academy enrollment/progress tables have RLS enabled and no direct public table policies; server endpoint `functions/api/bootcamp-academy.js` uses account authorization and a private progress operation | Source+schema inspected; live signed-in requests not executed |
+| GA4 reported metrics | Windsor.ai GA4 `561523001`: no returned rows for queried visits, users or events covering October 26–29 | Processing/no data; never interpreted as zero visitors |
+| Search Console | Windsor.ai URL-prefix property: no returned search-performance or sitemap rows for available query | Processing/no data; indexing not verified |
+| HTTP and mobile browser | External public fetch could not reliably retrieve the five new pages or sitemap; no mobile/desktop browser viewport acceptance performed in this pass | OPEN; no false HTTP or viewport success claim |
+| Stripe | No LIVE/TEST payment requests or changes | Intentionally untouched |
+
+**Release classification:** SOURCE/CI/DEPLOYMENT PASSED. Authentic mobile/desktop browser accessibility and interaction checks, Free Foundations authenticated saving, GA4 Realtime receipt, and direct Google indexing confirmation remain OPEN. Do not describe this release as fully end-to-end accepted.
+
+**Interpretation:** A missing Free Foundations progress row is not a defect by itself: the two enrolled accounts may simply never have started or saved lessons. Genuine QA requires authorized member access, a new reflection save, a page reload, a second-account isolation check, and confirmation that the saved record belongs only to that test identity.
+
+## Revision history addendum
+
+| Version | Date | Change | Status |
+|---|---|---|---|
+| 1.1 | 2026-10-29 | Added production Cloudflare logs, aggregated Academy records, GA4/Search Console reporting check, and precise remaining browser/QA gates | Production build accepted; end-to-end acceptance pending |
