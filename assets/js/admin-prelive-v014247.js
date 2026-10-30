@@ -68,6 +68,10 @@
   growthLink.href='/owner-growth-funnel.html';
   growthLink.setAttribute('aria-label','Owner verified member growth and Free Foundations funnel');
   nav().append(growthLink);
+  const publishingLink=E('a','admin-back','Educational Publishing Desk');
+  publishingLink.href='/owner-growth-publishing.html';
+  publishingLink.setAttribute('aria-label','Owner manual educational publishing desk');
+  nav().append(publishingLink);
   const tab=E('button','','Release & QA');tab.type='button';tab.dataset.adminPrelive='true';
   const section=E('section','admin-panel admin-prelive-panel');section.dataset.prelivePanel='true';
   section.innerHTML='<div class="admin-heading"><div><div class="eyebrow">Owner release operations</div><h1>Pre-LIVE Acceptance Center</h1><p>Verified administrative configuration, provider-facing QA evidence and open acceptance gates. No actions here charge customers or enable checkout.</p></div><button class="btn secondary" type="button" data-prelive-refresh>Refresh evidence</button></div><p class="admin-prelive-status" data-prelive-status role="status" aria-live="polite">Read-only checks have not run.</p><div class="admin-prelive-stats" data-prelive-counts></div><h2>Release control gates</h2><div class="admin-prelive-checks" data-prelive-checks></div><p class="admin-muted" data-prelive-observed></p><p class="admin-muted" data-prelive-note></p><a class="btn secondary" href="/admin-advertising.html">Open Advertising QA</a>';
