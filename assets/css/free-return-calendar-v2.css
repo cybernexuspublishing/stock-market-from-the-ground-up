@@ -1,0 +1,11 @@
+/* Additive V2 return plan for existing Free learning launchpad. */
+.gu-v2-return-plan{margin-top:20px;border-top:1px solid #385568;padding-top:19px}
+.gu-v2-return-plan h3{margin:0 0 8px}
+.gu-v2-return-plan p{max-width:72ch}
+.gu-v2-return-controls{display:flex;align-items:end;gap:12px;flex-wrap:wrap;margin:12px 0}
+.gu-v2-return-controls label{display:grid;gap:6px;font-size:.92rem}
+.gu-v2-return-controls select{font:inherit;padding:10px 12px;background:#102d40;color:#fff;
+ border:1px solid #62798d;border-radius:7px}
+.gu-v2-return-controls button{min-height:44px}
+#gu-v2-calendar-status{color:#bfd9e3;line-height:1.55;font-size:.9rem}
+@media(max-width:620px){.gu-v2-return-controls>*{width:100%}}
