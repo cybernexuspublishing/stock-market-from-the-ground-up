@@ -1,0 +1,68 @@
+name: Crownlight Chart Studio V6 Workspace Sync and Data Sources
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/crownlight-workspace-v2.js'
+      - 'assets/js/crownlight-chart-tiers-v1.js'
+      - 'functions/api/chart-workspace.js'
+      - 'functions/api/marketdata.js'
+      - 'tests/test_crownlight_chart_provider_inventory_v6.mjs'
+      - 'tests/test_crownlight_workspace_sync_v6_browser.mjs'
+      - '.github/workflows/crownlight-chart-studio-v6.yml'
+permissions:
+  contents: read
+jobs:
+  source-permissions-and-persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax and workspace/data-source security regression
+        run: |
+          node --check assets/js/crownlight-workspace-v2.js
+          node --check assets/js/crownlight-chart-tiers-v1.js
+          node --check functions/api/chart-workspace.js
+          node --check functions/api/marketdata.js
+          node tests/test_crownlight_chart_provider_inventory_v6.mjs
+          node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_studio_v3_integrity.mjs
+          node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
+          node tests/test_crownlight_provider_entitlement_v1.mjs
+          node tests/test_v014145_marketdata_byo_security.mjs
+          node tests/test_crownlight_studio_acceptance_v4.mjs
+      - name: Verify Pages build and credential isolation
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/crownlight-workspace-v2.js
+          test -f public/assets/js/crownlight-chart-tiers-v1.js
+          test -f public/simulator.html
+          test ! -e public/supabase
+          test ! -d public/functions
+  chromium-professional-persistence:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install no-cost pinned Playwright and charting engines
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 klinecharts@10.1.0 lightweight-charts@5.2.1
+          npx playwright install --with-deps chromium
+      - name: Test Professional chart synchronization and secure workspace state
+        run: node tests/test_crownlight_workspace_sync_v6_browser.mjs
+      - name: Existing saved-workspace, data-source and account isolation browser tests
+        run: |
+          node tests/test_crownlight_chart_studio_v3_browser.mjs
+          node tests/test_crownlight_studio_acceptance_v4_browser.mjs
+          node tests/test_crownlight_source_to_chart_v5_browser.mjs
