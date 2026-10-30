@@ -28,7 +28,7 @@ assert.equal(api.measures(api.TRANSFER).body,1);
 assert.equal(api.measures(api.TRANSFER).range,3);
 assert(script.includes("plot.setOption"),'Chart must use ECharts');
 assert(script.includes('markLine'), 'OHLC labels must remain on actual chart prices');
-assert(script.includes("formatter:name+' $'+price.toFixed(2)"),'Direct horizontal price guides must label values');
+assert(script.includes("formatter:key.toUpperCase()+' '+DOLLAR(q[key])"),'Direct horizontal price guides must label the actual illustrated values');
 assert(script.includes("table.setAttribute('aria-label'"),'Accessible table is additional reference');
 assert(script.includes("slider.type='range'"),'Experiment must be interactive');
 for(const text of ['absolute value','Full range = High','percentage','What Is a Percentage?',
