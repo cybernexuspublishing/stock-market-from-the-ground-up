@@ -126,8 +126,9 @@ export async function onRequestPost({request,env}){
   if(row.status!=='reserved')throw error('TEST_INTENT_ALREADY_RESOLVED');
   const params=new URLSearchParams();
   params.set('mode','payment');
-  params.set('managed_payments[enabled]','true');
-  params.set('payment_method_types[0]','card');
+  // Isolated TEST acceptance must not depend on Merchant-of-Record preview
+  // enrollment or an API-version-sensitive payment_method_types parameter.
+  // This deliberately does NOT alter other GU39, founding or LIVE checkouts.
   params.set('line_items[0][price_data][currency]','usd');
   params.set('line_items[0][price_data][product]',QA_PRODUCT);
   params.set('line_items[0][price_data][unit_amount]',String(row.cash_due_cents));
