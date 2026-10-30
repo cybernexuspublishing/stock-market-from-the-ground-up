@@ -39,6 +39,17 @@ assert(!picker.includes('/api/checkout'),'Discovery must not start a payment');
 assert(!picker.includes('innerHTML'),'Catalog metadata must be painted using safe textContent');
 assert(html.includes('id="player-catalog-search"')&&html.includes('Choose a Lab'));
 assert(html.includes('id="player-catalog-toggle"')&&html.includes('role="combobox"'),'Lab selector has a searchable dropdown');
+assert(html.indexOf('id="player-catalog-browser"')>html.indexOf('id="player-catalog-search"')&&
+ html.indexOf('id="player-catalog-browser"')<html.indexOf('id="player-lab-id"'),
+ 'Lab dropdown panel belongs inside the chooser, not in a side column');
+assert(css.includes('position:absolute!important;top:calc(100% + 6px)'),
+ 'Lab search results must open directly below the field');
+const learningCss=file('assets/css/learning-workstation-v44.css');
+assert(learningCss.includes('grid-auto-rows:minmax(44px,auto)')&&learningCss.includes('flex-direction:row!important'),
+ 'Ten compact three-column stage tiles');
+const labEngine=file('assets/js/lab-engine-v32-universal.js');
+assert(labEngine.includes('bullet.textContent=String(i+1)'),'Stage numbers must be visible');
+
 assert(picker.includes('setOpen(true)')&&picker.includes("event.key==='Escape'"),'Keyboard and pointer dropdown open/close controls');
 assert(css.includes('#player-catalog-browser[hidden]'),'Dropdown hides only on explicit collapsed state');
 assert(html.includes('learning-destination-picker-v1.js'));

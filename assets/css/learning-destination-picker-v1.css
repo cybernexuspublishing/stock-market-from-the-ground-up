@@ -113,3 +113,44 @@ body.gu-bc-learning .academy-program--locked a.btn{
  background:#263d50!important;border-color:#658096!important;color:#e3eff7!important;
 }
 body.gu-bc-learning #academy-programs .academy-program[hidden]{display:none!important;}
+
+/* v1.1: dropdown anchored to the search field, never a second flex column. */
+body.gu-lab-member .prototype-bar{
+ display:block!important;position:relative!important;z-index:42!important;
+ overflow:visible!important;padding:12px clamp(14px,1.3vw,24px)!important;
+}
+body.gu-lab-member .prototype-bar .gu-learning-picker-toolbar{
+ display:flex!important;justify-content:flex-start!important;align-items:center!important;
+ flex-wrap:wrap!important;gap:10px 15px!important;margin:0!important;padding:0!important;
+}
+body.gu-lab-member .prototype-bar .gu-learning-picker-fields{
+ position:relative!important;flex:0 1 760px!important;width:min(100%,760px)!important;
+ max-width:760px!important;display:block!important;min-width:0!important;
+}
+body.gu-lab-member .prototype-bar .gu-learning-picker-fields>label{display:block!important;margin:0 0 5px!important}
+body.gu-lab-member .prototype-bar .gu-picker-combobox{width:100%!important;display:flex!important;align-items:stretch!important;gap:8px!important}
+body.gu-lab-member .prototype-bar #player-catalog-search{flex:1 1 auto!important;width:100%!important;min-width:0!important}
+body.gu-lab-member .prototype-bar #player-catalog-toggle{flex:0 0 auto!important;white-space:nowrap!important}
+body.gu-lab-member .prototype-bar #player-catalog-status{margin:5px 0 0!important;font-size:.77rem!important;line-height:1.3!important}
+body.gu-lab-member .prototype-bar #player-catalog-browser{
+ position:absolute!important;top:calc(100% + 6px)!important;left:0!important;right:auto!important;
+ width:100%!important;max-width:100%!important;margin:0!important;padding:10px!important;
+ z-index:120!important;background:#0a1e2e!important;border:1px solid #52829b!important;
+ border-radius:10px!important;box-shadow:0 18px 40px rgba(0,0,0,.64)!important;
+}
+body.gu-lab-member .prototype-bar #player-catalog-browser[hidden]{display:none!important}
+body.gu-lab-member .prototype-bar .gu-learning-picker-results{
+ max-height:min(48vh,385px)!important;overflow-y:auto!important;overflow-x:hidden!important;
+}
+body.gu-lab-member .prototype-bar .gu-picker-item{display:flex!important;align-items:center!important;gap:8px!important;padding:9px 11px!important}
+body.gu-lab-member .prototype-bar .gu-picker-info{flex:1 1 180px!important}
+body.gu-lab-member .prototype-bar .gu-picker-heading{font-size:.82rem!important}
+body.gu-lab-member .prototype-bar .gu-picker-action{font-size:.75rem!important}
+body.gu-lab-member .prototype-bar>.live-note{display:block!important;margin:7px 0 0!important}
+@media(max-width:650px){
+ body.gu-lab-member .prototype-bar .gu-learning-picker-fields{flex:1 1 100%!important;width:100%!important;min-width:0!important}
+ body.gu-lab-member .prototype-bar .gu-picker-combobox{flex-wrap:nowrap!important}
+ body.gu-lab-member .prototype-bar #player-catalog-toggle{padding:8px!important;font-size:.75rem!important}
+ body.gu-lab-member .prototype-bar #player-catalog-browser{width:100%!important}
+ body.gu-lab-member .prototype-bar .gu-picker-item{align-items:stretch!important}
+}

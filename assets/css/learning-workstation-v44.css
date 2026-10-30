@@ -115,3 +115,72 @@ body.gu-bc-learning.academy-classroom-active .gu-learning-ad-core>.wrap{max-widt
 @media(prefers-reduced-motion:reduce){
  body.gu-lab-member #player-stage-grid *, body.gu-bc-learning #academy-lab-slot .gu-v33-journey *{transition:none!important;animation:none!important}
 }
+
+/* v4.5: ten numbered compact stages in the three-column approved navigator. */
+body.gu-lab-member #player-stage-progress.track{
+ height:auto!important;min-height:0!important;overflow:visible!important;
+ margin:7px 0 0!important;padding:10px!important;
+ background:#0b1b2b!important;border:1px solid #355469!important;border-radius:11px!important;
+}
+body.gu-lab-member #player-stage-progress .journey-progress-track-inner{
+ min-width:0!important;height:auto!important;position:relative!important;
+}
+body.gu-lab-member #player-stage-progress .fill{
+ position:absolute!important;top:-10px!important;bottom:auto!important;
+ left:0!important;height:3px!important;z-index:1!important;
+ border-radius:3px!important;background:#58cbb0!important;opacity:.95!important;
+}
+body.gu-lab-member #player-stage-progress .journey{
+ height:auto!important;margin:0!important;padding:0!important;
+ border:0!important;background:transparent!important;position:relative!important;
+}
+body.gu-lab-member #player-stage-progress .journey-top{
+ position:absolute!important;width:1px!important;height:1px!important;
+ overflow:hidden!important;clip-path:inset(50%)!important;white-space:nowrap!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid{
+ display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;
+ grid-auto-rows:minmax(44px,auto)!important;height:auto!important;
+ padding:0!important;margin:0!important;gap:8px!important;
+ border:none!important;background:transparent!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item{
+ display:flex!important;flex-direction:row!important;justify-content:flex-start!important;
+ align-items:center!important;gap:10px!important;text-align:left!important;
+ min-height:44px!important;padding:8px 12px!important;white-space:normal!important;
+ font:600 clamp(.76rem,.86vw,.94rem)/1.35 system-ui,sans-serif!important;
+ color:#d4e4ee!important;background:#112d40!important;
+ border:1px solid #36566c!important;border-radius:8px!important;box-shadow:none!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item.current{
+ background:#16443a!important;border-color:#70d2b8!important;
+ color:#fff!important;font-weight:800!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item.complete{
+ background:#133d34!important;border-color:#387d69!important;color:#d8fff1!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item .bullet{
+ display:grid!important;place-items:center!important;flex:0 0 26px!important;
+ margin:0!important;width:26px!important;height:26px!important;
+ border-radius:50%!important;border:1px solid #67869c!important;
+ background:transparent!important;box-shadow:none!important;color:#d4e9f5!important;
+ font-size:.79rem!important;font-weight:750!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item.current .bullet{
+ border-color:#7fe0c9!important;background:#1b6555!important;color:#fff!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item.complete .bullet{
+ border-color:#5cc0a7!important;background:#205c4f!important;
+}
+body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item.complete .bullet::after{content:none!important}
+@media(max-width:620px){
+ body.gu-lab-member #player-stage-progress #player-stage-grid{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important;
+ }
+ body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item{
+  padding:7px 8px!important;min-height:42px!important;
+ }
+ body.gu-lab-member #player-stage-progress #player-stage-grid .stage-item .bullet{
+  flex-basis:22px!important;width:22px!important;height:22px!important;
+ }
+}

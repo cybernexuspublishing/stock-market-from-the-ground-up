@@ -17,7 +17,7 @@ function paintPrototypeProgress(index,percent=null,done=false){
  if(grid){grid.replaceChildren();for(let i=0;i<DISPLAY_STEPS.length;i++){
   const item=el('div');item.className='stage-item '+(i<shown?'complete':i===shown?'current':'');
   item.dataset.playerStage=String(i);
-  const bullet=el('span');bullet.className='bullet';bullet.setAttribute('aria-hidden','true');
+  const bullet=el('span');bullet.className='bullet';bullet.textContent=String(i+1);bullet.setAttribute('aria-hidden','true');
   item.append(bullet,document.createTextNode?.(DISPLAY_STEPS[i])||el('span',DISPLAY_STEPS[i]));grid.append(item);
  }}
  const current=lookup('player-current-stage');if(current)current.textContent=DISPLAY_STEPS[shown];
