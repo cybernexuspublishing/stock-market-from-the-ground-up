@@ -358,7 +358,8 @@
    rootEl.scrollIntoView?.({block:'start',behavior:'smooth'});
    return true;
   }
-  function dispose(){disposed=true;++epoch;stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
+  root.addEventListener?.('crownlight:member-changed',reset);
+  function dispose(){root.removeEventListener?.('crownlight:member-changed',reset);disposed=true;++epoch;stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
   renderNarration();renderReport();draw();
   Promise.resolve().then(async()=>{
    try{
