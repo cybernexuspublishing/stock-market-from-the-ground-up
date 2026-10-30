@@ -133,8 +133,53 @@ function loadFictionalPractice(){
  smsg('sim-load-msg','Loaded '+SIM.candles.length+' ORIGINAL FICTIONAL candles. Use Next Bar to reveal one at a time, or write and lock an educational plan to save a paper Journal entry. No official grade or real fill.','success');
  renderAll();
 }
-async function loadCSV(){const file=$('sim-csv').files?.[0];if(!file){smsg('sim-load-msg','Choose a CSV file first.','error');return}try{if(file.size>SIM_CSV_MAX_BYTES)throw Error('CSV file exceeds 4 MiB. Select a smaller teaching window.');const text=await file.text();SIM.candles=parseCSV(text);SIM.sourceName=file.name;SIM.sourceProvider='csv_upload';SIM.sourceNote='User-uploaded CSV for ungraded browser practice. Not source-certified or licensed for redistribution.';SIM.originalFictional=false;const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;smsg('sim-load-msg',`Loaded ${SIM.candles.length} candles from ${file.name}. Future candles are hidden from the replay.`, 'success');renderAll()}catch(e){smsg('sim-load-msg',e.message,'error')}}
-async function loadProvider(){if(!SIM.hasPremium){smsg('sim-load-msg','Connected Tiingo/Alpaca history requires separate Market Simulator data access. An Advanced or Professional Chart Studio pass does not include licensed provider history. Your saved connection is not removed. For chart-only testing, select the teaching dataset or upload your own licensed CSV.','error');$('sim-load-msg')?.scrollIntoView?.({block:'nearest'});return}const ticker=$('sim-ticker').value.trim().toUpperCase(),start=$('sim-start-date')?.value,end=$('sim-end-date')?.value,freq=$('sim-resample')?.value||'1min';if(!ticker||!start||!end){smsg('sim-load-msg','Ticker, context start date, and context end date are required.','error');return}try{const {data}=await SIM.sb.auth.getSession(),token=data.session?.access_token;if(!token)throw new Error('Sign in required.');smsg('sim-load-msg','Loading connected market data…');const provider=$('sim-source').value==='alpaca'?'ALPACA_BYO':'TIINGO_BYO';const q=new URLSearchParams({action:'bars',provider,ticker,start,end,freq});const r=await fetch(`/api/marketdata?${q}`,{headers:{authorization:`Bearer ${token}`},cache:'no-store'});const j=await r.json();if(!r.ok)throw new Error(j.error||`HTTP ${r.status}`);SIM.candles=(j.bars||[]).map(x=>({time:new Date(x.timestamp),open:n(x.open),high:n(x.high),low:n(x.low),close:n(x.close),volume:n(x.volume)||0,tradeCount:Number.isSafeInteger(x.tradeCount)?x.tradeCount:null,providerVwap:typeof x.providerVwap==='number'&&Number.isFinite(x.providerVwap)?x.providerVwap:null})).filter(x=>!Number.isNaN(x.time.getTime())&&[x.open,x.high,x.low,x.close].every(Number.isFinite)).sort((a,b)=>a.time-b.time);if(SIM.candles.length<2)throw new Error('The provider returned too few valid bars for this date range.');SIM.sourceName=`${provider==='ALPACA_BYO'?'Alpaca IEX':'Tiingo'} ${ticker} ${start} to ${end}`;SIM.sourceProvider=provider.toLowerCase();SIM.sourceNote=j.sourceNote||'';SIM.sourceFeed=j.integrity?.feed||'unspecified';SIM.originalFictional=false;const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;smsg('sim-load-msg',`Loaded ${SIM.candles.length} provider bars. Future candles remain hidden. ${j.sourceNote||''}`,'success');renderAll()}catch(e){smsg('sim-load-msg',e.message,'error')}}
+async function loadCSV(){const memberId=SIM.user?.id;const file=$('sim-csv').files?.[0];if(!file){smsg('sim-load-msg','Choose a CSV file first.','error');return}try{if(file.size>SIM_CSV_MAX_BYTES)throw Error('CSV file exceeds 4 MiB. Select a smaller teaching window.');const text=await file.text();if(!memberId||SIM.user?.id!==memberId)return;const validated=parseCSV(text);if(SIM.user?.id!==memberId)return;SIM.candles=validated;SIM.sourceName=file.name;SIM.sourceProvider='csv_upload';SIM.sourceNote='User-uploaded CSV for ungraded browser practice. Not source-certified or licensed for redistribution.';SIM.originalFictional=false;const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;smsg('sim-load-msg',`Loaded ${SIM.candles.length} candles from ${file.name}. Future candles are hidden from the replay.`, 'success');renderAll()}catch(e){smsg('sim-load-msg',e.message,'error')}}
+async function loadProvider(){
+ if(!SIM.hasPremium){
+  smsg('sim-load-msg','Connected personal Tiingo/Alpaca history requires a separate Market Simulator data entitlement. A Chart Studio tier or Sparks pass does not grant market-data licensing. Your saved connection is unchanged.','error');
+  $('sim-load-msg')?.scrollIntoView?.({block:'nearest'});return;
+ }
+ const ticker=$('sim-ticker').value.trim().toUpperCase(),
+  start=$('sim-start-date')?.value,end=$('sim-end-date')?.value,
+  freq=$('sim-resample')?.value||'1min';
+ if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(ticker)||!start||!end){
+  smsg('sim-load-msg','A valid ticker, start date, and end date are required.','error');return;
+ }
+ const memberId=SIM.user?.id;
+ if(!memberId){smsg('sim-load-msg','Sign in before loading personal provider bars.','error');return}
+ try{
+  const {data}=await SIM.sb.auth.getSession(),session=data.session;
+  if(!session?.access_token||session.user?.id!==memberId)throw Error('Member session changed; reload your own data.');
+  const provider=$('sim-source').value==='alpaca'?'ALPACA_BYO':'TIINGO_BYO';
+  if(!window.CrownlightSourceIntegrityV3?.validateProvider)
+   throw Error('Chart provider integrity verifier unavailable. No data was replaced.');
+  const q=new URLSearchParams({action:'bars',provider,ticker,start,end,freq});
+  smsg('sim-load-msg','Validating your private '+(provider==='ALPACA_BYO'?'Alpaca IEX':'Tiingo')+' history…');
+  const r=await fetch('/api/marketdata?'+q,{
+   headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+  const j=await r.json().catch(()=>null);
+  if(!r.ok)throw Error(j?.error||'Personal market-data provider unavailable.');
+  // A rejected response must not erase an already valid replay, or switch
+  // one member's private provider candles into another account's workspace.
+  const source=window.CrownlightSourceIntegrityV3.validateProvider(j,{provider,ticker});
+  const latest=(await SIM.sb.auth.getSession()).data?.session;
+  if(SIM.user?.id!==memberId||latest?.user?.id!==memberId)return;
+  SIM.candles=source.candles;
+  SIM.sourceName=(provider==='ALPACA_BYO'?'Alpaca IEX':'Tiingo')+' '+ticker+' '+start+' to '+end;
+  SIM.sourceProvider=provider.toLowerCase();SIM.sourceNote=source.sourceNote;SIM.sourceFeed=source.feed;
+  SIM.originalFictional=false;
+  const warm=Math.min(Number($('sim-start-context').value)||0,SIM.candles.length-1);
+  SIM.index=warm;SIM.startIndex=warm;SIM.maxIndexSeen=warm;
+  SIM.position=null;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;
+  if(!SIM.linkedJournalId&&!SIM.planLocked)SIM.journalId=null;
+  smsg('sim-load-msg','Loaded '+SIM.candles.length+
+   ' independently validated, personal provider OHLCV bars for UNGRADED practice. No official replay or redistribution rights certified.','success');
+  renderAll();
+ }catch(e){
+  if(SIM.user?.id===memberId)
+   smsg('sim-load-msg',e.message||'Provider response could not be verified. Current chart was preserved.','error');
+ }
+}
 async function loadContextEnvelope(lab){if(!lab)return;try{const {data}=await SIM.sb.from('historical_context_envelopes').select('*').eq('lab_id',lab).in('status',['verified','published']).order('updated_at',{ascending:false}).limit(1);const e=data?.[0];if(!e)return;SIM.contextEnvelope=e;const d=x=>x?new Date(x).toISOString().slice(0,10):'';$('sim-ticker').value=e.ticker||$('sim-ticker').value;if($('sim-start-date'))$('sim-start-date').value=d(e.context_start_at);if($('sim-end-date'))$('sim-end-date').value=d(e.context_end_at);
  const et=x=>x?new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(x)):'';
  if($('cl-lab-start-time'))$('cl-lab-start-time').value=et(e.context_start_at);
