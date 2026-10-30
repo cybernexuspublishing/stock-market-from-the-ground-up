@@ -111,6 +111,15 @@ try{
  assert.match(scanOutput,/1 \/ 1 supplied snapshot rows matched/,
    'Saved scanner integration failed. Panel: '+scanOutput.slice(-450)+'; status: '+statusOutput);
  assert.equal(writes,5,'scanner inspection cannot mutate a saved Watchlist record');
+ await region.locator('.cl-wi-editor label').filter({hasText:'Candidate lifecycle status'}).locator('select').selectOption('QUALIFIED');
+ await region.locator('.cl-wi-editor label').filter({hasText:'Checkpoint evidence'}).locator('input')
+  .fill('Member documented initial fictional research evidence without claiming a live market trigger.');
+ await region.getByRole('button',{name:'Save candidate status with evidence'}).click();
+ await page.waitForFunction(()=>[...document.querySelectorAll('.cl-wi-layout select option')]
+   .some(x=>x.textContent?.includes('QUALIFIED /')),null,{timeout:10000});
+ assert.equal(record.payload.candidateState,'QUALIFIED','Candidate status must persist through the authenticated workspace API');
+ assert.equal(record.payload.researchHistory.at(-1).kind,'CANDIDATE_STATE_CHANGE');
+ assert.equal(writes,6,'candidate lifecycle must use one revision-guarded save');
  await page.evaluate(()=>window.__watchlistAuthListener('SIGNED_OUT',null));
  assert.equal(await region.isHidden(),true,'private panel must hide on sign-out');
  assert.equal(await region.innerText(),'','private notes must be destroyed on sign-out, not only visually hidden');
