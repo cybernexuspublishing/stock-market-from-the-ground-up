@@ -32,14 +32,28 @@ function savedForSource(source){
  // drawing context and drawings remain untouched until a real Save.
  return workspace.drawingContext===source?workspace.drawings||[]:[];
 }
+function savedSources(){
+ const names=datasets().map(x=>x.context);
+ if(workspace.drawingContext&&workspace.drawings?.length&&
+    !names.includes(workspace.drawingContext))names.unshift(workspace.drawingContext);
+ return names;
+}
 function displaySavedCount(){
  const p=ui?.querySelector('[data-cl-collection-summary]');
  if(!p)return;
  const context=drawingContext();
- const groups=datasets().length;
- const drawings=savedForSource(context).length;
+ const names=savedSources(),drawings=savedForSource(context).length;
  p.textContent='Private chart annotations: '+drawings+' on this dataset · '+
-  groups+' saved datasets (maximum '+MAX_SOURCE_SETS+').';
+  names.length+' saved datasets (maximum '+MAX_SOURCE_SETS+').';
+ const select=ui?.querySelector('[data-cl-collection-select]');
+ const remove=ui?.querySelector('[data-cl-collection-remove]');
+ if(!select||!remove)return;
+ const old=select.value;
+ select.replaceChildren();
+ for(const name of names){const option=document.createElement('option');
+  option.value=name;option.textContent=name;select.add(option)}
+ select.value=names.includes(old)?old:names.includes(context)?context:names[0]||'';
+ select.disabled=names.length===0;remove.disabled=names.length===0||!storeAvailable;
 }
 function applyLayout(){
  const selected=Tier()?.getStatus?.()?.selected||'STANDARD';
@@ -248,6 +262,49 @@ async function restore(){
    await Tier().choose(workspace.selected);
  }catch(e){if(epoch===permissionEpoch){storeAvailable=false;workspaceRevision=null;msg('Private workspace not available; current chart continues without saved settings.')}}finally{loadingWorkspace=false}
 }
+async function removeSavedSource(){
+ if(savingWorkspace||!permissionReady||!storeAvailable){
+  msg('Restore your member workspace before removing saved annotations.');return
+ }
+ const select=ui?.querySelector('[data-cl-collection-select]');
+ const context=select?.value;
+ if(!context||!savedSources().includes(context))return;
+ if(!window.confirm('Delete saved chart annotations for '+context+
+   '? This removes the saved annotations for this dataset, not your historical data.'))return;
+ const epoch=permissionEpoch;
+ const draft={...workspace,drawingSets:datasets().filter(x=>x.context!==context)};
+ if(draft.drawingContext===context){draft.drawings=[];draft.drawingContext=null}
+ savingWorkspace=true;
+ try{
+  const result=await endpoint('PUT',{...draft,expectedUpdatedAt:workspaceRevision});
+  if(epoch!==permissionEpoch||!permissionReady)return;
+  workspace=result.workspace;workspaceRevision=result.updatedAt||null;
+  storeAvailable=true;
+  // The current chart may still hold the deleted research levels.
+  if(context===drawingContext()){
+   const valid=new Set(['segment','horizontalStraightLine','fibonacciLine']);
+   for(const entry of getCharts()){
+    const chart=entry?.chart;
+    for(const o of chart?.getOverlays?.()||[]){
+     if(valid.has(o?.name)&&typeof o?.id==='string'){
+      try{chart.removeOverlay?.({id:o.id})}catch{}
+     }
+    }
+    if(chart)restoredOverlays.delete(chart);
+   }
+  }
+  msg('Annotations for this dataset were removed from your private saved workspace.');
+  displaySavedCount();
+ }catch(e){
+  if(epoch!==permissionEpoch)return;
+  if(e.code==='WORKSPACE_CHANGED'){
+   storeAvailable=false;
+   msg('A different tab changed your workspace. Select Restore before removing annotations.');
+  }else if(e.code==='PREMIUM_WORKSPACE_PRESERVED')
+   msg('Saved higher-tier workspace is protected until eligible access returns.');
+  else msg('Annotations were not removed: '+e.message);
+ }finally{savingWorkspace=false}
+}
 function controls(){
  const parent=document.getElementById('cl-chart-tier-switcher');
  if(!parent||ui)return;
@@ -273,8 +330,21 @@ function controls(){
  inventory.dataset.clCollectionSummary='';
  inventory.className='cl-workspace-collections';
  inventory.textContent='Private chart annotations load after authentication.';
+ const collections=document.createElement('div');
+ collections.className='cl-workspace-collections-manager';
+ const collectionLabel=document.createElement('label');
+ collectionLabel.textContent='Saved annotation datasets ';
+ const collectionSelect=document.createElement('select');
+ collectionSelect.dataset.clCollectionSelect='';
+ collectionSelect.setAttribute('aria-label','Saved annotation dataset to manage');
+ collectionLabel.append(collectionSelect);
+ const remove=document.createElement('button');
+ remove.type='button';remove.dataset.clCollectionRemove='';
+ remove.textContent='Remove saved annotations';remove.disabled=true;
+ remove.onclick=()=>void removeSavedSource();
+ collections.append(collectionLabel,remove);
  notice=document.createElement('p');notice.className='cl-workspace-status';notice.role='status';notice.textContent='Member workspace loads after authentication.';
- ui.append(row,inventory,notice);parent.append(ui);
+ ui.append(row,inventory,collections,notice);parent.append(ui);
 }
 function scrubMemberWorkspace(){
  // Any in-flight GET for the previous member must not restore stale settings.
