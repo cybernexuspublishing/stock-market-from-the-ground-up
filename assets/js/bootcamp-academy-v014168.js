@@ -652,17 +652,6 @@
    get('academy-workspace').hidden=false;
    document.body.classList.add('academy-classroom-active');
    globalThis.CrownlightLearningProgress?.mount?.('academy-learning-progress');
-   // Free's 12-topic knowledge reference belongs inside the selected classroom,
-   // not above the lesson as a separate catalog section.
-   const library=get('academy-free-knowledge');
-   const classroom=get('academy-workspace')?.querySelector('.academy-classroom-lesson');
-   if(library&&classroom){
-    if(code==='free5'){
-     library.hidden=false;
-     library.classList.add('academy-classroom-library');
-     classroom.append(library);
-    }else library.hidden=true;
-   }
    updateProgress();renderDay();
    // Deep links should enter the selected lesson, not leave members looking
    // at the Academy storefront while their workspace appears far below.
@@ -702,7 +691,7 @@
   document.body.classList.add('academy-direct-route');
   // Selected lessons form their own workspace; do not show the storefront
   // first. Server-side authentication, entitlements and progress are unchanged.
-  for(const selector of ['.academy-free-entry','#academy-free-knowledge',
+  for(const selector of ['.academy-free-entry',
    '#academy-program-list','main.gu-redesign-academy .gu-release-actions',
    'main.gu-redesign-academy .section-intro']){
    const element=document.querySelector(selector);

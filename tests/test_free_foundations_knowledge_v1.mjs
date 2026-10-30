@@ -6,7 +6,8 @@ import {readFileSync} from 'node:fs';
 import vm from 'node:vm';
 const read=p=>readFileSync(p,'utf8');
 const source=read('assets/js/free-foundations-knowledge-v1.js');
-const page=read('bootcamp-academy.html');
+const page=read('knowledge-database.html');
+const academy=read('bootcamp-academy.html');
 const css=read('assets/css/free-foundations-knowledge-v1.css');
 const callbacks=[];
 const context=vm.createContext({document:{readyState:'loading',addEventListener:(evt,cb)=>callbacks.push([evt,cb])},Object,Number,Error});
@@ -40,6 +41,8 @@ assert(source.includes('answer.value.trim().length<25'),'Independent response mu
 assert(source.includes('Nothing was scored or saved.'));
 assert(!/\bfetch\s*\(|\.rpc\s*\(|\/api\/|stripe|checkout/.test(source),'No private APIs or payment operations');
 assert(page.includes('id="academy-free-knowledge"'));
+assert(!academy.includes('id="academy-free-knowledge"'));
+assert(academy.includes('href="knowledge-database.html"'));
 assert(page.includes('assets/js/free-foundations-knowledge-v1.js'));
 assert(page.includes('assets/css/free-foundations-knowledge-v1.css'));
 assert(css.includes('max-width:760px'));
