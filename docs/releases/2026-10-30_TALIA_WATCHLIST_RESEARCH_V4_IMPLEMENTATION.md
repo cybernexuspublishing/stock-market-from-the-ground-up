@@ -154,3 +154,10 @@ An authorized, source-validated real-time scanner, issuer/catalyst chronology, p
 | 2026-10-30 | 4.0 | New shared 27-topic Talia research curriculum, numerical visual teaching, Free/Premium handoff, ungraded report and production regression scope | Acting Owner routine scope accepted; no authority assumed for real-money charges or official grading changes |
 
 **Footer / control:** SMFGU-TALIA-WL-RESEARCH-V4-001 · Crown & Lantern Press · Version 4.0 · Draft acceptance pending independent editorial and authenticated browser verification.
+
+
+## Controlling post-release addendum — Permanent Reports V1 (October 30, 2026)
+
+The original V4 statement that research reports are *in-session only* describes the historical status at initial V4 release. It has been **superseded for persistent ungraded research reports** by \`SMFGU-TALIA-PERSIST-001\` in \`docs/releases/2026-10-30_TALIA_PERMANENT_MEMBER_RESEARCH_REPORTS_V1.md\`. The shared V4 curriculum and eight-stage research workflow have not been replaced.
+
+Member-authored checkpoint reasoning is now permanently saved in server-owned \`gu_talia_watchlist_checkpoints_v1\` and reflected in the transactionally maintained \`gu_talia_watchlist_reports_v1\` summary. Member restoration, authenticated owner scope, duplicate retry safety, explicit delete functionality, Free/Advanced presentation and report metrics are implemented. Production-source and database security checks have passed; authenticated end-to-end Free/Premium browser acceptance remains open. Official four-dimension *mastery* still depends on independent protected Lab assessments and was not altered.
