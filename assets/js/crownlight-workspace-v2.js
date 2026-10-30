@@ -3,7 +3,7 @@
  * Server verifies membership for every workspace GET/PUT. Manual Save captures drawings.
  */
 (()=>{'use strict';
-let workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE',drawingContext:null};
+let workspace={version:2,selected:'STANDARD',sync:true,studies:[],drawings:[],layout:'SIDE_BY_SIDE',drawingContext:null,drawingSets:[]};
 let permissionEpoch=0,loadingWorkspace=false,linked=false,guard=false,syncEnabled=true;
 let workspaceRevision=null,savingWorkspace=false;
 // Track saved overlay IDs per live chart instance to avoid duplicate drawings.
@@ -18,6 +18,27 @@ function drawingContext(){
  const symbol=String(Tier()?.getStatus?.()?.symbol||'').slice(0,80);
  if(!source||!symbol||!Tier()?.getRevealedBars?.()?.length)return null;
  return (source+'|'+symbol).slice(0,150);
+}
+const MAX_SOURCE_SETS=10;
+function datasets(){
+ return Array.isArray(workspace.drawingSets)?workspace.drawingSets:[];
+}
+function savedForSource(source){
+ if(!source)return [];
+ const group=datasets().find(s=>s.context===source);
+ if(group)return group.drawings||[];
+ // Backwards compatibility with pre-V7 workspaces: the root-level
+ // drawing context and drawings remain untouched until a real Save.
+ return workspace.drawingContext===source?workspace.drawings||[]:[];
+}
+function displaySavedCount(){
+ const p=ui?.querySelector('[data-cl-collection-summary]');
+ if(!p)return;
+ const context=drawingContext();
+ const groups=datasets().length;
+ const drawings=savedForSource(context).length;
+ p.textContent='Private chart annotations: '+drawings+' on this dataset · '+
+  groups+' saved datasets (maximum '+MAX_SOURCE_SETS+').';
 }
 function applyLayout(){
  const selected=Tier()?.getStatus?.()?.selected||'STANDARD';
@@ -66,14 +87,15 @@ function applyOverlays(){
  const last=bars.at(-1)?.timestamp||0,first=bars[0]?.timestamp||0;
  if(!charts.length||!last)return;
  const context=drawingContext();
- if(workspace.drawingContext&&workspace.drawingContext!==context)return;
+ if(!context)return;
+ const restored=savedForSource(context);
  // Professional charts share the same already-revealed bars. Apply restored
  // research drawings to both views, never to future/unrevealed timestamps.
  for(const entry of charts){
   const chart=entry?.chart;if(!chart)continue;
   let applied=restoredOverlays.get(chart);
   if(!applied){applied=new Set();restoredOverlays.set(chart,applied)}
-  for(const drawing of workspace.drawings||[]){
+  for(const drawing of restored){
    const points=(drawing.points||[]).filter(p=>p.timestamp>=first&&p.timestamp<=last);
    if(points.length!==drawing.points?.length||!points.length)continue;
    const key=JSON.stringify({name:drawing.name,points});
@@ -148,24 +170,34 @@ async function persist(){
  const context=drawingContext();
  if(context&&getCharts().length){
   const observed=activeDrawings();
-  // Changing symbols with no new annotations must not silently destroy
-  // saved drawings from a different dataset. An explicit newly drawn overlay
-  // can replace the previous dataset's single legacy drawing set.
-  if(observed.length||!workspace.drawings?.length||
-     !workspace.drawingContext||workspace.drawingContext===context){
+  if(observed.length){
+   const existing=datasets();
+   if(!existing.some(s=>s.context===context)&&existing.length>=MAX_SOURCE_SETS){
+    savingWorkspace=false;
+    msg('Ten annotation datasets are already saved. Existing private drawings were preserved; no overwrite occurred.');
+    return;
+   }
+   const next=[...existing.filter(s=>s.context!==context),
+    {context,drawings:observed}];
+   workspace.drawingSets=next;
    workspace.drawings=observed;
    workspace.drawingContext=context;
-  }else{
-   msg('Your previous dataset drawings remain saved. Add new levels before replacing their source context.');
   }
+  // Never turn a new, blank chart into a destructive empty annotation
+  // snapshot. Clearing old annotations requires an explicit action.
  }
+ displaySavedCount();
  const studies=(ui?.querySelector('[data-cl-studies]')?.value||'');
  workspace.studies=[...new Set(studies.split(',').map(s=>s.trim().toUpperCase()).filter(x=>['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'].includes(x)))].slice(0,8);
  try{
-  const r=await endpoint('PUT',{...workspace,expectedUpdatedAt:workspaceRevision});
+  const payload={...workspace,expectedUpdatedAt:workspaceRevision};
+  if(JSON.stringify(payload).length>14000)
+   throw Error('Workspace annotation collections exceed the safe 14 KB budget. Reduce drawings before saving.');
+  const r=await endpoint('PUT',payload);
   if(epoch!==permissionEpoch||!permissionReady)return;
   workspace=r.workspace;workspaceRevision=r.updatedAt||null;storeAvailable=true;
   msg('Workspace saved privately with revision protection. Changes restore after sign-in.');
+  displaySavedCount();
  }catch(e){
   if(epoch!==permissionEpoch)return;
   if(e.code==='WORKSPACE_CHANGED'){
@@ -193,7 +225,7 @@ async function restore(){
    const toggle=ui.querySelector('[data-cl-sync]');if(toggle)toggle.checked=syncEnabled;
    const indicators=ui.querySelector('[data-cl-studies]');if(indicators)indicators.value=(workspace.studies||[]).join(', ');
   }
-  applyLayout();
+  applyLayout();displaySavedCount();
   msg(r.updatedAt?'Private workspace loaded.':'Workspace ready; save to retain changes across sessions.');
   if(workspace.selected!=='STANDARD'&&Tier().getStatus().allowed.includes(workspace.selected))
    await Tier().choose(workspace.selected);
@@ -220,8 +252,12 @@ function controls(){
  const save=document.createElement('button');save.type='button';save.textContent='Save workspace';save.dataset.clSave='';save.onclick=()=>void persist();
  const reload=document.createElement('button');reload.type='button';reload.textContent='Restore';reload.dataset.clRestore='';reload.onclick=()=>void restore();
  row.append(label,indicators,layoutLabel,save,reload);
+ const inventory=document.createElement('p');
+ inventory.dataset.clCollectionSummary='';
+ inventory.className='cl-workspace-collections';
+ inventory.textContent='Private chart annotations load after authentication.';
  notice=document.createElement('p');notice.className='cl-workspace-status';notice.role='status';notice.textContent='Member workspace loads after authentication.';
- ui.append(row,notice);parent.append(ui);
+ ui.append(row,inventory,notice);parent.append(ui);
 }
 function scrubMemberWorkspace(){
  // Any in-flight GET for the previous member must not restore stale settings.
@@ -232,7 +268,7 @@ function scrubMemberWorkspace(){
   const studies=ui.querySelector('[data-cl-studies]');if(studies)studies.value='';
   const toggle=ui.querySelector('[data-cl-sync]');if(toggle)toggle.checked=true;
  }
- applyLayout();
+ applyLayout();displaySavedCount();
  msg('Account changed. Previous workspace cleared; current member settings restore after authorization.');
 }
 window.addEventListener('crownlight:member-changed',scrubMemberWorkspace);
@@ -241,14 +277,15 @@ window.addEventListener('crownlight:tier-mounted',e=>{
  applyLayout();
  if(e.detail?.tier==='PROFESSIONAL')wireSync();
  if(e.detail?.tier!=='STANDARD'){applyStudies();applyOverlays()}
+ displaySavedCount();
 });
 window.addEventListener('crownlight:revealed-bars',()=>{
  // Never restore drawings that reference bars later than the last revealed bar.
  if(getCharts().length===2)wireSync();
- applyOverlays();
+ applyOverlays();displaySavedCount();
 });
 function init(){controls();applyLayout()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady,layout:workspace.layout,selected:workspace.selected,revision:workspaceRevision,drawingContext:workspace.drawingContext}),
+window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady,layout:workspace.layout,selected:workspace.selected,revision:workspaceRevision,drawingContext:workspace.drawingContext,savedDatasets:datasets().length}),
  synchronize,restore,persist};
 })();
