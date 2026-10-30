@@ -147,8 +147,17 @@ async function persist(){
  workspace.layout=Tier().getStatus().selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(ui?.querySelector('[data-cl-layout]')?.value)?ui.querySelector('[data-cl-layout]').value:'SIDE_BY_SIDE';
  const context=drawingContext();
  if(context&&getCharts().length){
-  workspace.drawings=activeDrawings();
-  workspace.drawingContext=context;
+  const observed=activeDrawings();
+  // Changing symbols with no new annotations must not silently destroy
+  // saved drawings from a different dataset. An explicit newly drawn overlay
+  // can replace the previous dataset's single legacy drawing set.
+  if(observed.length||!workspace.drawings?.length||
+     !workspace.drawingContext||workspace.drawingContext===context){
+   workspace.drawings=observed;
+   workspace.drawingContext=context;
+  }else{
+   msg('Your previous dataset drawings remain saved. Add new levels before replacing their source context.');
+  }
  }
  const studies=(ui?.querySelector('[data-cl-studies]')?.value||'');
  workspace.studies=[...new Set(studies.split(',').map(s=>s.trim().toUpperCase()).filter(x=>['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'].includes(x)))].slice(0,8);
