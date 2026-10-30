@@ -46,6 +46,43 @@ export async function onRequestPost({request,env}){
    if(d?.ok!==true)throw error(String(d?.error||'TEST_SEED_REJECTED'));
    return response({...d,testing:true,realWalletUnchanged:true});
   }
+  if(input.action==='expire'||input.action==='refund'){
+   if(!isUuid(input.intentId))throw error('INVALID_TEST_INTENT',400);
+   if(!await testMode(c))throw error('OWNER_TEST_MODE_DISABLED',423);
+   await verifyFixture(c);
+   const row=await intent(c,input.intentId,user);
+   if(!row||!row.stripe_session_id)throw error('TEST_INTENT_NOT_FOUND');
+   const session=await stripe(c,'checkout/sessions/'+encodeURIComponent(row.stripe_session_id));
+   if(!assertTestSession(session,row,user)||session.livemode!==false)
+     throw error('TEST_PAYMENT_PROOF_MISMATCH');
+   if(input.action==='expire'){
+    if(row.status!=='bound'||session.status!=='open'||session.payment_status!=='unpaid')
+      throw error('SESSION_NOT_EXPIRABLE');
+    const expired=await stripe(c,'checkout/sessions/'+encodeURIComponent(session.id)+'/expire',
+       {body:'',idempotency:'gu-mixed-qa-expire-'+row.id});
+    if(expired.id!==session.id||expired.status!=='expired')
+      throw error('STRIPE_TEST_EXPIRATION_FAILED');
+    return response({ok:true,testOnly:true,expired:true,
+     notice:'Stripe TEST expiration requested; signed webhook must restore shadow Lumens.'});
+   }
+   if(row.status!=='fulfilled'||session.payment_status!=='paid'||
+       !/^pi_[A-Za-z0-9_]+$/.test(session.payment_intent||''))
+      throw error('TEST_PAYMENT_NOT_REFUNDABLE');
+   const pi=await stripe(c,'payment_intents/'+encodeURIComponent(session.payment_intent));
+   if(pi.livemode!==false||pi.status!=='succeeded'||
+       pi.amount_received!==row.cash_due_cents||
+       pi.metadata?.gu_mixed_qa_intent!==row.id)throw error('TEST_PAYMENT_PROOF_MISMATCH');
+   const params=new URLSearchParams();
+   params.set('payment_intent',pi.id);
+   params.set('reason','requested_by_customer');
+   params.set('metadata[gu_mixed_qa_intent]',row.id);
+   const refunded=await stripe(c,'refunds',{
+    body:params.toString(),idempotency:'gu-mixed-qa-refund-'+row.id});
+   if(!/^re_[A-Za-z0-9_]+$/.test(refunded.id||'')||
+       refunded.payment_intent!==pi.id)throw error('TEST_REFUND_PROOF_MISMATCH');
+   return response({ok:true,testOnly:true,refundRequested:true,
+    notice:'Stripe TEST refund requested; signed webhook must revoke shadow access and return shadow credits.'});
+  }
   if(input.action!=='checkout')throw error('INVALID_TEST_ACTION',400);
   if(!isUuid(input.requestId)||!Number.isSafeInteger(input.lumens)||
      input.lumens<0||input.lumens>286)throw error('INVALID_TEST_SELECTION',400);
@@ -54,8 +91,15 @@ export async function onRequestPost({request,env}){
   const balance=await db(c,'gu_mixed_qa_wallet_v1?select=available&user_id=eq.'+
    encodeURIComponent(user)+'&limit=1');
   const usable=balance?.[0]?.available??0;
-  const expected=quote(usable,input.lumens);
-  if(!expected.paymentSupported)throw error('BELOW_USD_MINIMUM');
+  const existingRows=await db(c,'gu_mixed_qa_intents_v1?select=id,request_id,status,lumens_reserved,cash_due_cents&user_id=eq.'+
+     encodeURIComponent(user)+'&request_id=eq.'+encodeURIComponent(input.requestId)+'&limit=1');
+  const existing=existingRows?.[0]||null;
+  if(existing&&existing.lumens_reserved!==input.lumens)
+    throw error('REQUEST_REUSED');
+  if(!existing){
+   const expected=quote(usable,input.lumens);
+   if(!expected.paymentSupported)throw error('BELOW_USD_MINIMUM');
+  }
   const created=await db(c,'rpc/gu_mixed_qa_reserve_v1','POST',
    {p_user:user,p_request:input.requestId,p_lumens:input.lumens});
   if(created?.ok!==true)throw error(String(created?.error||'TEST_RESERVE_REJECTED'));
