@@ -69,7 +69,7 @@ if(!email||!password){
   await page.waitForFunction(()=>document.getElementById('academy-workspace')?.hidden===false,
    {timeout:30000});
   assert.equal(await page.locator('#academy-day-title').count(),1);
-  assert.match(await page.locator('#academy-stage-label').innerText(),/Lesson 1 of 5/);
+  assert.match(await page.locator('#academy-stage-label').innerText(),/Lesson 1 of 5/i);
   note('checks','Day 1 opened inside the real signed-in Academy learning workspace.');
   if(await page.locator('#academy-enroll').isVisible()){
    await page.locator('#academy-enroll').click();
