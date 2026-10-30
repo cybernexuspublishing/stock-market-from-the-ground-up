@@ -36,15 +36,15 @@ try{
  });
  await page.addScriptTag({content:source});
  await page.evaluate(()=>window.GroundUpAdminDirectory.open('Taxonomy Override'));
- await page.getByRole('button',{name:'Taxonomy Override Console'}).click();
+ await page.locator('#cc-directory-results').getByRole('button',{name:'Taxonomy Override Console'}).click();
  assert.deepEqual(await page.evaluate(()=>window.__directoryClicked),['installed-new-control']);
  await page.evaluate(()=>window.GroundUpAdminDirectory.open('Secret Root Debugger'));
- assert.equal(await page.getByRole('button',{name:'Secret Root Debugger'}).count(),0,
+ assert.equal(await page.locator('#cc-directory-results').getByRole('button',{name:'Secret Root Debugger'}).count(),0,
    'A hidden nav control must not be discoverable');
  await page.evaluate(()=>window.GroundUpAdminDirectory.open('Forbidden Feature Toggle'));
- assert.equal(await page.getByRole('button',{name:'Forbidden Feature Toggle'}).count(),0);
+ assert.equal(await page.locator('#cc-directory-results').getByRole('button',{name:'Forbidden Feature Toggle'}).count(),0);
  await page.evaluate(()=>window.GroundUpAdminDirectory.open('Lesser-Known Authoring'));
- await page.getByRole('button',{name:'Lesser-Known Authoring Tool'}).click();
+ await page.locator('#cc-directory-results').getByRole('button',{name:'Lesser-Known Authoring Tool'}).click();
  assert.equal(await page.locator('details.cc-group-more').getAttribute('open'),'',
    'Directory must expand more-menu before clicking the original authorized module');
  assert.deepEqual(await page.evaluate(()=>window.__directoryClicked),
@@ -56,27 +56,27 @@ try{
   b.addEventListener('click',()=>window.__directoryClicked.push(b.id));
   document.querySelector('[data-cc-nav-group="Website Management"]').append(b);
  });
- await page.getByRole('button',{name:'Late-installed Control'}).waitFor({timeout:3000});
- await page.getByRole('button',{name:'Late-installed Control'}).click();
+ await page.locator('#cc-directory-results').getByRole('button',{name:'Late-installed Control'}).waitFor({timeout:3000});
+ await page.locator('#cc-directory-results').getByRole('button',{name:'Late-installed Control'}).click();
  assert.deepEqual(await page.evaluate(()=>window.__directoryClicked),
   ['installed-new-control','legacy-more-control','later-admin-tool']);
  await page.evaluate(()=>{
   document.getElementById('later-admin-tool').hidden=true;
   window.GroundUpAdminDirectory.open('Late-installed Control');
  });
- assert.equal(await page.getByRole('button',{name:'Late-installed Control'}).count(),0,
+ assert.equal(await page.locator('#cc-directory-results').getByRole('button',{name:'Late-installed Control'}).count(),0,
   'Auth-denied controls must disappear immediately from search');
  await page.evaluate(()=>{
   window.ADMIN.ctx.roles=['SHOWCASE_VIEWER'];
   window.GroundUpAdminDirectory.open('Audit Privilege Console');
  });
- assert.equal(await page.getByRole('button',{name:'Audit Privilege Console'}).count(),0,
+ assert.equal(await page.locator('#cc-directory-results').getByRole('button',{name:'Audit Privilege Console'}).count(),0,
   'Showcase Viewer must not discover Security & Governance modules');
  await page.evaluate(()=>{
   window.ADMIN.ctx.roles=['MODERATOR'];
   window.GroundUpAdminDirectory.open('Lab Library');
  });
- await page.getByRole('button',{name:'Lab Library'}).click();
+ await page.locator('#cc-directory-results').getByRole('button',{name:'Lab Library'}).click();
  await page.waitForURL(origin+'/admin-operations.html',{timeout:4000});
  assert.deepEqual(errors,[]);
  console.log('PASS Admin finder: repaired Lab Library deep link, live installed modules, late module injection, user-visible role filtering, hidden/disabled controls and collapsed More actions');
