@@ -181,33 +181,33 @@ async function persist(){
  if(!permissionReady||!storeAvailable){msg('Restore your private workspace before saving.');return}
  const epoch=permissionEpoch;
  savingWorkspace=true;
- workspace.selected=Tier().getStatus().selected;
- workspace.sync=syncEnabled;
- workspace.layout=Tier().getStatus().selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(ui?.querySelector('[data-cl-layout]')?.value)?ui.querySelector('[data-cl-layout]').value:'SIDE_BY_SIDE';
- const context=drawingContext();
- if(context&&getCharts().length){
-  const observed=activeDrawings();
-  if(observed.length){
-   const existing=datasets();
-   if(!existing.some(s=>s.context===context)&&existing.length>=MAX_SOURCE_SETS){
-    savingWorkspace=false;
-    msg('Ten annotation datasets are already saved. Existing private drawings were preserved; no overwrite occurred.');
-    return;
-   }
-   const next=[...existing.filter(s=>s.context!==context),
-    {context,drawings:observed}];
-   workspace.drawingSets=next;
-   workspace.drawings=observed;
-   workspace.drawingContext=context;
-  }
-  // Never turn a new, blank chart into a destructive empty annotation
-  // snapshot. Clearing old annotations requires an explicit action.
- }
- displaySavedCount();
- const studies=(ui?.querySelector('[data-cl-studies]')?.value||'');
- workspace.studies=[...new Set(studies.split(',').map(s=>s.trim().toUpperCase()).filter(x=>['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'].includes(x)))].slice(0,8);
+ // Build a draft. A 409 conflict, provider change, or oversized request must
+ // NEVER make unsaved annotations appear in the member's restored collection.
+ const draft={...workspace};
+ const status=Tier()?.getStatus?.()||{};
+ draft.selected=status.selected||'STANDARD';
+ draft.sync=syncEnabled;
+ const picked=ui?.querySelector('[data-cl-layout]')?.value;
+ draft.layout=draft.selected==='PROFESSIONAL'&&VALID_LAYOUTS.has(picked)?
+  picked:'SIDE_BY_SIDE';
  try{
-  const payload={...workspace,expectedUpdatedAt:workspaceRevision};
+  const context=drawingContext();
+  if(context&&getCharts().length){
+   const observed=activeDrawings();
+   if(observed.length){
+    const previous=datasets();
+    if(!previous.some(s=>s.context===context)&&previous.length>=MAX_SOURCE_SETS)
+     throw Error('Ten annotation datasets already saved. Existing private drawings were preserved.');
+    draft.drawingSets=[...previous.filter(s=>s.context!==context),
+     {context,drawings:observed}];
+    draft.drawings=observed;
+    draft.drawingContext=context;
+   }
+  }
+  const studies=(ui?.querySelector('[data-cl-studies]')?.value||'');
+  draft.studies=[...new Set(studies.split(',').map(s=>s.trim().toUpperCase())
+   .filter(x=>['RSI','MACD','BOLL','MA','EMA','SMA','ATR','VOL'].includes(x)))].slice(0,8);
+  const payload={...draft,expectedUpdatedAt:workspaceRevision};
   if(JSON.stringify(payload).length>14000)
    throw Error('Workspace annotation collections exceed the safe 14 KB budget. Reduce drawings before saving.');
   const r=await endpoint('PUT',payload);
@@ -221,7 +221,7 @@ async function persist(){
    storeAvailable=false;
    msg('Another tab saved newer workspace settings. Select Restore to review them; your changes were not overwritten.');
   }else if(e.code==='PREMIUM_WORKSPACE_PRESERVED'){
-   msg('Your saved higher-tier workspace is protected. You can continue using Standard charts, but this save was not applied. Restore eligible higher-tier access before changing the saved layout.');
+   msg('Your saved higher-tier workspace is protected. Continue with Standard, or restore higher-tier access before changing its layout.');
   }else msg('Workspace not saved: '+e.message);
  }finally{savingWorkspace=false}
 }
