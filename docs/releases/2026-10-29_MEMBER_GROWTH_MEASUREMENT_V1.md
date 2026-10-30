@@ -77,3 +77,29 @@ Repeat these measurements weekly and after promotional posts. Report new non-QA 
 | Version | Date | Change |
 |---|---|---|
 | 1.1 | 2026-10-30 UTC | Recorded positive production deny tests, hardened shared STAFF route policy for both Owner pages, confirmed Cloudflare and CI acceptance |
+
+
+## Final Owner browser report and first scheduled-watch run — 2026-10-30 UTC
+
+**Owner-browser evidence source:** The actual Owner supplied the privacy-safe, aggregate text copied from the production `owner-growth-funnel` reporting page in the acceptance conversation. This is an authenticated Owner-reported application result, not an independently recorded browser video or a GitHub Actions Owner login. No sensitive user data were supplied.
+
+- Report identifier: `SMFGU OWNER MEMBER GROWTH REPORT`.
+- Owner-page reporting timestamp: `2026-10-30T05:35:50.256Z`.
+- Requested range: **30 days**.
+- New 30-day registration cohort: **0** accounts created, **0** email confirmed, **0** Free5 enrolled, **0** Day 1 started, **0** Day 1 reflections saved, **0** Day 5 reflections saved.
+- All-time eligible cohort: **0** in each of the same six stages.
+- Known staff/QA identities excluded: **2**. Unclassified profiles: **0**.
+- Result contained only aggregate figures. No personal identifiers, member reflections, access tokens or visitor-to-member attribution were disclosed.
+- This closes the previously pending **genuine Owner-browser reporting acceptance** for the tested 30-day view. The Owner report does not establish 7-day/90-day interactive-selector coverage or end-user acquisition success; those are independent measurements.
+
+**Existing monitoring automation:** `SMFGU Search & GA4 Watch`, ID `6ae3f0bd125081918714a783d3d57229`. Immediate run was accepted and the recorded run `e89a36ba-a878-8323-bd85-7ebd732b7815` **completed successfully at 2026-10-30T05:24:14.196207Z**, with a saved result. Delivery status is `unknown`; completion and recorded output do not prove a notification was displayed.
+
+The first run recorded a staff/QA Free5 Day 1 start and saved private reflection at 2026-10-30 02:26:30 UTC (not customer activity). It distinguished **zero verified non-staff registrations** in both 7-day and 30-day UTC windows. GA4 reported **7 sessions, 5 users, 15 page views** for October 29 (11 Store pages and 4 homepage pages), plus newly retrievable automatic events; no fixed educational conversion events were observed. Search Console returned no performance or sitemap records, which must be described as **unavailable**, not as proof of no search traffic or indexing.
+
+**Final scoped classification:** Owner 30-day production dashboard **ACCEPTED**; read-only production API and security smoke **PASSED**; first scheduled-watch execution and result **COMPLETED**; notification delivery **UNVERIFIED**; customer acquisition remains at a zero confirmed baseline. Nothing was paid, purchased, emailed, assigned or modified in customer accounts.
+
+### Revision history addendum
+
+| Version | Date | Change |
+|---|---|---|
+| 1.2 | 2026-10-30 UTC | Accepted real Owner-provided 30-day aggregate report; verified completed monitoring run and preserved unknown notification-delivery status |
