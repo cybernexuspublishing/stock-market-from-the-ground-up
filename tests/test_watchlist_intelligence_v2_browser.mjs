@@ -8,7 +8,9 @@ const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 let record={id:11,tool_code:'WATCHLIST_WORKBENCH',record_type:'watchlist',
  title:'TEST',updated_at:'2026-10-29T11:00:00.000Z',created_at:'2026-10-29T10:00:00.000Z',
  payload:{status:'WATCH',asOf:'2026-10-29T10:00:00Z',sourceNote:'Fictional market data source',
- invalidation:'NO TRADE if any validation fails',why:'Fictional pattern review'}};
+ invalidation:'NO TRADE if any validation fails',why:'Fictional pattern review',
+ chartAnnotations:[{kind:'SUPPORT',at:'2026-10-29T10:00:00Z',price:5,timeframe:'1m',note:'Manual reference'},
+  {kind:'RESISTANCE',at:'2026-10-29T10:05:00Z',price:5.2,timeframe:'1D',note:'Manual reference'}]}};
 let writes=0;
 const server=createServer((req,res)=>{
  res.setHeader('Content-Type','text/html; charset=utf-8');
@@ -66,19 +68,16 @@ try{
    onAuthStateChange:callback=>{window.__watchlistAuthListener=callback;return {data:{subscription:{unsubscribe(){}}}}}
   }});
   window.GroundUpWatchlistIntelligenceV1={mount:()=>17};
-  window.CrownlightECharts={load:async()=>({init:()=>({setOption(){},resize(){},dispose(){}})})};
+  window.CrownlightECharts={load:async()=>({init:()=>({setOption(option){window.__annotationChart=option},resize(){},dispose(){}})})};
  },user);
  await page.addScriptTag({path:'assets/js/market-research-engine-v014145.js'});
  await page.addScriptTag({path:'assets/js/watchlist-research-core-v2.js'});
  await page.addScriptTag({path:'assets/js/watchlist-learning-v3.js'});
  await page.addScriptTag({path:'assets/js/watchlist-intelligence-v2.js'});
- const v=await page.evaluate(()=>{
+ const v=await page.evaluate(initial=>{
   return window.GroundUpWatchlistIntelligenceV1.mount({
-   host:document.querySelector('#host'),recs:[{
-    id:11,record_type:'watchlist',title:'TEST',updated_at:'2026-10-29T11:00:00.000Z',
-    payload:{status:'WATCH',asOf:'2026-10-29T10:00:00Z',
-     sourceNote:'Fictional source',invalidation:'NO TRADE',why:'Fictional research'}}],alive:()=>true});
- });
+   host:document.querySelector('#host'),recs:[initial],alive:()=>true});
+ },record);
  assert.equal(v,17,'wrap must preserve legacy mount result');
  const region=page.locator('.cl-wi-v2');
  await region.getByRole('button',{name:'Save research folder, tags and stage'}).waitFor();
@@ -91,6 +90,10 @@ try{
  await page.waitForFunction(()=>document.querySelector('.cl-wi-v2 p[role=status]')?.textContent.includes('Private candidate updated'),null,{timeout:10000});
  assert.equal(record.payload.folder,'Patterns');assert.deepEqual(record.payload.tags,['volume','fictional']);
  assert.equal(record.payload.workflowStage,'RESEARCH');assert.equal(record.payload.researchHistory.length,1);
+ await region.getByRole('button',{name:'Chart saved manual annotations using ECharts'}).click();
+ await page.waitForFunction(()=>!!window.__annotationChart,null,{timeout:10000});
+ assert.deepEqual(await page.evaluate(()=>window.__annotationChart.series.map(x=>x.name)),['1D','1m']);
+ assert.equal(await page.evaluate(()=>window.__annotationChart.series.every(x=>x.type==='scatter')),true);
  await region.locator('.cl-wi-editor label').filter({hasText:'Archive this candidate'}).locator('input').check();
  await region.getByRole('button',{name:'Save research folder, tags and stage'}).click();
  await page.waitForFunction(()=>document.querySelector('.cl-wi-v2 p[role=status]')?.textContent.includes('Private candidate updated'),null,{timeout:10000});

@@ -297,16 +297,19 @@
     if(!E||!alive())throw Error('ECharts cannot load in the current session.');
     graph.hidden=false;
     if(!chart)chart=E.init(graph,'dark');
-    chart.setOption({animation:false,backgroundColor:'transparent',grid:{left:65,right:32,top:32,bottom:68},
+    const frames=[...new Set(data.map(x=>String(x.timeframe||'1D').slice(0,24)))].sort();
+    chart.setOption({animation:false,backgroundColor:'transparent',grid:{left:65,right:32,top:54,bottom:68},
      textStyle:{color:'#dbe8ee'},
+     legend:{data:frames,textStyle:{color:'#dbe8ee'},top:5},
      xAxis:{type:'category',data:data.map((x,i)=>x.at.slice(0,16)+' #'+(i+1)),axisLabel:{rotate:40,color:'#d3e2ed'}},
      yAxis:{type:'value',scale:true,name:'Member-entered level (USD)',axisLabel:{color:'#d3e2ed'}},
      tooltip:{trigger:'item',formatter:param=>{
-      const v=data[param.dataIndex];return (v?.kind||'Manual level')+' · '+fmt(v.price);
+      const v=data[param.value?.[2]];return (v?.kind||'Manual level')+' · '+fmt(v?.price);
      }},
-     series:[{type:'scatter',symbolSize:12,data:data.map((x,i)=>[i,x.price])}]});
+     series:frames.map(frame=>({name:frame,type:'scatter',symbolSize:12,
+      data:data.flatMap((x,i)=>String(x.timeframe||'1D').slice(0,24)===frame?[[i,x.price,i]]:[])}))});
     chart.resize();
-    status(notices,'ECharts displays manually saved reference levels only—not historical candles, a price series or live quote.');
+    status(notices,'ECharts compares '+frames.length+' saved annotation timeframe(s). These are manually entered reference levels, not historical candles, a price series or live quotes.');
    }catch(e){status(notices,e.message)}
   };
   learningSave.onclick=async()=>{

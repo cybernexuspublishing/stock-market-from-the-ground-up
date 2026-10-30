@@ -21,8 +21,13 @@ assert.equal(S.analyze([A],{minPrice:6}).matched,0);
 assert.equal(S.analyze([A],{minDollarVolume:100000000}).matched,0);
 assert.throws(()=>S.filters({minPrice:-1}),/Invalid filter/);
 assert.throws(()=>S.filters({maxMarketCap:'Infinity'}),/Invalid filter/);
+assert.throws(()=>S.filters({unknownCondition:1}),/Unsupported scanner filter/);
+assert.throws(()=>S.filters({minPrice:11,maxPrice:10}),/Minimum price/);
+assert.equal(S.analyze([{...A,vwap:4.5}],{minVwapDistancePct:10}).matched,1);
+assert.equal(S.analyze([{...A,vwap:4.5}],{minVwapDistancePct:12}).matched,0);
+assert.equal(S.analyze([A],{minVwapDistancePct:1}).rejections.missingMetric,1);
 const ui=readFileSync('assets/js/advanced-tools.js','utf8');
-for(const id of ['u-minprice','u-mingap','u-maxmcap','u-mindollarvol'])
+for(const id of ['u-minprice','u-mingap','u-maxmcap','u-mindollarvol','u-minvwap'])
  assert(ui.includes(id),'Snapshot scanner filter UI missing: '+id);
 assert(ui.includes('engine.analyze(rows,getFilters())'),'Actual snapshot filter integration');
 assert.match(ui,/sourceNote:label,asOf:at,verified:false/);

@@ -1,0 +1,12 @@
+# Crownlight Watchlist Intelligence: reconciled source addition
+
+Reconciled against GitHub `main` at `3f4879cbb002bb27727249fbb10cc8cd067dcfbb` and fast-forwarded through `e97d22845f02764a2c339fbe9027b8eaf00fee44` before commit (after the earlier deployed V2 commit `3736b91afcae905d3641d8ba6c168848d3619519`). Status: source and local regression verification, not authenticated Beta acceptance.
+
+The current `main` already implements the original eight-state candidate lifecycle separately from the educational eight-step workflow, authenticated idempotent Trade-Plan-to-Journal draft creation through a Supabase transaction, saved annotations, Talia reflections, Lab handoffs, and the 20-symbol Free Watchlist limit. The older uncommitted `advanced-tools.js` organization/archive/export patch duplicated V2 and was excluded. The separate local lifecycle and browser-side Journal draft implementations were also excluded. Unrelated Tutor work remains preserved in the named Git stash `preserve-local-tutor-and-old-watchlist`.
+
+| Requirement | Existing gap | This addition | Database/API and role impact | Local verification |
+| --- | --- | --- | --- | --- |
+| Scanner saved conditions | Unknown filter keys were silently ignored; contradictory minimum/maximum price bounds were accepted; supplied VWAP had no optional threshold. | Reject unsupported and contradictory conditions. Add an optional percent-above-supplied-VWAP threshold that excludes rows lacking valid VWAP. The source and methodology remain member-supplied and unverified. | Existing offline scanner and `filter_set` record. No provider, table, RLS, Free quota, or entitlement change. | Scanner unit tests passed. |
+| Multi-timeframe annotation view | V2 plotted saved manual references as one undifferentiated ECharts series. | Group saved manual annotation points by recorded timeframe, with a legend and source-preserving tooltip. No candle series or market observations are invented. | Existing authenticated Watchlist record and ECharts loader. No migration. | Watchlist browser fixture and V3 integration tests passed. |
+
+Current main's candidate lifecycle, automatic Journal transaction, Talia reflection, and Lab integration were inspected and tested but not recreated here. Remaining acceptance work is real signed-in Free, paid, and excluded-role browser verification against the exact deployed commit, plus chart/provider source-rights review. Do not mark Beta accepted or retail ready from local tests alone.

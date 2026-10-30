@@ -45,9 +45,10 @@
    return Object.fromEntries(headers.map((h,j)=>[h,values[j].trim()]));
   });
  }
- const defaults=Object.freeze({minPrice:null,maxPrice:20,minChange:10,minVol:1000000,minRvol:2,maxFloat:15000000,maxSpread:3,minGap:null,maxMarketCap:null,minDollarVolume:null});
+ const defaults=Object.freeze({minPrice:null,maxPrice:20,minChange:10,minVol:1000000,minRvol:2,maxFloat:15000000,maxSpread:3,minGap:null,maxMarketCap:null,minDollarVolume:null,minVwapDistancePct:null});
  function filters(input={}){
-  if(!input||typeof input!=='object')throw fail('Invalid filters.');
+  if(!input||typeof input!=='object'||Array.isArray(input))throw fail('Invalid filters.');
+  if(Object.keys(input).some(k=>!Object.hasOwn(defaults,k)))throw fail('Unsupported scanner filter.');
   const out={};
   for(const [k,defaultValue] of Object.entries(defaults)){
    const v=input[k]===undefined?defaultValue:input[k];
@@ -56,6 +57,8 @@
    if(n===null||n<0||n>1e13)throw fail('Invalid filter '+k+'.');
    out[k]=n;
   }
+  if(out.minPrice!==null&&out.maxPrice!==null&&out.minPrice>out.maxPrice)
+   throw fail('Minimum price cannot exceed maximum price.');
   return out;
  }
  function analyze(raw,settings={}){
@@ -71,16 +74,19 @@
     symbol:ticker,price:number(row.price),change:number(row.change_pct),
     volume:number(row.volume),rvol:number(row.rvol),float:number(row.float),
     spread:number(row.spread_pct),gap:number(row.gap_pct),
-    marketCap:number(row.market_cap)
+    marketCap:number(row.market_cap),vwap:number(row.vwap)
    };
    if(x.price===null||x.price<=0||x.volume===null||x.volume<0||
       x.rvol===null||x.rvol<0||x.float===null||x.float<=0||
       x.spread===null||x.spread<0||x.change===null){reasons.missingMetric++;continue}
    x.dollarVolume=x.price*x.volume; // Research-only price × reported volume proxy, not verified tape turnover.
-   if((f.minGap!==null&&x.gap===null)||
+   x.vwapDistancePct=x.vwap!==null&&x.vwap>0?(x.price-x.vwap)/x.vwap*100:null;
+   if((f.minVwapDistancePct!==null&&x.vwapDistancePct===null)||
+      (f.minGap!==null&&x.gap===null)||
       (f.maxMarketCap!==null&&(x.marketCap===null||x.marketCap<=0))||
       (f.minDollarVolume!==null&&!Number.isFinite(x.dollarVolume))){reasons.missingMetric++;continue}
-   if((f.minPrice!==null&&x.price<f.minPrice)||
+   if((f.minVwapDistancePct!==null&&x.vwapDistancePct<f.minVwapDistancePct)||
+      (f.minPrice!==null&&x.price<f.minPrice)||
       (f.minGap!==null&&x.gap<f.minGap)||
       (f.maxMarketCap!==null&&x.marketCap>f.maxMarketCap)||
       (f.minDollarVolume!==null&&x.dollarVolume<f.minDollarVolume)||

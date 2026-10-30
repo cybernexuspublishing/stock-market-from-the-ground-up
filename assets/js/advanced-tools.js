@@ -145,7 +145,7 @@
   if(!engine)throw Error('Research scanner validation engine unavailable.');
   document.getElementById('tool-workbench').innerHTML=
    panel(scannerOnly?'Research Scanner Builder':'Market Discovery Lab',
-    '<p>Use a small, lawful, <strong>personally sourced</strong> dated CSV snapshot. This workbench does NOT provide live market data, genuine trade alerts, or rights-cleared history. Required columns: <code>symbol,price,change_pct,volume,rvol,float,spread_pct</code>. Optional: <code>gap_pct</code>. Unknown and invalid metrics are excluded, never converted to zero.</p>'+
+    '<p>Use a small, lawful, <strong>personally sourced</strong> dated CSV snapshot. This workbench does NOT provide live market data, genuine trade alerts, or rights-cleared history. Required columns: <code>symbol,price,change_pct,volume,rvol,float,spread_pct</code>. Optional: <code>gap_pct,market_cap,vwap</code>. VWAP is a supplied snapshot value, not calculated or verified here. Unknown and invalid metrics are excluded, never converted to zero.</p>'+
     '<p class="v11-lock-note">Source provenance and capture timestamp are supplied by the researcher; this tool cannot authenticate either. Do not share third-party market data in course materials without permission.</p>'+
     '<div><label for="u-file">Candidate universe CSV (2 MB / 2,000 securities maximum)</label><input id="u-file" type="file" accept=".csv,text/csv"></div>'+
     '<div class="v11-form-grid">'+
@@ -160,7 +160,8 @@
     '<div><label for="u-spread">Max quoted spread %</label><input id="u-spread" type="number" min="0" step="any" value="3"></div>'+ 
     '<div><label for="u-mingap">Min reported gap % (optional; CSV gap_pct)</label><input id="u-mingap" type="number" min="0" step="any" placeholder="No gap threshold"></div>'+ 
     '<div><label for="u-maxmcap">Max reported market cap USD (optional; CSV market_cap)</label><input id="u-maxmcap" type="number" min="0" step="any" placeholder="Not required"></div>'+ 
-    '<div><label for="u-mindollarvol">Min price × shares proxy USD (optional)</label><input id="u-mindollarvol" type="number" min="0" step="any" placeholder="Not required"></div></div>'+
+    '<div><label for="u-mindollarvol">Min price × shares proxy USD (optional)</label><input id="u-mindollarvol" type="number" min="0" step="any" placeholder="Not required"></div>'+
+    '<div><label for="u-minvwap">Min % above supplied VWAP (optional; CSV vwap)</label><input id="u-minvwap" type="number" min="0" step="any" placeholder="Not required"></div></div>'+
     '<div class="actions"><button type="button" id="u-run" class="btn">'+(scannerOnly?'Screen snapshot':'Filter snapshot')+'</button>'+
     '<button type="button" id="u-save" class="btn secondary">Save Filter Set</button></div>'+
     '<p id="u-audit" role="status" aria-live="polite"></p><div id="u-results"></div>')+
@@ -185,7 +186,8 @@
    maxSpread:document.getElementById('u-spread').value,
    minGap:document.getElementById('u-mingap').value,
    maxMarketCap:document.getElementById('u-maxmcap').value,
-   minDollarVolume:document.getElementById('u-mindollarvol').value
+   minDollarVolume:document.getElementById('u-mindollarvol').value,
+   minVwapDistancePct:document.getElementById('u-minvwap').value
   });
   const provenance=()=>{
    const label=document.getElementById('u-source').value.trim();
