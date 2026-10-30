@@ -7,7 +7,8 @@ if(!globalThis.crypto?.subtle)globalThis.crypto=webcrypto;
 const secret='whsec_founder_qa_signature_only';
 const base='https://oxihglyfgzywsupnyicb.supabase.co';
 const env={GU39_SANDBOX_SHADOW_GATE:'true',GU39_STRIPE_TEST_SECRET_KEY:'sk_test_mock_for_ci',
- GU39_STRIPE_TEST_WEBHOOK_SECRET:secret,SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock_for_ci'};
+ GU39_STRIPE_TEST_WEBHOOK_SECRET:secret,SUPABASE_URL:base,SUPABASE_SECRET_KEY:'sb_secret_mock_for_ci',
+ SUPABASE_PUBLISHABLE_KEY:'sb_publishable_mock_for_ci'};
 const fixture={intent:'11111111-1111-4111-8111-111111110246',invoice:'in_founderQaABC123',
  sub:'sub_founderQaABC123',customer:'cus_founderQaABC123',price:'price_1UUCNbJY9FI7byHBCX2VWdLi'};
 async function signed(raw){
@@ -56,6 +57,10 @@ function network(opts={}){
    subscription:fixture.sub,customer:fixture.customer,amount_paid:opts.invoiceAmount||amount,subtotal:opts.invoiceAmount||amount,
    lines:{has_more:false,data:[{amount:opts.invoiceAmount||amount,price:{id:price},
     period:{start:Math.floor(Date.now()/1000),end:Math.floor(Date.now()/1000)+(opts.periodDays??days)*86400}}]}
+  });
+  if(path.includes('/v1/payment_intents/'))return result({
+    id:'pi_founderQA123',livemode:false,status:'succeeded',amount:amount,
+    metadata:{},customer:fixture.customer
   });
   if(path.includes('/v1/charges/'))return result({
    id:'ch_founderQA123',livemode:false,customer:fixture.customer,
@@ -189,7 +194,6 @@ test('signed TEST full refund reverses only the matching private Founder invoice
  const event=makeEvent(false,'charge.refunded');event.data.object.id='ch_founderQA123';
  try{
   const response=await onRequestPost({request:await request(event),env});
-  if(response.status!==200)console.error('REFUND_TEST_TRACE',JSON.stringify(n.calls));
   assert.equal(response.status,200);
   assert.equal(await response.text(),'F600_TEST_CHARGE_REFUNDED');
   assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
