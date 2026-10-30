@@ -1,0 +1,71 @@
+name: Crownlight Chart Studio V4 Coordinated Readiness
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/crownlight-studio-acceptance-v4.js'
+      - 'assets/css/crownlight-studio-acceptance-v4.css'
+      - 'simulator.html'
+      - 'tests/test_crownlight_studio_acceptance_v4.mjs'
+      - 'tests/test_crownlight_studio_acceptance_v4_browser.mjs'
+      - '.github/workflows/crownlight-chart-studio-v4-readiness.yml'
+permissions:
+  contents: read
+jobs:
+  member-access-and-license-boundaries:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check read-only diagnostic module and primary Chart Studio sources
+        run: |
+          node --check assets/js/crownlight-studio-acceptance-v4.js
+          node --check assets/js/crownlight-chart-tiers-v1.js
+          node --check assets/js/crownlight-workspace-v2.js
+          node --check assets/js/crownlight-data-source-integrity-v3.js
+          node --check functions/api/chart-workspace.js
+          node --check functions/api/marketdata.js
+      - name: Run Studio V4 readiness safety and existing subsystem regressions
+        run: |
+          node tests/test_crownlight_studio_acceptance_v4.mjs
+          node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
+          node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_studio_v3_integrity.mjs
+          node tests/test_crownlight_provider_entitlement_v1.mjs
+          node tests/test_member_sparks_wallet_v014296.mjs
+          node tests/test_alpaca_saved_paper_verification_v1.mjs
+          node tests/test_crownlight_studio_menu_api_v1.mjs
+      - name: Check built Pages assets do not export backend secrets
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/simulator.html
+          test -f public/assets/js/crownlight-studio-acceptance-v4.js
+          test -f public/assets/css/crownlight-studio-acceptance-v4.css
+          test ! -e public/supabase
+          test ! -d public/functions
+  chromium-member-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install no-cost pinned browser dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify read-only audit and explicit personal historical source check
+        run: node tests/test_crownlight_studio_acceptance_v4_browser.mjs
+      - name: Verify saved layout and tier behavior in existing Chromium tests
+        run: |
+          node tests/test_crownlight_chart_studio_v3_browser.mjs
+          node tests/test_crownlight_chart_tiers_browser_v1.mjs
