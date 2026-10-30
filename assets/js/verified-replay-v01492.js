@@ -171,6 +171,7 @@ async function resume(){
   restored=true;
  }catch{addBar(r.bar)}
  $('vr-code').value=r.dataset?.code||'';
+ if(Array.from($('vr-dataset').options).some(o=>o.value===r.dataset?.code))$('vr-dataset').value=r.dataset.code;
  showSourceAttribution(r.dataset);
  $('vr-execution').hidden=true;
  notice('Session restored at bar '+cursor+'. '+(restored?'Previously observed candles were restored from the private server.':'Only the current candle was available; earlier observations were not restored.')+' Future data remain private.');
@@ -182,6 +183,7 @@ async function start(){
  if(!/^[A-Z][A-Z0-9_-]{2,79}$/.test(code))throw Error('Enter an Owner-published dataset code.');
  const r=await api('start',{datasetCode:code});
  sessionId=r.sessionId;cursor=r.currentIndex;locked=false;
+ if(Array.from($('vr-dataset').options).some(o=>o.value===code))$('vr-dataset').value=code;
  window.dispatchEvent(new Event('groundup:replay-reset'));
  window.dispatchEvent(new CustomEvent('groundup:replay-dataset',{detail:{dataset:r.dataset||null,memberId:activeUserId}}));
  visibleCandles.length=0;$('vr-bars').replaceChildren();$('vr-execution').hidden=true;addBar(r.bar);
