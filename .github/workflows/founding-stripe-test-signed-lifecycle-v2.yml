@@ -1,0 +1,46 @@
+name: Founding Membership Stripe TEST Signed Lifecycle V2
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/_lib/founder-sandbox-lifecycle-v014216.js'
+      - 'functions/api/gu39-stripe-webhook.js'
+      - 'supabase/migrations/20261030_f600_test_signed_invoice_dedupe_and_stale_failure_v2.sql'
+      - 'tests/test_f600_signed_sandbox_webhook_v014217.mjs'
+      - '.github/workflows/founding-stripe-test-signed-lifecycle-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-test-lifecycle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify genuine TEST-only boundaries and source syntax
+        run: |
+          node --check functions/_lib/founder-sandbox-lifecycle-v014216.js
+          node --check functions/api/gu39-stripe-webhook.js
+          node --check tests/test_f600_signed_sandbox_webhook_v014217.mjs
+          grep -q "SANDBOX_PROVIDER_MODE_MISMATCH" functions/_lib/founder-sandbox-lifecycle-v014216.js
+          grep -q "GU39_SANDBOX_SHADOW_GATE" functions/api/gu39-stripe-webhook.js
+          grep -q "STALE_CYCLE" supabase/migrations/v0.14.0.215_founder_sandbox_shadow_lifecycle.sql
+          grep -q "FAILED_INVOICE_PERIOD_INVALID" supabase/migrations/20261030_f600_test_signed_invoice_dedupe_and_stale_failure_v2.sql
+          grep -q "includedSparks',0" supabase/migrations/20261030_f600_test_signed_invoice_dedupe_and_stale_failure_v2.sql
+      - name: Signed TEST webhook paid, failed renewal, cancel, refund, bad signature, replay
+        run: |
+          node --test tests/test_f600_signed_sandbox_webhook_v014217.mjs
+          node --test tests/test_f600_live_signed_lifecycle_v014219.mjs
+          node tests/test_founding14_staged_checkout_v1.mjs
+          node --test tests/test_founder_full_price_checkout_guard_v014268.mjs
+      - name: Verify Pages publication excludes database migrations and tests
+        run: |
+          bash scripts/build-pages.sh
+          test ! -e public/supabase
+          test ! -e public/tests
+          test ! -d public/functions
