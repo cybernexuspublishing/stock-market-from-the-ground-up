@@ -1,0 +1,75 @@
+name: Crownlight Watchlist Intelligence V3 Integrated Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/watchlist-*-v3.js'
+      - 'assets/js/watchlist-*-v3.js'
+      - 'assets/js/watchlist-intelligence-v2.js'
+      - 'advanced-tool.html'
+      - 'simulator.html'
+      - 'supabase/migrations/20261030_watchlist_*.sql'
+      - 'tests/test_watchlist_v3_*.mjs'
+      - 'tests/test_watchlist_intelligence_v2_browser.mjs'
+      - '.github/workflows/watchlist-v3-integrated-acceptance.yml'
+permissions:
+  contents: read
+jobs:
+  authenticated-contracts-and-security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Source syntax, privilege boundaries and V3 flow tests
+        run: |
+          node --check functions/api/watchlist-journal-transfer-v3.js
+          node --check functions/api/watchlist-chart-context-v3.js
+          node --check functions/api/watchlist-alerts-v3.js
+          node --check assets/js/watchlist-chart-handoff-v3.js
+          node --check assets/js/watchlist-learning-v3.js
+          node --check assets/js/watchlist-intelligence-v2.js
+          node tests/test_watchlist_v3_integrations.mjs
+      - name: Existing paid/free Journal Watchlist Talia and Chart regressions
+        run: |
+          node tests/test_watchlist_intelligence_v2.mjs
+          node tests/test_journal_plan_handoff_v1.mjs
+          node tests/test_v014150_watchlist_lifecycle.mjs
+          node tests/test_free_watchlist_v1.mjs
+          node tests/test_v014145_research_scanner.mjs
+          node tests/test_journal_research_quality_v1.mjs
+          node tests/test_crownlight_lab_handoff_v2.mjs
+          node tests/test_v35_chart_tutor_integration.mjs
+          node tests/test_v38_watchlist_learning_fidelity.mjs
+      - name: Check Cloudflare publication includes new member assets but not SQL
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/watchlist-chart-handoff-v3.js
+          test -f public/assets/js/watchlist-learning-v3.js
+          test -f public/advanced-tool.html
+          test -f public/simulator.html
+          test ! -e public/supabase
+          test ! -d public/functions
+  chromium-member-flows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned no-cost Playwright Chromium dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test integrated member Watchlist Journal alerts and Talia UI
+        run: node tests/test_watchlist_intelligence_v2_browser.mjs
+      - name: Test Chart Studio authenticated saved research and account isolation
+        run: node tests/test_watchlist_v3_chart_browser.mjs
