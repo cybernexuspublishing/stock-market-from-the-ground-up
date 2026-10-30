@@ -48,3 +48,22 @@ This source batch requires explicit server activation and an identified User-Age
 - `7ca3c735`: source fidelity test updated to canonical `Crownlight Lumens Wallet` text; no wallet or debit behavior change.
 - Additional feature under this checkpoint: read-only ECharts bar comparison of SEC-reported XBRL observations, never represented as matched-period growth or live quotes.
 - **NOT accepted beta-ready:** unknown member-account browser testing; server SEC feature gating; global SEC rate coordination; full company financial chronology and live source verification; genuine Stripe TEST lifecycle and entitlement expiration tests; integration cross-product acceptance.
+
+## Coordinated development checkpoint — 2026-10-30 (after SEC and Journal batches)
+
+### Implemented and confirmed in this session
+- **SEC issuer lookup and fundamentals:** `858ad6ef` introduced a read-only primary-source endpoint, authenticated Workbench UI, source fixtures, and a dedicated regression. `32d6c632` separated EDGAR acceptance time from independently proven publication time, and excluded unverified disclosures from protected intraday replay. `295b7925` added ECharts observation plots while retaining an accessible numeric report.
+- **SEC shared rate budget:** `3d0e0ea` introduced `supabase/migrations/20261030_sec_edgar_global_budget_v1.sql` and made every outbound SEC request consume an atomic global budget (two requests per second maximum). **Migration applied successfully** to Supabase project `oxihglyfgzywsupnyicb`; verified: exactly one control row, RLS enabled, `service_role` executable, `anon`/`authenticated` denied. A direct sequential SQL call verified first grant and immediate second rejection. Dedicated scanner/research CI passed. **Live SEC retrieval is NOT activated** without separately verified SEC User-Agent configuration and enabled service flag; source-rights/end-to-end acceptance remains open.
+- **Existing Journal analytics:** `9bad9acf` extended the original `decision_journal` plus `gu_journal_research_links_v1` read-only report with linked-plan counts, recorded closed paper/live entry deviations, fees, P&L, recorded R, MFE and MAE with independent sample/missingness. Existing Journal Analytics entitlement and owner-scoped queries remain. `Market Analysis, Tape & Private Journal v0.14.0.146` passed on `9bad9acf`, and subsequently on coordinated `60a7102d`; **real authenticated cross-product acceptance remains open**.
+- **Regression repair only:** `020f5edf` corrected an obsolete Tiingo-only fixture to include owner-scoped Alpaca, fixing D08. `45b4eccd`, `7ca3c735`, `d107b33d`, `aa7de2f1` updated stale Talia/Wallet test expectations to approved Lumens and fictional-reference language without changing wallet accounting or private grades. Concurrent learning changes `26f54b47`, `8121db67`, `a0bbabcc`, `26754b0d`, `60a7102d` remain preserved on `main`.
+
+### Retained beta gates (not waived)
+1. Verify final combined, exact-commit CI and matching Cloudflare production deployment (concurrent commits regularly supersede some runs; cancelled != passed).
+2. Configure secure SEC identifiable User-Agent and explicit service activation *only after* operational source rights, error-state and real SEC response tests; keep retrieval fail-closed before then.
+3. Automated scheduled source ingestion, source dedupe/version retention, safe issuer alias/corporate action matching, catalyst-to-chart chronology, and genuine authorized historical no-lookahead acceptance.
+4. Member-authenticated Free/Advanced/Professional/Owner/expired/unauthorized browser tests including data reload, isolated permissions, Chart Studio and Journal handoffs.
+5. Complete research-to-trade calculations with actual measured spreads, order histories and source-linked cohorts only where member-authorized data exists.
+6. Real Stripe TEST checkout, webhook, refund, expiration and entitlement lifecycle; actual LIVE payment activation remains separately prohibited.
+7. Admin visibility, Talia/Labs/Boot Camps integration acceptance, responsive/keyboard testing and nonregression of all previous 419-Lab access controls.
+
+**Operational scope:** No LIVE customer payments, no real Lumens debit, no personal credential changes, no parallel member database, no broker orders. Beta readiness is **OPEN**, not 100%.
