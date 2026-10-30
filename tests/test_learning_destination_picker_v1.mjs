@@ -47,6 +47,8 @@ assert(css.includes('position:absolute!important;top:calc(100% + 6px)'),
 const learningCss=file('assets/css/learning-workstation-v44.css');
 assert(learningCss.includes('grid-auto-rows:minmax(44px,auto)')&&learningCss.includes('flex-direction:row!important'),
  'Ten compact three-column stage tiles');
+assert((html.match(/class="bullet" aria-hidden="true">\\d+<\\/span>/g)||[]).length===10,
+ 'Static first-render navigator includes all ten visible stage numbers');
 const labEngine=file('assets/js/lab-engine-v32-universal.js');
 assert(labEngine.includes('bullet.textContent=String(i+1)'),'Stage numbers must be visible');
 
