@@ -13,3 +13,25 @@
 .cl-studio-acceptance button:disabled{opacity:.55;cursor:not-allowed}
 .cl-studio-acceptance [role=status]{padding:8px 0;overflow-wrap:anywhere}
 @media(max-width:640px){.cl-studio-acceptance{padding:14px}.cl-studio-acceptance dl{grid-template-columns:1fr}.cl-studio-acceptance dt{border-bottom:0;padding-bottom:3px}.cl-studio-acceptance dd{padding-top:3px}}
+
+/* The chart is a working instrument, not a 600px empty billboard.
+ * Keep canvases mounted (never display:none) so chart-engine resize,
+ * crosshair and replay wiring survive the first authorized dataset.
+ */
+body.simulator-page #sim-content .sim-chart-panel.sim-awaiting-data .crownlight-plot,
+body.simulator-page #sim-content .sim-chart-panel.sim-awaiting-data .cl-tier-kline-canvas{
+ height:148px!important;min-height:148px!important;max-height:148px!important;
+}
+body.simulator-page #sim-content .sim-chart-panel.sim-awaiting-data .cl-tier-chart-summary{
+ min-height:0!important;
+}
+body.simulator-page #cl-studio-import-v5[hidden]{display:none!important}
+body.simulator-page #cl-studio-import-v5:not([hidden]){
+ background:#165b65;border:1px solid #58cec5;color:#f6ffff;font-weight:700;
+}
+@media(max-width:640px){
+ body.simulator-page #sim-content .sim-chart-panel.sim-awaiting-data .crownlight-plot,
+ body.simulator-page #sim-content .sim-chart-panel.sim-awaiting-data .cl-tier-kline-canvas{
+  height:120px!important;min-height:120px!important;max-height:120px!important;
+ }
+}
