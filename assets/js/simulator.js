@@ -199,6 +199,67 @@ async function loadProvider(){
    smsg('sim-load-msg',e.message||'Provider response could not be verified. Current chart was preserved.','error');
  }
 }
+/* Explicit in-memory handoff of a member's already validated personal
+ * OHLCV response. Never publishes provider data, grants a Market Simulator
+ * entitlement, creates Journal trades or reveals future candles.
+ * Revalidate the current entitlement and the source on EVERY import.
+ */
+async function importValidatedPersonalProviderSample(sample){
+ if(!SIM.user?.id||!SIM.sb||$('sim-content')?.hidden)
+  throw Error('Open Fictional / CSV Practice and sign in before importing personal history.');
+ if(SIM.hasPremium!==true)
+  throw Error('Personal provider replay requires the separate Market Simulator entitlement. Chart Studio access alone is not sufficient.');
+ if(SIM.journalId||SIM.linkedJournalId||SIM.planLocked||SIM.position)
+  throw Error('A saved or active Simulator plan must not be replaced. Open a new Simulator practice session.');
+ const provider=sample?.provider,ticker=sample?.ticker,date=sample?.date;
+ if(!['TIINGO_BYO','ALPACA_BYO'].includes(provider)||!(/^[A-Z][A-Z0-9.-]{0,11}$/.test(ticker||''))||
+    typeof date!=='string'||!/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/.test(date)||
+    sample.ownerId!==SIM.user.id)
+  throw Error('This private provider sample does not belong to the current signed-in member.');
+ const expectedId=SIM.user.id;
+ const {data:{session}}=await SIM.sb.auth.getSession();
+ if(!session?.access_token||session.user?.id!==expectedId)
+  throw Error('Member session changed; provider sample was not imported.');
+ const check=await fetch('/api/member-tool-access?tool=MARKET_SIMULATOR',{
+  method:'GET',headers:{authorization:'Bearer '+session.access_token},
+  cache:'no-store',credentials:'same-origin'});
+ const permission=await check.json().catch(()=>null);
+ if(!check.ok||permission?.ok!==true||permission?.freeEligible!==true||
+   permission?.authorized!==true)
+  throw Error('Current Market Simulator provider entitlement could not be verified. No data imported.');
+ const source=window.CrownlightSourceIntegrityV3?.validateProvider?.(sample.payload,{provider,ticker});
+ if(!source||!Array.isArray(source.candles)||!source.candles.length)
+  throw Error('The historical sample no longer passes the personal provider integrity check.');
+ const current=(await SIM.sb.auth.getSession()).data?.session;
+ if(SIM.user?.id!==expectedId||current?.user?.id!==expectedId||
+    SIM.planLocked||SIM.position||SIM.journalId||SIM.linkedJournalId)
+  throw Error('Member or Simulator state changed. Existing replay was preserved.');
+ // A validated personal observation may be used for ungraded local practice
+ // only. Start with a bounded revealed prefix, not the entire future series.
+ pause();SIM.candles=source.candles;
+ SIM.sourceProvider=provider.toLowerCase();SIM.sourceFeed=source.feed;
+ SIM.sourceNote=source.sourceNote;
+ SIM.sourceName=(provider==='ALPACA_BYO'?'Alpaca IEX':'Tiingo')+
+  ' '+ticker+' '+date+' (personal ungraded)';
+ SIM.originalFictional=false;SIM.contextEnvelope=null;
+ SIM.index=Math.min(Number($('sim-start-context')?.value)||0,SIM.candles.length-1);
+ SIM.startIndex=SIM.index;SIM.maxIndexSeen=SIM.index;
+ SIM.position=null;SIM.ambiguous=null;SIM.journalId=null;SIM.planLocked=false;
+ if($('sim-ambiguous'))$('sim-ambiguous').hidden=true;
+ if($('sim-source'))$('sim-source').value=provider==='ALPACA_BYO'?'alpaca':'tiingo';
+ if($('sim-ticker'))$('sim-ticker').value=ticker;
+ if($('sim-start-date'))$('sim-start-date').value=date;
+ if($('sim-end-date'))$('sim-end-date').value=date;
+ if($('sim-resample'))$('sim-resample').value='1min';
+ if($('sim-timeframe'))$('sim-timeframe').value='1-minute personal source (ungraded)';
+ $('sim-source')?.dispatchEvent(new Event('change'));
+ smsg('sim-load-msg','Loaded '+SIM.candles.length+
+  ' validated personal historical bars into UNGRADED chart practice. Later candles are hidden until revealed. No official historical replay, licensed redistribution or actual trade.','success');
+ renderAll();window.dispatchEvent(new Event('resize'));
+ return {ok:true,bars:SIM.candles.length,revealed:SIM.index+1,
+  classification:'PERSONAL_PROVIDER_UNGRADED_ONLY'};
+}
+window.GroundUpSimulatorImportVerifiedProviderV1=importValidatedPersonalProviderSample;
 async function loadContextEnvelope(lab){if(!lab)return;try{const {data}=await SIM.sb.from('historical_context_envelopes').select('*').eq('lab_id',lab).in('status',['verified','published']).order('updated_at',{ascending:false}).limit(1);const e=data?.[0];if(!e)return;SIM.contextEnvelope=e;const d=x=>x?new Date(x).toISOString().slice(0,10):'';$('sim-ticker').value=e.ticker||$('sim-ticker').value;if($('sim-start-date'))$('sim-start-date').value=d(e.context_start_at);if($('sim-end-date'))$('sim-end-date').value=d(e.context_end_at);
  const et=x=>x?new Intl.DateTimeFormat('en-GB',{timeZone:'America/New_York',hour:'2-digit',minute:'2-digit',hourCycle:'h23'}).format(new Date(x)):'';
  if($('cl-lab-start-time'))$('cl-lab-start-time').value=et(e.context_start_at);
@@ -213,6 +274,7 @@ async function manualExit(){if(!SIM.position?.open)return;await finishTrade(curr
 function resolveAmbiguous(which){if(!SIM.ambiguous||!SIM.position?.open)return;SIM.position.ambiguousBars=(SIM.position.ambiguousBars||0)+1;const p=SIM.position;SIM.ambiguous=null;$('sim-ambiguous').hidden=true;if(which==='stop')finishTrade(p.stop,'Stop / risk exit');else if(which==='target')finishTrade(p.target,'Planned target');else{smsg('sim-trade-msg','Ambiguous candle acknowledged. Position remains open.','success');renderAll()}}
 function downloadTemplate(){const txt='timestamp,open,high,low,close,volume,data_classification\n2040-01-02T09:30:00-05:00,10.00,10.08,9.96,10.05,125000,fictional_illustrative\n2040-01-02T09:35:00-05:00,10.05,10.12,10.01,10.09,143000,fictional_illustrative\n';const blob=new Blob([txt],{type:'text/csv'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='ground-up-simulator-template.csv';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 function clearSimulatorOnSessionLoss(){
+ window.GroundUpSimulatorMemberReadyV1=false;
  // Never retain an old member's client-inspectable provider history on account change.
  pause();
  try{window.CrownlightLive?.stop?.()}catch{}
@@ -258,6 +320,8 @@ async function init(){const gate=$('sim-gate');try{SIM.sb=await window.getSupaba
  smsg('sim-load-msg',msg);
 };
 $('sim-source')?.dispatchEvent(new Event('change'));$('sim-reset').onclick=resetReplay;$('sim-prev').onclick=()=>step(-1);$('sim-next').onclick=()=>step(1);$('sim-play').onclick=play;$('sim-speed').onchange=()=>{if(SIM.timer){pause();play()}};$('sim-lock-plan').onclick=lockPlan;$('sim-enter').onclick=enterTrade;$('sim-exit').onclick=manualExit;$('sim-stop-first').onclick=()=>resolveAmbiguous('stop');$('sim-target-first').onclick=()=>resolveAmbiguous('target');$('sim-keep-open').onclick=()=>resolveAmbiguous('keep');window.addEventListener('resize',()=>renderChart());renderAll();if(window.GroundUpFreePracticeRequested)loadFictionalPractice();
+ window.GroundUpSimulatorMemberReadyV1=true;
+ window.dispatchEvent(new Event('groundup:legacy-simulator-ready'));
  if(window.GroundUpStudioRequestedTier){
   const disclosure=document.querySelector('#cl-replay-import details.cl-workbench-import');
   if(disclosure)disclosure.open=false;
