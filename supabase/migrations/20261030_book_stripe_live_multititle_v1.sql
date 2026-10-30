@@ -1,5 +1,5 @@
--- Extension to the existing Stripe LIVE book contract. Fail-closed; no
--- publishing permissions, prices or entitlements are activated here.
+-- Expands the already installed one-time book purchase ledger to five approved
+-- price identities. Cannot itself activate checkout, create charges or grant books.
 BEGIN;
 CREATE OR REPLACE FUNCTION public.gu_book_live_reserve_v1(p_user uuid,p_code text,p_price text,p_amount integer)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path=pg_catalog,pg_temp AS $fn$
@@ -7,14 +7,12 @@ DECLARE r public.gu_book_live_intents_v1%ROWTYPE;
 BEGIN
  IF current_setting('request.jwt.claim.role',true) IS DISTINCT FROM 'service_role'
  THEN RAISE EXCEPTION 'SERVICE_ONLY' USING ERRCODE='42501'; END IF;
- IF p_user IS NULL OR NOT EXISTS (
-  SELECT 1 FROM (VALUES ('FOUNDATION_BOOK_1','price_1UVBsDJL0O4GGVBHdqAaP15z',1099),
-      ('FOUNDATION_BOOK_2','price_1UVBsFJL0O4GGVBHP75QJV4N',1099),
-      ('FOUNDATION_BOOK_3','price_1UVBsLJL0O4GGVBH37PPBw4s',1199),
-      ('DAY_TRADING_BOOK_1','price_1UVBsPJL0O4GGVBH1cdsLBT3',1499),
-      ('READING_THE_TAPE','price_1UVBsSJL0O4GGVBHjElhhG8W',1499)) AS offer(code,price,amount)
-  WHERE offer.code=p_code AND offer.price=p_price AND offer.amount=p_amount
- )
+ IF p_user IS NULL OR NOT EXISTS(SELECT 1 FROM (VALUES ('FOUNDATION_BOOK_1','price_1UVBsDJL0O4GGVBHdqAaP15z',1099),
+     ('FOUNDATION_BOOK_2','price_1UVBsFJL0O4GGVBHP75QJV4N',1099),
+     ('FOUNDATION_BOOK_3','price_1UVBsLJL0O4GGVBH37PPBw4s',1199),
+     ('DAY_TRADING_BOOK_1','price_1UVBsPJL0O4GGVBH1cdsLBT3',1499),
+     ('READING_THE_TAPE','price_1UVBsSJL0O4GGVBHjElhhG8W',1499)) offer(code,price,amount)
+ WHERE offer.code=p_code AND offer.price=p_price AND offer.amount=p_amount)
  THEN RAISE EXCEPTION 'UNAPPROVED_BOOK_PRICE'; END IF;
  IF NOT EXISTS(SELECT 1 FROM public.profiles p WHERE p.id=p_user AND p.account_kind='member'
   AND p.deleted_at IS NULL)
@@ -33,27 +31,7 @@ BEGIN
   AND p.metadata->'website_price_by_format_cents_v135'->>'digital'=p_amount::text
   AND d.sales_enabled AND d.downloads_enabled AND d.rights_attested_at IS NOT NULL
   AND d.exclusive_until IS NOT NULL AND d.exclusive_until<=now()
-  AND d.asset_path ~ ('^'||p_code||'/[a-f0-9-]{36}[.]epub
- ) THEN RAISE EXCEPTION 'BOOK_RIGHTS_OR_EDITION_NOT_READY'; END IF;
- IF NOT EXISTS(SELECT 1 FROM public.site_settings s WHERE s.setting_key='commerce.checkout_enabled'
-  AND s.value='true'::jsonb)
- OR NOT EXISTS(SELECT 1 FROM public.site_settings s WHERE s.setting_key='commerce.provider'
-  AND s.value='"STRIPE_MANAGED"'::jsonb)
- THEN RAISE EXCEPTION 'BOOK_PROVIDER_NOT_APPROVED'; END IF;
- PERFORM pg_advisory_xact_lock(hashtextextended(p_user::text||':'||p_code,20261029));
- IF public.gu_digital_paid_owned_v01430(p_code,p_user) OR
-  public.gu_lifetime_ebook_eligible_v01435(p_user,p_code)
- THEN RAISE EXCEPTION 'BOOK_ALREADY_OWNED'; END IF;
- SELECT * INTO r FROM public.gu_book_live_intents_v1
- WHERE user_id=p_user AND product_code=p_code AND status IN ('prepared','checkout_created')
- ORDER BY created_at DESC LIMIT 1 FOR UPDATE;
- IF FOUND THEN RETURN jsonb_build_object('ok',true,'id',r.id,'existing',true,
-  'status',r.status,'session',r.stripe_session_id); END IF;
- INSERT INTO public.gu_book_live_intents_v1(user_id,product_code,price_id,quoted_amount_cents)
- VALUES(p_user,p_code,p_price,p_amount) RETURNING * INTO r;
- RETURN jsonb_build_object('ok',true,'id',r.id,'existing',false,'status',r.status);
-END $fn$;
-)
+  AND d.asset_path ~ ('^'||p_code||'/[a-f0-9-]{36}[.]epub$')
  ) THEN RAISE EXCEPTION 'BOOK_RIGHTS_OR_EDITION_NOT_READY'; END IF;
  IF NOT EXISTS(SELECT 1 FROM public.site_settings s WHERE s.setting_key='commerce.checkout_enabled'
   AND s.value='true'::jsonb)
@@ -106,14 +84,12 @@ BEGIN
  IF p_sales AND (
    CASE WHEN (SELECT s.value FROM public.site_settings s
       WHERE s.setting_key='commerce.provider') = '"STRIPE_MANAGED"'::jsonb
-   THEN NOT EXISTS (
-      SELECT 1 FROM (VALUES ('FOUNDATION_BOOK_1','price_1UVBsDJL0O4GGVBHdqAaP15z',1099),
-      ('FOUNDATION_BOOK_2','price_1UVBsFJL0O4GGVBHP75QJV4N',1099),
-      ('FOUNDATION_BOOK_3','price_1UVBsLJL0O4GGVBH37PPBw4s',1199),
-      ('DAY_TRADING_BOOK_1','price_1UVBsPJL0O4GGVBH1cdsLBT3',1499),
-      ('READING_THE_TAPE','price_1UVBsSJL0O4GGVBHjElhhG8W',1499)) AS offer(code,price,amount)
-      WHERE offer.code=p_code AND (book.metadata->'website_price_by_format_cents_v135'->>'digital')=offer.amount::text
-     )
+   THEN NOT EXISTS(SELECT 1 FROM (VALUES ('FOUNDATION_BOOK_1','price_1UVBsDJL0O4GGVBHdqAaP15z',1099),
+     ('FOUNDATION_BOOK_2','price_1UVBsFJL0O4GGVBHP75QJV4N',1099),
+     ('FOUNDATION_BOOK_3','price_1UVBsLJL0O4GGVBH37PPBw4s',1199),
+     ('DAY_TRADING_BOOK_1','price_1UVBsPJL0O4GGVBH1cdsLBT3',1499),
+     ('READING_THE_TAPE','price_1UVBsSJL0O4GGVBHjElhhG8W',1499)) offer(code,price,amount)
+      WHERE offer.code=p_code AND (book.metadata->'website_price_by_format_cents_v135'->>'digital')=offer.amount::text)
    ELSE nullif(book.metadata->'checkout_variants_v135'->>'digital','') IS NULL
       OR (book.metadata->'website_price_by_format_cents_v135'->>'digital') IS NULL
    END
