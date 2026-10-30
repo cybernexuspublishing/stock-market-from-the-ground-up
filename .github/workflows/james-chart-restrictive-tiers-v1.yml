@@ -1,0 +1,43 @@
+name: James_Test Restrictive Tier Browser Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_chart_james_restrictive_tiers_browser_v1.mjs'
+      - '.github/workflows/james-chart-restrictive-tiers-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: james-chart-restrictive-tiers-v1
+  cancel-in-progress: false
+jobs:
+  genuine-chart-tiers:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate source and encrypted James_Test login
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: |
+          node --check tests/test_chart_james_restrictive_tiers_browser_v1.mjs
+          if test -z "$LAB_QA_EMAIL" || test -z "$LAB_QA_PASSWORD"; then
+            echo "BLOCKED: original encrypted James_Test password is absent."
+            exit 2
+          fi
+      - name: Install open-source Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Test actual member session, server tier locks and saved data
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_chart_james_restrictive_tiers_browser_v1.mjs
