@@ -126,8 +126,9 @@ try{
    });
    assert.notEqual(await studio.locator('.academy-studio-main').innerText(),before,
     'Changing evidence must update the worked example for Lesson '+lesson);
-   if(lesson===2)assert.equal(await studio.locator('svg[role=img]').count(),1,
-    'Fictional candle should remain a labeled visual learning example');
+   if(lesson===2)assert(
+    await studio.locator('svg[role=img], .academy-free-echarts-host .gu-echarts-lesson').count()>=1,
+    'Fictional candle must retain an ECharts or accessible SVG visual learning example');
    // Every Free lesson now includes a separate replay-setup style rehearsal.
    await page.locator('.academy-free-stage-button').nth(3).click();
    const setup=page.locator('.academy-lab-rehearsal:visible');
