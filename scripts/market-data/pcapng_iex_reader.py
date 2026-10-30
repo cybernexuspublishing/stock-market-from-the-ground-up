@@ -30,7 +30,7 @@ def filtered_trades(payload, accepted, include_breaks=False):
         body=payload[pos:pos+size];pos+=size
         if body[0] not in ((0x54,0x42) if include_breaks else (0x54,)):continue
         if len(body)!=38:raise CaptureError('Unexpected TOPS trade report layout')
-        try:symbol=body[10:18].rstrip(b' \\x00').decode('ascii')
+        try:symbol=body[10:18].rstrip(b' \x00').decode('ascii')
         except UnicodeDecodeError:
             raise CaptureError('Non-ASCII IEX trade symbol')
         if symbol not in accepted:continue
