@@ -1,0 +1,51 @@
+name: Free Member Growth V1 — Source and Production Browser
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/free-member-growth-v1.yml'
+      - 'tests/test_member_growth_v1.mjs'
+      - 'tests/test_member_growth_browser_v1.mjs'
+      - 'scripts/build-public-seo.mjs'
+      - 'assets/js/public-candle-practice-v1.js'
+      - 'assets/js/public-share-v1.js'
+      - 'candle-practice.html'
+      - 'free-foundations-challenge.html'
+      - 'market-vs-limit-orders.html'
+      - 'support-resistance-basics.html'
+permissions:
+  contents: read
+concurrency:
+  group: free-member-growth-v1-${{ github.ref }}
+  cancel-in-progress: false
+jobs:
+  production-public-browser:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify deterministic growth and opt-in analytics source
+        run: |
+          node tests/test_member_growth_v1.mjs
+          node tests/test_v014157_public_seo.mjs
+          node tests/test_ga4_public_funnel_v1.mjs
+          node --check tests/test_member_growth_browser_v1.mjs
+      - name: Install pinned Chromium with open-source browser dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify production pages and real three-question interactive chart
+        run: node tests/test_member_growth_browser_v1.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: free-member-growth-v1-public-evidence
+          path: artifacts/growth/
+          if-no-files-found: warn
+          retention-days: 21
