@@ -17,7 +17,7 @@ const cases = [
  ['functions/api/gu39-stripe-webhook.js',[
   ['STRIPE_TEST_WEBHOOK_SECRET','GU39_STRIPE_TEST_WEBHOOK_SECRET']]],
  ['functions/_lib/book-stripe-test-v1.js',[
-  ['STRIPE_TEST_SECRET_KEY','GU_BOOK_STRIPE_TEST_SECRET_KEY'],
+  ['STRIPE_TEST_SECRET_KEY','GU39_STRIPE_TEST_SECRET_KEY'],
   ['STRIPE_BOOK_TEST_WEBHOOK_SECRET','GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET']]],
  ['functions/api/live-commerce-readiness.js',[
   ['STRIPE_LIVE_SECRET_KEY','GU58_STRIPE_LIVE_SECRET_KEY'],

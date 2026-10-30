@@ -5,8 +5,8 @@
 **File:** `docs/STRIPE_CLOUDFLARE_BINDING_MIGRATION_2026-10-30.md`  
 **File type:** Markdown  
 **Google Drive location:** Not assigned; authoritative copy is in GitHub `main`  
-**Version:** 1.1  
-**Status:** Partial implementation accepted; webhook cutover and encrypted-secret migration pending  
+**Version:** 1.2  
+**Status:** One redundant TEST secret removed after deployed provider account/price verification; remaining secret migration and webhook cutover pending  
 **Effective record date:** 2026-10-30  
 **Owner authorization:** Simplify Cloudflare Stripe variables without affecting merchant entitlements or other businesses  
 **Scope:** Primary Cloudflare Pages project `stock-market-from-the-ground-up`; Primary Stripe TEST `acct_1URGkDJY9FI7byHB`, LIVE `acct_1OxhOiJL0O4GGVBH`  
@@ -19,7 +19,7 @@
 3. Consolidated TEST catalog: `STRIPE_TEST_CATALOG_JSON` with `legacyPriceMap` and `founding` sections. The two old TEST catalog bindings were deleted after logical equality checks.
 4. Website origin: `PUBLIC_SITE_URL` is authoritative; deleted redundant `GU_BILLING_SITE_ORIGIN` and `GU_PUBLIC_SITE_ORIGIN` after verifying identical values and updating billing notices.
 5. Created encrypted `STRIPE_TEST_WEBHOOK_SECRET` from a newly created **Primary Stripe TEST** webhook endpoint `we_1UWNRSJY9FI7byHBHABdyP3R` whose URL is `/api/stripe-test-webhook`. The newly created endpoint is currently **disabled** pending acceptance; existing two TEST endpoints remain enabled.
-6. Production environment now has **51 bindings** versus 54 before this consolidation. This is a net reduction of three; six legacy nonsecrets were removed and three new bindings were created.
+6. Production environment now has **50 bindings** versus 54 before this consolidation. This is a net reduction of four; six legacy nonsecrets and the redundant Book TEST API key were removed, while three new bindings were created.
 7. All pre-existing encrypted secret bindings were preserved. No LIVE charge, refund, entitlement grant, webhook routing change or change in LIVE launch flags was performed during this consolidation.
 
 ## Existing Stripe secrets that remain in Cloudflare
@@ -31,7 +31,7 @@
 | `GU_F600_LIVE_WEBHOOK_SECRET` | Founding Members LIVE webhook signing secret | Retained; new `LIVE_WEBHOOK_SECRET` needs secure value provisioning |
 | `GU39_STRIPE_TEST_SECRET_KEY` | TEST membership/sandbox API key | Retained; may share one TEST key after scope verification |
 | `GU39_STRIPE_TEST_WEBHOOK_SECRET` | Original GU39 TEST webhook secret | Retained until unified endpoint acceptance |
-| `GU_BOOK_STRIPE_TEST_SECRET_KEY` | TEST book API key | Retained; new `STRIPE_TEST_SECRET_KEY` needs secure value provisioning and permissions verification |
+| `GU_BOOK_STRIPE_TEST_SECRET_KEY` | Former TEST book API key | **Deleted** after Book checkout readiness passed using existing `GU39_STRIPE_TEST_SECRET_KEY` |
 | `GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET` | Original Book TEST webhook secret | Retained until unified endpoint acceptance |
 | `STRIPE_TEST_WEBHOOK_SECRET` | New consolidated TEST endpoint secret | **Configured**; endpoint disabled pending signed-delivery and fulfillment tests |
 
@@ -46,7 +46,7 @@ Keep LIVE vs TEST API credentials separate. Keep separate LIVE GU58 and Founding
 - [x] Shared TEST webhook code deployed on `main`; separate Book and membership processors retained.
 - [x] Shared TEST signing-secret binding configured in Production.
 - [x] Automated checks: forged signatures, stale timestamps, LIVE event rejection, wrong account rejection, book/membership routing.
-- [ ] Reconcile shared TEST API key permission scope and configure `STRIPE_TEST_SECRET_KEY` securely.
+- [x] Verify Book TEST provider account and Book I product/price readiness using the existing GU39 TEST API key; remove redundant Book TEST key. Canonical `STRIPE_TEST_SECRET_KEY` naming remains pending secure credential migration.
 - [ ] Deliver genuine signed TEST webhook events through the consolidated endpoint and verify provider event delivery (2xx).
 - [ ] Confirm fully bound sandbox membership creation, cancellation, renewal/refund behavior, duplicate-event idempotence, and Book purchase/fulfillment/reversal independently.
 - [ ] Disable the two original TEST webhook destinations after successful acceptance. Then delete obsolete TEST webhook secrets and Book TEST API key only if no remaining dependencies.
@@ -58,3 +58,4 @@ Keep LIVE vs TEST API credentials separate. Keep separate LIVE GU58 and Founding
 | --- | --- | --- |
 | 1.0 | 2026-10-30 | Original canonical naming and legacy fallback strategy |
 | 1.1 | 2026-10-30 | Document actual catalog and origin consolidation, new TEST endpoint, 51-binding inventory and safe activation gate |
+| 1.2 | 2026-10-30 | Share existing GU39 TEST API key for Book I; remove duplicate Book TEST API secret; inventory 50 |

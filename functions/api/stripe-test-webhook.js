@@ -25,7 +25,7 @@ async function signed(payload,header,secret){
  return candidates.some(hex=>{let bad=0;for(let i=0;i<32;i++)bad|=digest[i]^parseInt(hex.slice(2*i,2*i+2),16);return bad===0});
 }
 async function provider(env,resource){
- const key=String(env.STRIPE_TEST_SECRET_KEY||env.GU_BOOK_STRIPE_TEST_SECRET_KEY||env.GU39_STRIPE_TEST_SECRET_KEY||'');
+ const key=String(env.STRIPE_TEST_SECRET_KEY||env.GU39_STRIPE_TEST_SECRET_KEY||'');
  if(!key.startsWith('sk_test_'))throw Error('TEST_KEY_MISSING');
  const response=await fetch('https://api.stripe.com/v1/'+resource,{headers:{authorization:'Bearer '+key},cache:'no-store'});
  if(!response.ok)throw Error('PROVIDER_UNAVAILABLE');
