@@ -1,0 +1,30 @@
+name: Stripe Book TEST Shared Key Live Endpoint Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/stripe-book-test-shared-key-acceptance.yml'
+      - 'functions/_lib/book-stripe-test-v1.js'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check-deployed-book-key:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check Book Stripe TEST price and account with shared API key
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            http=$(curl -sSL --max-time 20 -o /tmp/book-test-readiness.json -w '%{http_code}' 'https://stock-market-from-the-ground-up-d1r.pages.dev/api/book-stripe-test-checkout-v1' || true)
+            if [ "$http" = "200" ] && jq -e '.ok == true and .testing == true and .ready == true' /tmp/book-test-readiness.json >/dev/null; then
+              echo 'PASS: authenticated Stripe TEST account and Book I Price validated using canonical/shared key selection.'
+              exit 0
+            fi
+            echo "Book TEST readiness not yet accepted (HTTP $http, attempt $attempt)."
+            sleep 4
+          done
+          echo 'FAIL: Book TEST readiness did not prove shared TEST API key.'
+          exit 1
