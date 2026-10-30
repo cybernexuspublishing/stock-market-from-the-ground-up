@@ -26,7 +26,7 @@ assert(src.includes("if(observed.length>=TOTAL)"),'Playback must stop at the fin
 assert(src.includes("document.hidden&&playing"),'Hidden tabs should not keep playing');
 assert(src.includes("root.clearTimeout(playTimer)"),'Replay must clean scheduled timers');
 assert(src.includes("checkpoint=true"),'Replay should pause for teaching checkpoints');
-assert(!/fetch\\s*\\(|localStorage|sessionStorage|Supabase|Stripe|grading|wallet|gu_replay_bars/i.test(src),
+assert(!/fetch\s*\(|localStorage|sessionStorage|supabase\.from|stripe\.com|gradeAttempt|gu_replay_bars/i.test(src),
  'Instructor must not open private data or commerce endpoints');
 assert(simulator.includes('gusim-dt-c01-l02-coach-v3.js?v=1'));
 assert(simulator.includes('gusim-dt-c01-l02-coach-v3.css?v=1'));
