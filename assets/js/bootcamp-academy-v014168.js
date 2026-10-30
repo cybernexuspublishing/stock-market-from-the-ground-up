@@ -10,6 +10,7 @@
 
  const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
+ let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0;
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
   progress=new Map(),drafts=new Map(),selfCheckDrafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
  const status=message=>{get('academy-status').textContent=message};
@@ -56,25 +57,75 @@
   if(!response.ok||value.ok!==true)throw Error(String(value.error||'Academy member service is unavailable.'));
   return value;
  }
+
+ // Catalog search is separate from enrollment. Access labels reflect only the
+ // server-verified account summary, never a client-generated entitlement.
+ function filterAcademyCatalog(){
+  const term=String(get('academy-program-search')?.value||'').toLowerCase().trim();
+  let visible=0;
+  for(const p of academyBrowsePrograms){
+   const card=get('academy-program-'+p.code);if(!card)continue;
+   const values=[p.code,p.title,p.summary,p.theme,p.level,String(p.days)].join(' ').toLowerCase();
+   const match=term.split(/\s+/).filter(Boolean).every(t=>values.includes(t));
+   card.hidden=!match;if(match)visible++;
+  }
+  const note=get('academy-program-search-status');
+  if(note)note.textContent='Showing '+visible+' of '+academyBrowsePrograms.length+
+   ' Boot Camps. '+(academyBrowseRights?.training===true?'Your training access is verified.':
+   'Courses are shown as locked until training entitlement is verified.')+
+   ' Search by program ID, title, skill or subject.';
+ }
  function catalog(programs){
   const root=get('academy-programs');root.replaceChildren();
   if(!Array.isArray(programs)||programs.length!==7||
    programs.some(p=>!expected.has(p.code)||expected.get(p.code)!==p.days)||
    new Set(programs.map(p=>p.code)).size!==7)throw Error('Academy catalog or durations could not be verified.');
+  academyBrowsePrograms=programs;
+  const access=academyBrowseRights?.training===true;
   for(const p of programs){
-   const card=node('article');card.className='academy-program'+(p.code===activeCode?' academy-program--active':'');
+   const card=node('article');card.id='academy-program-'+p.code;
+   card.className='academy-program'+(p.code===activeCode?' academy-program--active':'')+(access?'':' academy-program--locked');
    const duration=node('span',p.days+'-day Boot Camp · '+p.level);duration.className='academy-duration';
    const heading=node('h3',p.title),description=node('p',p.summary);
-   const image=node('img');image.className='academy-program-image';image.src='/assets/images/skill-illustrations/'+programIllustration[p.code]+'.svg';image.alt='Conceptual illustration for '+p.title+'; not historical market data';image.loading='lazy';image.width=144;image.height=132;
-   const note=node('p',p.status==='original_30_day_controlling'?
-    'Original 30-day curriculum · Beta enrollment available':
-    'Educational beta curriculum · Lessons and reflections available to authorized testers');note.className='small';
-   const action=node('a',p.code==='foundations30'?'Enroll / open 30-day Boot Camp':'Explore and enroll in beta');
+   const image=node('img');image.className='academy-program-image';
+   image.src='/assets/images/skill-illustrations/'+programIllustration[p.code]+'.svg';
+   image.alt='Conceptual illustration for '+p.title+'; not historical market data';
+   image.loading='lazy';image.width=144;image.height=132;
+   const note=node('p',access?
+    'Available with your verified training entitlement. Lessons are ungraded unless separately reviewed.':
+    '🔒 Requires a verified training entitlement. Current prices and purchase availability are shown on the product page.');
+   note.className='small';
+   if(!access){const lock=node('span','🔒');lock.className='gu-academy-lock';
+    lock.setAttribute('aria-hidden','true');heading.append(lock);}
+   const action=node('a',access?(p.code==='foundations30'?'Open 30-day Boot Camp':'Open this Boot Camp'):
+    'View Boot Camp access options');
    action.className='btn secondary';
-   action.href=p.code==='foundations30'?'bootcamp.html':'bootcamp-academy.html?program='+encodeURIComponent(p.code);
+   action.href=access?(p.code==='foundations30'?'bootcamp.html':
+    'bootcamp-academy.html?program='+encodeURIComponent(p.code)):
+    'store-membership-ondemand-monthly.html';
+   action.setAttribute('aria-label',access?'Open '+p.title:'View purchasing and access options for '+p.title);
    card.append(image,duration,heading,description,note,action);root.append(card);
   }
+  filterAcademyCatalog();
  }
+ async function verifyAcademyBrowseRights(){
+  const requestEpoch=++academyBrowseEpoch;academyBrowseRights=null;
+  if(academyBrowsePrograms.length)catalog(academyBrowsePrograms);
+  try{
+   const sb=await window.getSupabaseClient?.();
+   const session=(await sb?.auth?.getSession?.())?.data?.session;
+   if(requestEpoch!==academyBrowseEpoch||!session?.access_token)return;
+   const response=await fetch('/api/lab-registry-access',{cache:'no-store',
+    headers:{authorization:'Bearer '+session.access_token}});
+   const rights=await response.json().catch(()=>({}));
+   if(requestEpoch!==academyBrowseEpoch)return;
+   if(response.ok&&rights.ok===true&&rights.freeEligible===true&&
+     Array.isArray(rights.bookCodes)&&Array.isArray(rights.freeSampleIds))
+    academyBrowseRights={training:rights.training===true};
+  }catch{academyBrowseRights=null;}
+  if(requestEpoch===academyBrowseEpoch&&academyBrowsePrograms.length)catalog(academyBrowsePrograms);
+ }
+
  function updateDays(){
   const container=get('academy-days');container.replaceChildren();
   for(const d of days){
@@ -660,10 +711,13 @@
   try{
    const programs=(await request('catalog')).programs;
    catalog(programs);
+   void verifyAcademyBrowseRights();
    status('Explore the seven Boot Camps. Sign in with eligible training access to save your progress.');
   }catch(error){status(error.message||'The Academy catalog cannot be verified.')}
  }
- get('academy-enroll').addEventListener('click',()=>void (async()=>{
+ get('academy-program-search')?.addEventListener('input',filterAcademyCatalog);
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!activeCode&&academyBrowsePrograms.length)void verifyAcademyBrowseRights();});
+  get('academy-enroll').addEventListener('click',()=>void (async()=>{
   if(!program||busy||enrolled||!progressAvailable)return;
   const actor=userId,serial=sessionSerial,code=activeCode;
   busy=true;get('academy-enroll').disabled=true;
