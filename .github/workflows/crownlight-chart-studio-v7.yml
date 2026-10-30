@@ -6,6 +6,7 @@ on:
     paths:
       - 'functions/api/chart-workspace.js'
       - 'assets/js/crownlight-workspace-v2.js'
+      - 'simulator.html'
       - 'tests/test_crownlight_workspace_sources_v7.mjs'
       - 'tests/test_crownlight_workspace_sources_v7_browser.mjs'
       - '.github/workflows/crownlight-chart-studio-v7.yml'
