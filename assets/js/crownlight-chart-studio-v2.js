@@ -100,7 +100,20 @@
   actions.addEventListener('click',event=>{
    const button=event.target.closest('[data-cl]');if(!button)return;
    const cmd=button.dataset.cl,scale=chart.timeScale();
-   if(cmd==='zoom-in'||cmd==='zoom-out'){const current=scale.options().barSpacing||16;scale.applyOptions({barSpacing:Math.max(.6,Math.min(56,current*(cmd==='zoom-in'?1.3:.66)))})}
+   if(cmd==='zoom-in'||cmd==='zoom-out'){
+    // Logical-range zoom survives a chart resize/follow update. Updating
+    // barSpacing alone can be overridden by the existing visible range.
+    const range=scale.getVisibleLogicalRange?.();
+    const narrower=cmd==='zoom-in';
+    if(range&&Number.isFinite(range.from)&&Number.isFinite(range.to)&&range.to>range.from){
+     const midpoint=(range.from+range.to)/2;
+     const span=Math.max(3,Math.min(450,(range.to-range.from)*(narrower?1/1.3:1.3)));
+     scale.setVisibleLogicalRange({from:midpoint-span/2,to:midpoint+span/2});
+    }else{
+     const current=scale.options().barSpacing||16;
+     scale.applyOptions({barSpacing:Math.max(.6,Math.min(56,current*(narrower?1.3:1/1.3)))});
+    }
+   }
    if(cmd==='reset'){state.follow=true;fitVisible();save()}
    if(cmd==='follow'){state.follow=!state.follow;updateFollow();save();if(state.follow)scale.scrollToRealTime()}
    if(cmd==='studies')openStudies();
