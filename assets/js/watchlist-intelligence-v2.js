@@ -102,14 +102,17 @@
    journalEntryId=input('Optional existing Journal record ID for server-verified research link',16),
    journalGo=mk('button','Verify plan and open authenticated Journal handoff','btn secondary'),
    journalLink=mk('button','Attach saved plan to owned Journal record','btn secondary'),
+   journalAuto=mk('button','Create Journal draft from saved plan','btn secondary'),
+   chartJump=mk('button','Open candidate in Crownlight Chart Studio','btn secondary'),
    tradePlanGo=mk('button','Open the existing Trade-Plan Builder for this candidate','btn secondary'),
    lab=mk('a','Open existing authorized Labs','btn secondary'),
    bootcamp=mk('a','Explore existing Boot Camp lessons','btn secondary');
-  journalGo.type='button';journalLink.type='button';tradePlanGo.type='button';
+  journalGo.type='button';journalLink.type='button';journalAuto.type='button';
+  chartJump.type='button';tradePlanGo.type='button';
   lab.href='labs.html';bootcamp.href='bootcamp-academy.html';
   guidance.append(mk('h3','Talia research questions and learning handoffs'),guidanceText,
-   mk('p','The existing Advanced Trade-Plan Builder remains available above. Enter an existing saved plan ID to use the Journal’s authenticated, read-only transfer; no Journal record, brokerage activity, or mastery is created automatically.'),
-   journalPlan.wrap,journalGo,journalEntryId.wrap,journalLink,tradePlanGo,lab,bootcamp);
+   mk('p','Enter an existing saved plan ID, then choose read-only transfer or create a new observation-only Journal draft. Creating a draft uses the existing weekly Journal allowance; retries cannot create duplicate drafts. Neither option records a trade or grade.'),
+   journalPlan.wrap,journalGo,journalAuto,journalEntryId.wrap,journalLink,chartJump,tradePlanGo,lab,bootcamp);
   const body=mk('div',undefined,'cl-wi-body');
   edit.append(folder.wrap,tags.wrap,selectLabel('Eight-stage candidate review',stage),selectLabel('Candidate lifecycle status (member-reported)',candidateStage),archiveLabel,
    pointTime.wrap,reviewNote.wrap,actionRow,timeline,annotations);
@@ -288,6 +291,43 @@
     x.getAttribute('aria-label')==='Open trade plan for '+rec.title);
    if(!button)return status(notices,'Existing Trade-Plan Builder link is unavailable. Use the saved candidate list above.');
    button.click();status(notices,'Opened the existing Trade-Plan Builder. No plan or trade was saved automatically.');
+  };
+  chartJump.onclick=()=>{
+   const rec=getSelected();if(!rec)return;
+   // The candidate id is NOT a right to read; Chart Studio independently
+   // requires a signed-in current premium member and verifies ownership.
+   root.location.assign('simulator.html?watchlist_candidate='+encodeURIComponent(String(rec.id)));
+  };
+  journalAuto.onclick=async()=>{
+   if(busy)return;
+   busy=true;journalAuto.disabled=true;
+   try{
+    const planId=journalPlan.field.value.trim(),rec=getSelected();
+    if(!rec)throw Error('Select a saved Watchlist candidate first.');
+    if(!/^[1-9][0-9]{0,15}$/.test(planId)||!Number.isSafeInteger(Number(planId)))
+     throw Error('Enter a saved Trade-Plan version ID before creating its Journal draft.');
+    const {sb,token,uid}=await auth();
+    const preview=await fetch('/api/journal-plan-prefill?planId='+encodeURIComponent(planId),{
+      method:'GET',cache:'no-store',headers:{authorization:'Bearer '+token}});
+    const details=await preview.json().catch(()=>null);
+    if(!preview.ok||details?.ok!==true||details?.journalDraft?.ticker!==rec.title)
+     throw Error(details?.error||'Saved plan must belong to the selected candidate ticker.');
+    const result=await fetch('/api/watchlist-journal-transfer-v3',{
+      method:'POST',cache:'no-store',credentials:'same-origin',
+      headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+      body:JSON.stringify({planId:Number(planId)})});
+    const d=await result.json().catch(()=>null);
+    const check=(await sb.auth.getSession()).data?.session;
+    if(!alive()||check?.user?.id!==uid)return;
+    if(!result.ok||d?.ok!==true||!Number.isSafeInteger(Number(d.journalId)))
+     throw Error(d?.error||'Journal draft could not be created.');
+    const link=mk('a','Open this private Journal draft','btn secondary');
+    link.href='journal-entry.html?id='+encodeURIComponent(String(d.journalId));
+    notices.replaceChildren(document.createTextNode(d.alreadyExists?
+      'Existing Journal record reopened without another quota debit. ':
+      'Observation-only Journal draft created using your existing weekly allowance. No trade or P&L was recorded. '),link);
+   }catch(e){status(notices,e.message||'Private Journal draft transfer unavailable.');}
+   finally{busy=false;journalAuto.disabled=false}
   };
   journalLink.onclick=async()=>{
    try{
