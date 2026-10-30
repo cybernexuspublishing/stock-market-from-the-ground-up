@@ -303,6 +303,6 @@ window.addEventListener('crownlight:revealed-bars',()=>{
 });
 function init(){controls();applyLayout()}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady,layout:workspace.layout,selected:workspace.selected,revision:workspaceRevision,drawingContext:workspace.drawingContext,savedDatasets:datasets().length}),
+window.CrownlightWorkspaceV2={getStatus:()=>({synced:syncEnabled,linked,available:storeAvailable,memberVerified:permissionReady&&storeAvailable,layout:workspace.layout,selected:workspace.selected,revision:workspaceRevision,drawingContext:workspace.drawingContext,savedDatasets:datasets().length}),
  synchronize,restore,persist};
 })();
