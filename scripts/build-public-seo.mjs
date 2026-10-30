@@ -16,7 +16,9 @@ try{
 }catch{throw Error('GU_PUBLIC_SITE_ORIGIN must be an HTTPS origin without path, query, credentials, or port');}
 const candidates=[
  'index','about','books','store','learn','tools','lab-samples',
- 'membership','help','faq','philosophy'
+ 'membership','help','faq','philosophy',
+ 'how-stock-market-works','how-to-read-candlestick-charts','vwap-explained',
+ 'bid-ask-spread-explained','stock-trading-risk-management'
 ];
 // Curated copy mirrors each existing public page; do not invent sales availability.
 const metadata={
@@ -59,6 +61,26 @@ const metadata={
  philosophy:{
   title:'Our Teaching Philosophy | The Stock Market: From the Ground Up',
   description:'Learn how the four steps—Learn, Understand, Practice, Trade—support foundational knowledge, evidence-based practice and repeatable decisions.'
+ },
+ 'how-stock-market-works':{
+  title:'How the Stock Market Works | Beginner Guide',
+  description:'Understand shares, brokers, orders and stock prices through a fictional example. A free beginner guide to essential market mechanics.'
+ },
+ 'how-to-read-candlestick-charts':{
+  title:'How to Read Candlestick Charts | Beginner Guide',
+  description:'Learn how open, high, low and close make candle bodies and wicks. Use fictional examples to understand limits, timeframes and volume.'
+ },
+ 'vwap-explained':{
+  title:'What Is VWAP? Volume-Weighted Average Price Explained',
+  description:'Learn how VWAP uses price and trading volume, why session settings matter and why a VWAP cross is not a guaranteed signal.'
+ },
+ 'bid-ask-spread-explained':{
+  title:'Bid, Ask and Spread Explained | Beginner Guide',
+  description:'Understand bids, asks, spreads, order types and potential execution costs with a fictional stock quotation example.'
+ },
+ 'stock-trading-risk-management':{
+  title:'Stock Trading Risk Management | Position Sizing Basics',
+  description:'Practice stop-reference risk, position sizing and reward-to-risk with a fictional trade plan. Learn why no trade can be a valid choice.'
  },
  faq:{
   title:'Frequently Asked Questions | SMFGU',
@@ -107,6 +129,28 @@ for(const name of candidates){
  if(!/<\/head>/i.test(html))throw Error('Public page has no head: '+name);
  if(canonicalPattern.test(html))html=html.replace(canonicalPattern,canonicalTag);
  else html=html.replace(/<\/head>/i,canonicalTag+'</head>');
+ // Match markup to visible page facts, without claiming unverified
+ // authorship, prices, a legal organization name or historical market data.
+ if(name==='index'||name.startsWith('how-')||name==='vwap-explained'||
+    name==='bid-ask-spread-explained'||name==='stock-trading-risk-management'){
+  const publisher={'@type':'Organization',name:'Crown & Lantern Press'};
+  const schema=name==='index'?{
+   '@context':'https://schema.org','@graph':[
+    {'@type':'WebSite',name:'The Stock Market: From the Ground Up',url:origin+'/'},
+    {'@type':'Organization',name:'Crown & Lantern Press',url:origin+'/about.html'}
+   ]
+  }:{
+   '@context':'https://schema.org','@type':'Article',
+   headline:seo.title.split(' | ')[0],
+   description:seo.description,
+   mainEntityOfPage:canonical,
+   isAccessibleForFree:true,
+   educationalLevel:'Beginner',
+   publisher
+  };
+  const script='<script type="application/ld+json">'+JSON.stringify(schema).replace(/</g,'\\u003c')+'</script>';
+  if(!html.includes('application/ld+json'))html=html.replace(/<\\/head>/i,script+'</head>');
+ }
  // Load optional analytics only on verified public discovery pages.
  // The controller does not request Google code before visitor permission.
  const ga4Markup='<script defer src="/assets/js/ga4-consent-v1.js"></script>';
