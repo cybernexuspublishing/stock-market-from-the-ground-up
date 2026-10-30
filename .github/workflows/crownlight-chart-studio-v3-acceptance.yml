@@ -44,6 +44,8 @@ jobs:
           node tests/test_crownlight_chart_tiers_v1.mjs
           node tests/test_crownlight_provider_entitlement_v1.mjs
           node tests/test_crownlight_studio_menu_api_v1.mjs
+          node tests/test_member_sparks_wallet_v014296.mjs
+          node tests/test_membership_cents_chart_access_v1.mjs
       - name: Paper-only brokerage and source-boundary regression
         run: |
           node tests/test_crownlight_paper_workbench_v3.mjs
