@@ -9,7 +9,7 @@ const code='HR_GRML_20260921', pinnedUser='f42f9301-18e6-43a3-8531-32d371fd22c1'
 const email=process.env.LAB_QA_EMAIL||'',password=process.env.LAB_QA_PASSWORD||'';
 const config=readFileSync('config.js','utf8');
 const value=k=>{const m=config.match(new RegExp('\\b'+k+'\\s*:\\s*\\x27([^\\x27]+)\\x27'));assert(m,'Public config missing '+k);return m[1]};
-const base=value('SUPABASE_URL').replace(/\/$/),apiKey=value('SUPABASE_ANON_KEY');
+const base=value('SUPABASE_URL').replace(/\/$/,''),apiKey=value('SUPABASE_ANON_KEY');
 assert(apiKey.startsWith('sb_publishable_'),'QA must use the public client key only');
 const path=(action,extra='')=>origin+'/api/learning-replay-v01492?scope=historical&action='+action+extra;
 async function call(token,action,payload,extra=''){
