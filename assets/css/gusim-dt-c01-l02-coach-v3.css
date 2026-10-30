@@ -1,0 +1,40 @@
+/* V2 instructor-pattern teaching and explicit Play/Pause on the original fictional case. */
+.dt-l02-panel .dt-l02-coach{border:1px solid #456b83;background:linear-gradient(145deg,#0c2a3e,#122c42);
+ border-radius:13px;padding:18px;margin:15px 0;color:#e2eff6}
+.dt-l02-coach[hidden],.dt-l02-transport[hidden]{display:none!important}
+.dt-l02-coach-head{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.dt-l02-avatar{display:grid;place-items:center;width:52px;height:52px;flex-shrink:0;
+ border:2px solid #c5ac79;border-radius:50%;background:#243d59;color:#fff;font-weight:800;font-size:1.35rem}
+.dt-l02-coach h4{font-size:1.15rem;color:#fff;margin:0 0 4px}
+.dt-l02-coach-head p{margin:0;color:#bad5e5;font-size:.82rem}
+.dt-l02-lesson-progress{color:#d8c58e!important;font-size:.78rem!important;text-transform:uppercase;letter-spacing:.06em}
+.dt-l02-coach h5{font-size:1.03rem;color:#f5f8fb;margin:8px 0}
+.dt-l02-transcript{font-size:.98rem!important;color:#e9f5fc!important;line-height:1.75!important;
+ white-space:pre-wrap;min-height:140px;border-left:3px solid #c7a96d;
+ padding:14px 17px;background:#081f31;border-radius:4px}
+.dt-l02-accessible{position:absolute;overflow:hidden;clip-path:inset(50%);width:1px;height:1px;white-space:nowrap}
+.dt-l02-teach-actions{display:flex;flex-wrap:wrap;gap:9px;margin:15px 0}
+.dt-l02-teach-actions .btn{min-height:38px;white-space:normal}
+.dt-l02-check{padding:16px;border:1px solid #3f6078;border-radius:10px;background:#0b1e2d}
+.dt-l02-question{font-size:.95rem!important;color:#f5f8fd!important}
+.dt-l02-choices{display:grid;grid-template-columns:1fr;gap:8px}
+.dt-l02-choices button{text-align:left;white-space:normal!important;line-height:1.4;min-height:39px}
+.dt-l02-choices button[aria-pressed="true"]{border-color:#d6b76e!important;background:#294558!important}
+.dt-l02-feedback{color:#c9e5d8!important;font-size:.87rem!important;line-height:1.55;margin-top:11px}
+.dt-l02-reflect{display:block;margin:16px 0 0;color:#e2edf7;font-size:.9rem}
+.dt-l02-reflect textarea{display:block;width:100%;min-height:70px;background:#0b1b2d;color:#fff;
+ border:1px solid #47647b;border-radius:8px;padding:12px;box-sizing:border-box;margin-top:9px}
+.dt-l02-transport{display:flex;gap:10px 14px;align-items:center;flex-wrap:wrap;
+ padding:15px;border-radius:10px;background:#0a2132;border:1px solid #507187;margin:15px 0}
+.dt-l02-transport strong{font-size:1.02rem}
+.dt-l02-transport label{display:flex;align-items:center;gap:8px}
+.dt-l02-transport select{background:#102f42;border:1px solid #52748d;color:#f3f7fa;
+ padding:10px 8px;border-radius:7px;max-width:260px}
+.dt-l02-transport-status{flex-basis:100%;line-height:1.5;color:#d4e3ef;font-size:.88rem!important;margin:4px 0}
+@media(max-width:720px){
+ .dt-l02-panel .dt-l02-coach{padding:12px}
+ .dt-l02-transport{align-items:stretch}
+ .dt-l02-transport :is(.btn,select){max-width:100%}
+ .dt-l02-transcript{min-height:175px}
+}
+@media(prefers-reduced-motion:reduce){.dt-l02-coach *{animation:none!important;transition:none!important}}
