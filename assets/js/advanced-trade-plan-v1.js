@@ -519,7 +519,10 @@
      const handoff=make('a','Transfer saved version to Trading Journal','btn secondary');
      handoff.href='journal.html?source_plan='+encodeURIComponent(String(rec.id));
      handoff.title='Open your existing Journal to create and review a draft; no trade is recorded automatically.';
-     row.append(load,handoff);historyList.append(row);
+     const chartLink=make('a','View plan levels in Chart Studio','btn secondary');
+     chartLink.href='simulator.html?trade_plan='+encodeURIComponent(String(rec.id));
+     chartLink.title='Authorized reference levels appear only after a matching ticker and a revealed candle later than the saved plan.';
+     row.append(load,handoff,chartLink);historyList.append(row);
     }
     historyStatus.textContent=snapshots.length+' of the latest 100 workspace records are trade-plan versions; other research reviews are preserved.';
    }catch(e){historyStatus.textContent='Saved plan versions unavailable: '+(e.message||'Unable to load')}
