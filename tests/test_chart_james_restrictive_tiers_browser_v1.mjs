@@ -74,9 +74,12 @@ try{
  const workspace=await api('/api/chart-workspace');
  assert.equal(workspace.status,200);
  assert.equal(workspace.data?.ok,true);
- assert.equal(workspace.data?.workspace?.selected,'PROFESSIONAL',
-  'The original member workspace must remain saved under all test ceilings');
- console.log('PASS real '+EXPECTED_TIER+' Chart Studio UI locks, fictional candlesticks, preserved Professional saved workspace');
+ assert.equal(workspace.data?.tier,EXPECTED_TIER);
+ assert.equal(workspace.data?.workspace?.selected,
+  EXPECTED_TIER==='PROFESSIONAL'?'PROFESSIONAL':'STANDARD',
+  'API must project saved premium settings to the currently authorized tier');
+ console.log('PASS real '+EXPECTED_TIER+
+  ' Chart Studio UI locks and fictional candles; GET returned safely projected workspace. Raw saved Pro workspace is separately verified in Supabase.');
  console.log('RESULT '+EXPECTED_TIER+' PASS (noncommercial restrictive QA ceiling, not paid Founder billing)');
 }finally{
  try{await page.evaluate(async()=>{const db=await window.getSupabaseClient();await db.auth.signOut()})}catch{}
