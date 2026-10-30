@@ -25,6 +25,7 @@
   let topicId='building',step=0,caseId='trend',visible=12,seriesMode='none',
    chart=null,resize=null,disposed=false,epoch=0,typing=null,typingAt=0;
   let selectedRecordCount=Array.isArray(records)?records.filter(x=>x&&typeof x==='object').length:0;
+  let selectedSymbol='';
   const checkpoints=[],revisions=[],reveals=[];
   const rootEl=make('section',undefined,'cl-talia-v4');
   rootEl.setAttribute('aria-label','Talia interactive watchlist research instruction');
@@ -45,6 +46,8 @@
   caseLabel.append(scenarios);
   selectors.append(topicLabel,caseLabel);
   rootEl.append(selectors);
+  const activeSymbol=make('p','Current member-entered symbol: none selected. Fictional teaching bars are independent of any saved ticker.','cl-talia-disclosure');
+  rootEl.append(activeSymbol);
   const lesson=make('div',undefined,'cl-talia-lesson'),indicator=make('p',undefined,'cl-talia-step-label'),
     heading=make('h3'),narration=make('p',undefined,'cl-talia-narration'),
     transcript=make('p',undefined,'cl-talia-transcript');
@@ -193,7 +196,7 @@
    const value=response.value.trim();
    if(value.length<25){result.textContent='Please record at least 25 characters. You may describe missing information, WATCH, REJECT or NO TRADE; retries are free.';return}
    const event={topic:topicId,step:currentStep(),dimension:dimension(currentStep()),
-    answer:value.slice(0,1400),mistake:mistake.value,cutoff:visible,
+    answer:value.slice(0,1400),mistake:mistake.value,symbol:selectedSymbol,cutoff:visible,
     fictionalCase:caseId,at:new Date().toISOString()};
    const prior=recent()[0];
    checkpoints.push(event);
@@ -240,7 +243,7 @@
     'Advanced records seen: '+selectedRecordCount,
     ...C.DIMS.map(d=>d+': '+checkpoints.filter(x=>x.dimension===d).length+' practice checkpoint(s)'),
     ...checkpoints.map(e=>[e.at,e.topic,e.step,e.dimension,e.fictionalCase,
-     'cutoff '+e.cutoff,'misconception '+e.mistake,'reasoning '+e.answer].join(' | '))
+     'symbol '+(e.symbol||'NONE'),'cutoff '+e.cutoff,'misconception '+e.mistake,'reasoning '+e.answer].join(' | '))
    ].join('\n');
   }
   copy.addEventListener('click',async()=>{
@@ -328,11 +331,19 @@
    if(n?.classList.contains('cl-talia-indicator-caption'))n.textContent=modeText;
    else chartDiv.insertAdjacentElement('afterend',make('p',modeText,'cl-talia-indicator-caption'));
   }
-  function reset(){stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;selectedRecordCount=0;topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
+  function reset(){stopTyping();checkpoints.length=0;revisions.length=0;reveals.length=0;selectedRecordCount=0;selectedSymbol='';activeSymbol.textContent='Current member-entered symbol: none selected.';topicId='building';step=0;caseId='trend';visible=12;seriesMode='none';
    topics.value=topicId;scenarios.value=caseId;overlay.value=seriesMode;bars=C.fictional('trend');
    response.value='';renderNarration();renderReport();draw();
   }
   function setRecords(records){if(disposed)return;selectedRecordCount=Array.isArray(records)?records.length:0;renderReport()}
+  function focusRecord({symbol}={}){
+   const value=String(symbol||'').trim().toUpperCase();
+   if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(value))return false;
+   selectedSymbol=value;
+   activeSymbol.textContent='Current member-entered symbol: '+value+'. This is your research context only; fictional examples are NOT prices for '+value+'.';
+   rootEl.scrollIntoView?.({block:'start',behavior:'smooth'});
+   return true;
+  }
   function dispose(){disposed=true;++epoch;stopTyping();resize?.disconnect();chart?.dispose();chart=null;checkpoints.length=0;revisions.length=0;reveals.length=0;rootEl.remove()}
   renderNarration();renderReport();draw();
   Promise.resolve().then(async()=>{
@@ -347,7 +358,7 @@
     draw();
    }catch{chartDiv.textContent='Chart could not load. The OHLCV table and Talia’s written instruction remain available.'}
   });
-  return Object.freeze({element:rootEl,reset,setRecords,dispose,reportString});
+  return Object.freeze({element:rootEl,reset,setRecords,focusRecord,dispose,reportString});
  }
  function mount({host,source='free',records=[]}={}){
   if(!host)return null;
