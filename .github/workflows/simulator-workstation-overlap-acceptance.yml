@@ -6,6 +6,8 @@ on:
     paths:
       - 'assets/css/crownlight-simulator-density-v1.css'
       - 'assets/js/simulator.js'
+      - 'simulator.html'
+      - 'tests/test_free_simulator_starter_v1.mjs'
       - 'tests/test_simulator_workstation_overlap_v1_browser.mjs'
       - '.github/workflows/simulator-workstation-overlap-acceptance.yml'
 permissions:
