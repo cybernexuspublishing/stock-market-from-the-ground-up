@@ -25,30 +25,33 @@
    mk('p','Saved candidate folders, tags, eight-stage research workflow, annotated price references, saved scanner criteria and manual review reminders. This is not a live feed, an automated alert service, a broker order or a graded Lab.'));
   const head=mk('div',undefined,'cl-wi-layout');
   const search=input('Search ticker / research thesis',120),folderFilter=mk('select'),tagFilter=mk('select'),
-   stageFilter=mk('select'),archiveFilter=mk('input');
+   stageFilter=mk('select'),candidateFilter=mk('select'),archiveFilter=mk('input');
   archiveFilter.type='checkbox';
-  option(folderFilter,'','All folders');option(tagFilter,'','All tags');option(stageFilter,'','All stages');
+  option(folderFilter,'','All folders');option(tagFilter,'','All tags');option(stageFilter,'','All stages');option(candidateFilter,'','All candidate states');
   for(const s of C.STAGES)option(stageFilter,s,s);
+   for(const s of C.CANDIDATE_STATES)option(candidateFilter,s,s);
   const filterLine=mk('div',undefined,'cl-wi-filters');
   const selectLabel=(text,select)=>{const lab=mk('label',text);lab.append(select);return lab};
   const archivedLabel=mk('label',' Include archived candidates');archivedLabel.prepend(archiveFilter);
   filterLine.append(search.wrap,selectLabel('Folder',folderFilter),selectLabel('Tag',tagFilter),
-   selectLabel('Stage',stageFilter),archivedLabel);
+   selectLabel('Stage',stageFilter),selectLabel('Candidate status',candidateFilter),archivedLabel);
   const summary=mk('p','', 'small'),notices=mk('p','', 'small'),candidateSelect=mk('select');
   notices.setAttribute('role','status');notices.setAttribute('aria-live','polite');
   head.append(filterLine,summary,candidateSelect,notices);
   const edit=mk('div',undefined,'cl-wi-editor');
   const folder=input('Folder',40),tags=input('Tags (comma-separated; maximum eight)',320),
    reviewNote=input('Checkpoint evidence / rationale (12+ characters for stage/archive changes)',480);
-  const stage=mk('select'),archived=mk('input');archived.type='checkbox';
+  const stage=mk('select'),candidateStage=mk('select'),archived=mk('input');archived.type='checkbox';
   for(const step of C.STAGES)option(stage,step,step);
+   for(const state of C.CANDIDATE_STATES)option(candidateStage,state,state);
   const archiveLabel=mk('label',' Archive this candidate');archiveLabel.prepend(archived);
   const pointTime=input('Research review time (ISO 8601 with UTC offset)',40);
   const actionRow=mk('div',undefined,'cl-wi-actions');
   const save=mk('button','Save research folder, tags and stage','btn secondary'),checkpoint=mk('button','Add dated research checkpoint','btn secondary'),
-   exportBtn=mk('button','Export visible candidates as safe CSV','btn secondary');
-  for(const button of [save,checkpoint,exportBtn])button.type='button';
-  actionRow.append(save,checkpoint,exportBtn);
+   exportBtn=mk('button','Export visible candidates as safe CSV','btn secondary'),
+    saveCandidate=mk('button','Save candidate status with evidence','btn secondary');
+  for(const button of [save,checkpoint,exportBtn,saveCandidate])button.type='button';
+  actionRow.append(save,saveCandidate,checkpoint,exportBtn);
   const annotations=mk('div',undefined,'cl-wi-annotations');
   const graph=mk('div',undefined,'cl-wi-graph');graph.hidden=true;graph.style.cssText='width:100%;height:260px;min-height:260px';
   const annotationKind=mk('select');
@@ -108,7 +111,7 @@
    mk('p','The existing Advanced Trade-Plan Builder remains available above. Enter an existing saved plan ID to use the Journal’s authenticated, read-only transfer; no Journal record, brokerage activity, or mastery is created automatically.'),
    journalPlan.wrap,journalGo,journalEntryId.wrap,journalLink,tradePlanGo,lab,bootcamp);
   const body=mk('div',undefined,'cl-wi-body');
-  edit.append(folder.wrap,tags.wrap,selectLabel('Eight-stage candidate review',stage),archiveLabel,
+  edit.append(folder.wrap,tags.wrap,selectLabel('Eight-stage candidate review',stage),selectLabel('Candidate lifecycle status (member-reported)',candidateStage),archiveLabel,
    pointTime.wrap,reviewNote.wrap,actionRow,timeline,annotations);
   body.append(edit,monitor,scanner,guidance);
   rootBox.append(head,body);
@@ -158,11 +161,11 @@
   }
   function render(){
    const visible=C.filters(current,{
-    folder:folderFilter.value,tag:tagFilter.value,stage:stageFilter.value,
+    folder:folderFilter.value,tag:tagFilter.value,stage:stageFilter.value,candidateState:candidateFilter.value,
     includeArchived:archiveFilter.checked,query:search.field.value});
    const counts=C.stats(current),prior=candidateSelect.value;
    candidateSelect.replaceChildren();option(candidateSelect,'','Select saved candidate');
-   for(const r of visible)option(candidateSelect,String(r.id),r.title+' · '+C.safeRecord(r).stage+
+   for(const r of visible)option(candidateSelect,String(r.id),r.title+' · '+C.safeRecord(r).candidateState+' / '+C.safeRecord(r).stage+
       (C.safeRecord(r).archived?' (archived)':''));
    if(visible.some(x=>String(x.id)===prior))candidateSelect.value=prior;
    else if(visible.length)candidateSelect.value=String(visible[0].id);
@@ -180,7 +183,7 @@
    checkpointList.replaceChildren();annotationList.replaceChildren();
    if(!rec)return;
    const x=C.safeRecord(rec),p=x.payload;
-   folder.field.value=x.folder;tags.field.value=x.tags.join(', ');stage.value=x.stage;
+   folder.field.value=x.folder;tags.field.value=x.tags.join(', ');stage.value=x.stage;candidateStage.value=x.candidateState;
    archived.checked=x.archived;reviewNote.field.value='';pointTime.field.value=safeTime();
    annotationAt.field.value=safeTime();annotationPrice.field.value='';
    annotationNote.field.value='';
@@ -195,7 +198,8 @@
      ' · '+(note.timeframe||'1D')+' — '+(note.note||'No original note')));
    if(!x.annotations.length)annotationList.append(mk('li','No saved manual chart annotations.'));
    const source=String(p.sourceNote||'').trim();
-   guidanceText.textContent='Talia asks: What does the '+x.stage.toLowerCase()+
+   guidanceText.textContent='Talia asks: What evidence supports the member-reported '+x.candidateState.toLowerCase()+
+    ' candidate state? What does the '+x.stage.toLowerCase()+
     ' stage require you to verify for '+x.title+'? '+(source?'How reliable and current is the recorded source? ':'What original source is still missing? ')+
     'What invalidates the thesis, and when is NO TRADE the better documented decision? '+
     'These are teaching prompts, not AI-verified evidence or a completed Lab.';
@@ -205,7 +209,8 @@
    const rec=getSelected();if(!rec)return;
    busy=true;
    try{
-    const payload=change==='metadata'?C.setMetadata(rec,{folder:folder.field.value,tags:tags.field.value,
+    const payload=change==='candidate'?C.setCandidateState(rec,{state:candidateStage.value,at:pointTime.field.value,note:reviewNote.field.value}):
+     change==='metadata'?C.setMetadata(rec,{folder:folder.field.value,tags:tags.field.value,
      archived:archived.checked,stage:stage.value,at:pointTime.field.value,note:reviewNote.field.value}):
      change==='checkpoint'?C.checkpoint(rec,{note:reviewNote.field.value,at:pointTime.field.value,action:'RESEARCH_NOTE'}):
      C.annotation(rec,{kind:annotationKind.value,price:annotationPrice.field.value,at:annotationAt.field.value,
@@ -215,11 +220,11 @@
    }catch(e){status(notices,e.message||'Could not save the private research record.');}
    finally{busy=false}
   }
-  save.onclick=()=>commit('metadata');checkpoint.onclick=()=>commit('checkpoint');annotate.onclick=()=>commit('annotation');
+  save.onclick=()=>commit('metadata');saveCandidate.onclick=()=>commit('candidate');checkpoint.onclick=()=>commit('checkpoint');annotate.onclick=()=>commit('annotation');
   exportBtn.onclick=()=>{
    try{
     const visible=C.filters(current,{folder:folderFilter.value,tag:tagFilter.value,
-     stage:stageFilter.value,includeArchived:archiveFilter.checked,query:search.field.value});
+     stage:stageFilter.value,candidateState:candidateFilter.value,includeArchived:archiveFilter.checked,query:search.field.value});
     if(!visible.length)throw Error('No saved research candidates match the current export filters.');
     const csv=C.exportCsv(visible),blob=new Blob([csv],{type:'text/csv;charset=utf-8'}),url=URL.createObjectURL(blob);
     const a=mk('a');a.href=url;a.download='crownlight-watchlist-research.csv';a.click();
@@ -322,7 +327,7 @@
     root.location.assign('journal.html?source_plan='+encodeURIComponent(v));
    }catch(e){status(notices,e.message)}
   };
-  for(const c of [search.field,folderFilter,tagFilter,stageFilter,archiveFilter])
+  for(const c of [search.field,folderFilter,tagFilter,stageFilter,candidateFilter,archiveFilter])
    c.addEventListener(c===search.field?'input':'change',render);
   candidateSelect.addEventListener('change',renderSelected);
   // Use the existing offline-first scanner and existing authenticated private
