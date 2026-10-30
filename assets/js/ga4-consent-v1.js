@@ -55,6 +55,33 @@
     return node;
   }
 
+  // Public funnel interest only. These are NOT sign_up or purchase conversions.
+  // Never use user-supplied form fields, URL parameters, product order IDs,
+  // email addresses, account identifiers, or transaction amounts as GA inputs.
+  const allowedDestinations = Object.freeze({
+    '/create-account.html': ['smfgu_registration_start', 'account'],
+    '/books.html': ['smfgu_catalog_interest', 'books'],
+    '/store.html': ['smfgu_catalog_interest', 'store'],
+    '/membership.html': ['smfgu_catalog_interest', 'membership'],
+    '/tools.html': ['smfgu_catalog_interest', 'tools'],
+    '/learn.html': ['smfgu_learning_interest', 'learn'],
+    '/lab-samples.html': ['smfgu_learning_interest', 'samples']
+  });
+  function trackPublicNavigation(event) {
+    if (choice !== 'granted' || !tagStarted || typeof window.gtag !== 'function') return;
+    const target = event.target;
+    const anchor = target && typeof target.closest === 'function' ? target.closest('a[href]') : null;
+    if (!anchor || !anchor.href) return;
+    let destination;
+    try { destination = new URL(anchor.href, location.origin); } catch { return; }
+    if (destination.origin !== location.origin) return;
+    const normalized = destination.pathname.replace(/\\/+$/, '') || '/';
+    const match = allowedDestinations[normalized];
+    if (!match) return;
+    // The only event parameters are fixed source-controlled strings.
+    window.gtag('event', match[0], { content_type: 'public_navigation', item_id: match[1] });
+  }
+
   function init() {
     if (!document.body || document.getElementById('smfgu-analytics-choice')) return;
     const style = el('style');
@@ -119,6 +146,7 @@
     accept.addEventListener('click', () => choose('granted'));
     decline.addEventListener('click', () => choose('denied'));
     settings.addEventListener('click', () => panel.hidden ? show() : hide());
+    document.addEventListener('click', trackPublicNavigation, { capture: true });
     if (choice === 'granted') activateTag();
     else if (choice === null) show();
   }
