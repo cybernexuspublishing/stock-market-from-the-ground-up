@@ -126,6 +126,7 @@ export async function onRequestPost({request,env}){
   if(row.status!=='reserved')throw error('TEST_INTENT_ALREADY_RESOLVED');
   const params=new URLSearchParams();
   params.set('mode','payment');
+  params.set('managed_payments[enabled]','true');
   params.set('payment_method_types[0]','card');
   params.set('line_items[0][price_data][currency]','usd');
   params.set('line_items[0][price_data][product]',QA_PRODUCT);
