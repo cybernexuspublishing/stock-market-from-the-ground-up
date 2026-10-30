@@ -48,6 +48,24 @@ async function apply(env,e,ctx,invoice=null,charge=null){
  const p={p_intent:ctx.intent,p_event:e.id,p_kind:e.type,p_subscription:ctx.sub.id,
   p_customer:ref(ctx.sub.customer),p_invoice:invoice?.id||null,p_amount:invoice?.amount_paid??null,
   p_start:null,p_end:null};
+ if(e.type==='invoice.payment_failed'){
+  // A failed invoice may arrive after a later successful retry/renewal. Use
+  // the provider-fetched period (not event metadata or latest subscription
+  // state) and let the atomic ledger reject stale downgrades.
+  if(invoice?.status==='paid')
+   return {status:200,body:'F600_TEST_FAILED_INVOICE_ALREADY_PAID'};
+  if(!['open','uncollectible'].includes(invoice?.status)||
+     invoice.currency!=='usd'||invoice.subtotal!==ctx.plan.amount||
+     invoice.lines?.has_more||invoice.lines?.data?.length!==1)
+   throw Error('SANDBOX_FOUNDER_FAILED_INVOICE_INVALID');
+  const line=invoice.lines.data[0];
+  const price=ref(line?.price)||line?.pricing?.price_details?.price;
+  if(price!==ctx.plan.id||line.amount!==ctx.plan.amount||
+     !date(line.period?.start)||!date(line.period?.end)||
+     line.period.end-line.period.start!==ctx.plan.days*86400)
+   throw Error('SANDBOX_FOUNDER_FAILED_PERIOD_INVALID');
+  p.p_start=date(line.period.start);p.p_end=date(line.period.end);
+ }
  if(e.type==='invoice.paid'){
   if(invoice?.status!=='paid'||invoice.currency!=='usd'||invoice.amount_paid!==ctx.plan.amount
    ||invoice.subtotal!==ctx.plan.amount||invoice.lines?.has_more||invoice.lines?.data?.length!==1)
