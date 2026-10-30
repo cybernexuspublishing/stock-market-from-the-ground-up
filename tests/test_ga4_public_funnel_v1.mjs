@@ -46,7 +46,7 @@ function click(env,url){
   env.listeners.click({target});
 }
 function namedEvents(env){
-  return (env.window.dataLayer||[]).filter(x=>Array.from(x)[0]==='event').map(x=>[...Array.from(x)]);
+  return Array.from(env.window.dataLayer||[], x=>Array.from(x)).filter(x=>x[0]==='event');
 }
 
 const denied=scenario('denied');
