@@ -6,6 +6,7 @@ const page=readFileSync('owner-free5-isolation-qa.html','utf8');
 const code=readFileSync('assets/js/owner-free5-isolation-qa.js','utf8');
 new Script(code,{filename:'owner-free5-isolation-qa.js'});
 assert(/name="robots" content="noindex,nofollow"/.test(page),'Owner QA must not be indexed');
+assert(readFileSync('assets/js/route-policy.js','utf8').includes("'owner-free5-isolation-qa'"),'Owner privacy QA must be staff-protected by middleware');
 assert(/data-auth-required="true"/.test(page),'Owner page must mark itself protected');
 assert(/data-route-access="staff"/.test(page),'Owner page needs staff access boundary');
 assert(page.includes('owner-free5-isolation-qa.js'),'QA source must load');
