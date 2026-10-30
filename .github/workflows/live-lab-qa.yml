@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/live-lab-qa.yml'
       - 'tests/live-lab-qa.mjs'
+      - 'tests/test_james_free_member_commerce_20261030.mjs'
       - 'tests/live-member-browser-qa.mjs'
       - 'assets/js/dashboard-ui-legacy.js'
       - 'functions/_middleware.js'
@@ -30,6 +31,11 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
           npx playwright install --with-deps chromium
+      - name: Verify James_Test Free entitlement, chart tier, watchlist, Store and Free Foundations without payment
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_james_free_member_commerce_20261030.mjs
       - name: Verify real production member sign-in, receipt UI, full reload and sign-out
         env:
           LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
