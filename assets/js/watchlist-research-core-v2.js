@@ -61,12 +61,13 @@
     JSON.stringify(labels(tags??r.tags))!==JSON.stringify(r.tags);
   if(!changed)return r.payload;
   const updated={...r.payload,folder:f,tags:labels(tags??r.tags),archived:archive,workflowStage:nextStage};
-  if(progress||archive!==previousArchived){
-   return checkpoint({...rec,payload:updated},{
-    action:archive!==previousArchived?(archive?'ARCHIVE':'RESTORE'):'STAGE_CHANGE',
-    note:text(note,480)||'Researcher manually changed the candidate review state.',at});
-  }
-  return updated;
+  // Every saved organization, stage or archive change gets a dated history
+  // event. A passive folder/tag change is not claimed as research validation.
+  return checkpoint({...rec,payload:updated},{
+   action:archive!==previousArchived?(archive?'ARCHIVE':'RESTORE'):
+     progress?'STAGE_CHANGE':'ORGANIZATION_CHANGE',
+   note:text(note,480)||'Member updated candidate research organization or workflow metadata.',
+   at});
  }
  function annotation(rec,{kind='OTHER',at,price,note,timeframe='1D'}={}){
   const r=safeRecord(rec),value=Number(price),comment=text(note,360);
