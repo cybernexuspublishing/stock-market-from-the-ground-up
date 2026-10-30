@@ -32,7 +32,7 @@ assert(picker.includes("rights.bookCodes.includes(bookCodes[row.book])"),'Preser
 assert(picker.includes("book:Number(extra.book||({F1:1,F2:2,F3:3,DT:4,TAPE:5,SITE:6}"),'Map every book family');
 assert(picker.includes("return 'locked'"),'Unverified member access fails closed');
 assert(picker.includes("return 'upcoming'"),'Unreleased content is not labeled open');
-assert(picker.includes("View access options"),'Locked routes must offer product information');
+assert(picker.includes('View Lab access options'),'Locked routes must offer product information');
 assert(picker.includes("'store-tool-interactive-learning.html'"),'No invented Lab pack URL');
 assert(picker.includes("'store-membership-ondemand-monthly.html'"),'Existing Academy product route');
 assert(!picker.includes('/api/checkout'),'Discovery must not start a payment');

@@ -79,7 +79,7 @@
   const matches=records.filter(row=>tokens.every(term=>normalize(
    [row.id,row.title,row.skill,row.ticker,row.theme,row.summary,row.days].filter(Boolean).join(' ')
   ).includes(term)));
-  status.textContent='Showing '+matches.length+' of '+records.length+' Labs'+
+  status.textContent='Showing '+matches.length+' of '+records.length+(records.length===419?' Labs':' publicly detailed Labs (full catalog unavailable)')+
    (rights?' · Access verified for your account':' · Locked until access can be verified')+
    (release?'':' · Publication verification unavailable; individual access remains restricted')+
    '. Search by Lab ID, title, skill or ticker.';
@@ -130,7 +130,7 @@
    Object.keys(canonical.byLab).length===419;
   // A temporary failure of one public catalog endpoint must not erase the
   // other authoritative public 419-Lab dataset.
-  const goodDetails=details.length===419&&details.every(x=>typeof x.id==='string');
+  const goodDetails=details.length>0&&details.every(x=>typeof x.id==='string');
   if(!goodCanonical&&!goodDetails){
    loaded=false;records=[];
    errorMsg('The Lab catalog could not be loaded. Select Retry to reconnect, or open the Lab Registry.');
