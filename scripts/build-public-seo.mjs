@@ -197,6 +197,23 @@ const sitemap='<?xml version="1.0" encoding="UTF-8"?>\n'+
  [...indexable].map(path=>'  <url><loc>'+xmlEntities(origin+path)+'</loc></url>').join('\n')+
  '\n</urlset>\n';
 writeFileSync(join(output,'sitemap.xml'),sitemap);
+// Free Learning RSS Feed V2: editorially selected public guides only.
+// These items describe existing educational pages; no invented publishing dates.
+const feedSlugs=['free-foundations-challenge','candle-practice',
+ 'market-vs-limit-orders','support-resistance-basics',
+ 'how-stock-market-works','how-to-read-candlestick-charts'];
+const feedItems=feedSlugs.filter(slug=>indexable.has('/'+slug+'.html')).map(slug=>{
+ const item=metadata[slug],link=origin+'/'+slug+'.html';
+ return '  <item><title>'+xmlEntities(item.title)+'</title><link>'+xmlEntities(link)+
+  '</link><guid isPermaLink="true">'+xmlEntities(link)+'</guid><description>'+
+  xmlEntities(item.description)+'</description></item>';
+});
+const freeFeed='<?xml version="1.0" encoding="UTF-8"?>\\n'+
+ '<rss version="2.0"><channel><title>SMFGU — Free Stock Market Learning</title>'+ 
+ '<link>'+xmlEntities(origin+'/free-foundations-challenge.html')+'</link>'+ 
+ '<description>Original free beginner lessons and fictional chart practice. Education only.</description>'+ 
+ '<language>en-US</language>\\n'+feedItems.join('\\n')+'\\n</channel></rss>\\n';
+writeFileSync(join(output,'feed.xml'),freeFeed);
 writeFileSync(join(output,'robots.txt'),[
  'User-agent: *','Disallow: /api/','Disallow: /admin','Disallow: /dashboard',
  'Disallow: /account','Disallow: /my-purchases','Disallow: /my-library',
