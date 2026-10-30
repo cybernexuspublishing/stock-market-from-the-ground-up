@@ -61,12 +61,37 @@ try{
  assert.equal(tier.status,200);assert.equal(tier.body?.tier,'PROFESSIONAL');
  assert.deepEqual(tier.body?.allowed,['STANDARD','ADVANCED','PROFESSIONAL']);
  results.realTier=true;mark('PASS','Signed-in production browser / verified Professional tier (Admin override)');
+ await page.waitForFunction(()=>{
+  const charts=window.CrownlightChartTiers?.getInstances?.()||[];
+  return charts.some(x=>x?.chart&&x.chart.getDataList()?.length>=2&&
+   Number(x.chart.getSize('candle_pane')?.height||0)>=200);
+ },null,{timeout:22000});
+ const visual=await page.evaluate(()=>{
+  const instances=window.CrownlightChartTiers?.getInstances?.()||[];
+  const first=instances.find(x=>x?.chart?.getDataList()?.length>=2);
+  return {charts:instances.length,bars:first?.chart?.getDataList()?.length||0,
+   pricePaneHeight:first?.chart?.getSize('candle_pane')?.height||0,
+   canvasLayers:[...document.querySelectorAll('canvas')].filter(e=>e.width>=100).length,
+   standardShellVisible:[...document.querySelectorAll('.crownlight-shell')].some(x=>x.getClientRects().length>0)};
+ });
+ assert(visual.bars>=2&&visual.pricePaneHeight>=200&&visual.canvasLayers>0,
+  'Authenticated Professional workspace must visibly render candlesticks: '+JSON.stringify(visual));
+ assert.equal(visual.standardShellVisible,false,'Professional KLine must not duplicate Standard chart player');
+ mark('PASS','Real authenticated Professional candlestick pane and nonduplicate chart canvas',
+  visual.bars+' bars / '+visual.pricePaneHeight+'px price pane');
  const workspace=await data('/api/chart-workspace',primary.token);
  assert.equal(workspace.status,200);
  assert.equal(workspace.body?.ok,true);
  assert.equal(workspace.body?.workspace?.selected,'PROFESSIONAL',
   'Expected existing Professional workspace to remain unmodified');
  results.readOnlyWorkspace=true;mark('PASS','Read existing private Professional workspace without modification');
+ await page.reload({waitUntil:'domcontentloaded',timeout:35000});
+ await page.waitForFunction(()=>window.CrownlightChartTiers?.getStatus?.().verified===true,null,{timeout:25000});
+ const reload=await data('/api/chart-workspace',primary.token);
+ assert.equal(reload.status,200);
+ assert.deepEqual(reload.body?.workspace,workspace.body.workspace,
+  'Authenticated member workspace must persist across browser reload');
+ mark('PASS','Workspace settings persist across genuine browser reload without writes');
  const forged=await data('/api/chart-workspace?user_id=00000000-0000-4000-8000-000000000000',primary.token);
  assert.equal(forged.status,200);assert.equal(forged.body?.ok,true);
  assert.deepEqual(forged.body.workspace,workspace.body.workspace);
