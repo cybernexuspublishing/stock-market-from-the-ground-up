@@ -88,7 +88,10 @@
     }catch(e){say('free-watchlist-save-status',e.message)}
     finally{setBusy(false)}
    });
-   actions.append(edit,remove);card.append(actions);root.append(card);
+   const continueLink=item('a','Continue in Advanced Watchlist','btn secondary');
+   continueLink.href='advanced-tool.html?tool=WATCHLIST_WORKBENCH&free_symbol='+encodeURIComponent(row.symbol);
+   continueLink.setAttribute('aria-label','Continue '+row.symbol+' in Advanced Watchlist');
+   actions.append(edit,continueLink,remove);card.append(actions);root.append(card);
   }
  }
  function resetForm(){

@@ -242,6 +242,7 @@
   const recs=await latestRecords('watchlist'),host=document.getElementById('tool-workbench');
   host.innerHTML=panel('Watchlist & Conditional Trade Plans',
    '<p>Member-researched candidates only—not auto-executed orders, verified quotes or buy signals.</p>'+
+   '<div id="w-free-bridge" class="v11-lock-note" role="status" aria-live="polite"></div>'+
    '<div class="v11-form-grid">'+
    '<div><label for="w-ticker">Ticker</label><input id="w-ticker" maxlength="12"></div>'+
    '<div><label for="w-status">Status</label><select id="w-status"><option>DISCOVERY</option><option>WATCH</option><option>READY</option><option>INVALID</option><option>NO TRADE</option></select></div>'+
@@ -318,6 +319,73 @@
    });
    line.append(' ',edit,' ',plan,' ',del);list.append(line);
   }
+  // An authenticated, read-only Free -> premium continuation. Never creates or
+  // modifies a paid workspace record until the member explicitly saves.
+  void (async()=>{
+   const symbol=(new URLSearchParams(location.search).get('free_symbol')||'').toUpperCase();
+   const target=document.getElementById('w-free-bridge');
+   if(!target)return;
+   if(!symbol){target.textContent='Your Free research notes remain available in the Free Watchlist. Open a saved Free entry to continue it here.';return}
+   if(!/^[A-Z][A-Z0-9.-]{0,11}$/.test(symbol)){
+    target.textContent='Invalid Free Watchlist continuation symbol.';return;
+   }
+   if(ACCESS?.level!=='entitled'){
+    target.textContent='Premium Watchlist entitlement required. Your Free notes are unchanged.';return;
+   }
+   target.textContent='Checking your private Free research record for '+symbol+'…';
+   try{
+    const session=(await SB.auth.getSession()).data?.session;
+    if(!session?.access_token||session.user?.id!==researchUserId||USER?.id!==researchUserId)
+     throw Error('Your account changed. Reload your private workspace.');
+    const response=await fetch('/api/free-watchlist',{headers:{authorization:'Bearer '+session.access_token},
+     cache:'no-store',credentials:'same-origin'});
+    const body=await response.json().catch(()=>null);
+    const again=(await SB.auth.getSession()).data?.session;
+    if(USER?.id!==researchUserId||again?.user?.id!==researchUserId)return;
+    if(!response.ok||body?.ok!==true||!Array.isArray(body.entries))
+     throw Error(body?.error||'Your Free research could not be loaded.');
+    const free=body.entries.find(r=>r.symbol===symbol);
+    if(!free){target.textContent='No private Free Watchlist note for '+symbol+' belongs to this account.';return}
+    target.replaceChildren();
+    const heading=document.createElement('strong');heading.textContent='Continue '+symbol+' from your Free Watchlist';
+    const detail=document.createElement('p');
+    detail.textContent='Free decision: '+free.status.replaceAll('_',' ')+
+     '. Source category: '+free.sourceKind.replaceAll('_',' ')+
+     '. Source note: '+(free.sourceNote||'not provided')+
+     '. This record is member-entered, not independently verified. Its last-edit time is NOT an original market observation timestamp.';
+    const existing=recs.find(r=>String(r.title||'').toUpperCase()===symbol);
+    const info=document.createElement('p');
+    info.textContent=existing?'A premium candidate already exists. Continue that same saved candidate; no duplicate will be created.':
+     'No premium candidate exists yet. Copy the note, complete source verification and save only when ready.';
+    const copy=document.createElement('button');copy.type='button';copy.className='btn secondary';
+    copy.textContent=existing?'Copy Free note into existing candidate editor':'Prefill an unsaved premium research candidate';
+    const notice=document.createElement('p');notice.setAttribute('role','status');
+    copy.addEventListener('click',()=>{
+     if(USER?.id!==researchUserId){notice.textContent='Account changed; reload this page.';return}
+     if(existing){
+      const editButton=[...list.querySelectorAll('button')].find(b=>
+       b.getAttribute('aria-label')==='Edit saved candidate '+String(existing.title||''));
+      if(!editButton){notice.textContent='Saved candidate editor unavailable; refresh the workspace.';return}
+      editButton.click();
+     }else{
+      editing=null;saveButton.textContent='Save Research Candidate';
+      document.getElementById('w-ticker').value=symbol;
+      document.getElementById('w-status').value=free.status==='NO_TRADE'?'NO TRADE':'WATCH';
+     }
+     const why=document.getElementById('w-why');
+     const label='Free Watchlist note ('+String(free.updatedAt||'date unknown')+
+      '; '+free.sourceKind+'; member-entered / unverified): '+free.researchNote;
+     if(!why.value.includes(label)){
+      const combined=[why.value.trim(),label].filter(Boolean).join('\n\n');
+      if(combined.length>2000){notice.textContent='Existing note is too long to append safely. Review the Free note manually.';return}
+      why.value=combined;
+     }
+     notice.textContent='Free research copied to the editor, NOT saved. Independently document the original source, observation time, invalidation and your research decision before saving.';
+     document.getElementById('w-ticker').scrollIntoView({block:'center'});
+    });
+    target.append(heading,detail,info,copy,notice);
+   }catch(e){if(USER?.id===researchUserId)target.textContent=e.message||'Free research continuation unavailable.'}
+  })();
   document.getElementById('w-save').onclick=async()=>{
    try{
     const value=id=>document.getElementById(id).value.trim();
@@ -332,7 +400,14 @@
      .map(k=>[k,document.getElementById('w-gate-'+k)?.checked===true]));
     if(value('w-status')==='READY'&&Object.values(researchGates).some(done=>!done))
      throw Error('A READY research state requires all four self-reported review gates. Select WATCH or NO TRADE if anything remains uncertain.');
-    const payload={status:value('w-status'),researchGates,catalyst:value('w-cat'),level:value('w-level'),
+    // Retain V2/V3 metadata, checkpoints, monitoring rules and chart annotations.
+    // The original timestamp lease below still rejects concurrent updates.
+    const saved=editing?recs.find(r=>Number(r.id)===Number(editing.id)):null;
+    if(editing&&(!saved||ticker!==String(saved.title||'').toUpperCase()))
+     throw Error('To preserve the research history, edit the existing ticker without renaming it.');
+    if(!editing&&recs.some(r=>String(r.title||'').toUpperCase()===ticker))
+     throw Error('This ticker already has a saved premium candidate. Edit that record instead of creating a duplicate.');
+    const payload={...(saved?.payload||{}),status:value('w-status'),researchGates,catalyst:value('w-cat'),level:value('w-level'),
      entry:value('w-entry'),invalidation:value('w-inv'),stop:value('w-stop'),
      target:value('w-target'),why:value('w-why'),asOf,sourceNote,
      evidenceStatus:'USER_REPORTED_NOT_INDEPENDENTLY_VERIFIED'};

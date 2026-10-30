@@ -1,0 +1,26 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {createRequire} from 'node:module';
+const require=createRequire(import.meta.url),read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+const chart=require('../assets/js/free-watchlist-fictional-echarts-v1.js');
+const data=chart.bars(),ema9=chart.ema(data,9),ema20=chart.ema(data,20),vwap=chart.vwap(data);
+assert.equal(data.length,42);
+assert.equal(chart.fictional,true);assert.equal(chart.providerData,false);
+assert(data.every(b=>b.high>=Math.max(b.open,b.close)&&b.low<=Math.min(b.open,b.close)&&b.volume>0));
+assert.equal(ema9.filter(x=>x!==null).length,34);assert.equal(ema20.filter(x=>x!==null).length,23);
+assert.equal(ema9[8],+(data.slice(0,9).reduce((s,b)=>s+b.close,0)/9).toFixed(4));
+assert(vwap.every((n,i)=>n>=Math.min(...data.slice(0,i+1).map(b=>b.low))&&n<=Math.max(...data.slice(0,i+1).map(b=>b.high))));
+const html=read('free-watchlist.html'),free=read('assets/js/free-watchlist-v1.js'),
+ premium=read('assets/js/advanced-tools.js');
+assert(html.includes('free-fictional-chart-open'));
+assert(html.includes('free-watchlist-fictional-echarts-v1.js'));
+assert(free.includes('advanced-tool.html?tool=WATCHLIST_WORKBENCH&free_symbol='));
+assert(premium.includes("'/api/free-watchlist'"),'Authenticated private Free note loading');
+assert(premium.includes("ACCESS?.level!=='entitled'"),'No preview bypass');
+assert(premium.includes("session.user?.id!==researchUserId"),'Bridge must bind current account');
+assert(premium.includes("recs.some(r=>String(r.title||'').toUpperCase()===ticker)"),'Prevent obvious premium duplicates');
+assert(premium.includes("const payload={...(saved?.payload||{}),status:"),'Old research metadata must survive basic edit');
+assert(premium.includes("expectedUpdatedAt:editing.revision"),'Database optimistic concurrency required');
+assert(premium.includes("if(!editing&&recs.some("));
+assert(!premium.includes('Free research auto-saved'));
+console.log('PASS Watchlist continuity: authenticated read-only Free continuation, premium duplicate guard, retained V2/V3 payload, fictional ECharts study.');
