@@ -5,22 +5,26 @@
  */
 (function(root){
 'use strict';
+// Preserve all nine existing server-saved stage IDs. The ten-stage presentation
+// introduces Calculate as a genuine ungraded microstage within internal stage 2.
 const STEPS=Object.freeze(['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results']);
-function paintPrototypeProgress(index,percent=null){
+const DISPLAY_STEPS=Object.freeze(['Start','Learn','Calculate','Experiment','Predict','Replay / Practice','Assess','Review & Retry','Transfer Challenge','Results']);
+const visibleIndex=(stage,done=false)=>stage<2?stage:stage===2?(done?3:2):stage+1;
+function paintPrototypeProgress(index,percent=null,done=false){
  const lookup=id=>typeof document.getElementById==='function'?document.getElementById(id):null;
- const value=percent??Math.round(index/8*100);
+ const shown=visibleIndex(index,done),pct=percent??Math.round(shown/9*100);
  const grid=lookup('player-stage-grid');
- if(grid){grid.replaceChildren();for(let i=0;i<STEPS.length;i++){
-  const item=el('div');item.className='stage-item '+(i<index?'complete':i===index?'current':'');
+ if(grid){grid.replaceChildren();for(let i=0;i<DISPLAY_STEPS.length;i++){
+  const item=el('div');item.className='stage-item '+(i<shown?'complete':i===shown?'current':'');
   item.dataset.playerStage=String(i);
   const bullet=el('span');bullet.className='bullet';bullet.setAttribute('aria-hidden','true');
-  item.append(bullet,document.createTextNode?.(STEPS[i])||el('span',STEPS[i]));grid.append(item);
+  item.append(bullet,document.createTextNode?.(DISPLAY_STEPS[i])||el('span',DISPLAY_STEPS[i]));grid.append(item);
  }}
- const current=lookup('player-current-stage');if(current)current.textContent=STEPS[index];
- const count=lookup('player-stage-count');if(count)count.textContent='Stage '+(index+1)+' of 9';
- const number=lookup('player-progress-value');if(number)number.textContent=value+'%';
- const fill=lookup('player-progress-fill');if(fill)fill.style.width=value+'%';
- const bar=lookup('player-stage-progress');if(bar){bar.setAttribute('aria-valuenow',String(value));bar.setAttribute('aria-valuetext',STEPS[index]+' · stage '+(index+1)+' of 9');}
+ const current=lookup('player-current-stage');if(current)current.textContent=DISPLAY_STEPS[shown];
+ const count=lookup('player-stage-count');if(count)count.textContent='Stage '+(shown+1)+' of 10';
+ const number=lookup('player-progress-value');if(number)number.textContent=pct+'%';
+ const fill=lookup('player-progress-fill');if(fill)fill.style.width=pct+'%';
+ const bar=lookup('player-stage-progress');if(bar){bar.setAttribute('aria-valuenow',String(pct));bar.setAttribute('aria-valuetext',DISPLAY_STEPS[shown]+' · stage '+(shown+1)+' of 10');}
 }
 
 const sessions=new WeakMap();
@@ -145,13 +149,13 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   const shell=el('section');shell.className='card gu-v32 gu-v33';shell.dataset.v32Progress='0';
   shell.setAttribute('aria-label','Learning journey with concealed instruction');
   shell.append(el('h2',mode==='blind'?'Blind Decision — Evidence First':'Assessment — Independent Decision'));
-  shell.append(el('p','The nine-stage framework remains available. Teaching cues are withheld here until the applicable decision is locked or reviewed grading is complete.'));
+  shell.append(el('p','The ten-stage Learning Journey remains visible. Teaching cues are withheld until the applicable decision is locked or reviewed grading is complete.'));
   const progress=el('p','Independent decision · No stage awarded'),meter=el('div'),fill=el('span'),journey=el('ol');
   progress.className='gu-v32-progress';meter.className='gu-v33-progress';meter.setAttribute('role','progressbar');
   meter.setAttribute('aria-label','Completed instructional stages');meter.setAttribute('aria-valuemin','0');
   meter.setAttribute('aria-valuemax','100');meter.setAttribute('aria-valuenow','0');fill.style.width='0%';meter.append(fill);
   journey.className='gu-v33-journey';
-  for(const [index,name] of STEPS.entries()){
+  for(const [index,name] of DISPLAY_STEPS.entries()){
    const li=el('li');li.className=name===(mode==='blind'?'Predict':'Assess')?'current':'future';
    const mark=el('span',li.className==='current'?'●':'○');mark.setAttribute('aria-hidden','true');
    li.append(mark,el('span',name));journey.append(li);
@@ -235,7 +239,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null,creditBusy=false;
- let guidedAuto=false,autoPoll=null;
+ let guidedAuto=false,autoPoll=null,calculateDone=false;
  const stopAuto=()=>{if(autoPoll!==null){root.clearInterval?.(autoPoll);autoPoll=null}};
  function toggleAutoplay(){
   guidedAuto=!guidedAuto;stopAuto();
@@ -433,15 +437,21 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  }
  function mark(message){status.textContent=message}
  function showJourney(){
+  const shown=visibleIndex(stage,calculateDone),pct=Math.round(shown/9*100);
   journey.replaceChildren();
-  for(let i=0;i<STEPS.length;i++){
-   const li=el('li'),markEl=el('span',i<stage?'✓':i===stage?'●':'○'),label=el('span',STEPS[i]);
-   li.className=i===stage?'current':i<stage?'complete':'future';
-   markEl.setAttribute('aria-hidden','true');li.append(markEl,label);
-   if(i===stage)li.setAttribute('aria-current','step');
+  for(let i=0;i<DISPLAY_STEPS.length;i++){
+   const li=el('li'),markEl=el('span',i<shown?'✓':String(i+1)),label=el('span',DISPLAY_STEPS[i]);
+   li.className=i===shown?'current':i<shown?'complete':'future';
+   markEl.className='gu-v44-stage-num';markEl.setAttribute('aria-hidden','true');
+   li.append(markEl,label);
+   if(i===shown)li.setAttribute('aria-current','step');
    journey.append(li);
   }
-  progress.textContent='Stage '+(stage+1)+' of 9 · '+STEPS[stage];meterFill.style.width=String(Math.round(stage/8*100))+'%';meter.setAttribute('aria-valuenow',String(Math.round(stage/8*100)));paintPrototypeProgress(stage);
+  progress.textContent='Stage '+(shown+1)+' of 10 · '+DISPLAY_STEPS[shown];
+  meterFill.style.width=pct+'%';meter.setAttribute('aria-valuenow',String(pct));
+  meter.setAttribute('aria-valuetext',DISPLAY_STEPS[shown]+' · stage '+(shown+1)+' of 10');
+  paintPrototypeProgress(stage,null,calculateDone);
+  // Back-end references and analytics deliberately retain the existing IDs.
   shell.dataset.v32Progress=String(stage/9);
   if(typeof CustomEvent==='function'&&typeof document.dispatchEvent==='function')
    document.dispatchEvent(new CustomEvent('gu-v33-stage-change',{detail:{step:stage,progress:stage/9}}));
@@ -576,6 +586,83 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    if(instructorInstance?.setWalletContent)instructorInstance.setWalletContent(wallet);
    else{const walletDisclosure=el('details');walletDisclosure.className='gu-v33-wallet-disclosure';walletDisclosure.append(el('summary','Crownlight Lumens Wallet'),wallet);body.append(walletDisclosure);}
  }
+
+ function renderCalculateGate(){
+  heading.textContent=(visualType==='vwap'?'Calculate VWAP':visualType==='candle'?'Calculate Candlestick Measurements':'Analyze the Evidence')+' — '+topic;
+  heading.hidden=false;disclosure.hidden=false;
+  const wrap=el('section');wrap.className='gu-v33-stage-hero gu-v34-unified-lesson gu-v44-calculate-gate';
+  const visual=el('section');visual.className='gu-v44-calc-visual';
+  visual.append(el('h3',visualType==='vwap'?'Interactive VWAP calculation':visualType==='candle'?'Candlestick price and body measurements':'Evidence and instructional reference'));
+  const visualHost=el('div');visualHost.className='gu-v44-calc-chart';visual.append(visualHost);
+  if(['vwap','candle'].includes(visualType)&&root.CrownlightLearningEChartsV1?.mount){
+   const mounted=root.CrownlightLearningEChartsV1.mount(visualHost,{kind:visualType,interactive:true});
+   if(mounted)echartsControllers.push(mounted);
+  }else{
+   // For qualitative topics, never invent prices, a numerical answer key or
+   // claim an unrelated fictional candle represents this Lab's evidence.
+   visualHost.append(el('p',authorizedTeaching.what||subject?.definition||guide.concept||
+    'Examine the named evidence and determine which measurements or observations are justified.'));
+   if(ownHow.length){const points=el('ol');for(const line of ownHow.slice(0,5))points.append(el('li',line));visualHost.append(points);}
+  }
+  const coach=el('section');coach.className='gu-v44-calc-coach';
+  coach.setAttribute('aria-label','Talia — calculate or analyze this concept');
+  const label=el('div','Talia Mercer · Learning Instructor');label.className='gu-v44-talia-label';
+  coach.append(label,el('h3','Understand the method before the experiment'));
+  const context=visualType==='vwap'?[
+   'VWAP is Volume-Weighted Average Price. Price is dollars per share; volume is the number of shares traded. A price receives more weight when more shares trade there.',
+   'Multiply each price by its share count. For 200 shares at $8, traded value is $1,600; for 100 shares at $10, traded value is $1,000.',
+   'Add the dollar values: $1,600 + $1,000 = $2,600. Add the share counts: 200 + 100 = 300 shares. Divide $2,600 by 300 shares to obtain $8.67 per share (rounded). The symbol Σ simply means add.',
+   'That average is closer to $8 because twice as many shares traded there. The result is not a guaranteed trading entry or prediction.'
+  ]:visualType==='candle'?[
+   'Every candle has an open, high, low and close for a defined interval. Real body is the absolute difference between close and open; full range is high minus low.',
+   'For a fictional candle opening at $31.00 and closing at $32.00, the body is |32 − 31| = $1.00. With high $32.50 and low $30.50, the complete range is $2.00.',
+   'Body percentage compares the $1.00 part with the $2.00 whole: 1 ÷ 2 × 100 = 50%. It describes proportional candle size, not future price direction.'
+  ]:[
+   'Your task is to identify the evidence needed for '+topic+'. Start by defining the terms, source, measurement units and time interval before deciding what the evidence shows.',
+   String(authorizedTeaching.why||guide.procedure||'Identify each supporting observation and distinguish facts from assumptions.'),
+   'This concept does not have a universal arithmetic formula. Review the source-specific process rather than inventing numerical answers.'
+  ];
+  for(const paragraph of context)coach.append(el('p',paragraph));
+  const prompt=visualType==='vwap'?'What does Σ mean in the VWAP equation?':
+   'Which measurement represents the complete candlestick range?';
+  const options=visualType==='vwap'?
+   ['Add all the relevant amounts','Multiply the final price by 100','Ignore trading volume']:
+   ['High minus Low','Close minus Open','High minus Open'];
+  const feedback=el('p','');feedback.className='gu-v44-calc-feedback';feedback.setAttribute('role','status');
+  let passed=false;
+  if(['vwap','candle'].includes(visualType)){
+   const quiz=el('fieldset');quiz.className='gu-v44-calc-check';
+   quiz.append(el('legend',prompt));
+   options.forEach((answer,i)=>{
+    const row=el('label');row.className='gu-v44-calc-option';
+    const input=el('input');input.type='radio';input.name='gu-v44-method-'+labId;input.value=String(i);
+    row.append(input,el('span',answer));quiz.append(row);
+   });
+   const check=button('Check my answer — free retry',()=>{
+    const chosen=quiz.querySelector('input:checked');
+    if(!chosen){feedback.textContent='Select one answer before continuing.';return}
+    if(chosen.value!=='0'){
+     feedback.textContent=visualType==='vwap'?'Sigma (Σ) means summation: add the relevant amounts. VWAP weights each price by its shares. Try again.':
+      'The full range includes the highest and lowest prices: subtract Low from High. The body instead uses Close and Open. Try again.';
+     return;
+    }
+    passed=true;feedback.textContent='Correct. You have completed the ungraded method check. Continue to Experiment when ready.';
+    proceed.disabled=false;
+   });
+   check.className='btn secondary';coach.append(quiz,check,feedback);
+  }else{passed=true;coach.append(el('p','Review the method and continue. This qualitative teaching step is not graded.'));}
+  const proceed=button('Continue to Experiment →',()=>{
+   if(!passed)return;
+   calculateDone=true;render();
+  });
+  proceed.className='btn gu-v44-calc-next';proceed.disabled=!passed;coach.append(proceed);
+  wrap.append(visual,coach);body.append(wrap);
+  previous.disabled=false;next.disabled=true;
+  autoStatus.textContent='Calculate / Analyze pauses here until the member completes the method check. This is ungraded learning.';
+  mark('Free explanations and retries remain available. No Lumens or mastery credit are spent.');
+  scheduleCheckpoint();
+ }
+
  function render(){
   // Start places its help tabs next to the primary action outside the
   // replaceable body. Remove those old nodes when the stage changes,
@@ -585,6 +672,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   instructorInstance?.dispose?.();instructorInstance=null;
   for(const chart of echartsControllers.splice(0))chart?.dispose?.();
   body.replaceChildren();updatePrerequisitePanel=null;mark('');showJourney();
+  if(stage===2&&!calculateDone){renderCalculateGate();return}
   const names={0:'',1:'Learn — '+(kind==='candle'?'OHLC candlestick anatomy':kind==='vwap'?'Volume-Weighted Average Price':topic),
   2:'Experiment — '+(kind==='candle'?'Construct your own candlestick':kind==='vwap'?'Change volume yourself':'Investigate the evidence'),
   3:'Predict — Apply the relationship',4:'Practice — Learn, calculate, retry',5:'Assess — Demonstrate understanding independently',
@@ -1160,6 +1248,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   scheduleCheckpoint();
  }
  function nextStage(fromInstructor=false){
+  if(stage===2&&!calculateDone){mark('Complete Calculate / Analyze before advancing to Experiment.');return}
   if(guidedAuto&&!fromInstructor&&
    (stage===0||stage===1||
     (stage===2&&(learnerReplies.get(2)||[]).length<instructorQuestions(2).length))){
