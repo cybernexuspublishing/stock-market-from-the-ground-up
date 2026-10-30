@@ -19,6 +19,7 @@
 | Advanced Trade-Plan Builder | Existing V1.1 lifecycle, scale-outs, trailing study, stored plans | IMPLEMENTED | Authenticated execution and mobile acceptance |
 | Journal transfer | Existing Supabase RPC and Cloudflare `watchlist-journal-transfer-v3` | IMPLEMENTED | End-to-end idempotent multi-account Journal verification |
 | Research-to-trade analytics | Journal quality and research links source present | PARTIAL | Full decision-to-result linkage, sample/missingness, measured MFE/MAE |
+| Permanent Talia member research reports | `gu_talia_watchlist_checkpoints_v1` and `gu_talia_watchlist_reports_v1` with RLS; `/api/talia-watchlist-reports-v1`; Free/Advanced shared UI; authenticated API and SQL regression suite | IMPLEMENTED, PRODUCTION SOURCE VERIFIED | Real Free/Premium signed-in browser restoration, session isolation, accessibility and privacy notice acceptance |
 | Talia / Labs / Boot Camps | Prior STT sitewide reconciliation; 419 Labs still mapped | PARTIAL | Beginner-first authenticated experience and protected grading acceptance |
 | Alerts / monitoring | Manual private research alerts V3 | PARTIAL | Server scheduling, preferences, authorized price/data feeds |
 | Timed Lumen/cash access | Existing offers, single currency ledger, TEST drafts | PARTIAL | Genuine Stripe TEST lifecycle, expiry/reversal/reconcile |
