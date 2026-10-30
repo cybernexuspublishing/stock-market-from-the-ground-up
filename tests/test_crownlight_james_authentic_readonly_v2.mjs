@@ -87,6 +87,25 @@ try{
  assert.equal(visual.standardShellVisible,false,'Professional KLine must not duplicate Standard chart player');
  mark('PASS','Real authenticated Professional candlestick pane and nonduplicate chart canvas',
   visual.bars+' bars / '+visual.pricePaneHeight+'px price pane');
+ // The ADMIN identity is entitled to every engine. Exercise rendering only,
+ // not the distinct ordinary-member purchase/role entitlement contract.
+ await page.evaluate(()=>window.CrownlightChartTiers.choose('ADVANCED'));
+ await page.waitForFunction(()=>window.CrownlightChartTiers?.getStatus?.().selected==='ADVANCED'&&
+  window.CrownlightChartTiers.getInstances().some(c=>c.chart?.getDataList?.().length>=2),
+  null,{timeout:18000});
+ assert.equal(await page.evaluate(()=>window.CrownlightChartTiers.getInstances().length),1,
+  'Advanced chart must present one active technical analysis view');
+ mark('PASS','Genuine authenticated Advanced chart interface (Admin-eligible experience, not Founding30 proof)');
+ await page.evaluate(()=>window.CrownlightChartTiers.choose('STANDARD'));
+ await page.waitForFunction(()=>window.CrownlightChartTiers?.getStatus?.().selected==='STANDARD'&&
+  window.CrownlightChartTiers.getInstances().length===0,null,{timeout:18000});
+ assert((await page.evaluate(()=>window.CrownlightChartTiers.getRevealedBars().length))>=2);
+ mark('PASS','Genuine authenticated Standard chart interface (Admin-eligible experience, not Free proof)');
+ await page.evaluate(()=>window.CrownlightChartTiers.choose('PROFESSIONAL'));
+ await page.waitForFunction(()=>window.CrownlightChartTiers?.getStatus?.().selected==='PROFESSIONAL'&&
+  window.CrownlightChartTiers.getInstances().some(x=>x.chart?.getDataList?.().length>=2),
+  null,{timeout:18000});
+ mark('PASS','Professional multi-pane experience restored without workspace storage writes');
  const workspace=await data('/api/chart-workspace',primary.token);
  assert.equal(workspace.status,200);
  assert.equal(workspace.body?.ok,true);
