@@ -8,6 +8,7 @@ let permissionEpoch=0,loadingWorkspace=false,linked=false,guard=false,syncEnable
 let workspaceRevision=null,savingWorkspace=false;
 // Track saved overlay IDs per live chart instance to avoid duplicate drawings.
 const restoredOverlays=new WeakMap();
+const chartSourceContexts=new WeakMap();
 let ui=null,notice=null,permissionReady=false,storeAvailable=false;
 const Tier=()=>window.CrownlightChartTiers;
 const msg=t=>{if(notice)notice.textContent=t};
@@ -93,6 +94,22 @@ function applyOverlays(){
  // research drawings to both views, never to future/unrevealed timestamps.
  for(const entry of charts){
   const chart=entry?.chart;if(!chart)continue;
+  const previousSource=chartSourceContexts.get(chart);
+  if(previousSource&&previousSource!==context){
+   // KLineCharts preserves overlays during resetData(). Remove only
+   // documented drawing-tool overlays from the previous dataset; old price
+   // levels must not be displayed over a new provider or symbol.
+   const allowed=new Set(['segment','horizontalStraightLine','fibonacciLine']);
+   for(const overlay of chart.getOverlays?.()||[]){
+    if(allowed.has(overlay?.name)&&typeof overlay?.id==='string'){
+     try{chart.removeOverlay?.({id:overlay.id})}catch(e){
+      console.warn('Previous source overlay cleanup skipped',e?.message)
+     }
+    }
+   }
+   restoredOverlays.delete(chart);
+  }
+  chartSourceContexts.set(chart,context);
   let applied=restoredOverlays.get(chart);
   if(!applied){applied=new Set();restoredOverlays.set(chart,applied)}
   for(const drawing of restored){
