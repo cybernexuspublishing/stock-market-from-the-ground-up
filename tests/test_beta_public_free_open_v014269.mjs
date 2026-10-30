@@ -6,7 +6,12 @@ test('free beta signup is visibly available but is not payment or founder reserv
  const site=file('index.html'),store=file('store.html'),founder=file('founding600.html');
  assert.match(site,/Explore Founding Memberships/);
  assert.match(site,/href="founding600\.html"/);
- assert.match(site,/For historical trade simulation, use thinkorswim OnDemand separately/);
+ assert.match(site,/Create a Free Account/);
+ assert.match(site,/href="candle-practice\\.html"/);
+ assert.match(site,/No purchase is required to start/);
+ // The Founding CTA is intentionally gated; do not mistake hidden paid
+ // enrollment for unavailable Free educational registration.
+ assert.match(site,/href="founding600\\.html" data-founder-offer-link hidden/);
  assert.doesNotMatch(site,/Education and simulation, not trade signals/);
  assert.match(store,/Free Membership is retained for verified book purchasers/);
  assert.match(store,/href="founding600\.html"/);
