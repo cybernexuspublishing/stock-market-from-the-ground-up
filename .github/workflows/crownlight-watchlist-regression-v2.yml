@@ -26,6 +26,11 @@ jobs:
           git worktree add --detach "$RUNNER_TEMP/crownlight-watchlist-baseline" 78b3b93ccf70252127265cd7c16589e2bd7d4ae2
           git -C "$RUNNER_TEMP/crownlight-watchlist-baseline" rev-parse HEAD
           git status --short
+      - name: Install approved no-cost browser and ECharts test dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 echarts@6.1.0
+          npx playwright install --with-deps chromium
+          ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/crownlight-watchlist-baseline/node_modules"
       - name: Compare focused no-LIVE Node tests with baseline
         env:
           WATCHLIST_DIAG_OUTPUT: ${{ runner.temp }}/watchlist-diagnostics
