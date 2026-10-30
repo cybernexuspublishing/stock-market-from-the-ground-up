@@ -73,7 +73,7 @@ assert.deepEqual(first.body.bars.map(x=>x.index),[0]);
 const locked=await call(token,'lock',{sessionId:id,decision:'NO_TRADE',
  reasoning:'The first authentic IEX bar is only initial price and volume evidence; wait for context and a risk plan.'});
 assert.equal(locked.status,200);
-for(let i=0;i<5;i++){
+for(let i=0;i<29;i++){
  const next=await call(token,'advance',{sessionId:id,expectedIndex:i});
  assert.equal(next.status,200,'GRML protected minute '+(i+1)+' must advance');
  assert.equal(next.body.currentIndex,i+1);
@@ -84,16 +84,16 @@ for(let i=0;i<5;i++){
 }
 const visible=await call(token,'visible',undefined,'&sessionId='+encodeURIComponent(id));
 assert.equal(visible.status,200);
-assert.deepEqual(visible.body.bars.map(x=>x.index),[0,1,2,3,4,5]);
+assert.deepEqual(visible.body.bars.map(x=>x.index),Array.from({length:30},(_,i)=>i),'All 30 authentic candle indices must be protected and revealed exactly once');
 const guestBar=await call(null,'visible',undefined,'&sessionId='+encodeURIComponent(id));
 assert([401,403].includes(guestBar.status),'Guest cannot retrieve private QA session even with session UUID');
 const resumed=await call(token,'resume');
 assert.equal(resumed.status,200);
 assert.equal(resumed.body.session.dataset.code,code);
-assert.equal(resumed.body.session.currentIndex,5);
+assert.equal(resumed.body.session.currentIndex,29);
 assert.equal(resumed.body.session.decisionLocked,true);
 const finished=await call(token,'finish',{sessionId:id});
 assert.equal(finished.status,200);
 assert.equal(finished.body.ok,true);
-console.log('PASS GENUINE GRML QA HTTP: pinned account, restricted catalog, locked initial candle, five protected steps, atomic stale denial, no future bars, resume and finish.');
+console.log('PASS GENUINE GRML QA HTTP: pinned account, restricted catalog, locked initial candle, 29 protected steps / all 30 one-minute source bars, atomic stale denial, no future bars, resume and finish.');
 console.log('NOTE: other-member cross-account access requires a distinct second authenticated QA identity and must be verified separately.');
