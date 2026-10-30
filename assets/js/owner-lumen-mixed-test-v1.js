@@ -2,12 +2,26 @@
 (()=>{'use strict';
 const by=id=>document.getElementById(id),money=x=>'$'+(x/100).toFixed(2);
 let state=null,lock=false;
+async function readiness(){
+ const note=by('qa-provider-readiness');
+ try{
+  const r=await api(null,'readiness');
+  note.textContent='Stripe TEST configuration: '+(r.fixtureReady?'Verified':'Not verified')+
+   ' | Owner TEST mode: '+(r.ownerTestMode?'ON':'OFF')+
+   (r.providerError?' | '+r.providerError:'')+
+   (r.ready?' | Ready to attempt hosted TEST Checkout.':' | Review configuration before proceeding.');
+  note.dataset.ready=r.ready?'true':'false';
+ }catch(e){
+  note.textContent='TEST readiness unavailable: '+(e?.message||String(e));
+  note.dataset.ready='false';
+ }
+}
 function say(s){by('qa-status').textContent=String(s)}
-async function api(payload){
+async function api(payload,view){
  const supabase=await window.getSupabaseClient();
  const session=(await supabase.auth.getSession()).data?.session;
  if(!session?.access_token)throw Error('Owner sign-in required. Sign in, then return to this QA page.');
- const r=await fetch('/api/lumen-mixed-test-checkout',{
+ const r=await fetch('/api/lumen-mixed-test-checkout'+(view?'?view='+encodeURIComponent(view):''),{
   method:payload?'POST':'GET',credentials:'same-origin',cache:'no-store',
   headers:{authorization:'Bearer '+session.access_token,...(payload?{'content-type':'application/json'}:{})},
   body:payload?JSON.stringify(payload):undefined});
@@ -68,6 +82,18 @@ function renderHistory(){
    actionBtn.addEventListener('click',()=>action(()=>continueOrder(order)));
    item.append(actionBtn);
    if(order.status==='reserved'){
+    const cancelBtn=document.createElement('button');
+    cancelBtn.type='button';cancelBtn.textContent='Release unused TEST reservation';
+    cancelBtn.disabled=lock||!state.enabled;
+    cancelBtn.addEventListener('click',()=>action(async()=>{
+     if(!window.confirm('Return '+order.lumens_reserved+' SHADOW TEST Lumens and release this unbound TEST order? This will not refund a payment.'))return;
+     const r=await api({action:'cancel_unbound',intentId:order.id});
+     await refresh();
+     say(r.notice||'Unused TEST reservation released.');
+    }));
+    item.append(cancelBtn);
+   }
+   if(order.status==='reserved'){
     const note=document.createElement('small');
     note.textContent=' This order is reserved but not linked to Stripe yet. Resuming uses the same order number and will not reserve Lumens twice.';
     item.append(note);
@@ -111,7 +137,7 @@ async function action(fn){
 }
 by('qa-lumens').addEventListener('input',draw);
 by('qa-intent').addEventListener('change',syncSelection);
-by('qa-refresh').addEventListener('click',()=>action(async()=>{await refresh();say('QA ledger refreshed. Real wallet unchanged.')}));
+by('qa-refresh').addEventListener('click',()=>action(async()=>{await refresh();await readiness();say('QA ledger refreshed. Real wallet unchanged.')}));
 by('qa-set').addEventListener('click',()=>action(async()=>{
  const balance=Number(by('qa-seed').value);
  if(!Number.isSafeInteger(balance)||balance<0||balance>1000)throw Error('Choose 0–1000 whole TEST Lumens.');
@@ -139,11 +165,15 @@ for(const [name,el] of [['expire','qa-expire'],['refund','qa-refund']]){
 const q=new URL(location.href).searchParams.get('result');
 if(q==='success')say('Returned from Stripe TEST. Refresh the ledger to verify signed-webhook fulfillment.');
 if(q==='cancelled')say('TEST checkout canceled in browser. Expire the unpaid session to trigger signed credit restoration.');
-refresh().then(()=>{
+Promise.all([refresh(),readiness()]).then(()=>{
  if(q)return;
  const unfinished=(state?.intents||[]).filter(x=>x.status==='reserved');
  say(unfinished.length?
   'A TEST order is reserved but has no completed provider checkout. Use Resume TEST checkout in Recent shadow orders.':
   'QA checkout ready. Select an existing order below or create a new one.');
-}).catch(e=>say(e.message));
+}).catch(e=>{
+ say(e.message||String(e));
+ const hint=by('qa-history-empty');
+ if(hint){hint.hidden=false;hint.textContent='Unable to load the TEST order ledger: '+(e.message||String(e));}
+});
 })();
