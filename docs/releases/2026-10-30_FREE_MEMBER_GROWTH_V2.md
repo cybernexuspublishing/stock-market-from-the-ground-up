@@ -61,3 +61,21 @@ Initial verified acquisition baseline remains **0 eligible non-QA new accounts a
 | Version | Date | Change |
 |---|---|---|
 | 2.0 | 2026-10-30 | Added voluntary calendar reminders, original RSS content discovery, one validated IndexNow receipt and Owner publishing desk; retained zero-cost/consent rules |
+
+
+## Final production acceptance — 2026-10-30 UTC
+
+- GitHub Actions [Free Growth V2 acceptance run 41011037431](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41011037431) concluded **success**. Source tests and live deployed public/Owner-page smoke tests passed:
+  - `PASS Growth V2: optional calendar download, public-only feed discovery, verified IndexNow gating and no contact capture`.
+  - `PASS live Growth V2: six-item original RSS, three discovery links, protected member calendar and Owner manual publishing desk`.
+- Cloudflare Pages `main` deployment of the tested source commit `0760cd60e4a510e6de204c2b4dceb75a2eb4ed0c` concluded **success**. A subsequently queued documentation-only commit does not change the accepted source behavior.
+- IndexNow independently [reported](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41010448874) **HTTP 202, received pending key verification**, after the production ownership and canonical-page checks passed. Index coverage is **not accepted** until an appropriate search-provider report supports it.
+- The first V2 acceptance attempt failed on a malformed source-test regex. It was corrected and the passing run above supersedes the earlier test-harness failure.
+- **User-level limitation:** The calendar invitation was tested using a deterministic local DOM fixture and shipped to the protected dashboard; a real signed-in member importing the downloaded `.ics` into an external calendar was **not** accepted in this batch. The external calendar importer, notification behavior and actual reminder delivery are outside website code.
+- **No distribution claim:** The Owner publishing desk and three scripts are prepared, but no actual posts, videos, private messages or emails were published or sent. No genuine acquisition lift has been demonstrated.
+
+**Scoped V2 release verdict:** Production source, search notification receipt and live read-only content checks **PASSED**. Independent search indexing, external calendar import, social distribution and new eligible-member conversion remain separate, honest outcome gates.
+
+| Version | Date | Change |
+|---|---|---|
+| 2.1 | 2026-10-30 UTC | Added passing production V2 acceptance run, deployment evidence, corrected test history and pending real-world outcomes |
