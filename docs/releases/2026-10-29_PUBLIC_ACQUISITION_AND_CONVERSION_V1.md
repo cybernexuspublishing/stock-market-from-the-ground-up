@@ -147,3 +147,35 @@
 | Version | Date | Change | Status |
 |---|---|---|---|
 | 1.3 | 2026-10-29 | James_Test authenticated IDOR/direct-table negative probes; OWNER distinct-enrollment/RLS evidence; preserved Owner-login limitation | 8/8 performed checks passed; two-authenticated-member acceptance not asserted |
+
+
+## Final owner-confirmed cross-account acceptance — 2026-10-30 UTC
+
+**Evidence provenance and control:** The Owner supplied the unmodified, privacy-safe text report from the deployed read-only `owner-free5-isolation-qa.html` page in this conversation. This is genuine owner-reported application test output, not an independently captured browser recording or a second GitHub Actions job. The source of the Owner-side report is explicit so that CI history is not rewritten.
+
+**Owner-reported execution timestamp:** `2026-10-30T04:14:51.301Z`  
+**Owner report title:** `SMFGU OWNER FREE5 PRIVACY QA`  
+**Reported Owner session:** `VERIFIED`  
+**Reported overall result:** `PASS`
+
+Owner-side checks, as reported from the deployed page:
+
+| Check | Owner-reported result |
+|---|---|
+| Authenticated identity independently verified as OWNER by the site’s server | PASS |
+| Owner’s own Free Foundations record available | PASS |
+| Owner’s result excludes the James_Test fictional QA reflection | PASS |
+| Caller-supplied member-ID selector does not change Owner records | PASS |
+| Direct member-client read of private Academy progress table is denied | PASS |
+
+**Separate James_Test evidence:** Genuine production Chromium browser acceptance previously recorded at GitHub Actions run `40996189970`; the read-only QA checks found 8 executed checks passed, including real password authentication, previously persisted Free5 Day 1 reflection, page reload, unauthenticated denial, caller-controlled account selectors and direct-table read denial. The corresponding GitHub Actions job intentionally ended non-success because it had no second Owner credentials; it was **not rerun** as a combined two-identity workflow and its historical conclusion must not be represented as successful.
+
+**Two-identity reconciliation:** Distinct real James_Test and Owner accounts were independently authenticated across the GitHub Actions browser and the Owner's own signed-in browser. Both observed only their own Free Foundations records. The tested user-selectors did not override the server session identity, and the underlying service-private progress table remained inaccessible through member-client queries. The Owner-side result closes the previously missing independent-authentication and cross-member-read acceptance gate for these specific `free5` Day 1 flows.
+
+**Final scoped verdict:** **ACCEPTED** — 15 public pages, mobile/desktop 30/30 checks; genuine James_Test Free Foundations Day 1 save/reload; unauthenticated and authenticated access-boundary checks; and independently authenticated Owner-side cross-account privacy report 5/5 checks passed.
+
+**Limits:** This acceptance is about the exercised Free Foundations Day 1 and public-page flows; it is not a comprehensive security penetration test, a blanket permission grant, or proof that all possible IDOR routes are secure. The Owner-side report is user-provided evidence, not an independently replayed automated Owner sign-in. Google indexing, live GA4 event receipt, and verified Stripe purchase analytics remain separate projects. No Owner reflections, entitlements, roles, payments or credentials were changed as part of the Owner-side validation.
+
+| Version | Date | Change | Status |
+|---|---|---|---|
+| 1.4 | 2026-10-30 UTC | Owner-provided read-only verified session report: 5/5 pass; reconciled with prior James_Test authenticated browser and public-page tests | Scoped cross-account acceptance **PASSED**; other analytics/commerce gates unchanged |
