@@ -298,7 +298,7 @@ body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap>h1{
  max-width:22ch!important;margin:8px 0 14px!important;
 }
 body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .academy-free-entry.card{
- box-sizing:border-box!important;width:100%!important;max-width:790px!important;
+ display:grid!important;box-sizing:border-box!important;width:100%!important;max-width:790px!important;
  min-height:0!important;padding:14px 16px!important;
  grid-template-columns:65px minmax(0,1fr)!important;gap:12px!important;align-items:start!important;
 }
