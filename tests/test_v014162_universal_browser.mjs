@@ -34,7 +34,7 @@ try{
   await page.getByRole('button',{name:'Next learning stage'}).click();
   const calculate=page.locator('#universal-test .gu-v44-calculate-gate');
   await calculate.waitFor();
-  assert.match(await calculate.getByRole('heading').first().innerText(),/Analyze the Evidence|Calculate/);
+  assert.match(await page.locator('#universal-test .gu-v33 > h2').innerText(),/Analyze the Evidence|Calculate/);
   assert.equal(await page.locator('#universal-test .gu-v33-journey li').count(),10,
     'The approved ten-stage navigator is a real instructional journey');
   await calculate.getByRole('button',{name:'Continue to Experiment →'}).click();
