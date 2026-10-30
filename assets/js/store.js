@@ -13,7 +13,7 @@ const safe=(value)=>C().safeHref(value);
 const esc=(value)=>C().esc(value);
 const dollars=c=>C().moneyCents(Number(c||0)); // one cents-to-dollars conversion in shared formatter
 const suffix=x=>({month:'/month',year:'/year',lifetime:' one-time',none:''})[x]||'';
-const statusLabel=s=>({published:'Published',publication_candidate:'Publication Candidate',coming_soon:'Coming Soon',in_development:'In Development',archived:'Archived'})[s]||String(s||'Coming Soon').replaceAll('_',' ');
+const statusLabel=s=>({for_sale:'Available',release_ready:'Release Ready',selling:'Selling',listed:'Listed',published:'Published',publication_candidate:'Publication Candidate',coming_soon:'Coming Soon',in_development:'In Development',archived:'Archived'})[s]||String(s||'Coming Soon').replaceAll('_',' ');
 const adLabel=code=>({FULL_MONTHLY:'Limited sponsor placements',FULL_ANNUAL:'Minimal sponsor placements',LIFETIME:'Ad-free'})[code]||'Standard sponsor placements';
 const freeBenefits=p=>{const m=p.metadata||{};if(Number.isInteger(m.journal_limit_week)&&Number.isInteger(m.simulator_saves_week))return [`Up to ${m.journal_limit_week} new Trading Journal records per UTC week`,`Up to ${m.simulator_saves_week} saved CSV/browser simulator exercises per UTC week (within Journal allowance)`];if(Number.isInteger(m.journal_limit)&&Number.isInteger(m.simulator_sessions_month))return [`Up to ${m.journal_limit} Journal records total`,`Up to ${m.simulator_sessions_month} saved simulator results per month`];return ['Limited Journal and browser simulator saves; check your current allowance'];};
 // Free is the sole general public membership; Founder 14/30/60 use their
@@ -280,7 +280,7 @@ function renderGroupCatalog(host,nav,items,layout){
    if(!groups.has(k))groups.set(k,[]);groups.get(k).push(item)}
   host.innerHTML=[...groups].map(([type,rows])=>'<section class="gu-store-type-section"><h3>'+esc(type)+'</h3><div class="gu-store-type-grid">'+rows.map(x=>{
    const href=catalogUrl(x);
-   return '<article class="gu-store-type-card">'+catalogImage(x)+(x.betaTestingReady===true?'<span class="store-beta-ribbon">Beta Testing Ready</span>':'')+'<span class="eyebrow">'+esc(x.status||'Listed')+
+   return '<article class="gu-store-type-card">'+catalogImage(x)+(x.betaTestingReady===true?'<span class="store-beta-ribbon">Beta Testing Ready</span>':'')+'<span class="eyebrow">'+esc(statusLabel(x.status))+
    '</span><h4><a href="'+esc(href)+'">'+esc(x.name)+'</a></h4><p class="gu-catalog-summary">'+catalogSummary(x)+'</p>'+
    '<p class="small">Price: '+esc(x.price||'Not announced')+'</p><a href="'+esc(href)+'">View details</a></article>';
   }).join('')+'</div></section>').join('')||'<p>No matching public product listings.</p>';
