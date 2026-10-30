@@ -64,7 +64,12 @@ assert.match(studio,/KEY\+':'\+state\.userId/);
 assert.match(studio,/attributionLogo:true/);
 assert.match(sim,/window\.CrownlightStudio\?\.render\(SIM\)/);
 assert.match(sim,/Overnight/);
-assert.match(sim,/tradeCount:Number\.isSafeInteger/);
+const integrity=readFileSync('assets/js/crownlight-data-source-integrity-v3.js','utf8');
+assert.match(integrity,/tradeCount:Number\.isSafeInteger\(b\.tradeCount\)/);
+assert.match(sim,/CrownlightSourceIntegrityV3\.validateProvider\(j,\{provider,ticker\}\)/);
+assert(sim.indexOf('CrownlightSourceIntegrityV3.validateProvider')<
+ sim.indexOf('SIM.candles=source.candles'),
+ 'Do not mutate replay before personal provider integrity validation');
 assert.match(backend,/extra\.tradeCount=source\.n/);
 assert.match(backend,/extra\.providerVwap=source\.vw/);
 assert.match(backend,/approvedForOfficialReplay:false/);
