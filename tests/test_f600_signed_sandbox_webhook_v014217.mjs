@@ -45,13 +45,17 @@ function network(opts={}){
    assert.equal(p.p_kind,opts.expectedKind||'invoice.paid');
    if(!opts.expectedKind)assert.equal(p.p_amount,opts.invoiceAmount||amount);
    assert.equal(p.p_intent,fixture.intent);
-   return result({ok:true,mode:'SANDBOX',replayed:false,includedSparks:sparks})
+   if(opts.expectedKind==='invoice.payment_failed'){
+    assert.match(p.p_start,/^20/);assert.match(p.p_end,/^20/);
+    assert.equal((Date.parse(p.p_end)-Date.parse(p.p_start))/86400000,days);
+   }
+   return result({ok:true,mode:'SANDBOX',replayed:opts.replayed===true,includedSparks:opts.replayed?0:sparks})
   }
   if(path.includes('/v1/invoices/'))return result({
-   id:fixture.invoice,livemode:false,status:'paid',currency:'usd',
+   id:fixture.invoice,livemode:false,status:opts.invoiceStatus||'paid',currency:'usd',
    subscription:fixture.sub,customer:fixture.customer,amount_paid:opts.invoiceAmount||amount,subtotal:opts.invoiceAmount||amount,
    lines:{has_more:false,data:[{amount:opts.invoiceAmount||amount,price:{id:price},
-    period:{start:Math.floor(Date.now()/1000),end:Math.floor(Date.now()/1000)+days*86400}}]}
+    period:{start:Math.floor(Date.now()/1000),end:Math.floor(Date.now()/1000)+(opts.periodDays??days)*86400}}]}
   });
   if(path.includes('/v1/subscriptions/'))return result({
    id:fixture.sub,livemode:false,customer:fixture.customer,status:'active',
@@ -123,5 +127,54 @@ test('disabled testing gate makes zero network calls',async()=>{
  const n=network();
  try{const response=await onRequestPost({request:await request(makeEvent()),env:{...env,GU39_SANDBOX_SHADOW_GATE:'false'}});
  assert.equal(response.status,503);assert.equal(n.calls.length,0)
+ }finally{n.restore()}
+});
+
+test('signed TEST renewal failure records an exact plan period but never awards Sparks',async()=>{
+ for(const plan of ['FOUNDING_14','FOUNDING_30','FOUNDING_60']){
+  const n=network({plan,invoiceStatus:'open',expectedKind:'invoice.payment_failed'});
+  try{
+   const response=await onRequestPost({request:await request(makeEvent(false,'invoice.payment_failed')),env});
+   assert.equal(response.status,200,plan);
+   assert.equal(await response.text(),'F600_TEST_INVOICE_PAYMENT_FAILED');
+   assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
+  }finally{n.restore()}
+ }
+});
+test('a formerly failed invoice now paid by Stripe cannot revoke a paid cycle',async()=>{
+ const n=network({invoiceStatus:'paid',expectedKind:'invoice.payment_failed'});
+ try{
+  const response=await onRequestPost({request:await request(makeEvent(false,'invoice.payment_failed')),env});
+  assert.equal(response.status,200);
+  assert.equal(await response.text(),'F600_TEST_FAILED_INVOICE_ALREADY_PAID');
+  assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,0);
+ }finally{n.restore()}
+});
+test('a malformed failed renewal term is refused without a ledger mutation',async()=>{
+ const n=network({plan:'FOUNDING_60',invoiceStatus:'open',expectedKind:'invoice.payment_failed',periodDays:30});
+ try{
+  const response=await onRequestPost({request:await request(makeEvent(false,'invoice.payment_failed')),env});
+  assert.equal(response.status,503);
+  assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,0);
+ }finally{n.restore()}
+});
+test('an alternate signed delivery of an already settled invoice is acknowledged as a replay',async()=>{
+ const n=network({plan:'FOUNDING_30',replayed:true});
+ try{
+  const response=await onRequestPost({request:await request(makeEvent(false,'invoice.paid')),env});
+  assert.equal(response.status,200);
+  assert.equal(await response.text(),'F600_TEST_REPLAY');
+  assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
+ }finally{n.restore()}
+});
+test('a verified subscription cancellation creates a TEST-only cancellation record',async()=>{
+ const n=network({plan:'FOUNDING_60',expectedKind:'customer.subscription.deleted'});
+ try{
+  const event=makeEvent(false,'customer.subscription.deleted');event.data.object.id=fixture.sub;
+  const response=await onRequestPost({request:await request(event),env});
+  assert.equal(response.status,200);
+  assert.equal(await response.text(),'F600_TEST_CUSTOMER_SUBSCRIPTION_DELETED');
+  assert.equal(n.calls.filter(x=>x.path.includes('/rpc/gu_f600_sandbox_apply_v014215')).length,1);
+  assert.equal(n.calls.some(x=>/gu_founder_paid_cycles|site_subscriptions|gu_founder_members_v/.test(x.path)),false);
  }finally{n.restore()}
 });
