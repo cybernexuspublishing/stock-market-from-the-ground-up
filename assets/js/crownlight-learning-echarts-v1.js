@@ -5,7 +5,7 @@
  */
 (function(root){'use strict';
  const sessions=new WeakMap();
- const money=n=>'$'+Number(n).toFixed(2);
+ const money=n=>'$'+Number(n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
  const node=(name,value)=>{const el=document.createElement(name);if(value!==undefined)el.textContent=String(value);return el;};
  function candleMetrics(b){
   if(!b||![b.o,b.h,b.l,b.c].every(v=>typeof v==='number'&&Number.isFinite(v))||
