@@ -420,6 +420,12 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  }
  function stepList(steps){const ol=el('ol');for(const s of steps)ol.append(el('li',s));body.append(ol)}
  function showVisual(step,variant='default'){
+  // Lesson-specific instruction stays inside the existing 9-stage journey.
+  // Only authored illustrative bars are used here; protected GUSIM bars stay on the replay server.
+  if(labId==='DT-C01-L02'){
+   const custom=root.CrownlightDT01L02Lesson?.extra?.(step);
+   if(custom){body.append(custom);return}
+  }
   // The illustrated source is always illustrative. The competency-based
   // worked-case viewer covers the Labs without an appropriate OHLC chart.
   // No future private bars, graded questions or unverified history is shown.
@@ -431,6 +437,8 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   if(view)body.append(view);
  }
  function lessonPlan(section=1){
+  if(labId==='DT-C01-L02'&&root.CrownlightDT01L02Lesson?.lesson)
+   return root.CrownlightDT01L02Lesson.lesson(section);
   return root.GroundUpLabV33InstructionContent?.lesson?.({
    stage:section,visualType,concept:topic,teaching:authorizedTeaching,subject,guide
   })||null;
