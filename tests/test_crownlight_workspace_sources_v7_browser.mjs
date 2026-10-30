@@ -110,6 +110,19 @@ try{
  assert.deepEqual(await page.evaluate(()=>window.__charts[0].chart.getOverlays()
   .map(o=>o.points[0].value)),[185],
   'Returning to AAPL must remove MSFT levels before restoring AAPL');
+ page.on('dialog',dialog=>dialog.accept());
+ await page.locator('select[data-cl-collection-select]').selectOption('alpaca_byo|MSFT');
+ await page.locator('[data-cl-collection-remove]').click();
+ await page.waitForFunction(()=>window.CrownlightWorkspaceV2?.getStatus()?.savedDatasets===1);
+ assert.deepEqual(saved.drawingSets.map(x=>x.context),['tiingo_byo|AAPL'],
+  'Deleting MSFT annotations must not delete saved AAPL annotations');
+ await page.evaluate(()=>{
+  window.__stage.source='alpaca_byo';window.__stage.symbol='MSFT';
+  dispatchEvent(new CustomEvent('crownlight:revealed-bars'));
+ });
+ assert.deepEqual(await page.evaluate(()=>window.__charts[0].chart.getOverlays()
+  .map(o=>o.points[0].value)),[],
+  'Deleted MSFT annotation cannot reappear when switching datasets');
  await page.evaluate(()=>dispatchEvent(new CustomEvent('crownlight:member-changed')));
  assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().savedDatasets),0);
  assert.equal(await page.evaluate(()=>window.CrownlightWorkspaceV2.getStatus().memberVerified),false);
