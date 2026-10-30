@@ -166,6 +166,7 @@ node scripts/build-public-seo.mjs
 node tests/test_v014157_public_seo.mjs
 node tests/test_public_acquisition_v1.mjs
 node tests/test_member_growth_v1.mjs
+node tests/test_growth_v2.mjs
 node tests/test_owner_growth_funnel_v1.mjs
 node tests/test_owner_free5_isolation_source_v1.mjs
 node tests/test_ga4_public_funnel_v1.mjs
