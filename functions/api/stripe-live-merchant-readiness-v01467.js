@@ -162,9 +162,9 @@ export async function onRequestGet({request,env}){
   // Stripe credential, account, price, webhook, or privileged database row.
   const base=await owner(request,env);
   const rows=[],add=(group,check,status,detail)=>rows.push(reportRow(group,check,status,detail));
-  const key=clean(env.GU58_STRIPE_LIVE_SECRET_KEY),accountId=clean(env.GU58_STRIPE_LIVE_ACCOUNT_ID);
+  const key=clean((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)),accountId=clean((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID));
   const secretOk=isLiveSecret(key),idOk=isAccount(accountId),mapping=catalogMap(env.GU58_STRIPE_LIVE_CATALOG_JSON);
-  const hookSecret=/^whsec_[A-Za-z0-9_]+$/.test(clean(env.GU58_STRIPE_LIVE_WEBHOOK_SECRET));
+  const hookSecret=/^whsec_[A-Za-z0-9_]+$/.test(clean((env.STRIPE_LIVE_WEBHOOK_SECRET || env.GU58_STRIPE_LIVE_WEBHOOK_SECRET)));
   const origin=expectedBase(env),canRead=secretOk&&idOk;
   add('CONFIG','LIVE Stripe API credential',secretOk?'PRESENT_NOT_DISCLOSED':'ACTION_REQUIRED',
     secretOk?'Key format recognized; authenticated LIVE account verification follows.':'Set the LIVE secret in Cloudflare encrypted Variables/Secrets only.');

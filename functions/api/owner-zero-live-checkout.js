@@ -48,7 +48,7 @@ function setup(request,env){
  if(env.GU71_ZERO_LIVE_QA_ENABLED!=='true')throw fail('ZERO_QA_DISABLED',403);
  const product=val(env.GU71_ZERO_LIVE_PRODUCT_ID);
  const price=val(env.GU71_ZERO_LIVE_PRICE_ID);
- const account=val(env.GU58_STRIPE_LIVE_ACCOUNT_ID),key=val(env.GU58_STRIPE_LIVE_SECRET_KEY);
+ const account=val((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)),key=val((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY));
  if(!id('prod',product)||!id('price',price)||!id('acct',account)||!keyOK(key))
   throw fail('ZERO_QA_CONFIGURATION_MISSING');
  let main;try{main=JSON.parse(val(env.GU58_STRIPE_LIVE_CATALOG_JSON))}catch{}

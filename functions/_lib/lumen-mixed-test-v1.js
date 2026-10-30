@@ -14,7 +14,7 @@ export function config(env){
  if(env.GU39_SANDBOX_SHADOW_GATE!=='true'||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||
    !env.SUPABASE_PUBLISHABLE_KEY||!env.SUPABASE_SECRET_KEY||
    !starts(env.GU39_STRIPE_TEST_SECRET_KEY,'sk_test_')||
-   !starts(env.GU39_STRIPE_TEST_WEBHOOK_SECRET,'whsec_'))throw fail('TEST_CONFIG_UNAVAILABLE');
+   !starts((env.STRIPE_TEST_WEBHOOK_SECRET || env.GU39_STRIPE_TEST_WEBHOOK_SECRET),'whsec_'))throw fail('TEST_CONFIG_UNAVAILABLE');
  return {base,pub:env.SUPABASE_PUBLISHABLE_KEY,secret:env.SUPABASE_SECRET_KEY,
   stripe:env.GU39_STRIPE_TEST_SECRET_KEY};
 }

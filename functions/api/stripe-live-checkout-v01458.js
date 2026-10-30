@@ -49,14 +49,14 @@ const SRC_VERSION='2026-02-25.preview'; // Version pinned for Managed Payments; 
 function environment(env){
  const base=val(env.SUPABASE_URL).replace(/\/$/,'');
  const secret=val(env.SUPABASE_SECRET_KEY),pub=val(env.SUPABASE_PUBLISHABLE_KEY);
- const stripe=val(env.GU58_STRIPE_LIVE_SECRET_KEY),acct=val(env.GU58_STRIPE_LIVE_ACCOUNT_ID);
+ const stripe=val((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)),acct=val((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID));
  if(env.GU_PAYMENT_LIVE_LAUNCH_APPROVED!=='true'||
     env.GU58_LIVE_CHECKOUT_ENABLED!=='true'||env.GU58_LIVE_WEBHOOK_ENABLED!=='true'||env.GU58_LIVE_FULFILLMENT_APPROVED!=='true'||
     env.GU58_LIVE_DB_CONTRACT_APPROVED!=='true'||
     !/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||
     !secret||!pub||!/^sk_live_[A-Za-z0-9_]+$/.test(stripe)||
     !/^acct_[A-Za-z0-9_]{6,}$/.test(acct)||
-    !/^whsec_[A-Za-z0-9_]+$/.test(val(env.GU58_STRIPE_LIVE_WEBHOOK_SECRET)))
+    !/^whsec_[A-Za-z0-9_]+$/.test(val((env.STRIPE_LIVE_WEBHOOK_SECRET || env.GU58_STRIPE_LIVE_WEBHOOK_SECRET))))
   throw err('LIVE payment checkout has not received independent Owner and provider approval.',503);
  return {base,secret,pub,stripe,account:acct};
 }

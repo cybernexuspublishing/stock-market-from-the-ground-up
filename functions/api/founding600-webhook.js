@@ -7,14 +7,14 @@ const foundingTerms={FOUNDING_14:{days:14,cents:2299},FOUNDING_30:{days:30,cents
 const pattern=(s,p)=>new RegExp('^'+p+'_[A-Za-z0-9_]{6,}$').test(String(s||''));
 function envConfig(e){
  const base=String(e.SUPABASE_URL||'').replace(/\/$/,'');
- const stripe=String(e.GU58_STRIPE_LIVE_SECRET_KEY||''),secret=String(e.GU_F600_LIVE_WEBHOOK_SECRET||''),key=String(e.SUPABASE_SECRET_KEY||'');
+ const stripe=String((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)||''),secret=String((e.LIVE_WEBHOOK_SECRET || e.GU_F600_LIVE_WEBHOOK_SECRET)||''),key=String(e.SUPABASE_SECRET_KEY||'');
  if(e.GU_F600_LIVE_WEBHOOK_ENABLED!=='true'||e.GU_F600_LIVE_FULFILLMENT_APPROVED!=='true'
  ||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!stripe.startsWith('sk_live_')
- ||!secret.startsWith('whsec_')||!key||!pattern(e.GU58_STRIPE_LIVE_ACCOUNT_ID,'acct'))
+ ||!secret.startsWith('whsec_')||!key||!pattern((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID),'acct'))
  return null;
  let catalog;try{catalog=JSON.parse(e.GU_F600_LIVE_CATALOG_JSON||'')}catch{return null}
  if(!catalog||!catalog.FOUNDING_30?.priceId||!catalog.FOUNDING_60?.priceId)return null;
- return {base,stripe,secret,key,account:e.GU58_STRIPE_LIVE_ACCOUNT_ID,catalog};
+ return {base,stripe,secret,key,account:(e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID),catalog};
 }
 async function raw(req){
  if(Number(req.headers.get('content-length')||0)>262144)throw Error('TOO_LARGE');

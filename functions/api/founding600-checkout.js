@@ -15,10 +15,10 @@ export function foundingProductReadyForCheckout(product,plan,expectedId){
 
 function cfg(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
- const stripe=String(env.GU58_STRIPE_LIVE_SECRET_KEY||'');
+ const stripe=String((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)||'');
  const pub=String(env.SUPABASE_PUBLISHABLE_KEY||'');
  const key=String(env.SUPABASE_SECRET_KEY||'');
- const acct=String(env.GU58_STRIPE_LIVE_ACCOUNT_ID||'');
+ const acct=String((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)||'');
  if(env.GU_F600_LIVE_CHECKOUT_ENABLED!=='true'||env.GU_F600_LIVE_FULFILLMENT_APPROVED!=='true'
  ||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)
  ||!stripe.startsWith('sk_live_')||!key||!pub||!/^acct_[A-Za-z0-9_]{6,}$/.test(acct))

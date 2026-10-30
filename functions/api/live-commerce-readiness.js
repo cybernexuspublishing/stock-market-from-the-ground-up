@@ -51,7 +51,7 @@ export async function onRequestGet({request,env}){
   const staff=await readJSON(base+'/rest/v1/rpc/gu_owner_digital_payment_route_read_v01432r2',{
    method:'POST',headers:{apikey:pub,authorization:'Bearer '+token,'content-type':'application/json'},body:'{}'});
   if(staff?.role!=='OWNER'||staff?.ok!==true)return json({ok:false,error:'Owner authorization required.'},403);
-  const live=setting(env.GU58_STRIPE_LIVE_SECRET_KEY),accountID=setting(env.GU58_STRIPE_LIVE_ACCOUNT_ID);
+  const live=setting((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)),accountID=setting((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID));
   const host=setting(env.PUBLIC_SITE_URL);
   if(!/^sk_live_[A-Za-z0-9_]+$/.test(live)||!/^acct_[A-Za-z0-9_]{6,}$/.test(accountID)||
    !/^https:\/\/[a-z0-9-]+\.pages\.dev$/.test(host))throw Error('PROVIDER_NOT_CONFIGURED');

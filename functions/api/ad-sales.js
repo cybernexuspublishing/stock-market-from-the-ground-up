@@ -56,7 +56,7 @@ async function human(env,token,ip){
 }
 async function invoice(c,campaign,advertiser,reference){
  if(!/^in_[A-Za-z0-9_]{6,}$/.test(reference))throw bad('A Stripe invoice reference is required.');
- const secret=str(c.env.GU58_STRIPE_LIVE_SECRET_KEY),acct=str(c.env.GU58_STRIPE_LIVE_ACCOUNT_ID);
+ const secret=str((c.env.STRIPE_LIVE_SECRET_KEY || c.env.GU58_STRIPE_LIVE_SECRET_KEY)),acct=str((c.env.STRIPE_LIVE_ACCOUNT_ID || c.env.GU58_STRIPE_LIVE_ACCOUNT_ID));
  if(!/^sk_live_/.test(secret)||!/^acct_/.test(acct))throw bad('LIVE invoice verification is unavailable.',503);
  const h={authorization:'Bearer '+secret};
  const [ir,ar]=await Promise.all([

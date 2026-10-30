@@ -18,7 +18,7 @@ function envCheck(e){const base=String(e.SUPABASE_URL||'').replace(/\/$/,'');
  return {base,pub:e.SUPABASE_PUBLISHABLE_KEY,secret:e.SUPABASE_SECRET_KEY};
 }
 function sandboxEnabled(e){return e.GU39_SANDBOX_SHADOW_GATE==='true'&&String(e.GU39_STRIPE_TEST_SECRET_KEY||'').startsWith('sk_test_')&&
- String(e.GU39_STRIPE_TEST_WEBHOOK_SECRET||'').startsWith('whsec_');}
+ String((e.STRIPE_TEST_WEBHOOK_SECRET || e.GU39_STRIPE_TEST_WEBHOOK_SECRET)||'').startsWith('whsec_');}
 async function getJson(url,options){const r=await fetch(url,{...options,cache:'no-store'});const d=await r.json().catch(()=>null);if(!r.ok||!d)throw Error('REMOTE_UNAVAILABLE');return d;}
 async function actor(req,c){
  const jwt=/^Bearer\s+(\S+)$/i.exec(req.headers.get('authorization')||'')?.[1];
@@ -188,7 +188,7 @@ async function inspectTestReadiness(request,env,c,a){
  const add=(check,passed,detail)=>checks.push({check,status:passed?'PASS':'BLOCKED',detail});
  const testSecretOk=testKeyConfigured(env);
  add('Stripe test secret in Cloudflare',testSecretOk,testSecretOk?'Valid test-key format':'Missing or invalid GU39_STRIPE_TEST_SECRET_KEY');
- const webhookSecretOk=/^whsec_[A-Za-z0-9_]+$/.test(String(env.GU39_STRIPE_TEST_WEBHOOK_SECRET||''));
+ const webhookSecretOk=/^whsec_[A-Za-z0-9_]+$/.test(String((env.STRIPE_TEST_WEBHOOK_SECRET || env.GU39_STRIPE_TEST_WEBHOOK_SECRET)||''));
  add('Stripe test webhook signing secret',webhookSecretOk,webhookSecretOk?'Encrypted binding format recognized; actual signature delivery untested':'Configure GU39_STRIPE_TEST_WEBHOOK_SECRET as encrypted Production secret');
  let accountOk=false;
  if(testSecretOk){

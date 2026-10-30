@@ -11,8 +11,8 @@ async function query(url,opts={}){
 function config(env){
  const base=trim(env.SUPABASE_URL).replace(/\/$/,''),
   allowed=trim(env.GU72_QA_ALLOWED_USER_ID),pub=trim(env.SUPABASE_PUBLISHABLE_KEY),
-  secret=trim(env.SUPABASE_SECRET_KEY),key=trim(env.GU58_STRIPE_LIVE_SECRET_KEY),
-  account=trim(env.GU58_STRIPE_LIVE_ACCOUNT_ID),
+  secret=trim(env.SUPABASE_SECRET_KEY),key=trim((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)),
+  account=trim((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)),
   price=trim(env.GU71_ZERO_LIVE_PRICE_ID),product=trim(env.GU71_ZERO_LIVE_PRODUCT_ID),
   origin=trim(env.PUBLIC_SITE_URL)||'https://stock-market-from-the-ground-up.pages.dev';
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!uuid(allowed)||!pub||!secret||

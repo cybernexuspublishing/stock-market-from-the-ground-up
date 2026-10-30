@@ -12,8 +12,8 @@ async function safeEq(a,b){const digest=async x=>new Uint8Array(await crypto.sub
 function cfg(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),
   key=String(env.SUPABASE_SECRET_KEY||''),
-  stripe=String(env.GU58_STRIPE_LIVE_SECRET_KEY||''),
-  account=String(env.GU58_STRIPE_LIVE_ACCOUNT_ID||''),
+  stripe=String((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)||''),
+  account=String((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)||''),
   task=String(env.GU_BILLING_TASK_SECRET||'');
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!key||
  !/^sk_live_[A-Za-z0-9_]+$/.test(stripe)||!sid(account,'acct')||task.length<32)

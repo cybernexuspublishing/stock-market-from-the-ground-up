@@ -13,7 +13,7 @@ function serviceHeaders(secret){
 }
 const rawval=x=>typeof x==='string'?x:x?.id||null;
 const iso=x=>Number.isSafeInteger(x)?new Date(x*1000).toISOString():null;
-const envValid=e=>e.GU39_SANDBOX_SHADOW_GATE==='true'&&String(e.GU39_STRIPE_TEST_SECRET_KEY||'').startsWith('sk_test_')&&String(e.GU39_STRIPE_TEST_WEBHOOK_SECRET||'').startsWith('whsec_')&&
+const envValid=e=>e.GU39_SANDBOX_SHADOW_GATE==='true'&&String(e.GU39_STRIPE_TEST_SECRET_KEY||'').startsWith('sk_test_')&&String((e.STRIPE_TEST_WEBHOOK_SECRET || e.GU39_STRIPE_TEST_WEBHOOK_SECRET)||'').startsWith('whsec_')&&
  /^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(String(e.SUPABASE_URL||''))&&!!e.SUPABASE_SECRET_KEY;
 async function signature(raw,header,secret){const fields=String(header||'').split(',').map(s=>s.trim().split('='));const timestamp=fields.find(x=>x[0]==='t')?.[1];if(!/^\d{9,13}$/.test(timestamp||'')||Math.abs(Date.now()/1000-Number(timestamp))>300)return false;
  const digests=fields.filter(x=>x[0]==='v1'&&/^[0-9a-f]{64}$/i.test(x[1]||'')).map(x=>x[1]);if(!digests.length)return false;
@@ -104,7 +104,7 @@ export async function onRequestPost({request,env}){
  if(!envValid(env))return respond('SHADOW_SANDBOX_DISABLED',503);
  if(Number(request.headers.get('content-length')||0)>262144)return respond('TOO_LARGE',413);
  const raw=await request.text();if(new TextEncoder().encode(raw).length>262144)return respond('TOO_LARGE',413);
- if(!await signature(raw,request.headers.get('stripe-signature'),env.GU39_STRIPE_TEST_WEBHOOK_SECRET))return respond('BAD_SIGNATURE',401);
+ if(!await signature(raw,request.headers.get('stripe-signature'),(env.STRIPE_TEST_WEBHOOK_SECRET || env.GU39_STRIPE_TEST_WEBHOOK_SECRET)))return respond('BAD_SIGNATURE',401);
  let event;try{event=JSON.parse(raw)}catch{return respond('INVALID_JSON',400)}
  if(event.livemode!==false||!id(event.id,'evt')||!Number.isSafeInteger(event.created))return respond('NOT_A_TEST_EVENT',400);
  // Stripe Connect events that explicitly name another account must never be processed.

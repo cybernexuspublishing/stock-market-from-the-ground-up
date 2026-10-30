@@ -19,8 +19,8 @@ async function getJson(url,options={}){
 }
 function cfg(env){
  const base=clean(env.SUPABASE_URL).replace(/\/$/,''),pub=clean(env.SUPABASE_PUBLISHABLE_KEY),
-  secret=clean(env.SUPABASE_SECRET_KEY),stripe=clean(env.GU58_STRIPE_LIVE_SECRET_KEY),
-  account=clean(env.GU58_STRIPE_LIVE_ACCOUNT_ID);
+  secret=clean(env.SUPABASE_SECRET_KEY),stripe=clean((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)),
+  account=clean((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID));
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!pub||!secret||
    !/^sk_live_[A-Za-z0-9_]+$/.test(stripe)||!/^acct_[A-Za-z0-9_]{6,}$/.test(account))
   throw error('LIVE catalog integrations are not configured',503);

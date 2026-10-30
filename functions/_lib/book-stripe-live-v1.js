@@ -22,8 +22,8 @@ export function config(env,{checkout=false}={}){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const pub=String(env.SUPABASE_PUBLISHABLE_KEY||'');
  const service=String(env.SUPABASE_SECRET_KEY||'');
- const stripe=String(env.GU58_STRIPE_LIVE_SECRET_KEY||'');
- const acct=String(env.GU58_STRIPE_LIVE_ACCOUNT_ID||'');
+ const stripe=String((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)||'');
+ const acct=String((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)||'');
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||!pub||!service||
   !/^sk_live_[A-Za-z0-9_]{10,}$/.test(stripe)||!/^acct_[A-Za-z0-9_]{6,}$/.test(acct))
   throw fail('Book LIVE provider configuration incomplete.');

@@ -14,8 +14,8 @@ export function config(env,{requireEnabled=true}={}){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const pub=String(env.SUPABASE_PUBLISHABLE_KEY||'');
  const service=String(env.SUPABASE_SECRET_KEY||'');
- const stripe=String(env.GU_BOOK_STRIPE_TEST_SECRET_KEY||'');
- const webhook=String(env.GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET||'');
+ const stripe=String((env.STRIPE_TEST_SECRET_KEY || env.GU_BOOK_STRIPE_TEST_SECRET_KEY)||'');
+ const webhook=String((env.STRIPE_BOOK_TEST_WEBHOOK_SECRET || env.GU_BOOK_STRIPE_TEST_WEBHOOK_SECRET)||'');
  if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(base)||!pub||!service||
   !/^sk_test_[A-Za-z0-9_]{10,}$/.test(stripe)||!/^whsec_[A-Za-z0-9_]{10,}$/.test(webhook))
   throw fail('Book TEST payment configuration incomplete.');

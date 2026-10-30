@@ -12,8 +12,8 @@ function config(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,''),
  pub=String(env.SUPABASE_PUBLISHABLE_KEY||''),
  secret=String(env.SUPABASE_SECRET_KEY||''),
- stripe=String(env.GU58_STRIPE_LIVE_SECRET_KEY||''),
- acct=String(env.GU58_STRIPE_LIVE_ACCOUNT_ID||'');
+ stripe=String((env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY)||''),
+ acct=String((env.STRIPE_LIVE_ACCOUNT_ID || env.GU58_STRIPE_LIVE_ACCOUNT_ID)||'');
  // Checkout feature flags MUST NOT prevent already-paid members from
  // canceling, changing payment details, or downloading provider invoices.
  if(!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||

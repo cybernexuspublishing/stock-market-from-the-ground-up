@@ -91,7 +91,7 @@ export async function founderCatalogReadiness(env){
  try{sandboxCatalog=env.GU_F600_TEST_CATALOG_JSON?JSON.parse(env.GU_F600_TEST_CATALOG_JSON):null}catch{}
  const sandbox=await inspectMode({key:env.GU39_STRIPE_TEST_SECRET_KEY,livemode:false,mode:'sandbox',siteOrigin:env.PUBLIC_SITE_URL,
   catalog:sandboxCatalog||{FOUNDING_30:{priceId:testPrices.FOUNDING_30},FOUNDING_60:{priceId:testPrices.FOUNDING_60}}});
- const live=liveOK?await inspectMode({key:env.GU58_STRIPE_LIVE_SECRET_KEY,livemode:true,mode:'live',siteOrigin:env.PUBLIC_SITE_URL,catalog:liveCatalog}):
+ const live=liveOK?await inspectMode({key:(env.STRIPE_LIVE_SECRET_KEY || env.GU58_STRIPE_LIVE_SECRET_KEY),livemode:true,mode:'live',siteOrigin:env.PUBLIC_SITE_URL,catalog:liveCatalog}):
   response('action_required','LIVE Founder catalog is missing one or both configured plan mappings.');
  return {sandbox,live};
 }

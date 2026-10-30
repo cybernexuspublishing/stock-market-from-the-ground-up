@@ -112,7 +112,7 @@ export async function onRequest({request,env}){
  const ad=adSettings?.[0],adMode=mode?.[0],sharedMode=shared?.[0];
  const expected=['SITE_SPONSOR','SECTION_SPONSOR','RESOURCE_SPONSOR'];
  const packages=Array.isArray(prices)&&prices.length===3&&expected.every(code=>prices.some(p=>p.package_code===code&&p.test_amount_cents===100&&/^price_[a-zA-Z0-9]+$/.test(p.test_price_id||'')));
- const secrets=Boolean(str(env.GU39_STRIPE_TEST_SECRET_KEY)&&str(env.GU39_STRIPE_TEST_WEBHOOK_SECRET));
+ const secrets=Boolean(str(env.GU39_STRIPE_TEST_SECRET_KEY)&&str((env.STRIPE_TEST_WEBHOOK_SECRET || env.GU39_STRIPE_TEST_WEBHOOK_SECRET)));
  const [stripeTest,founderStripe]=await Promise.all([stripeTestProvider(env,prices),founderCatalogReadiness(env)]);
  const safeAds=ad?.accepting_payments===false&&ad?.ad_delivery_enabled===false;
  const safeSwitch=adMode?.testing_enabled===false&&sharedMode?.enabled===false;

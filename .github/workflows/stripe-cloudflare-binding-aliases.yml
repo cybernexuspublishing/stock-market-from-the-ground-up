@@ -1,0 +1,28 @@
+name: Stripe Cloudflare Binding Alias Compatibility
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/**'
+      - 'functions/_lib/**'
+      - 'tests/test_stripe_cloudflare_binding_aliases_20261030.mjs'
+      - '.github/workflows/stripe-cloudflare-binding-aliases.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-binding-aliases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify new and legacy environment names without secrets
+        run: |
+          node --test tests/test_stripe_cloudflare_binding_aliases_20261030.mjs
+          node --check functions/api/stripe-live-checkout-v01458.js
+          node --check functions/api/stripe-live-webhook-v01458.js
+          node --check functions/api/gu39-stripe-webhook.js
+          node --check functions/_lib/book-stripe-test-v1.js
