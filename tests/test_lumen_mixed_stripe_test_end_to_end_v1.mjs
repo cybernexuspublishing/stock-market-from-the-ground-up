@@ -83,7 +83,8 @@ globalThis.fetch=async(url,opts={})=>{
   const id='bbbbbbbb-bbbb-4bbb-8bbb-'+String(intents.size+1).padStart(12,'0');
   const i={id,request_id:p.p_request,user_id:U,sku:short,
     lumens_reserved:p.p_lumens,discount_cents:discount,cash_due_cents:cash,
-    stripe_session_id:null,stripe_payment_intent_id:null,status:'reserved'};
+    stripe_session_id:null,stripe_payment_intent_id:null,status:'reserved',
+    expires_at:new Date(Date.now()+30*60*1000).toISOString()};
   intents.set(id,i);wallet-=p.p_lumens;
   return send({ok:true,id,cashCents:cash,lumens:p.p_lumens,discountCents:discount,status:'reserved'});
  }
@@ -300,6 +301,22 @@ try{
  assert.match(recoveryHtml,/id="qa-provider-readiness"/);
  const cancelSql=readFileSync(new URL('../supabase/migrations/20261029_lumen_mixed_test_unbound_cancel_v1.sql',import.meta.url),'utf8');
  assert.match(cancelSql,/REVOKE ALL ON FUNCTION public\.gu_mixed_qa_cancel_unbound_v1/);
+ // Expired reservations must never launch a new Stripe Checkout Session.
+ result=await post('seed',{balance:80});
+ id='cccccccc-cccc-4ccc-8ccc-000000000007';
+ rejectNextStripeCheckout=true;
+ result=await post('checkout',{requestId:id,lumens:40});
+ assert.equal(result.status,409);
+ const expiredIntent=[...intents.values()].at(-1);
+ expiredIntent.expires_at=new Date(Date.now()-1000).toISOString();
+ const sessionsBeforeExpiry=stripeCreates;
+ result=await post('checkout',{requestId:id,lumens:40});
+ assert.equal(result.status,409);
+ assert.equal(result.body.error,'TEST_RESERVATION_EXPIRED_RELEASE_AND_RESTART');
+ assert.equal(stripeCreates,sessionsBeforeExpiry);
+ result=await post('cancel_unbound',{intentId:expiredIntent.id});
+ assert.equal(result.body.ok,true);
+ assert.equal(wallet,80);
  // No non-Owner can access the QA checkout.
  owner=false;result=await post('seed',{balance:10});
  assert.equal(result.status,403);owner=true;
