@@ -90,7 +90,7 @@ async function scenario(width,kind='free'){
    assert.equal(await page.locator('#load-provider').isVisible(),true);
    assert.equal(await page.locator('#load-provider').isEnabled(),true);
    await page.locator('#load-provider').click();
-   assert.match(await page.locator('#sim-load-msg').innerText(),/separate Market Simulator data access/i);
+   assert.match(await page.locator('#sim-load-msg').innerText(),/separate Market Simulator data entitlement/i);
    assert.match(await page.locator('a[href="dashboard.html?tab=settings&section=connections"]').count().then(String),/^1$/);
    await page.locator('#sim-source').selectOption('csv');
    assert.equal(await page.locator('#sim-load-fictional').isEnabled(),true);
