@@ -1,0 +1,30 @@
+name: Free Growth V2 — Website Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/free-growth-v2-acceptance.yml'
+      - 'tests/test_growth_v2_live_smoke.mjs'
+permissions:
+  contents: read
+concurrency:
+  group: free-growth-v2-acceptance
+  cancel-in-progress: false
+jobs:
+  live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Enforce privacy and source contracts
+        run: |
+          node tests/test_growth_v2.mjs
+          node --check tests/test_growth_v2_live_smoke.mjs
+      - name: Verify actual production Pages assets and protected routes
+        run: node tests/test_growth_v2_live_smoke.mjs
