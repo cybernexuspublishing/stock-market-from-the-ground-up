@@ -6,7 +6,7 @@
 **File type:** Markdown  
 **Authoritative location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up`, `main`, `docs/qa/SMFGU-STRIPE-FULL-PAYMENT-ACCEPTANCE-20261030.md`  
 **Google Drive location:** Not assigned. Create a separate Drive record only if adopting Drive as an additional controlled repository.  
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** PARTIAL ACCEPTANCE — authenticated LIVE Checkout initialization PASSED; 30/60 Stripe TEST initial payments PASSED; 30/60 chronological renewals and LIVE nonzero payment/refund NOT VERIFIED  
 **Test date:** October 30, 2026 (UTC evidence timestamps; local America/Chicago)  
 **Primary Cloudflare project:** `stock-market-from-the-ground-up`  
@@ -67,3 +67,22 @@ The owner requested (a) authenticated website Checkout through actual member pai
 | Version | Date | Description |
 | --- | --- | --- |
 | 1.0 | 2026-10-30 | Recorded real authenticated checkout creation; initial Stripe TEST 30-/60-day subscriptions, reversals and cancellation; explicit missing acceptance items. |
+
+## Official Stripe TEST card acceptance addendum — 2026-10-30
+
+**Objective:** Execute the user-authorized, zero-real-money fake-card tests, not a LIVE nonzero charge.
+
+- **PASS:** Provider TEST transactions using Stripe's sandbox card/token fixtures `tok_visa` succeeded for Founding 14-, 30-, and 60-Day initial subscriptions. All specifically created 30-/60-day QA subscriptions were canceled and refunded in TEST mode. This is not proof of a chronological subscription renewal or member fulfillment.
+- **PASS:** `tok_chargeDeclined` returned `card_declined` / `generic_decline` from the Primary Stripe TEST account. No real charge.
+- **PASS:** Real authenticated `James_Test` login to production and Book I TEST Checkout initiation. Stripe created TEST Checkout session `cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg` for $10.99.
+- **BLOCKED:** In the first Chromium run, the hosted Stripe TEST form did not navigate after submitting the official success test card; after the 60-second timeout, the Stripe session remained `open/unpaid`. The second diagnostic browser run encountered an unavailable hosted card-number input. The tests are *not* successful end-to-end payments.
+- **QA cleanup VERIFIED:** The temporary `gu_book_test_qa_v1` allowlist entry for `James_Test` was deleted and confirmed absent. TEST Book fulfillment events remain zero; no LIVE entitlements or charges were created.
+- **OPEN:** Real hosted TEST card payment completion, verified TEST Book shadow-fulfillment and refund revocation; real chronological 30-/60-day TEST renewal and failed-renewal recovery through a test clock. The connected Stripe API does not expose test-clock advancement.
+
+**Evidence:** [Authenticated Book TEST browser attempt 1](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41145113758) and [diagnostic attempt 2](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41145446263), both failed at the hosted card interaction. Never present them as successful purchases. Stripe's automated-testing documentation warns that hosted payment UI may enforce automation security controls.
+
+**Release impact:** LIVE purchase/refund acceptance remains unverified; TEST card fixtures cannot pay a LIVE Checkout.
+
+| Version | Date | Change |
+| --- | --- | --- |
+| 1.1 | 2026-10-30 | Official fake TEST-card scenarios, real authenticated Book TEST session, failed hosted card acceptance, verified QA allowlist cleanup. |
