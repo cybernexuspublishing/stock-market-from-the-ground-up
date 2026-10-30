@@ -61,9 +61,11 @@ if(!email||!password){
   assert.equal(original.body.program?.code,'free5');
   assert.equal(original.body.curriculum?.length,5);
   assert.equal(original.body.progressAvailable,true,'Server-side progress must be available');
-  assert(!original.body.progress.some(x=>x.day===1),
-   'Day 1 already has a private QA record. Refusing to overwrite existing study notes; a clean dedicated QA identity is needed.');
-  note('checks','Free5 private GET returned exactly five lessons and an unused Day 1.');
+  const reflection='FICTIONAL QA DAY 1 REFLECTION: This is a synthetic study note for testing private persistence, not a real security, trade, grade, or recommendation. I will identify which prices are actual transactions, which quotes are displayed interest, what remains unknown, and why a No Trade choice can be appropriate.';
+  const existingDay1=original.body.progress.find(x=>x.day===1);
+  assert(!existingDay1||(existingDay1.status==='reflection_saved'&&existingDay1.reflection===reflection),
+   'Day 1 contains another private note. Refusing to overwrite the existing member record.');
+  note('checks',existingDay1?'Free5 Day 1 already holds the exact previously saved QA-only reflection; rerunning read-only.':'Free5 private GET returned exactly five lessons and an unused Day 1.');
   const startUrl=origin+'/bootcamp-academy.html?program=free5&day=1';
   await page.goto(startUrl,{waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForFunction(()=>document.getElementById('academy-workspace')?.hidden===false,
@@ -71,6 +73,7 @@ if(!email||!password){
   assert.equal(await page.locator('#academy-day-title').count(),1);
   assert.match(await page.locator('#academy-stage-label').innerText(),/Lesson 1 of 5/i);
   note('checks','Day 1 opened inside the real signed-in Academy learning workspace.');
+  if(!existingDay1){
   if(await page.locator('#academy-enroll').isVisible()){
    await page.locator('#academy-enroll').click();
    await page.waitForFunction(()=>document.getElementById('academy-enroll')?.hidden===true,
@@ -79,12 +82,12 @@ if(!email||!password){
   await page.locator('#academy-start').click();
   await page.waitForFunction(()=>/Lesson started|previously saved reflection/i.test(
    document.getElementById('academy-save-status')?.textContent||''),{timeout:15000});
-  const reflection='FICTIONAL QA DAY 1 REFLECTION: This is a synthetic study note for testing private persistence, not a real security, trade, grade, or recommendation. I will identify which prices are actual transactions, which quotes are displayed interest, what remains unknown, and why a No Trade choice can be appropriate.';
   await page.locator('#academy-reflection').fill(reflection);
   await page.locator('#academy-save').click();
   await page.waitForFunction(()=>/Your learning notes are saved/i.test(
    document.getElementById('academy-save-status')?.textContent||''),{timeout:18000});
   note('checks','Day 1 reflection saved through the actual browser button (fictional, ungraded).');
+  }else note('checks','Previous QA save detected; no further progress write was performed.');
   await page.reload({waitUntil:'domcontentloaded',timeout:30000});
   await page.waitForFunction(()=>document.getElementById('academy-workspace')?.hidden===false,
    {timeout:30000});
