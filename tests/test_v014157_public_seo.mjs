@@ -12,6 +12,8 @@ try{
  copyFileSync('assets/js/ga4-consent-v1.js',join(root,'assets','js','ga4-consent-v1.js'));
  writeFileSync(join(root,'index.html'),html('Public homepage'));
  writeFileSync(join(root,'about.html'),html('Author biography'));
+ const otherPublic=['books','store','learn','tools','lab-samples','membership','help','philosophy'];
+ for(const slug of otherPublic)writeFileSync(join(root,slug+'.html'),html('Public '+slug));
  writeFileSync(join(root,'admin.html'),html('Private Admin'));
  writeFileSync(join(root,'dashboard.html'),html('Private member dashboard'));
  writeFileSync(join(root,'privacy.html'),html('Legal review pending','<meta name="robots" content="noindex,follow">'));
@@ -23,11 +25,28 @@ try{
  const sitemap=readFileSync(join(root,'sitemap.xml'),'utf8');
  assert(sitemap.includes('<loc>'+origin+'/</loc>'));
  assert(sitemap.includes('<loc>'+origin+'/about.html</loc>'));
+ assert.equal((sitemap.match(/<url><loc>/g)||[]).length,10,'Exactly 10 eligible public pages');
  assert(!sitemap.includes('/admin.html')&&!sitemap.includes('/dashboard.html')&&!sitemap.includes('/privacy.html'));
  assert(readFileSync(join(root,'admin.html'),'utf8').includes('noindex,nofollow'));
  assert(readFileSync(join(root,'dashboard.html'),'utf8').includes('noindex,nofollow'));
  assert(readFileSync(join(root,'index.html'),'utf8').includes('<link rel="canonical" href="'+origin+'/">'));
  const homepage=readFileSync(join(root,'index.html'),'utf8');
+ const titles=new Set(),descriptions=new Set();
+ for(const slug of ['index','about',...otherPublic]){
+  const page=readFileSync(join(root,slug+'.html'),'utf8');
+  const title=page.match(/<title>([^<]+)<\\/title>/i)?.[1];
+  const summary=page.match(/<meta name="description" content="([^"]+)">/i)?.[1];
+  assert(title && summary,'Missing title or description: '+slug);
+  assert(!titles.has(title),'Duplicate public title: '+slug);
+  assert(!descriptions.has(summary),'Duplicate public summary: '+slug);
+  titles.add(title);descriptions.add(summary);
+  const url=origin+(slug==='index'?'/':'/'+slug+'.html');
+  assert(page.includes('<link rel="canonical" href="'+url+'">'),'Canonical mismatch: '+slug);
+  assert(page.includes('<meta property="og:url" content="'+url+'">'),'Social URL mismatch: '+slug);
+  assert.equal((page.match(/<meta property="og:title"/g)||[]).length,1,'Duplicate social metadata: '+slug);
+  assert.equal((page.match(/ga4-consent-v1\\.js/g)||[]).length,1,'Duplicate analytics controller: '+slug);
+ }
+
  assert.equal((homepage.match(/ga4-consent-v1\.js/g)||[]).length,1,'Public page has exactly one consent controller');
  assert(!homepage.includes('googletagmanager.com'),'Do not load Google directly before permission');
  for(const page of ['admin.html','dashboard.html','privacy.html']){
@@ -43,5 +62,5 @@ try{
   'Rebuilding must not duplicate the consent controller');
  assert.equal((readFileSync(join(root,'index.html'),'utf8').match(/rel="canonical"/g)||[]).length,1,
   'Rebuilding must not duplicate canonical elements');
- console.log('PASS D17 source SEO canonical, sitemap whitelist, private route noindex, robots, invalid origin and rebuild');
+ console.log('PASS public SEO: 10 unique titles/descriptions, canonicals, social tags, consent isolation, sitemap, protected noindex, rebuild');
 }finally{rmSync(root,{recursive:true,force:true})}
