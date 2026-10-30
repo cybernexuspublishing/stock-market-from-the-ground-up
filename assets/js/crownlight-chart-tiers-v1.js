@@ -645,6 +645,7 @@ window.CrownlightChartTiers={getInstances:()=>state.verified&&state.selected!=='
  getRevealedBars:()=>state.bars.map(b=>({...b})),
  getStatus:()=>({
  tier:state.tier,selected:state.selected,allowed:[...state.allowed],visible:[...state.visible],revealed:state.bars.length,
+ symbol:state.symbol,source:state.source,
  verified:state.verified,charts:state.charts.length,echartsReady:window.CrownlightEChartsStudio?.getStatus().ready===true,
  accessExpiry:state.accessExpiry,accessKind:state.accessKind,sparksAvailable:state.sparksAvailable
 }),choose:t=>choose(t),addStudy,removeStudy,balancePanels};
