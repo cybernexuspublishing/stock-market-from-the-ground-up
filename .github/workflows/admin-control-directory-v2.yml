@@ -1,0 +1,43 @@
+name: Admin Control Directory Dynamic Coverage and Rights
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'assets/js/admin-control-directory-v1.js'
+      - 'tests/test_admin_control_directory_v2_browser.mjs'
+      - '.github/workflows/admin-control-directory-v2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  control-directory-chromium:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check administrative source syntax
+        run: |
+          node --check assets/js/admin-control-directory-v1.js
+          node --check assets/js/admin-navigation.js
+          node --check tests/test_admin_control_directory_v2_browser.mjs
+      - name: Install pinned no-cost Chromium
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Browser regression for live directory permissions and destinations
+        run: |
+          node tests/test_admin_control_directory_v2_browser.mjs
+          node tests/test_admin_products_tabs_chromium_v1.mjs
+          node tests/test_admin_products_five_tabs_browser_v2.mjs
+      - name: Cloudflare publication boundaries
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/js/admin-control-directory-v1.js
+          test ! -e public/functions
+          test ! -e public/supabase
+          test ! -e public/tests
