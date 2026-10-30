@@ -35,7 +35,7 @@ async function verifiedPaid(c,sessionId){
  const {s,i}=found;
  const piId=pick(s.payment_intent);
  if(s.status!=='complete'||s.payment_status!=='paid'||!id(piId,'pi')||
-    i.status!=='bound')throw Error('MIXED_QA_NOT_PAID');
+    !['bound','fulfilled'].includes(i.status))throw Error('MIXED_QA_NOT_PAID');
  const pi=await stripe(c,'payment_intents/'+encodeURIComponent(piId));
  if(pi.id!==piId||pi.livemode!==false||pi.status!=='succeeded'||
     pi.currency!=='usd'||pi.amount_received!==i.cash_due_cents||
