@@ -18,12 +18,57 @@ const candidates=[
  'index','about','books','store','learn','tools','lab-samples',
  'membership','help','faq','philosophy'
 ];
-const description={
- help:'Get help with account access, books and stock-market learning tools.',
- tools:'Discover stock-market learning tools and practice resources.',
- membership:'Explore access to stock-market lessons, simulations and learning resources.',
- faq:'Frequently asked questions about the Ground Up stock-market learning platform.'
+// Curated copy mirrors each existing public page; do not invent sales availability.
+const metadata={
+ index:{
+  title:'Learn the Stock Market | Books, Labs & Practice — SMFGU',
+  description:'Learn stock-market mechanics with J. S. Grant’s Foundations books, guided Labs, structured Boot Camps and decision practice. Education, not trading signals.'
+ },
+ about:{
+  title:'About J. S. Grant | Stock Market Education',
+  description:'Meet author J. S. Grant and learn how The Stock Market: From the Ground Up teaches market mechanics, charts, research, risk and decision practice.'
+ },
+ books:{
+  title:'Stock Market Foundations Books I–III | J. S. Grant',
+  description:'Explore J. S. Grant’s Foundations books I–III covering stock-market mechanics, candlesticks, price structure, VWAP and trading decisions.'
+ },
+ store:{
+  title:'Stock Market Learning Store | Books & Memberships',
+  description:'Browse Founding Memberships, Foundations books, learning tools and Crownlight Lumens. Compare access and check current availability before purchase.'
+ },
+ learn:{
+  title:'Learn the Stock Market | Guided Labs & Boot Camps',
+  description:'Study stock-market concepts through guided book-linked Labs, decision practice, learning paths, Boot Camps and a structured learning record.'
+ },
+ tools:{
+  title:'Trading-Learning Tools, Watchlists & Chart Practice',
+  description:'Explore educational watchlists, trade plans, chart practice and decision journaling. Check current tool availability and membership options.'
+ },
+ 'lab-samples':{
+  title:'Try Sample Stock Market Labs | SMFGU',
+  description:'Try three sample stock-market Labs without an account. Practice observations and evidence-based decisions before exploring the full learning system.'
+ },
+ membership:{
+  title:'Stock Market Memberships & Individual Tool Access',
+  description:'Explore membership and individual-tool access for stock-market education and historical replay learning. Review eligibility, availability and terms.'
+ },
+ help:{
+  title:'Help with Books, Accounts & Learning Tools | SMFGU',
+  description:'Find guidance for account access, stock-market books, learning Labs, memberships, educational tools and connected market-data features.'
+ },
+ philosophy:{
+  title:'Our Teaching Philosophy | The Stock Market: From the Ground Up',
+  description:'Learn how the four steps—Learn, Understand, Practice, Trade—support foundational knowledge, evidence-based practice and repeatable decisions.'
+ },
+ faq:{
+  title:'Frequently Asked Questions | SMFGU',
+  description:'Answers to common questions about stock-market education, learning resources, books and member access.'
+ }
 };
+const escapeMeta=s=>String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+function upsertTag(html,pattern,tag){
+  return pattern.test(html)?html.replace(pattern,tag):html.replace(/<\/head>/i,tag+'</head>');
+}
 // Build must fail if the public opt-in controller is missing or cannot parse.
 const ga4Controller=join(output,'assets/js/ga4-consent-v1.js');
 if(!existsSync(ga4Controller))throw Error('GA4 consent controller missing from public assets');
@@ -38,14 +83,30 @@ for(const name of candidates){
  }
  const path=name==='index'?'/':'/'+name+'.html';
  const canonical=origin+path;
+ const seo=metadata[name];
+ if(seo){
+  // Keep original public copy intact while improving how pages appear in Search.
+  const titleTag='<title>'+escapeMeta(seo.title)+'</title>';
+  html=upsertTag(html,/<title\b[^>]*>[\s\S]*?<\/title>/i,titleTag);
+  const summary='<meta name="description" content="'+escapeMeta(seo.description)+'">';
+  html=upsertTag(html,/<meta\b[^>]*name=['"]description['"][^>]*>/i,summary);
+  const og=[
+   ['og:type','website'],
+   ['og:title',seo.title],
+   ['og:description',seo.description],
+   ['og:url',canonical]
+  ];
+  for(const [property,value] of og){
+    const pattern=new RegExp('<meta\\b[^>]*property=["\\x27]'+property+'["\\x27][^>]*>','i');
+    const tag='<meta property="'+property+'" content="'+escapeMeta(value)+'">';
+    html=upsertTag(html,pattern,tag);
+  }
+ }
  const canonicalTag='<link rel="canonical" href="'+canonical+'">';
  const canonicalPattern=/<link\s+[^>]*rel=['"]canonical['"][^>]*>/i;
  if(!/<\/head>/i.test(html))throw Error('Public page has no head: '+name);
  if(canonicalPattern.test(html))html=html.replace(canonicalPattern,canonicalTag);
  else html=html.replace(/<\/head>/i,canonicalTag+'</head>');
- if(!/<meta\s+[^>]*name=['"]description['"]/i.test(html)&&description[name]){
-  html=html.replace(/<\/head>/i,'<meta name="description" content="'+description[name]+'"></head>');
- }
  // Load optional analytics only on verified public discovery pages.
  // The controller does not request Google code before visitor permission.
  const ga4Markup='<script defer src="/assets/js/ga4-consent-v1.js"></script>';
