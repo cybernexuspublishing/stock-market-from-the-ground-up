@@ -31,7 +31,25 @@ export function normalizeWorkspace(input,entitlement){
  const drawingContext=typeof raw.drawingContext==='string'&&
   raw.drawingContext.length>0&&raw.drawingContext.length<=150&&
   !/[\x00-\x1f<>]/.test(raw.drawingContext)?raw.drawingContext:null;
- return {version:2,selected,sync:raw.sync!==false,studies,drawings,layout,drawingContext};
+ // Multi-dataset annotation book. Bounded, account-private metadata only:
+ // no OHLCV bars, provider credentials, trade state or third-party URLs.
+ const drawingSets=[],known=new Set();
+ const safeContext=x=>typeof x==='string'&&x.length>0&&x.length<=150&&
+  !/[\x00-\x1f<>]/.test(x);
+ for(const entry of (Array.isArray(raw.drawingSets)?raw.drawingSets:[]).slice(0,5)){
+  if(!entry||!safeContext(entry.context)||known.has(entry.context))continue;
+  const subset=[];
+  for(const d of (Array.isArray(entry.drawings)?entry.drawings:[]).slice(0,10)){
+   if(!d||!VALID_DRAWINGS.has(d.name)||!Array.isArray(d.points))continue;
+   const points=d.points.slice(0,4).filter(p=>Number.isSafeInteger(p?.timestamp)&&p.timestamp>0&&
+     validNumber(p?.value)&&p.value>0).map(p=>({timestamp:p.timestamp,value:p.value}));
+   if(points.length)subset.push({name:d.name,points});
+  }
+  if(!subset.length)continue;
+  known.add(entry.context);
+  drawingSets.push({context:entry.context,drawings:subset});
+ }
+ return {version:2,selected,sync:raw.sync!==false,studies,drawings,layout,drawingContext,drawingSets};
 }
 const cfg=env=>{
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
