@@ -78,7 +78,9 @@
     '/membership.html': ['smfgu_catalog_interest', 'membership'],
     '/tools.html': ['smfgu_catalog_interest', 'tools'],
     '/learn.html': ['smfgu_learning_interest', 'learn'],
-    '/lab-samples.html': ['smfgu_learning_interest', 'samples']
+    '/lab-samples.html': ['smfgu_learning_interest', 'samples'],
+    '/candle-practice.html': ['smfgu_learning_interest', 'candle_practice'],
+    '/free-foundations-challenge.html': ['smfgu_learning_interest', 'free5_overview']
   });
   function trackPublicNavigation(event) {
     if (choice !== 'granted' || !tagStarted || typeof window.gtag !== 'function') return;
