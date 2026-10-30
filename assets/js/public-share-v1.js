@@ -1,5 +1,5 @@
 /* V1 voluntary share/referral actions: NO tracking, no friend contacts,
- * cookies, localStorage, unique codes, automatic posting or marketing emails.
+ * cookies, browser persistence, unique codes, automatic posting or marketing emails.
  * Only source-defined canonical HTTPS links may be shared.
  */
 (()=>{'use strict';
