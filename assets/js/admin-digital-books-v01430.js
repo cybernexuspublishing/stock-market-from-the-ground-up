@@ -36,10 +36,13 @@ function mount(){
     until.type='datetime-local';if(product.exclusiveUntil){const d=new Date(product.exclusiveUntil);if(!isNaN(d.getTime()))until.value=new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16)}
     file.type='file';file.accept='.epub,.pdf,application/epub+zip,application/pdf';
     const lbl=(txt,ctrl)=>{const x=el('label',txt);x.append(ctrl);return x};
-    card.append(lbl('Currently enrolled in Amazon KDP Select',kdp),lbl('KDP Select current term ends (verified)',until),
+    const editionFields=el('div',null,'gu-digital-fields');
+    editionFields.append(lbl('Currently enrolled in Amazon KDP Select',kdp),
+      lbl('KDP Select current term ends (verified)',until),
       lbl('I verified actual KDP Select exit and digital distribution rights',rights),
       lbl('Enable direct eBook purchases',sales),lbl('Enable purchased-book downloads',downloads),
       lbl('Upload private EPUB/PDF (max 50 MB)',file));
+    card.append(editionFields);
     const fileStatus=el('p',product.asset?'Current private asset: '+product.asset:'No private asset attached.','small');card.append(fileStatus);
     let asset=product.asset||'';const rowStatus=el('p','Changes are saved only after server validation.','small');rowStatus.setAttribute('role','status');
     const upload=el('button','Upload selected file privately','btn secondary');upload.type='button';
@@ -220,7 +223,13 @@ function mount(){
       previewResult.textContent='Private preview unavailable: '+(e.message||'Owner authorization or file validation failed.');
      }finally{previewButton.disabled=false}
     };
-    card.append(upload,prepare,historyButton,previewFormat,previewButton,previewResult,save,draftSave,historyList,rowStatus);
+    const previewTools=el('div',null,'gu-digital-preview-tools');
+    previewTools.append(previewFormat,previewButton);
+    const actions=el('div',null,'gu-digital-actions');
+    actions.setAttribute('role','group');
+    actions.setAttribute('aria-label','Book edition and publishing actions');
+    actions.append(upload,prepare,historyButton,previewTools,save,draftSave);
+    card.append(actions,previewResult,historyList,rowStatus);
     // Reuse the existing guarded uploader inside Products > Books > Edit.
     // The selected book card moves to the editor; other books remain in Commerce.
     if(editorCode===product.code && editorTarget?.isConnected && document.getElementById('admin-dialog')?.open){
