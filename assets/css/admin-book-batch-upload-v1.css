@@ -1,0 +1,7 @@
+
+#admin-book-batch-upload{margin:14px 0 20px;padding:15px;max-width:950px}
+#admin-book-batch-upload input[type=file]{display:block;width:min(100%,500px);margin:11px 0}
+#admin-book-batch-upload .gu-book-batch-preview{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:5px 14px;font-size:.88rem}
+#admin-book-batch-upload .gu-book-batch-preview p{margin:3px 0;overflow-wrap:anywhere}
+#admin-book-batch-upload .gu-book-batch-results{font-size:.9rem;overflow-wrap:anywhere}
+#admin-book-batch-upload [role=status]{margin:10px 0}
