@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Owner Member Growth Funnel | The Stock Market: From the Ground Up</title>
+<meta name="description" content="Private Owner-only aggregate member acquisition and Free Foundations engagement report.">
+<link rel="stylesheet" href="/assets/css/styles.css">
+<link rel="stylesheet" href="/assets/css/owner-growth-funnel-v1.css">
+<script src="/config.js"></script><script defer src="/assets/js/supabase-client.js"></script>
+<script defer src="/assets/js/session-manager.js"></script>
+<script defer src="/assets/js/owner-growth-funnel-v1.js"></script>
+</head><body data-auth-required="true" data-route-access="staff">
+<header class="site-header"><div class="wrap nav"><a class="brand" href="/admin.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"><a href="/admin.html">Admin Control Center</a><a href="/owner-free5-isolation-qa.html">Privacy Verification</a></nav></div></header>
+<main class="section"><div class="wrap gu-growth-owner">
+<p class="eyebrow">OWNER ONLY · MEMBER ACQUISITION</p><h1>Growth &amp; Free Foundations Funnel</h1>
+<p class="section-intro">Read-only, privacy-minimized counts from the actual account verification and learning records. This does not track visitors across devices or connect anonymous Google Analytics users to member identities.</p>
+<section class="card" aria-label="Growth report controls">
+<div class="gu-owner-growth-controls"><label for="gu-growth-range">Registration cohort window (UTC) <select id="gu-growth-range"><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option><option value="90">Last 90 days</option></select></label>
+<button id="gu-growth-refresh" class="btn" type="button">Refresh verified counts</button>
+<button id="gu-growth-copy" class="btn secondary" type="button" disabled>Copy aggregate report</button></div>
+<p id="gu-growth-status" role="status" aria-live="polite">Verifying your Owner session and measuring member outcomes…</p><p id="gu-growth-asof" class="small"></p>
+</section>
+<section class="dashboard-space" aria-labelledby="gu-growth-cohort-head">
+<h2 id="gu-growth-cohort-head">New registrations in the selected window</h2>
+<p class="small">Each number refers to actual accounts created in the selected period. Stages show their status as of the report time, not necessarily what happened on their registration date.</p>
+<div id="gu-growth-cohort" class="gu-owner-growth-metrics" aria-label="New-member funnel"><p>Waiting for verified provider data…</p></div>
+</section>
+<section class="dashboard-space" aria-labelledby="gu-growth-existing-head"><h2 id="gu-growth-existing-head">All-time eligible members</h2>
+<div id="gu-growth-existing" class="gu-owner-growth-metrics" aria-label="All-time member funnel"><p>Waiting for verified provider data…</p></div></section>
+<section class="dashboard-space card" aria-labelledby="gu-growth-history-head"><h2 id="gu-growth-history-head">Registration cohorts by UTC date</h2>
+<p class="small">Daily rows show registrations on that date and what those accounts have accomplished as of the current read. They are not daily page-view or lesson-event counts.</p>
+<div class="gu-owner-growth-tablewrap"><table class="lab-table"><thead><tr><th>Registration date</th><th>Registered</th><th>Verified now</th><th>Day 1 started</th><th>Day 1 saved</th></tr></thead><tbody id="gu-growth-rows"><tr><td colspan="5">Waiting for verified provider data…</td></tr></tbody></table></div>
+</section>
+<section class="dashboard-space card" aria-labelledby="gu-growth-quality-head"><h2 id="gu-growth-quality-head">Data quality and exclusions</h2>
+<p id="gu-growth-exclusions" role="status">Waiting for aggregation…</p>
+<p class="small">OWNER, ADMIN and other staff roles, plus the known James_Test identity, are excluded from acquisition counts. Unclassified profiles are not silently treated as new customers. If provider pagination fails, the report fails closed rather than showing incomplete totals.</p>
+</section>
+<section class="dashboard-space card" aria-labelledby="gu-growth-sources-head"><h2 id="gu-growth-sources-head">Visitor acquisition (separate data source)</h2>
+<p>Consented public sessions, page views and navigation interest come from Google Analytics 4; Google search impressions and clicks come from Search Console. Neither provider's data can be joined to private Supabase member identities. This report never substitutes account registrations for visitors or constructs an unverified visitor-to-member conversion percentage.</p>
+<p>For recent visitor counts and Google discovery, use the existing <strong>SMFGU Search &amp; GA4 Watch</strong> and connected analytics reports. Reporting delay, consent choice and the new site's limited history can all affect coverage.</p>
+<p class="small">A visit is not a verified signup. A saved ungraded reflection is not official mastery or a paid member. No purchase amounts or identifiable profiles are presented here.</p>
+</section>
+<div class="actions"><a class="btn secondary" href="/admin.html">Back to Admin Control Center</a><a class="btn secondary" href="/free-foundations-challenge.html">Public Free Foundations landing page</a></div>
+</div></main><footer class="footer"><div class="wrap"><p>Private Owner operations · Crown &amp; Lantern Press · No payments or member records are modified.</p></div></footer>
+</body></html>
