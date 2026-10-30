@@ -120,7 +120,9 @@
     const extra=detailMap.get(id)||{};
     const skills=Array.isArray(row.relatedCompetencies)?row.relatedCompetencies:[];
     return{id,title:String(extra.concept||row.title||id),skill:[extra.skill,...skills.map(x=>String(x).replaceAll('_',' '))].filter(Boolean).join(' · '),
-     ticker:String(extra.ticker||row.ticker||''),book:Number(extra.book||0),theme:String(extra.chapterTitle||'')};
+     ticker:String(extra.ticker||row.ticker||''),
+     book:Number(extra.book||({F1:1,F2:2,F3:3,DT:4,TAPE:5,SITE:6}[id.split('-')[0]]||0)),
+     theme:String(extra.chapterTitle||'')};
    }).sort((a,b)=>a.id.localeCompare(b.id));
    const availability=all[2].status==='fulfilled'?all[2].value:null;
    release=availability?.ok===true&&Array.isArray(availability.publishedIds)&&
