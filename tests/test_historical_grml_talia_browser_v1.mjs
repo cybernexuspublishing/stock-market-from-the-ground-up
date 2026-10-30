@@ -17,7 +17,7 @@ try{
  await page.addScriptTag({content:readFileSync('assets/js/historical-grml-talia-v1.js','utf8')});
  await page.addScriptTag({content:modified});
  const candle={ms:Date.parse('2026-09-21T13:30:00Z'),o:4.2,h:4.5,l:4.1,c:4.4,v:120};
- await page.evaluate(c=>window.__qaGrml.configure(1,[candle]),candle);
+ await page.evaluate(c=>window.__qaGrml.configure(1,[c]),candle);
  assert(await page.locator('#hr-grml-lesson').isVisible());
  assert.match(await page.locator('#hr-grml-lesson h4').innerText(),/Observe before predicting/);
  assert.match(await page.locator('.hr-grml-evidence').innerText(),/120 shares/);
