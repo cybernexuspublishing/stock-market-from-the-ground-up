@@ -1,0 +1,27 @@
+/* Original fictional DT-C01-L02 ECharts teaching panel. */
+.dt-l02-panel{margin:20px 0 24px;padding:21px;border:1px solid #41657d;border-radius:15px;
+ background:linear-gradient(135deg,#0a1b29,#122e42);color:#dceaf5;box-shadow:0 12px 34px #05131f40}
+.dt-l02-panel[hidden]{display:none!important}
+.dt-l02-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:18px}
+.dt-l02-header h3{color:#fff;font-size:1.45rem;margin:6px 0 8px}
+.dt-l02-header p{max-width:740px;color:#c2d3e2;margin:0 0 12px;line-height:1.55}
+.dt-l02-kicker{font-size:.73rem;letter-spacing:.11em;font-weight:700;color:#91bfd8}
+.dt-l02-tag{border:1px solid #54829a;border-radius:20px;color:#bce9da;
+ padding:7px 10px;font-size:.7rem;letter-spacing:.05em;white-space:nowrap}
+.dt-l02-stats{display:flex;flex-wrap:wrap;gap:10px 22px;border-block:1px solid #39546a;
+ padding:12px 0;font-size:.85rem}
+.dt-l02-stats strong{color:#fff}
+.dt-l02-controls{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;padding:13px 0}
+.dt-l02-toggle{display:flex;align-items:center;gap:7px;font-size:.85rem;cursor:pointer}
+.dt-l02-toggle input{accent-color:#27c29a;width:17px;height:17px}
+.dt-l02-note{color:#bad0de;font-size:.78rem;flex:1 1 270px}
+.dt-l02-chart{width:100%;height:425px;min-width:0;background:#081b2a;border:1px solid #294c64;border-radius:10px}
+.dt-l02-summary{font-size:.86rem;color:#d5e3ee;line-height:1.6;margin:12px 0}
+.dt-l02-notice{font-size:.76rem;color:#bad0de}
+.dt-l02-teaching{display:grid;grid-template-columns:minmax(200px,1fr) minmax(200px,1.3fr);
+ gap:14px;border-left:3px solid #c5a96c;border-radius:8px;background:#0b2433;padding:15px}
+.dt-l02-teaching h4{margin:0 0 7px;color:#e3d3a9}
+.dt-l02-teaching p{font-size:.85rem;line-height:1.55;color:#d0e0eb;margin:0}
+.dt-l02-reminder{grid-column:1/-1;opacity:.85}
+@media(max-width:760px){.dt-l02-panel{padding:13px}.dt-l02-chart{height:350px}
+ .dt-l02-teaching{grid-template-columns:1fr}}
