@@ -160,6 +160,7 @@ node scripts/build-public-seo.mjs
 # This is entirely local; no Google requests, member data or paid operations.
 node tests/test_v014157_public_seo.mjs
 node tests/test_public_acquisition_v1.mjs
+node tests/test_member_growth_v1.mjs
 node tests/test_owner_free5_isolation_source_v1.mjs
 node tests/test_ga4_public_funnel_v1.mjs
 printf 'Cloudflare Pages static output: %s files\n' "$(find "$output" -type f | wc -l)"
