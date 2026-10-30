@@ -7,7 +7,7 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const catalog=JSON.parse(read('data/competency-lab-paths-v01499.json'));
 const details=JSON.parse(read('data/labs.json'));
 const script=read('assets/js/learning-destination-picker-v1.js');
-const fixture='<html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="player-catalog-browser"><label id="player-catalog-label">Choose a Lab</label><input id="player-catalog-search" type="search"><a id="player-lab-id" href="labs.html">All 419 Labs</a><p id="player-catalog-status"></p><div id="player-catalog-results"></div><button id="player-catalog-retry" hidden>Retry</button></div></body></html>';
+const fixture='<html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><label id="player-catalog-label">Choose a Lab</label><input id="player-catalog-search" type="search" role="combobox" aria-expanded="false"><button id="player-catalog-toggle" aria-expanded="false">Browse all Labs</button><a id="player-lab-id" href="labs.html">All 419 Labs</a><p id="player-catalog-status"></p><div id="player-catalog-browser" hidden><div id="player-catalog-results"></div><button id="player-catalog-retry" hidden>Retry</button></div></body></html>';
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 async function setup({auth=false,canonicalOffline=false,releaseOffline=false,width=1280}={}){
  const page=await browser.newPage({viewport:{width,height:900}});
@@ -34,13 +34,21 @@ async function setup({auth=false,canonicalOffline=false,releaseOffline=false,wid
 try{
  for(const width of [390,1440]){
   const {page,errors}=await setup({width});
-  assert.equal(await page.locator('.gu-picker-item').count(),419,'All 419 Labs must display');
+  assert.equal(await page.locator('.gu-picker-item').count(),419,'All 419 Labs must be indexed');
+  assert.equal(await page.locator('#player-catalog-browser').isVisible(),false,
+   'Loaded dropdown begins compact instead of forcing 419 rows into the lesson');
+  await page.locator('#player-catalog-toggle').click();
+  assert.equal(await page.locator('#player-catalog-browser').isVisible(),true,
+   'Browse button opens the Lab-only chooser');
   await page.locator('#player-catalog-search').fill('vwap');
   const result=page.locator('.gu-picker-item'),n=await result.count();
   assert(n>=17,'VWAP search must find all matching Labs');
   assert.equal(await page.locator('.gu-picker-locked').count(),n,'Unverified access remains locked');
   assert.equal(await result.filter({hasText:'F3-C06-L01'}).locator('a').first().getAttribute('href'),
    'store-book-foundation-3.html','Matching book product link is required');
+  await page.locator('#player-catalog-search').press('Escape');
+  assert.equal(await page.locator('#player-catalog-browser').isVisible(),false,
+   'Escape collapses the dropdown without discarding the search');
   assert.deepEqual(errors,[]);
   await page.close();
   console.log('PASS responsive discovery '+width+'px, 419 Labs, VWAP query and product links');
