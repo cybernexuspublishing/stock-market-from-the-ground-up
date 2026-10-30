@@ -262,10 +262,17 @@
     if(!workspace.hidden)draw();
    }catch{chart.textContent='Chart engine unavailable. The accessible OHLC reference remains available.';}
   });
+  function reset(){
+   state.close=WORKED.close;slider.value=String(WORKED.close);
+   state.credits=3;state.attempts={};state.revealed.clear();
+   state.assisted.clear();state.firstIndependent=null;
+   state.retryIndependent=null;state.mastery='Not Yet Assessed';
+   setStep(0);
+  }
   function dispose(){
    disposed=true;resize?.disconnect();plot?.dispose();plot=null;
   }
-  return {element:host,setStep,dispose,state,
+  return {element:host,setStep,reset,dispose,state,
    snapshot:()=>({stage:state.stage,credits:state.credits,assisted:state.assisted.size,
      grade:'Not Yet Assessed',firstIndependent:state.firstIndependent})};
  }
