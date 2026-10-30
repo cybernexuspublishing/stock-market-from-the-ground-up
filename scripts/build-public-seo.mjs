@@ -208,11 +208,11 @@ const feedItems=feedSlugs.filter(slug=>indexable.has('/'+slug+'.html')).map(slug
   '</link><guid isPermaLink="true">'+xmlEntities(link)+'</guid><description>'+
   xmlEntities(item.description)+'</description></item>';
 });
-const freeFeed='<?xml version="1.0" encoding="UTF-8"?>\\n'+
+const freeFeed='<?xml version="1.0" encoding="UTF-8"?>\n'+
  '<rss version="2.0"><channel><title>SMFGU — Free Stock Market Learning</title>'+ 
  '<link>'+xmlEntities(origin+'/free-foundations-challenge.html')+'</link>'+ 
  '<description>Original free beginner lessons and fictional chart practice. Education only.</description>'+ 
- '<language>en-US</language>\\n'+feedItems.join('\\n')+'\\n</channel></rss>\\n';
+ '<language>en-US</language>\n'+feedItems.join('\n')+'\n</channel></rss>\n';
 writeFileSync(join(output,'feed.xml'),freeFeed);
 writeFileSync(join(output,'robots.txt'),[
  'User-agent: *','Disallow: /api/','Disallow: /admin','Disallow: /dashboard',
