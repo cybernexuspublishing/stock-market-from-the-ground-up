@@ -64,11 +64,13 @@ assert.equal(granted.head.children.filter(x=>x.tag==='script').length,1,'Consent
 click(granted,'https://example.test/create-account.html?email=private@example.test');
 click(granted,'https://example.test/store?product=SECRET');
 click(granted,'https://example.test/learn.html#lesson');
+click(granted,'https://example.test/candle-practice.html?note=secret');
+click(granted,'https://example.test/free-foundations-challenge.html');
 click(granted,'https://example.test/my-purchases.html?order_id=secret');
 click(granted,'https://checkout.stripe.com/c/pay/example');
 const events=namedEvents(granted);
-assert.deepEqual(events.map(x=>x[1]),['smfgu_registration_start','smfgu_catalog_interest','smfgu_learning_interest']);
-assert.deepEqual(events.map(x=>x[2].item_id),['account','store','learn']);
+assert.deepEqual(events.map(x=>x[1]),['smfgu_registration_start','smfgu_catalog_interest','smfgu_learning_interest','smfgu_learning_interest','smfgu_learning_interest']);
+assert.deepEqual(events.map(x=>x[2].item_id),['account','store','learn','candle_practice','free5_overview']);
 assert(events.every(x=>Object.keys(x[2]).sort().join(',')==='content_type,item_id'),'Only fixed parameters may be sent');
 assert(!JSON.stringify(events).includes('private@example.test'),'No email may enter event data');
 assert(!JSON.stringify(events).includes('SECRET'),'No URL parameters may enter event data');
