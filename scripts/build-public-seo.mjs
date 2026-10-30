@@ -149,7 +149,7 @@ for(const name of candidates){
    publisher
   };
   const script='<script type="application/ld+json">'+JSON.stringify(schema).replace(/</g,'\\u003c')+'</script>';
-  if(!html.includes('application/ld+json'))html=html.replace(/<\\/head>/i,script+'</head>');
+  if(!html.includes('application/ld+json'))html=html.replace('</head>',script+'</head>');
  }
  // Load optional analytics only on verified public discovery pages.
  // The controller does not request Google code before visitor permission.
