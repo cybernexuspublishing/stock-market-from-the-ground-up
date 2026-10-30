@@ -58,7 +58,7 @@ try{
    await page.evaluate((paid)=>{window.__canUsePaper=paid;
     const canvas=document.querySelector('#sim-content');
     const source=canvas?.querySelector(':scope > section.journal-card');
-    if(source)canvas.append(source); // reproduce the October 28 regression: import card moved behind chart.
+    if(source)canvas.append(source); // Reproduce an unrelated legacy reordering; current approved presentation is chart-first.
     window.CrownlightWorkbenchLayout.init({canUsePaper:window.__canUsePaper===true,getToken:async()=> 'mock-token'});
     window.CrownlightPaperTerminal.initialize({getSession:async()=>({access_token:'mock-token'})});
     window.confirm=()=>false;
@@ -76,8 +76,8 @@ try{
    }));
    await page.waitForFunction(()=>document.querySelectorAll('#sim-lab-picker option[value^="lab:"]').length===419);
    assert.equal(await page.locator('#sim-lab-picker option[value^="lab:"]').count(),419);
-   // Regression: an asynchronous legacy layout move must also be repaired, not just
-   // an invalid source order that existed before initialization.
+   // Chart-first continuous trading workspace keeps the source import after the
+   // chart/trade panels, even if an older UI appends the source elsewhere.
    await page.evaluate(()=>{
     const parent=document.querySelector('#sim-content'),source=document.querySelector('#cl-replay-import');
     parent.append(source);
@@ -85,7 +85,7 @@ try{
    await page.waitForFunction(()=>{
     const parent=document.querySelector('#sim-content');
     return [...parent.children].slice(0,4).map(x=>x.id||x.className).join('|')===
-      'cl-replay-import|cl-chart-visibility-toolbar|sim-layout journal-section|cl-simulator-workbench';
+      'cl-chart-visibility-toolbar|sim-layout journal-section|cl-simulator-workbench|cl-replay-import';
    });
    const measurements=await page.evaluate(()=>{
     const parent=document.querySelector('#sim-content'),
@@ -97,8 +97,8 @@ try{
      open:document.querySelector('#cl-replay-import .cl-workbench-import')?.open,
      gridColumns:getComputedStyle(document.querySelector('.sim-import-grid')).gridTemplateColumns};
    });
-   assert.equal(measurements.open,true,'Step 1 must remain visibly expanded');
-   assert.match(measurements.sourceText,/1\. Data source/);
+   assert.equal(measurements.open,true,'Chart source controls must remain visibly expanded');
+   assert.match(measurements.sourceText,/2\. Data source/);
    assert(Math.abs(measurements.source.width-measurements.chart.width)<=4,'Import form and chart must use the same working width');
    assert.equal(measurements.groups.length,9,'Complete original replay fields must survive reflow');
    const overlap=(a,b)=>Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left))*
@@ -110,9 +110,9 @@ try{
    assert.equal(await page.locator('.cl-import-shell').count(),1,'Replay setup must still exist');
    assert.equal(await page.evaluate(()=>{
       const content=document.querySelector('#sim-content');
-      return [...content.children].indexOf(content.querySelector('.cl-import-shell'))<
+      return [...content.children].indexOf(content.querySelector('.cl-import-shell'))>
        [...content.children].indexOf(content.querySelector('.sim-layout'))
-     }),true,'Step 1 must be restored before the interactive chart');
+     }),true,'Chart-first workspace must keep source configuration after the interactive chart');
 
    assert.equal(await page.locator('#sim-lab-picker option[value^="academy:free5"]').count(),5);
    const freeSample=page.locator('#sim-lab-picker option[value="lab:F1-C02-L01"]');
