@@ -26,12 +26,14 @@ const env={
 const headers={'content-type':'application/json'};
 const response=(data,status=200)=>new Response(JSON.stringify(data),{status,headers});
 let calls=[],priceWrong=false,paid=true,refundAmount=1099;
+let currentCode=CODE,currentPrice=PRICE,currentAmount=1099;
+const currentMeta=()=>({...META,gu_book_live_code:currentCode});
 let seen=new Set();
 const session=()=>({id:SESSION,livemode:true,mode:'payment',status:'complete',
- payment_status:paid?'paid':'unpaid',amount_subtotal:1099,currency:'usd',
- payment_intent:PI,client_reference_id:INTENT,metadata:META});
+ payment_status:paid?'paid':'unpaid',amount_subtotal:currentAmount,currency:'usd',
+ payment_intent:PI,client_reference_id:INTENT,metadata:currentMeta()});
 const intent=()=>({id:PI,livemode:true,status:'succeeded',currency:'usd',
- amount_received:1099,metadata:META});
+ amount_received:currentAmount,metadata:currentMeta()});
 const requestHost='https://example.org/api/stripe-live-webhook-v01458';
 const oldFetch=globalThis.fetch;
 globalThis.crypto??=webcrypto;
@@ -39,7 +41,7 @@ globalThis.fetch=async (url,opts={})=>{
  const path=String(url);
  if(path.endsWith('/v1/account'))return response({id:ACCOUNT});
  if(path.includes('/checkout/sessions/'+SESSION+'/line_items'))
-  return response({data:[{price:{id:priceWrong?'price_wrong':PRICE},quantity:1,amount_subtotal:1099}],has_more:false});
+  return response({data:[{price:{id:priceWrong?'price_wrong':currentPrice},quantity:1,amount_subtotal:currentAmount}],has_more:false});
  if(path.includes('/checkout/sessions/'+SESSION))return response(session());
  if(path.includes('/payment_intents/'+PI))return response(intent());
  if(path.includes('/charges/'+CHARGE))return response({
@@ -98,6 +100,26 @@ try{
  assert.equal(r.status,200);assert.equal(calls.at(-1).p_kind,'refunded');
  r=await post('charge.dispute.created',{charge:CHARGE});
  assert.equal(r.status,200);assert.equal(calls.at(-1).p_kind,'disputed');
+ const extra=[
+  ['FOUNDATION_BOOK_2','price_1UVBsFJL0O4GGVBHP75QJV4N',1099],
+  ['FOUNDATION_BOOK_3','price_1UVBsLJL0O4GGVBH37PPBw4s',1199],
+  ['DAY_TRADING_BOOK_1','price_1UVBsPJL0O4GGVBH1cdsLBT3',1499],
+  ['READING_THE_TAPE','price_1UVBsSJL0O4GGVBHjElhhG8W',1499]
+ ];
+ for(const [code,price,amount] of extra){
+  currentCode=code;currentPrice=price;currentAmount=amount;
+  const count=calls.length;
+  r=await post('checkout.session.completed',{id:SESSION,metadata:currentMeta()});
+  assert.equal(r.status,200,code+' signed paid event');
+  assert.equal(calls.length,count+1);
+  assert.equal(calls.at(-1).p_price,price);
+  assert.equal(calls.at(-1).p_amount,amount);
+  priceWrong=true;
+  r=await post('checkout.session.completed',{id:SESSION,metadata:currentMeta()});
+  assert.equal(r.status,503,code+' invalid Stripe line price must be refused');
+  assert.equal(calls.length,count+1);
+  priceWrong=false;
+ }
  assert(calls.every(c=>c.p_id===INTENT));
- console.log('PASS no-charge LIVE Book I signed webhook: paid proof, replay, bad HMAC, wrong price, unpaid, partial/full refunds and dispute.');
+ console.log('PASS no-charge LIVE five-title signed book webhook: paid proof, replay, bad HMAC, wrong price, unpaid, partial/full refunds and dispute.');
 }finally{globalThis.fetch=oldFetch}
