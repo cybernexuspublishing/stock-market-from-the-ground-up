@@ -152,6 +152,15 @@ async function createAccount(e){
     });
     const result=await response.json().catch(()=>({}));
     if(!response.ok||result.ok!==true)throw new Error(result.error||'Unable to create account. Please try again.');
+    // A successful server response is an account creation, not email verification.
+    // If the visitor previously granted public Analytics permission, defer one
+    // PII-free sign_up event until they next visit an eligible PUBLIC page.
+    // The Google tag never loads on this registration form.
+    try {
+      if (localStorage.getItem('smfgu_public_analytics_consent_v1') === 'granted') {
+        sessionStorage.setItem('smfgu_pending_signup_v1', String(Date.now()));
+      }
+    } catch { /* Disabled storage means no analytics. */ }
     form?.reset();
     showAccountCreated(email,Boolean(claimToken));
   }catch(err){
