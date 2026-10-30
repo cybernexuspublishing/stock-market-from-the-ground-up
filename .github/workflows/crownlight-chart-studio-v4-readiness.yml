@@ -1,3 +1,4 @@
+# Noncharging 2026-10-30 owner acceptance sweep: execute existing QA on main; no payment or live member mutation.
 name: Crownlight Chart Studio V4 Coordinated Readiness
 on:
   workflow_dispatch:
