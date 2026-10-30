@@ -30,6 +30,22 @@ try{
  const name=await pick('input[name="billingName"]','input[autocomplete="cc-name"]');if(name)await name.fill('SMFGU TEST ONLY');
  const mail=await pick('input[type=email]');if(mail&&!(await mail.inputValue()).trim())await mail.fill(process.env.LAB_QA_EMAIL);
  const pay=page.locator('button[type="submit"]').last();assert(await pay.isVisible(),'TEST checkout submit unavailable');await pay.click();
- await page.waitForURL(u=>u.origin===site&&u.pathname==='/my-books.html',{timeout:60000});
+ try{await page.waitForURL(u=>u.origin===site&&u.pathname==='/my-books.html',{timeout:25000,waitUntil:'domcontentloaded'})}
+ catch(e){
+  const host=new URL(page.url()).hostname;
+  const selectors=['[role="alert"]','[data-testid*="error"]','[aria-invalid="true"]','.Error','[class*="errorMessage"]'];
+  const details=[];
+  for(const s of selectors)for(const frame of [page,...page.frames().filter(f=>f!==page.mainFrame())]){
+   const hits=await frame.locator(s).all().catch(()=>[]);
+   for(const node of hits.slice(0,4)){
+    if(!await node.isVisible().catch(()=>false))continue;
+    const msg=(await node.innerText().catch(()=>''))||await node.getAttribute('name').catch(()=>'');
+    if(msg&&/invalid|error|required|declined|verify|expire|country|captcha|postal|unavailable|card/i.test(msg))
+      details.push(msg.slice(0,140));
+   }
+  }
+  console.error('BLOCKED Stripe hosted TEST form: host='+host+' detectedValidation='+JSON.stringify(details.slice(0,8)));
+  throw Error('Hosted Stripe TEST Checkout did not complete after official test card submit');
+ }
  console.log('PASS official fake Stripe test card payment returned to SMFGU website');
 }finally{await browser.close()}
