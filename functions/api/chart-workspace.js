@@ -57,18 +57,36 @@ export async function onRequest({request,env}){
    const raw=rows[0]?.settings||{};
    return answer({ok:true,tier:e.tier,workspace:normalizeWorkspace(raw,e),updatedAt:rows[0]?.updated_at||null});
   }
+  const requestUrl=new URL(request.url);
+  if(request.headers.get('origin')!==requestUrl.origin||
+    (request.headers.get('sec-fetch-site')&&!['same-origin','none'].includes(request.headers.get('sec-fetch-site'))))
+   return answer({ok:false,error:'Cross-site workspace update denied'},403);
   if(request.headers.get('content-type')?.split(';')[0].toLowerCase()!=='application/json')
    return answer({ok:false,error:'Expected JSON'},415);
   if(Number(request.headers.get('content-length'))>16000)return answer({ok:false,error:'Workspace payload too large'},413);
   const raw=await request.text();if(raw.length>16000)return answer({ok:false,error:'Workspace payload too large'},413);
   let value;try{value=JSON.parse(raw)}catch{return answer({ok:false,error:'Invalid JSON'},400)}
   if(!value||typeof value!=='object'||Array.isArray(value))return answer({ok:false,error:'Invalid workspace'},400);
+  // An explicit revision is mandatory. Never turn an absent revision
+  // into an unprotected last-writer-wins overwrite.
+  if(!Object.hasOwn(value,'expectedUpdatedAt')||
+    !(value.expectedUpdatedAt===null||
+      typeof value.expectedUpdatedAt==='string'&&
+      /^\\d{4}-\\d{2}-\\d{2}T/.test(value.expectedUpdatedAt)&&
+      Number.isFinite(Date.parse(value.expectedUpdatedAt))))
+   return answer({ok:false,error:'Restore workspace before attempting to save.'},409);
   const workspace=normalizeWorkspace(value,e);
-  const rows=await query(storage,path+'?on_conflict=user_id',{method:'POST',
-   headers:{'content-type':'application/json',Prefer:'resolution=merge-duplicates,return=representation'},
-   body:JSON.stringify({user_id:uid,settings:workspace,updated_at:new Date().toISOString()})});
-  if(rows.length!==1)return answer({ok:false,error:'Workspace save not confirmed'},503);
-  return answer({ok:true,tier:e.tier,workspace,updatedAt:rows[0]?.updated_at||null});
+  const result=await query(storage,'rpc/gu_crownlight_chart_workspace_save_v3',{method:'POST',
+   headers:{'content-type':'application/json'},
+   body:JSON.stringify({p_user:uid,p_settings:workspace,
+    p_expected:value.expectedUpdatedAt})});
+  if(result?.error==='WORKSPACE_CHANGED')
+   return answer({ok:false,error:'WORKSPACE_CHANGED',
+    message:'Another tab or session saved newer settings. Restore before overwriting.',
+    latestUpdatedAt:result.updatedAt||null},409);
+  if(result?.ok!==true||!result.updatedAt)
+   return answer({ok:false,error:'Workspace save not confirmed'},503);
+  return answer({ok:true,tier:e.tier,workspace,updatedAt:result.updatedAt});
  }catch(err){
   const status=err?.status===401?401:err?.status===403?403:503;
   return answer({ok:false,error:status===401?'Sign in required':status===403?'Chart membership ineligible':'Workspace service temporarily unavailable'},status);
