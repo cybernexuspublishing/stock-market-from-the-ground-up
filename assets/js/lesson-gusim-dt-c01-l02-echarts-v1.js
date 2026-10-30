@@ -29,7 +29,9 @@
  root.CrownlightDT01L02Math=Object.freeze({cleanBar,ema});
  function init(){
   const source=document.getElementById('vr-source');
-  if(!source||!document.getElementById('vr-session')||!root.CrownlightECharts)return;
+  const session=document.getElementById('vr-session');
+  if(!source||!session||!root.CrownlightECharts)return;
+  const basicChart=session.querySelector(':scope > figure');
   const make=(type,cls,txt)=>{
    const n=document.createElement(type);
    if(cls)n.className=cls;
@@ -77,9 +79,11 @@
   function dispose(){
    serial++;if(observer){observer.disconnect();observer=null}
    if(plot){plot.dispose();plot=null}
+   if(basicChart)basicChart.hidden=false;
   }
   function reset(){
    dispose();dataset='';member='';bars=[];locked=false;panel.hidden=true;
+   session.classList.remove('dt-l02-active');
    summary.textContent='';message.textContent='';count.textContent='0 revealed candles';
   }
   function describe(){
@@ -145,7 +149,8 @@
     if(typeof ResizeObserver!=='undefined'){
      observer=new ResizeObserver(()=>plot?.resize());observer.observe(chart);
     }
-    paint();message.textContent='Only server-revealed fictional bars are displayed.';
+    paint();if(basicChart)basicChart.hidden=true;
+    message.textContent='ECharts displays only server-revealed fictional bars. Basic SVG view remains a fallback.';
    }catch{
     if(request===serial&&dataset===CODE)
      message.textContent='Chart unavailable. Continue with the server-controlled replay and OHLCV table.';
@@ -159,6 +164,7 @@
    reset();const d=e.detail?.dataset;
    if(d?.code!==CODE||!e.detail?.memberId)return;
    dataset=CODE;member=String(e.detail.memberId);panel.hidden=false;
+   session.classList.add('dt-l02-active');
    describe();void openChart();
   });
   root.addEventListener('groundup:replay-observation',e=>{
