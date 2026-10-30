@@ -107,3 +107,33 @@ The owner-uploaded corrected source reconciliation file `IEX_20260921_corrected_
 | Version | Date | Change |
 |---|---|---|
 | 1.1 | 2026-10-30 | Prepared, hashed and validated a 30-bar GRML private draft import package; no database insertion or publication. |
+
+
+## Technical and legal pre-import gate — Version 1.2 (October 30, 2026)
+
+### Independent vendor aggregation check — passed, with scope limitation
+The existing *private owner-held* SQL preparation (`GRML_20260921_PRIVATE_DRAFT_IMPORT_v1.zip`, 30 1-minute IEX-only OHLCV bars) was cross-checked against a separately retrieved `Alpaca / IEX` stock-bars response for **September 21, 2026, 09:30–09:59 Eastern**. Every minute agreed on the UTC timestamp, open, high, low, close, and trading volume: **30/30 exact matches, 0 discrepancies**. Reaggregated source totals match at **213,618 IEX venue shares and 2,473 IEX venue trade prints**.
+
+This is independent *vendor minute-bar aggregation corroboration*, NOT an independent exchange-of-origin or trade-by-trade certification. Both feeds originate from IEX, and any common upstream errors could agree. No raw vendor price records are reproduced in this public evidence record. Alpaca comparison used for internal QA only, not permission to redistribute Alpaca data. The original owner-file hash and source-reconciliation hashes remain as recorded in version 1.1.
+
+### Issuer identity and prior corporate action
+GRML corresponds to Greenland Mines Ltd. The Nasdaq Corporate Actions Alert **ECA2026-594**, dated August 20, 2026, reports a **1-for-50 reverse split effective August 24, 2026** and CUSIP change to **49876K202**, preceding the September 21 source period. Reference: https://m.nasdaqtrader.com/TraderNews.aspx?id=ECA2026-594 . SEC September 23, 2026 8-K concerning the September 21 reporting period confirms Greenland Mines common stock traded as GRML on Nasdaq: https://www.sec.gov/Archives/edgar/data/1907223/000121390026102691/ea0306408-8k_greenland.htm .
+
+The candidate candles are unadjusted post-split IEX venue prices. External corporate-action evidence is collected, but the formal security master/CUSIP audit, adjustments/possible intervening events, and independent reviewer sign-off remain **NOT APPROVED**.
+
+### Private Supabase retention and paid educational display — LEGAL HOLD
+The directly applicable **IEX Historical Data Terms** expressly contemplate historical-data distribution with mandatory attribution: https://www.iex.io/legal/hist-data-terms . The broader **IEX Website Terms of Use**, however, restrict commercial copying, storage, display and redistribution without prior consent except where otherwise permitted or superseded by agreements: https://www.iex.io/legal/terms . It is NOT clear from the public documents alone whether third-party cloud storage of derived historical candles and offering them to paid authenticated education members is sufficiently authorized without additional written consent.
+
+**Gate decision:** seek explicit written clarification from IEX legal/market data on (a) derived minute OHLCV storage in Supabase/PostgreSQL, (b) website display to paying members using server-controlled playback, (c) whether historical redistribution terms override the general terms for this use, (d) whether a subscriber/distributor agreement or fees apply, and (e) exact attribution wording/placement. Pending that response, do not execute the prepared private SQL, mark rights verified, publish GRML or enable historical customer sessions.
+
+### Safeguards and action log
+- Existing 30-bar SQL package audited: bounded transaction, draft-only and no-overwrite checks, source/hash references, IEX-only attribution, retention/release approval flags left false. **No SQL executed.**
+- Database RLS reviewed: `market_datasets` has a SELECT rule for `verified`/`published`, not draft; `gu_replay_bars_v01492` has RLS enabled and no direct `authenticated` SELECT grant/policy.
+- Informational comparison with Alpaca's IEX feed is NOT a license to store its 30 bar rows or publish an export.
+- Genuine signed-in positive replay remains NOT ACCEPTED; first decision lock and member isolation must be verified after licensed publication.
+- The legal question has been prepared for IEX via the business email account as an **unsent draft**, subject to Owner review.
+
+### Revision history addition
+| Version | Date | Change |
+|---|---|---|
+| 1.2 | 2026-10-30 | Independently supplied IEX vendor 30-of-30 OHLCV comparison; Nasdaq reverse split evidence; contractual conflict identified and release held; private SQL/RLS gate reviewed. |
