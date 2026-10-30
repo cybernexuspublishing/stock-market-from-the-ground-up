@@ -221,17 +221,60 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
  const saveCheckpointControl=button('Save my learning checkpoint',()=>void saveCheckpointNow());
  saveCheckpointControl.className='btn secondary';saveCheckpointControl.hidden=!progressStore;
  nav.append(previous,next,saveCheckpointControl);
- shell.append(heading,disclosure,progress,meter,journey,body,status,nav,checkpointNote);
+ // Opt-in presentation autoplay. Independent Assess/Blind flows never reach
+ // this branch; the protected server grader remains a separate subsystem.
+ const autoBar=el('div');autoBar.className='gu-v40-auto-bar';
+ const autoButton=button('Play guided teaching automatically',()=>toggleAutoplay());
+ autoButton.className='btn secondary';autoButton.setAttribute('aria-pressed','false');
+ const autoStatus=el('span','Optional: Talia presents each stage; playback stops for independent answers.');
+ autoStatus.className='gu-v40-auto-status';autoStatus.setAttribute('role','status');
+ autoBar.append(autoButton,autoStatus);
+ shell.append(heading,disclosure,progress,meter,journey,autoBar,body,status,nav,checkpointNote);
  target.replaceChildren(shell);
  let stage=0,observations='',prediction='',predictionLocked=false,practice='',practiceCount=0,
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null,creditBusy=false;
+ let guidedAuto=false,autoPoll=null,understandingPassed=false;
+ const stopAuto=()=>{if(autoPoll!==null){root.clearInterval?.(autoPoll);autoPoll=null}};
+ function toggleAutoplay(){
+  guidedAuto=!guidedAuto;stopAuto();
+  autoButton.setAttribute('aria-pressed',String(guidedAuto));
+  autoButton.textContent=guidedAuto?'Pause guided autoplay':'Play guided teaching automatically';
+  autoStatus.textContent=guidedAuto?
+   'Automatic narration enabled. Checkpoints require your answer; protected grading stays independent.':
+   'Manual stage navigation. Instructor explanations and retries remain available.';
+  if(guidedAuto)armAutoNarration();
+ }
+ function armAutoNarration(){
+  stopAuto();
+  if(!guidedAuto)return;
+  if([3,5].includes(stage)){
+   autoStatus.textContent='Paused for an independent decision or protected assessment. Submit that work manually.';
+   return;
+  }
+  if(stage!==0){
+   autoStatus.textContent='Teaching stage '+STEPS[stage]+'. Playback pauses at the next required answer.';
+   return;
+  }
+  const elRef=instructorInstance?.element;
+  if(!elRef)return;
+  const reserve=elRef.querySelector('.gu-v33-instructor-reserve');
+  const typing=elRef.querySelector('.gu-v33-instructor-typing');
+  if(!reserve||!typing)return;
+  autoStatus.textContent='Talia is presenting the lesson orientation before Learn.';
+  autoPoll=root.setInterval(()=>{
+   if(sessions.get(target)!==token||!guidedAuto||stage!==0){stopAuto();return}
+   if(typing.textContent.length<reserve.textContent.length)return;
+   stopAuto();if(stage===0){nextStage(true)}
+  },400);
+ }
  const echartsControllers=[];
  const passAttemptId=typeof root.crypto?.randomUUID==='function'?root.crypto.randomUUID():null;
  const passRequests=new Map();
  let checkpointReady=false,checkpointTimer=null,checkpointChangeSerial=0;
  token.dispose=()=>{
+  stopAuto();
   if(checkpointTimer!==null)clearTimeout(checkpointTimer);
   checkpointTimer=null;checkpointReady=false;
   instructorInstance?.dispose?.();instructorInstance=null;
@@ -563,7 +606,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     onCreditPending:busy=>{creditBusy=busy===true;previous.disabled=creditBusy||stage===0;next.disabled=creditBusy||stage===8},
     onCreditAction:stage===4&&special&&['F2-C07-L01','F2-C07-L02','F3-C06-L01'].includes(labId)?handleQuestionPass:undefined,
     onComplete:()=>{if(stage<8)nextStage(true)},
-    onUnderstandingPassed:()=>{if(stage===1)nextStage(true)}
+    onUnderstandingPassed:()=>{if(stage===1){understandingPassed=true;nextStage(true)}}
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
@@ -707,6 +750,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    else body.append(button('Lock my prediction',()=>{
     if(t.value.trim().length<15){mark('Explain your reasoning in at least 15 characters.');return}
     prediction=t.value.trim();predictionLocked=true;render();mark('Prediction locked; future data remains unavailable.');
+    if(guidedAuto&&stage===3)nextStage(true);
    }));
    if(mode==='guided'||mode==='practice')freeExplanation();
   }else if(stage===4){
@@ -1112,16 +1156,20 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
    recall.append(schedule,result,reviews);body.append(recall);
   }
   previous.disabled=stage===0;next.disabled=stage===8;
+  armAutoNarration();
   scheduleCheckpoint();
  }
  function nextStage(fromInstructor=false){
+  if(guidedAuto&&stage===1&&!understandingPassed){
+   mark('Complete Check My Understanding before automatic progression.');return
+  }
   if(creditBusy){mark('Finish confirming your Crownlight Lumens first.');return}
   if(stage===3&&!predictionLocked){mark('Lock your prediction before continuing.');return}
   if(stage===4&&!practiceResolved){mark('Complete the guided practice or record your self-study response before continuing.');return}
   if(stage===6&&!selfReview){mark('Complete the reflection before continuing.');return}
   if(stage===7&&!transferResolved){mark('Complete the unfamiliar case before opening results.');return}
   if(stage<8){
-   stage++;render();
+   stopAuto();stage++;render();
    // Keep the incoming teaching stage visible following a submitted answer.
    // Independent Predict/Assess use their existing protected controls.
    if(fromInstructor){

@@ -999,3 +999,12 @@ body.gu-lab-member #player-restart-mode:disabled {
   max-width:none!important;width:100%!important;margin-inline:auto!important;
  }
 }
+
+/* V4.2: opt-in synchronized narration shared by all 419 guided Labs and
+ * Academy programs using the canonical nine-stage engine. */
+#gu-v32-teaching-slot .gu-v40-auto-bar,
+#academy-lab-slot .gu-v40-auto-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+ margin:10px 0 16px;padding:10px 14px;background:#0c293a;border:1px solid #366981;border-radius:10px}
+#gu-v32-teaching-slot .gu-v40-auto-bar button[aria-pressed="true"],
+#academy-lab-slot .gu-v40-auto-bar button[aria-pressed="true"]{background:#146d65;border-color:#84e0cb;color:#fff}
+.gu-v40-auto-status{color:#d5e6ef;line-height:1.5;font-size:.9rem}

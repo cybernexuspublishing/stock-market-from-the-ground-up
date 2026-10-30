@@ -22,6 +22,12 @@ try{
    window.testMounted=await window.GroundUpLabEngineV32Universal.mount({labId:'SITE-001',mode:'guided',target,lab:{id:'SITE-001',concept:'Independent Risk Planning'}});
   });
   assert.equal(await page.evaluate(()=>window.testMounted),true);
+  await page.getByRole('button',{name:'Play guided teaching automatically'}).waitFor();
+  const auto=page.getByRole('button',{name:'Play guided teaching automatically'});
+  await auto.click();
+  assert.equal(await page.getByRole('button',{name:'Pause guided autoplay'}).getAttribute('aria-pressed'),'true');
+  await page.getByRole('button',{name:'Pause guided autoplay'}).click();
+  assert.equal(await auto.getAttribute('aria-pressed'),'false');
   await page.getByRole('button',{name:'Start Guided Learning →'}).waitFor();
   await page.getByRole('button',{name:'Start Guided Learning →'}).click();
   for(const expected of ['Learn','Experiment','Predict']){
