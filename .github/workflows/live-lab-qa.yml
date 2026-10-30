@@ -41,8 +41,13 @@ jobs:
           LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
           LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
         run: node tests/live-member-browser-qa.mjs
-      - name: Verify QA member access to live Lab APIs without changing records
+      # The standard LAB_QA identity (James_Test) is now a permanent Free-member
+      # baseline. Paid Lab and Boot Camp positive cases require a separate,
+      # explicitly entitled noncommercial QA member; running them as Free yields
+      # expected 403 and would misclassify restricted access as a regression.
+      - name: Verify paid Lab APIs using a separately entitled QA identity
+        if: ${{ vars.LAB_PREMIUM_QA_ACCEPTANCE_ENABLED == 'true' }}
         env:
-          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
-          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+          LAB_QA_EMAIL: ${{ secrets.LAB_PREMIUM_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_PREMIUM_QA_PASSWORD }}
         run: node tests/live-lab-qa.mjs
