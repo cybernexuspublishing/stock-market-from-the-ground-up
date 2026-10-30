@@ -235,7 +235,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
      practiceResolved=false,practiceAssisted=false,transfer='',transferCount=0,transferResolved=false,
      selfReview=false,experimentValue=kind==='candle'?32:100,reflection='';
  let instructorInstance=null,creditBusy=false;
- let guidedAuto=false,autoPoll=null,understandingPassed=false;
+ let guidedAuto=false,autoPoll=null;
  const stopAuto=()=>{if(autoPoll!==null){root.clearInterval?.(autoPoll);autoPoll=null}};
  function toggleAutoplay(){
   guidedAuto=!guidedAuto;stopAuto();
@@ -606,7 +606,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
     onCreditPending:busy=>{creditBusy=busy===true;previous.disabled=creditBusy||stage===0;next.disabled=creditBusy||stage===8},
     onCreditAction:stage===4&&special&&['F2-C07-L01','F2-C07-L02','F3-C06-L01'].includes(labId)?handleQuestionPass:undefined,
     onComplete:()=>{if(stage<8)nextStage(true)},
-    onUnderstandingPassed:()=>{if(stage===1){understandingPassed=true;nextStage(true)}}
+    onUnderstandingPassed:()=>{if(stage===1)nextStage(true)}
    });
    if(instructor){instructorInstance=instructor;body.append(instructor.element);narratedStages.add(stage)}
   }
@@ -1160,7 +1160,7 @@ async function mount({labId,mode,target,lab,focusId,tutorTopic,tutorRequest,cred
   scheduleCheckpoint();
  }
  function nextStage(fromInstructor=false){
-  if(guidedAuto&&stage===1&&!understandingPassed){
+  if(guidedAuto&&stage===1&&!fromInstructor){
    mark('Complete Check My Understanding before automatic progression.');return
   }
   if(creditBusy){mark('Finish confirming your Crownlight Lumens first.');return}
