@@ -20,5 +20,7 @@ for(const x of expected)assert(sql.includes(x.code)&&sql.includes(x.price),'Miss
 const webhook=read('functions/api/stripe-live-webhook-v01458.js');
 for(const x of expected)assert(webhook.includes(x.price),'Missing signed webhook price');
 assert(webhook.includes('BOOK_LIVE_OFFERS'));
-assert(!sql.includes('INSERT INTO public.gu_book_live_intents_v1'));
+assert(sql.includes("status IN ('prepared','checkout_created')"),'Reserve must only re-use an unfulfilled checkout');
+assert(sql.includes("status='paid'" )===false,'Migration cannot directly mark a book purchased');
+assert(sql.includes('BOOK_RIGHTS_OR_EDITION_NOT_READY'),'Private-file and rights checks must remain mandatory');
 console.log('PASS five-title Stripe LIVE book whitelist, exact approved prices and default-off checkout.');
