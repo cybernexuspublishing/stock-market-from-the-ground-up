@@ -8,7 +8,7 @@
 | File | `docs/research/IEX_GRML_20260921_PILOT_REVIEW_V1.md` |
 | Type | Markdown, repository-controlled historical case review |
 | Document ID | SMFGU-HR-IEX-GRML-20260921-001 |
-| Version | 1.4 |
+| Version | 1.5 |
 | Date | October 30, 2026 |
 | Google Drive location | Proposed Website / Research / Historical Replay / Case Reviews (not uploaded; Drive file ID unassigned) |
 | Status | **PRIVATE DRAFT INGESTED — DO NOT PUBLISH; LESSON & AUTHENTICATED POSITIVE QA PENDING** |
@@ -206,3 +206,27 @@ Each stage has teach → current completed-candle evidence → three-choice ungr
 | Version | Date | Change |
 |---|---|---|
 | 1.4 | 2026-10-30 | Added eight stage-specific Talia explanations, ungraded questions/retries/transfer, no-lookahead timing tests and dedicated genuine-account GRML acceptance scripts. |
+
+## GRML genuine authenticated QA acceptance — Version 1.5 (October 30, 2026)
+
+### Restricted QA release, not general commercial publication
+After owner expressly confirmed IEX's permission for private Supabase retention and paid educational display, a guarded source-specific Supabase transaction moved only `HR_GRML_20260921` from `draft` to the existing **QA-only published** state. Its metadata includes `qa_release_only=true`, exactly one pinned `qa_allowed_user_ids` identity (dedicated noncommercial test account), `release_scope=GENUINE_SIGNED_IN_QA_ONLY_NOT_RETAIL`, `data_source=IEX_HIST`, `venue_scope=IEX_SINGLE_VENUE`, source SHA, and the required IEX attribution/terms URL. The public historical replay API checks this allowlist for catalog/start/session access; no other historical candidates were activated. `gu_replay_bars_v01492` has RLS enabled and no direct authenticated/anonymous SELECT permission.
+
+Post-release SQL acceptance: 30 historical GRML 1-minute rows, indices 0–29, 213,618 IEX-only shares, 2,473 separately reconciled trade events in the original source review. The database carries the company’s raw post-split policy referencing Nasdaq's August 24, 2026 1:50 split (CUSIP 49876K202).
+
+### Actual-account noncharging end-to-end evidence — initial positive milestone PASS
+- GitHub workflow: `.github/workflows/historical-grml-authenticated-production-v1.yml`.
+- First fully successful genuine-account run: **41021303067**, https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41021303067 .
+- HTTP stage: actual password login for pinned QA account; authenticated restricted catalog; first 09:30 ET IEX candle; denied pre-lock advance; immutable reasoned NO_TRADE decision; five true server-side advances; stale cursor rejected; no future bars in visible feed; resume/finish; guest session read denied.
+- Chromium stage: genuine same-account sign-in, opening Talia coaching and ungraded question/feedback, first-decision lock, five protected source advances, 1/3/5/15-minute no-partial-candle behavior, reload/resume, finalization and sign-out. No login mocks, vendor fixture prices, payments or Sparks used.
+- Two GRML QA sessions were returned `finished`; no active QA sessions in that postflight.
+- The eight authored Talia lesson stages independently passed source/fixture Chromium CI; targeted milestone checks are at 1, 3, 5, 10, 15, 20, 25 and 30 already revealed source bars.
+- After initial success, a **separate stronger full-30-minute acceptance** was committed to the real HTTP/Chromium scripts. Until its completed, noncancelled final status is recorded, do not claim that all eight checkpoints have yet passed under real authenticated Chromium across 30 source bars.
+
+### Release control and remaining gates
+The one-account QA publication is NOT the commercial release: other members are excluded by the strict QA allowlist. Before general paid-member availability, require successful, noncancelled full-30-minute browser/HTTP acceptance, real second-account forbidden-access test, editorial review of the entire historical lesson, and an explicit removal of the QA-only flag only after those conditions. Do not reuse an unrelated DIS QA result or a synthetic fixture as retail acceptance.
+
+### Revision history addition
+| Version | Date | Change |
+|---|---|---|
+| 1.5 | 2026-10-30 | GRML QA-only source published to a single pinned test identity; real HTTP and Chromium short-path positive acceptance passed in run 41021303067; full 30m and second-account acceptance remain separate. |
