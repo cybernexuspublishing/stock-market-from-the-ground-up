@@ -13,6 +13,7 @@
  };
  function clearPrivate(){
   state.userId='';state.entries=[];state.editing=null;++state.epoch;
+  window.GroundUpFreeWatchlistReviewV1?.clear?.();
   byId('free-watchlist-content').hidden=true;
   byId('free-watchlist-list').replaceChildren();
   say('free-watchlist-count','— / 20');
@@ -43,6 +44,7 @@
  function render(){
   const root=byId('free-watchlist-list');root.replaceChildren();
   say('free-watchlist-count',state.entries.length+' / 20');
+  window.GroundUpFreeWatchlistReviewV1?.update?.(state.entries);
   if(!state.entries.length){
    root.append(item('p','No research entries saved yet. Try the original fictional GUSIM example, or enter a symbol you want to investigate.'));
    return;
@@ -128,6 +130,7 @@
  }
  async function init(){
   try{
+   window.GroundUpFreeWatchlistReviewV1?.mount?.();
    state.client=await window.getSupabaseClient();
    state.client.auth.onAuthStateChange((_event,session)=>{
     const id=session?.user?.id||'';
@@ -149,15 +152,22 @@
   const fields=[['Why', 'free-research-why'],['Review trigger', 'free-research-trigger'],
    ['Invalidation or NO TRADE', 'free-research-risk'],['Review time', 'free-research-review']];
   const parts=fields.map(([label,id])=>[label,byId(id)?.value.trim()||'']).filter(([,val])=>Boolean(val));
+  const marked=Array.from(document.querySelectorAll('#free-research-checklist input[data-research-check]:checked'))
+   .map(input=>input.getAttribute('data-research-check'))
+   .filter(label=>typeof label==='string'&&label.length<=30);
+  if(marked.length)parts.push(['Member-reported research checks',marked.join(', ')]);
   const result=byId('free-research-guide-status');
   if(!parts.length){result.textContent='Enter at least one research observation first.';return}
   const note=byId('free-watchlist-research-note');
   const addition=parts.map(([label,val])=>label+': '+val).join(' | ');
-  const combined=[note.value.trim(),addition].filter(Boolean).join(' | ');
+  // Pressing the helper twice should not duplicate identical checklist notes.
+  const alreadyIncluded=note.value.includes(addition);
+  const combined=alreadyIncluded?note.value.trim():
+   [note.value.trim(),addition].filter(Boolean).join(' | ');
   if(combined.length>600){
    result.textContent='The combined research note exceeds 600 characters. Shorten the fields or remove older notes before adding.';return;
   }
-  note.value=combined;result.textContent='Structured observations added to your note. Select Save research entry to store them privately.';
+  note.value=combined;result.textContent=(alreadyIncluded?'Those observations are already in your note. ':'Structured observations added to your note. ')+ 'Select Save research entry to store them privately.';
   note.focus();
  });
  byId('free-watchlist-form').addEventListener('submit',event=>void submit(event));
