@@ -50,7 +50,7 @@ const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'tes
  SEC_EDGAR_BETA_ENABLED:'true'};
 const user='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const old=globalThis.fetch;
-let accesses=0,secRequests=0,entitled=true;
+let accesses=0,secRequests=0,entitled=true,budgetCalls=0,budgetGranted=true;
 const reply=x=>new Response(JSON.stringify(x),{status:200,headers:{'content-type':'application/json'}});
 globalThis.fetch=async(url,opts={})=>{
  const u=String(url);
@@ -60,6 +60,7 @@ globalThis.fetch=async(url,opts={})=>{
  if(u.includes('/admin_user_roles?'))return reply([{role_code:'MEMBER',expires_at:null}]);
  if(u.includes('/platform_tools?'))return reply([{tool_code:'WATCHLIST_WORKBENCH',active:true,status:'beta',free_preview:false}]);
  if(u.endsWith('/rpc/user_has_tool_access')){accesses++;return reply(entitled)}
+ if(u.endsWith('/rpc/gu_sec_edgar_take_budget_v1')){budgetCalls++;return reply(budgetGranted)}
  if(u.includes('gu_product_access_config')||u.includes('product_access_config'))return reply([]);
  if(u.startsWith('https://www.sec.gov/')||u.startsWith('https://data.sec.gov/')){
   secRequests++;assert.match(opts.headers['User-Agent'],/research@example.org/);
@@ -78,7 +79,12 @@ try{
  assert.equal(data.filings.length,2);assert.equal(data.fundamentals.find(x=>x.metric==='Revenue').available,true);
  assert.equal(data.historicalReplayCertified,false);assert.equal(data.liveQuote,false);
  assert.match(r.headers.get('cache-control'),/no-store/);
+ assert.equal(secRequests,3);assert.equal(budgetCalls,3,'Each network source request needs the shared database budget');
+ budgetGranted=false;
+ r=await onRequest({request:make(),env});
+ assert.equal(r.status,429,'Exhausted global quota blocks external SEC traffic');
  assert.equal(secRequests,3);
+ budgetGranted=true;
  r=await onRequest({request:make('symbol=BAD&url=https://attacker.example'),env});
  assert.equal(r.status,400);assert.equal(secRequests,3);
  r=await onRequest({request:make('symbol=GUSIM','POST'),env});assert.equal(r.status,405);
@@ -91,6 +97,10 @@ try{
  assert.match(html,/watchlist-sec-research-v1\.js/);
  const ui=readFileSync(new URL('../assets/js/watchlist-sec-research-v1.js',import.meta.url),'utf8');
  assert.match(ui,/getSupabaseClient/);
+ const migration=readFileSync(new URL('../supabase/migrations/20261030_sec_edgar_global_budget_v1.sql',import.meta.url),'utf8');
+ assert.match(migration,/pg_advisory_xact_lock/);
+ assert.match(migration,/GRANT EXECUTE ON FUNCTION public\.gu_sec_edgar_take_budget_v1\(\) TO service_role/);
+ assert.match(readFileSync(new URL('../functions/api/sec-issuer-research-v1.js',import.meta.url),'utf8'),/rpc\/gu_sec_edgar_take_budget_v1/);
  assert.match(ui,/CrownlightECharts\?\.load\?\./,'Financial plotting uses the existing ECharts loader');
  assert.match(ui,/result\.contains\(plot\)/,'Stale account or detached chart must fail closed');
  assert.match(ui,/financial reporting period|periodEnd/,'Plot must retain reporting-period chronology');
