@@ -1,0 +1,106 @@
+/* SMFGU-LAB-PICKER-001 | Public search, locked visibility, product handoff.
+ * Accessibility and original member/assessment gates take precedence. */
+body.gu-lab-member .gu-learning-picker-toolbar {
+ display:flex!important;flex-wrap:wrap;align-items:end;gap:12px!important;
+ padding:8px 0!important;min-width:0;
+}
+body.gu-lab-member .gu-learning-picker-fields{
+ flex:1 1 330px;min-width:190px;max-width:650px;display:grid;gap:6px;
+}
+body.gu-lab-member .gu-learning-picker-fields label{
+ font-size:.88rem;font-weight:750;color:#f5fcff;
+}
+body.gu-lab-member .gu-learning-picker-fields input{
+ width:100%;min-height:44px;background:#0c2030!important;
+ border:1px solid #5e8094!important;border-radius:9px!important;
+ color:#eef6fc!important;padding:10px 13px!important;
+ font:500 .94rem/1.3 system-ui,sans-serif;max-width:none!important;
+}
+body.gu-lab-member #player-catalog-browser{
+ background:#0a1e2e;border:1px solid #34556a;border-radius:11px;
+ padding:12px 14px; margin:0 0 13px;min-width:0;
+}
+body.gu-lab-member #player-catalog-browser.gu-picker-initial-compact{
+ padding:6px 12px;
+}
+body.gu-lab-member #player-catalog-browser.gu-picker-initial-compact .gu-learning-picker-results{
+ display:none;
+}
+body.gu-lab-member #player-catalog-status{
+ font-size:.83rem;color:#c4dbe9;margin:2px 0 9px;line-height:1.45;
+}
+body.gu-lab-member .gu-learning-picker-results{
+ max-height:360px;overflow:auto;overscroll-behavior:contain;
+ border-radius:9px;scrollbar-color:#50718a #0d2334;
+}
+body.gu-lab-member .gu-picker-list{display:grid;gap:7px;}
+body.gu-lab-member .gu-picker-item{
+ display:flex;justify-content:space-between;align-items:center;gap:13px;flex-wrap:wrap;
+ background:#133047;border:1px solid #36596c;border-radius:8px;padding:9px 13px;
+ min-width:0;
+}
+body.gu-lab-member .gu-picker-item.gu-picker-locked{
+ background:#121f2b;border-color:#344653;
+}
+body.gu-lab-member .gu-picker-locked .gu-picker-info{
+ color:#adbecb;
+}
+body.gu-lab-member .gu-picker-info{flex:1 1 290px;min-width:0;}
+body.gu-lab-member .gu-picker-heading{
+ display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 10px;
+ font-size:.86rem;color:#f2f9fc;
+}
+body.gu-lab-member .gu-picker-locked .gu-picker-heading{color:#b0becb;}
+body.gu-lab-member .gu-picker-id{color:#a5c8dc;font-size:.75rem;}
+body.gu-lab-member .gu-picker-access{
+ font-size:.71rem;font-weight:750;border:1px solid #426d75;border-radius:20px;
+ padding:2px 7px;color:#a5e6d1;display:inline-flex;gap:4px;align-items:center;
+}
+body.gu-lab-member .gu-picker-locked .gu-picker-access{
+ border-color:#65696d;color:#bec2c8;
+}
+body.gu-lab-member .gu-picker-lock{font-size:.72rem;}
+body.gu-lab-member .gu-picker-meta{
+ margin:5px 0 0;color:#a9bfd0;line-height:1.5;font-size:.77rem;
+}
+body.gu-lab-member .gu-picker-action{
+ display:inline-flex;justify-content:center;align-items:center;
+ text-align:center;min-height:36px;padding:7px 11px;
+ color:#071a26;background:#8cdbc7;border:1px solid #b1efe0;
+ border-radius:7px;font-weight:750;font-size:.76rem;text-decoration:none;
+ flex:0 0 auto;
+}
+body.gu-lab-member .gu-picker-locked .gu-picker-action{
+ color:#e3ecf3;background:#273c4b;border-color:#6b8191;
+}
+body.gu-lab-member .gu-picker-action:hover{filter:brightness(1.12);}
+body.gu-lab-member .gu-picker-empty{padding:15px;color:#c5d4e2;font-size:.88rem;}
+body.gu-lab-member #player-catalog-retry{margin-top:9px;}
+body.gu-lab-member :is(#player-catalog-search,.gu-picker-action):focus-visible{
+ outline:3px solid #eec97a!important;outline-offset:2px;
+}
+@media(max-width:650px){
+ body.gu-lab-member .gu-learning-picker-fields{flex:1 1 100%;}
+ body.gu-lab-member .gu-picker-item{align-items:stretch;}
+ body.gu-lab-member .gu-picker-action{width:100%;}
+ body.gu-lab-member #player-catalog-browser{padding:8px;}
+}
+/* Academy catalog filtering uses the same search and restrained lock styling. */
+body.gu-bc-learning .gu-academy-catalog-search{
+ display:grid;gap:7px;background:#0e283b;border:1px solid #34576e;
+ border-radius:11px;padding:14px;margin:12px 0 18px;
+}
+body.gu-bc-learning .gu-academy-catalog-search label{font-weight:750;color:#fff;}
+body.gu-bc-learning .gu-academy-catalog-search input{
+ width:100%;max-width:680px;min-height:44px;padding:10px 13px;
+ background:#0d1e2d;border:1px solid #64869b;border-radius:8px;color:#f0f8fc;
+}
+body.gu-bc-learning .gu-academy-catalog-search p{font-size:.84rem;color:#b5cfdf;margin:3px 0;}
+body.gu-bc-learning .academy-program--locked{background:#101d2a!important;border-color:#3a4c5a!important;}
+body.gu-bc-learning .academy-program--locked :is(h3,.academy-duration){color:#aebfcb!important;}
+body.gu-bc-learning .academy-program--locked img{filter:grayscale(.8);opacity:.7;}
+body.gu-bc-learning .academy-program .gu-academy-lock{margin-left:7px;font-size:.78rem;color:#d4dbe2;}
+body.gu-bc-learning .academy-program--locked a.btn{
+ background:#263d50!important;border-color:#658096!important;color:#e3eff7!important;
+}
+body.gu-bc-learning #academy-programs .academy-program[hidden]{display:none!important;}
