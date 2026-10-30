@@ -35,6 +35,8 @@ assert.equal(restored.researchHistory.length,3);
 assert.equal(C.setMetadata({...first,payload:staged},{folder:'Breakout monitor',tags:['volume','catalyst'],archived:false,stage:'MONITOR'}),staged);
 assert.throws(()=>C.setMetadata(first,{stage:'PRACTICE',at:now,note:'bad'}),/12 characters/);
 assert.throws(()=>C.setMetadata(first,{folder:'<script>',tags:[],stage:'MONITOR'}),/folder/);
+const organizational=C.setMetadata(first,{folder:'New folder',tags:'newtag',stage:'MONITOR',at:now});
+assert.equal(organizational.researchHistory.at(-1).kind,'ORGANIZATION_CHANGE');
 const reviewed=C.checkpoint(first,{action:'EVIDENCE_CHECK',note:'Manual source citation and rationale recorded here.',at:now});
 assert.equal(reviewed.researchHistory.length,2);
 assert.equal(reviewed.researchHistory.at(-1).kind,'EVIDENCE_CHECK');
@@ -46,6 +48,22 @@ assert.equal(annotated.chartAnnotations.length,1);
 assert.equal(annotated.chartAnnotations[0].verification,'MANUAL_ANNOTATION_NOT_LIVE_MARKET_DATA');
 assert.throws(()=>C.annotation(first,{kind:'SUPPORT',at:now,price:NaN,note:'Manual source is unverified.'}),/positive/);
 assert.throws(()=>C.annotation(first,{kind:'UP_TREND',at:now,price:155,note:'Manual source is unverified.'}),/Unknown/);
+const withRule=C.monitoringRule(first,{type:'ABOVE_REFERENCE',low:155.22,at:now,
+ note:'Review fictional price threshold and source limitations before any plan.'});
+assert.equal(withRule.monitoringRules.length,1);
+assert.equal(withRule.researchHistory.at(-1).kind,'MONITOR_RULE');
+assert.equal(withRule.monitoringRules[0].verification,'MEMBER_DEFINED_RULE_NOT_AUTOMATED_ALERT');
+const manual=C.evaluateMonitoring({...first,payload:withRule},{price:156.25,at:now,
+ sourceNote:'Member-supplied fictional CSV snapshot'});
+assert.equal(manual.results.length,1);
+assert.equal(manual.results[0].matched,true);
+assert.equal(manual.results[0].action,'REVIEW_RESEARCH_ONLY');
+assert.equal(manual.noAutomaticNotifications,true);
+assert.equal(manual.noTradeSignal,true);
+assert.throws(()=>C.monitoringRule(first,{type:'INSIDE_RANGE',low:12,high:10,
+ at:now,note:'Incorrect range value from hypothetical research.'}),/higher upper/);
+assert.throws(()=>C.evaluateMonitoring({...first,payload:withRule},{price:-3,at:now,
+ sourceNote:'Member-supplied fictional CSV snapshot'}),/valid member-entered/);
 const combined=[make(1,'AAPL',{...staged,sourceNote:'=HYPERLINK("https://evil.test","x")',
  why:'+SUM(1,2)',invalidation:'@SUM(1,2)'}),b,make(3,'TSLA',{folder:'Momentum',tags:['volume']})];
 assert.deepEqual(C.filters(combined).map(x=>x.title),['AAPL','TSLA'],'archives omitted by default');
@@ -81,6 +99,10 @@ assert(extension.includes('C.exportCsv'));
 assert(extension.includes('C.annotation'));
 assert(extension.includes('C.reminders'));
 assert(extension.includes('root.CrownlightECharts?.load?.()'));
+assert(extension.includes('C.monitoringRule'));
+assert(extension.includes('C.evaluateMonitoring'));
+assert(extension.includes('/api/journal-research-links-v1'));
+assert(extension.includes("document.querySelectorAll('#w-list button')"));
 assert(extension.includes('GroundUpScannerV014145'));
 assert(extension.includes('/api/journal-plan-prefill?planId='));
 assert(extension.includes('journalDraft.ticker!==getSelected()?.title'));
