@@ -22,8 +22,21 @@ async function state(c,user){
   notice:'This isolated QA product never grants a real site entitlement or spends a real Lumen.'};
 }
 export async function onRequestGet({request,env}){
- try{const c=config(env),user=await owner(request,c);return response(await state(c,user))}
- catch(e){return apiFailure(e)}
+ try{
+  const c=config(env),user=await owner(request,c);
+  if(new URL(request.url).searchParams.get('view')==='readiness'){
+   const testing=await testMode(c);
+   let fixtureReady=false,providerError=null;
+   try{await verifyFixture(c);fixtureReady=true}
+   catch(e){providerError=e?.message||'TEST_STRIPE_PROVIDER_UNAVAILABLE'}
+   return response({ok:true,testOnly:true,shadowOnly:true,ownerVerified:true,
+    ownerTestMode:testing,fixtureReady,providerError,
+    ready:testing&&fixtureReady,
+    hint:testing?'Existing signed TEST environment checked. No payment created.':
+     'Enable Owner TEST mode in Payment Center for an isolated TEST checkout.'});
+  }
+  return response(await state(c,user));
+ }catch(e){return apiFailure(e)}
 }
 export async function onRequestPost({request,env}){
  try{
@@ -45,6 +58,27 @@ export async function onRequestPost({request,env}){
      {p_user:user,p_balance:input.balance});
    if(d?.ok!==true)throw error(String(d?.error||'TEST_SEED_REJECTED'));
    return response({...d,testing:true,realWalletUnchanged:true});
+  }
+  if(input.action==='cancel_unbound'){
+   if(!isUuid(input.intentId))throw error('INVALID_TEST_INTENT',400);
+   if(!await testMode(c))throw error('OWNER_TEST_MODE_DISABLED',423);
+   await verifyFixture(c);
+   const row=await intent(c,input.intentId,user);
+   if(!row||row.status!=='reserved'||row.stripe_session_id)
+    throw error('UNBOUND_ORDER_NOT_CANCELLABLE');
+   // Never release a reserved wallet if a Stripe session may already exist
+   // but its result failed to bind. Inspect the authoritative TEST account.
+   const sessions=await stripe(c,'checkout/sessions?limit=100');
+   if(sessions.has_more!==false||!Array.isArray(sessions.data))
+    throw error('STRIPE_TEST_SESSION_AUDIT_INCOMPLETE');
+   if(sessions.data.some(s=>s.metadata?.gu_mixed_qa_intent===row.id))
+    throw error('STRIPE_TEST_SESSION_EXISTS_RECONCILE_FIRST');
+   const cancelled=await db(c,'rpc/gu_mixed_qa_cancel_unbound_v1','POST',
+     {p_id:row.id,p_user:user});
+   if(cancelled?.ok!==true)
+    throw error(String(cancelled?.error||'TEST_RESERVATION_CANCEL_FAILED'));
+   return response({...cancelled,testOnly:true,
+    notice:'Unused TEST-only reservation released. Shadow Lumens restored; no Stripe or LIVE payment changed.'});
   }
   if(input.action==='expire'||input.action==='refund'){
    if(!isUuid(input.intentId))throw error('INVALID_TEST_INTENT',400);
