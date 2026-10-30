@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/free-growth-v2-acceptance.yml'
       - 'tests/test_growth_v2_live_smoke.mjs'
+      - 'tests/test_growth_v2.mjs'
 permissions:
   contents: read
 concurrency:
