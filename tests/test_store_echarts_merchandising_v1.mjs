@@ -45,8 +45,9 @@ try{
  </style></head><body><main class="gu-redesign-store">
  <nav class="store-category-tabs" role="tablist"><button aria-selected="true">Founding Memberships</button><button>Books</button><button>Crownlight Lumens</button><button>À-la-Carte Tools</button><button>Current Products</button><button>Upcoming Releases</button></nav>
  <div id="store-founder-plans">
- <article class="catalog-founder-card"><div class="catalog-founder-top">Starter</div><h3>Founding 14-Day Starter</h3></article>
- <article class="catalog-founder-card is-extended"><div class="catalog-founder-top">Extended</div><h3>Founding 60-Day</h3></article>
+ <article class="catalog-founder-card"><div class="catalog-founder-top">Starter <span class="catalog-founder-duration">14 DAYS</span></div><h3>Founding Starter</h3></article>
+ <article class="catalog-founder-card"><div class="catalog-founder-top">Standard <span class="catalog-founder-duration">30 DAYS</span></div><h3>Founding Standard</h3></article>
+ <article class="catalog-founder-card is-extended"><div class="catalog-founder-top">Extended <span class="catalog-founder-duration">60 DAYS</span></div><h3>Founding Extended</h3></article>
  </div>
  <div id="store-panel-sparks"><article class="store-crownlight-package"><h3>Starter</h3><div class="quantity">25 Crownlight Lumens</div></article></div>
  <div id="store-tools"><article class="v11-tool-card"><h3>Advanced Trade Plan Builder</h3><div class="store-tool-visual">Illustration fallback</div></article></div>
@@ -71,7 +72,7 @@ try{
  await page.addScriptTag({content:read('assets/js/crownlight-echarts-loader-v1.js')});
  await page.addScriptTag({content:read('assets/js/store-echarts-product-art-v1.js')});
  await page.locator('#store-panel-current .gu-store-type-section:first-child .gu-store-type-card').scrollIntoViewIfNeeded();
- await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===5,
+ await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===6,
   {timeout:15000});
  const result=await page.evaluate(()=>({
   graphics:[...document.querySelectorAll('.gu-echarts-product-art')].map(x=>({kind:x.dataset.artKind,hasSvg:!!x.querySelector('svg'),label:x.getAttribute('aria-label'),renderedText:x.textContent})),
@@ -81,42 +82,57 @@ try{
   hasRealRuntime:typeof window.echarts?.init==='function',
   svgWords:document.querySelector('#store-founder-plans .gu-echarts-product-art svg')?.textContent
  }));
- assert.equal(result.graphics.length,5);
- assert.deepEqual(result.graphics.map(x=>x.kind),['founder','extended','lumens','tool','research']);
+ assert.equal(result.graphics.length,6);
+ assert.deepEqual(result.graphics.map(x=>x.kind),['founder','founder','extended','lumens','tool','research']);
  assert(result.graphics.every(x=>x.hasSvg&&/not actual market data/.test(x.label)));
  assert.equal(result.bookArt,false,'Retain genuine edition book covers instead of generating cover art');
  assert.equal(result.bookCover,true);
  assert.equal(result.hasRealRuntime,true);
- assert.match(result.svgWords||'',/FOUNDING MEMBERS/);
+ assert.match(result.svgWords||'',/CROWNLIGHT/);
  assert.match(result.svgWords||'',/CHART STUDIO/);
- assert.match(result.svgWords||'',/STANDARD/);
- assert.doesNotMatch(result.svgWords||'',/MEMBER ACCESS|TOOLS · LABS · COMMUNITY/,'Never use the generic crown marketing placeholder');
+ assert.match(result.svgWords||'',/FOUNDATIONAL TRADING CHARTS/);
+ assert.match(result.svgWords||'',/14-DAY ACCESS/);
+ assert.doesNotMatch(result.svgWords||'',/MEMBER ACCESS|TOOLS · LABS · COMMUNITY/,'Never use the generic membership badge as product artwork');
  const labels=await page.evaluate(()=>[...document.querySelectorAll('.gu-echarts-product-art')].map(x=>({
   kind:x.dataset.artKind,metric:x.dataset.artMetric||'',svg:x.querySelector('svg')?.textContent||''
  })));
- assert.equal(labels[0].metric,'14 DAYS','Founder art must show actual 14-day cadence');
- assert.match(labels[0].svg,/14/);
- assert.match(labels[0].svg,/DAYS/);
- assert.match(labels[0].svg,/CROWNLIGHT/);
- assert.equal(labels[1].metric,'60 DAYS','Extended founder art must show actual 60-day cadence');
- assert.match(labels[1].svg,/60/);
- assert.match(labels[1].svg,/PROFESSIONAL/);
- assert.equal(labels[2].metric,'25 LUMENS','Bundle art must show catalog-defined 25 credits');
- assert.match(labels[2].svg,/25/);
- assert.match(labels[2].svg,/LUMENS/);
- assert.match(labels[2].svg,/DIGITAL/);
- assert.match(labels[2].svg,/NON-CASH PLATFORM CREDITS/);
+ assert.equal(labels[0].metric,'14 DAYS','Starter must derive its duration from the visible card, not the title');
+ assert.equal(labels[1].metric,'30 DAYS','Standard must derive the real 30-day term');
+ assert.equal(labels[2].metric,'60 DAYS','Extended must derive the real 60-day term');
+ assert.match(labels[0].svg,/STANDARD/);
+ assert.match(labels[0].svg,/14-DAY ACCESS/);
+ assert.match(labels[0].svg,/CANDLESTICKS/);
+ assert.match(labels[1].svg,/ADVANCED/);
+ assert.match(labels[1].svg,/30-DAY ACCESS/);
+ assert.match(labels[1].svg,/FIBONACCI/);
+ assert.match(labels[2].svg,/PROFESSIONAL/);
+ assert.match(labels[2].svg,/60-DAY ACCESS/);
+ assert.match(labels[2].svg,/SYNCHRONIZED WORKSPACE/);
+ assert.match(labels[2].svg,/02  \/  REPLAY/);
+ assert(!labels[0].svg.includes('FIBONACCI'),'Starter cannot advertise advanced Fibonacci');
+ assert(!labels[1].svg.includes('SYNCHRONIZED WORKSPACE'),'Advanced cannot imply multi-chart Professional access');
+ for(const i of [0,1,2]){
+  const el=await page.locator('.gu-echarts-product-art').nth(i);
+  assert((await el.locator('svg path').count())>12,'Founder card '+i+' must actually render candlestick chart paths, not only SVG label artwork');
+ }
+ assert.notEqual(labels[0].svg,labels[1].svg,'Starter and Standard cannot render the same graphic');
+ assert.notEqual(labels[1].svg,labels[2].svg,'Standard and Extended cannot render the same graphic');
+ assert.equal(labels[3].metric,'25 LUMENS','Bundle must derive 25 credits');
+ assert.match(labels[3].svg,/25/);
+ assert.match(labels[3].svg,/LUMENS/);
+ assert.match(labels[3].svg,/DIGITAL/);
+ assert.match(labels[3].svg,/NON-CASH PLATFORM CREDITS/);
  const firstScenes=await page.evaluate(()=>[...document.querySelectorAll('.gu-echarts-product-art')].map(x=>x.dataset.artScene||''));
- assert.deepEqual(firstScenes,['','','','plan','scanner'],'Product images must be based on the specific item, not just its Store category');
- assert.match(labels[3].svg,/TRADE PLAN/,'Trade-plan product needs its own illustrated planning workflow');
- assert.match(labels[4].svg,/SCANNER FILTERS/,'Scanner needs illustrated filters and candidate results');
+ assert.deepEqual(firstScenes,['','','','','plan','scanner'],'Product images must be based on their specific items');
+ assert.match(labels[4].svg,/TRADE PLAN/,'Trade plan must illustrate its own workflow');
+ assert.match(labels[5].svg,/SCANNER FILTERS/,'Scanner must illustrate filter/results UI');
  assert.deepEqual(errors,[],'Store graphics cannot throw browser exceptions');
  await page.evaluate(()=>{
    const card=document.createElement('article');card.className='store-crownlight-package';card.innerHTML='<h3>Explorer</h3>';
    document.querySelector('#store-panel-sparks').append(card);
  });
  await page.locator('#store-panel-sparks .store-crownlight-package:last-child').scrollIntoViewIfNeeded();
- await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===6,
+ await page.waitForFunction(()=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===7,
   {timeout:15000});
  const specialties=[
   ['Free Research Watchlist','watchlist','RESEARCH CANDIDATES'],
@@ -142,7 +158,7 @@ try{
    const heading=document.createElement('h4');heading.textContent=title;card.append(heading);host.append(card);}
  },specialties.map(x=>x[0]));
  for(let i=0;i<specialties.length;i++)await page.locator('#store-panel-current .gu-store-type-section:last-child .gu-store-type-card').nth(i).scrollIntoViewIfNeeded();
- await page.waitForFunction(count=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===count,17,{timeout:20000});
+ await page.waitForFunction(count=>document.querySelectorAll('.gu-echart-ready .gu-echarts-product-art svg').length===count,18,{timeout:20000});
  const actual=await page.evaluate(()=>[...document.querySelectorAll('#store-panel-current .gu-store-type-section:last-child .gu-echarts-product-art')].map(x=>({
   scene:x.dataset.artScene,svg:x.querySelector('svg')?.textContent||'',title:x.dataset.artTitle
  })));
@@ -153,5 +169,5 @@ try{
   assert(actual[i].svg.includes('ILLUSTRATIVE PRODUCT PREVIEW'),'Market UI previews must be clearly illustrative');
  }
  assert.deepEqual(errors,[],'Diverse real ECharts product visuals cannot trigger browser exceptions');
- console.log('PASS premium tier-specific ECharts founder passes, product UI previews, genuine book covers, compact responsive tabs, default founding and footer details');
+ console.log('PASS three real differentiated ECharts Founder Chart Studio product previews, genuine OHLC series, correct 14/30/60 terms, separate Lumens, real book covers and responsive tabs');
 }finally{await browser.close()}
