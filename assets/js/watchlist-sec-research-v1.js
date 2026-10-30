@@ -44,7 +44,7 @@
     result.append(make('h3',data.company));
     const list=make('ul');
     for(const filing of data.filings){
-     const item=make('li',filing.form+' · Filed '+filing.filedDate+' · Accepted '+(filing.publishedAt||'Exact time unknown')+' · ');
+     const item=make('li',filing.form+' · Filed '+filing.filedDate+' · Accepted '+(filing.acceptedAt||'Exact time unknown')+' · ');
      const link=make('a','Open original SEC filing');link.href=filing.sourceUrl;link.target='_blank';link.rel='noopener noreferrer';
      item.append(link);list.append(item);
     }
@@ -52,16 +52,16 @@
     if(Array.isArray(data.fundamentals)){
      result.append(make('h3','Reported financial data (not estimates)'));
      const table=make('table'),head=make('tr');
-     for(const s of ['SEC metric','Most recently filed observation','Reporting period','First known release']){
+     for(const s of ['SEC metric','Most recently filed observation','Reporting period','SEC acceptance (not proven public release)']){
       head.append(make('th',s));
      }
      table.append(head);
      for(const metric of data.fundamentals){
       const v=metric.observations?.[0],row=make('tr');
-      for(const x of [metric.metric,v?String(v.value)+' '+v.unit:'Not reported',v?.periodEnd||'Unknown',v?.publishedAt||'Exact time unknown'])row.append(make('td',x));
+      for(const x of [metric.metric,v?String(v.value)+' '+v.unit:'Not reported',v?.periodEnd||'Unknown',v?.acceptedAt||'Exact time unknown'])row.append(make('td',x));
       table.append(row);
      }
-     result.append(table,make('p','SEC-reported facts may be revised and may differ by period or taxonomy. Filing date alone does not certify historical intraday availability.','small'));
+     result.append(table,make('p','SEC-reported facts may be revised and may differ by period or taxonomy. Filing acceptance is not proof of public release timing; no fact here is certified for historical intraday replay.','small'));
     }
    }catch(e){if(local===sequence){result.replaceChildren();status.textContent=e?.message||'Could not verify SEC records.'}}
    finally{if(local===sequence)button.disabled=false}

@@ -21,8 +21,10 @@ const sample={cik:789019,name:'Example Medical Inc',tickers:['GUSIM'],exchanges:
 const obs='2026-10-30T12:00:00Z';
 const filings=normalizeSubmissions(sample,identity,obs);
 assert.equal(filings.filings.length,2);
-assert.equal(filings.filings[0].publishedAt,'2026-10-01T18:10:00.000Z');
-assert.equal(filings.filings[1].publishedAt,null);
+assert.equal(filings.filings[0].acceptedAt,'2026-10-01T18:10:00.000Z');
+assert.equal(filings.filings[0].publishedAt,null,'Acceptance is NOT independently proven public release');
+assert.equal(filings.filings[0].historicalReplayEligible,false,'No false replay eligibility');
+assert.equal(filings.filings[1].acceptedAt,null);
 assert.equal(filings.filings[1].historicalReplayEligible,false);
 assert.match(filings.filings[0].sourceUrl,/www.sec.gov\/Archives\/edgar\/data\/789019\/000078901926000001\/example.htm/);
 assert.throws(()=>normalizeSubmissions({...sample,tickers:['OTHER']},identity,obs),/do not confirm/);
@@ -36,6 +38,11 @@ const f=normalizeFacts(facts,identity,filings.filings);
 assert.equal(f.find(x=>x.metric==='Revenue').observations[0].value,2500000);
 assert.equal(f.find(x=>x.metric==='Net income or loss').observations[0].value,-18000);
 assert.equal(f.find(x=>x.metric==='Revenue').observations[0].publishedAt,null);
+assert.equal(f.find(x=>x.metric==='Revenue').observations[0].historicalReplayEligible,false);
+assert.equal(f.find(x=>x.metric==='Revenue').observations[0].acceptedAt,null);
+const badCalendar=structuredClone(sample);
+badCalendar.filings.recent.filingDate[0]='2026-02-30';
+assert.equal(normalizeSubmissions(badCalendar,identity,obs).filings.length,1,'Impossible SEC calendar dates rejected');
 assert.equal(f.find(x=>x.metric==='Total assets').available,false);
 assert.throws(()=>normalizeFacts({...facts,cik:4},identity,filings.filings),/different company/);
 const env={SUPABASE_URL:'https://mock.supabase.co',SUPABASE_PUBLISHABLE_KEY:'testpublic',

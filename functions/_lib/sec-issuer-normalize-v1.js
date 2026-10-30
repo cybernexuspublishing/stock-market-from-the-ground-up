@@ -13,7 +13,11 @@ const FIELDS=Object.freeze([
  {name:'Diluted earnings per share',taxonomy:'us-gaap',tags:['EarningsPerShareDiluted'],unit:'USD/shares'},
  {name:'Common shares outstanding',taxonomy:'dei',tags:['EntityCommonStockSharesOutstanding'],unit:'shares'}
 ]);
-const safeDate=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(Date.parse(s+'T00:00:00Z'))?s:null;
+const safeDate=s=>{
+ if(typeof s!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(s))return null;
+ const at=Date.parse(s+'T00:00:00Z');
+ return Number.isFinite(at)&&new Date(at).toISOString().slice(0,10)===s?s:null;
+};
 const safeTime=s=>typeof s==='string'&&/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(s)&&Number.isFinite(Date.parse(s))?new Date(s).toISOString():null;
 const safeText=(s,max=160)=>String(s??'').slice(0,max).replace(/[\u0000-\u001f]/g,'').trim();
 export function resolveTicker(index,ticker){
@@ -42,10 +46,10 @@ export function normalizeSubmissions(data,identity,observationTime){
   if(accepted&&Date.parse(accepted)>Date.parse(observationTime))continue;
   const url='https://www.sec.gov/Archives/edgar/data/'+identity.cik+'/'+acc.replaceAll('-','')+'/'+doc;
   const row={accession:acc,form,filedDate:date,reportDate:safeDate(recent.reportDate?.[i]),
-   publishedAt:accepted,publicationTimeKnown:accepted!==null,
-   sourceUrl:url,source:'SEC_EDGAR',historicalReplayEligible:accepted!==null,
-   timingLimitation:accepted?'SEC acceptance time, not evidence of when a trader observed it':
-    'Only a filing DATE is available; historical intraday availability is unknown'};
+   acceptedAt:accepted,publishedAt:null,publicationTimeKnown:false,
+   sourceUrl:url,source:'SEC_EDGAR',historicalReplayEligible:false,
+   timingLimitation:accepted?'SEC accepted timestamp is not verified first public dissemination time; excluded from decision-time replay':
+    'Only filing date is available; precise acceptance and public dissemination times are unknown'};
   if(!lookup.has(acc)){lookup.set(acc,row);filings.push(row)}
  }
  return {symbol:identity.symbol,cik:identity.cik,company:safeText(data.name||identity.name,180),
@@ -68,14 +72,13 @@ export function normalizeFacts(data,identity,filings){
   const points=chosen.filter(x=>x&&typeof x.val==='number'&&Number.isFinite(x.val)&&safeDate(x.end)&&
     safeDate(x.filed)&&typeof x.accn==='string'&&x.accn.length<=24)
    .map(x=>{
-    const doc=byAccession.get(x.accn),publishedAt=doc?.publishedAt||null;
+    const doc=byAccession.get(x.accn),acceptedAt=doc?.acceptedAt||null;
     return {value:x.val,unit:field.unit,periodStart:safeDate(x.start),
      periodEnd:x.end,filingDate:x.filed,form:safeText(x.form,12),accession:x.accn,
-     publishedAt,sourceUrl:doc?.sourceUrl||null,
-     historicalReplayEligible:publishedAt!==null,
+     acceptedAt,publishedAt:null,sourceUrl:doc?.sourceUrl||null,
+     historicalReplayEligible:false,
      source:'SEC_XBRL_REPORTED_FACT',isEstimate:false,
-     limitation:publishedAt?'Original filing acceptance verified against recent submission':
-      'Exact first availability not established; not eligible for historical intraday replay'};
+     limitation:'SEC acceptance is not verified first public dissemination; historical intraday availability unestablished'};
    })
    .sort((a,b)=>b.filingDate.localeCompare(a.filingDate)||b.periodEnd.localeCompare(a.periodEnd))
    .slice(0,8);
