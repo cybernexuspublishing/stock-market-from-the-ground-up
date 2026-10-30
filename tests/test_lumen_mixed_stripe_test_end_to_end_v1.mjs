@@ -110,7 +110,8 @@ globalThis.fetch=async(url,opts={})=>{
     param:'managed_payments[enabled]'}},400);
   }
   stripeCreates++;
-  assert.equal(form.get('managed_payments[enabled]'),'true','TEST Checkout must match GU39 Managed Payments');
+  assert.equal(form.has('managed_payments[enabled]'),false,'Isolated TEST Checkout must not require Managed Payments preview enrollment');
+  assert.equal(form.has('payment_method_types[0]'),false,'Do not submit deprecated payment_method_types to Stripe');
   const id='cs_test_QA'+stripeCreates+'abcde',intentId=form.get('client_reference_id');
   const amount=Number(form.get('line_items[0][price_data][unit_amount]'));
   const s={id,livemode:false,status:'open',payment_status:'unpaid',currency:'usd',
