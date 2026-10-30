@@ -93,7 +93,13 @@
    const continueLink=item('a','Continue in Advanced Watchlist','btn secondary');
    continueLink.href='advanced-tool.html?tool=WATCHLIST_WORKBENCH&free_symbol='+encodeURIComponent(row.symbol);
    continueLink.setAttribute('aria-label','Continue '+row.symbol+' in Advanced Watchlist');
-   actions.append(edit,continueLink,remove);card.append(actions);root.append(card);
+   const study=item('button','Study this candidate with Talia','btn secondary');study.type='button';
+   study.addEventListener('click',()=>{
+    const instructor=document.getElementById('free-watchlist-talia-v4-host')?._groundUpTaliaV4;
+    if(!instructor?.focusRecord?.({symbol:row.symbol}))
+     say('free-watchlist-save-status','Talia is unavailable. Your saved research record is unchanged.');
+   });
+   actions.append(edit,study,continueLink,remove);card.append(actions);root.append(card);
   }
  }
  function resetForm(){
