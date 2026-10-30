@@ -53,7 +53,8 @@
    if(!rights?.freeEligible||rights.training!==true)return 'locked';
    return 'available';
   }
-  if(!release||!release.released.has(row.id))return 'upcoming';
+  if(!release)return 'locked'; // Publication status unavailable: do not imply release or an upcoming date.
+  if(!release.released.has(row.id))return 'upcoming';
   if(!rights?.freeEligible)return 'locked';
   const bookCodes={1:'FOUNDATION_BOOK_1',2:'FOUNDATION_BOOK_2',3:'FOUNDATION_BOOK_3',4:'DAY_TRADING_BOOK_1',5:'READING_THE_TAPE'};
   const trainingOnly=release.trainingOnly.has(row.id)||Number(row.book)===6;
@@ -97,7 +98,14 @@
    link.href=destination;
    link.setAttribute('aria-label',(locked?'Restricted: view access options for ':'Open ')+row.title);
    if(state==='upcoming')link.title='Upcoming Lab. The product page determines whether a purchase is currently possible.';
-   item.append(info,link);list.append(item);
+   item.append(info,link);
+   // Clicking the noninteractive portion of the result follows its existing
+   // accessible action; no client-side permission is inferred from the click.
+   item.addEventListener('click',event=>{
+    if(event.target.closest('a,button,input'))return;
+    window.location.assign(link.href);
+   });
+   list.append(item);
   }
   host.append(list);
  }
