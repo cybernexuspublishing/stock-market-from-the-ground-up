@@ -9,7 +9,7 @@ const current=resolve(process.argv[3]||process.cwd());
 if(!existsSync(join(baseline,'tests'))||!existsSync(join(current,'tests')))
  throw Error('Pass existing baseline and current checkout paths.');
 const pattern=/watchlist|research|scanner|journal|tutor|lab|guide|sql|commerce|tool|simulator|source|free|member|auth|chart|trade.plan|historical/i;
-const forbidden=/browser|playwright|e2e|live_|production|\.fixture\./i;
+// Credentialed production-browser acceptance is separately gated, never an offline source test.\nconst forbidden=/browser|playwright|e2e|live_|production|authentic_readonly|\.fixture\./i;
 const list=readdirSync(join(current,'tests')).filter(n=>/^test_[^/]+\.mjs$/.test(n)&&pattern.test(n)&&!forbidden.test(n)).sort().slice(0,220);
 const B='78b3b93ccf70252127265cd7c16589e2bd7d4ae2',reports=[];
 const classify=(output)=>{
@@ -41,7 +41,7 @@ for(let i=0;i<list.length;i++){
 }
 const counts=x=>reports.filter(r=>r.difference===x).length;
 const summary={
- scope:'Offline Watchlist-related Node .mjs tests, excluding live/browser/production filenames',
+ scope:'Offline Watchlist-related Node .mjs tests; credentialed production-browser acceptance is an explicit separate gate',
  baselineCommit:B,total:reports.length,bothPassed:counts('both_pass'),
  preexistingFailures:counts('preexisting_failure'),newFailures:counts('new_failure'),
  changedFailures:counts('changed_failure'),fixedOrNewPasses:counts('fixed_or_new_pass'),

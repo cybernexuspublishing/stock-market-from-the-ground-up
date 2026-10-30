@@ -12,7 +12,7 @@ on:
       - 'assets/js/free-watchlist-fictional-echarts-v1.js'
       - 'free-watchlist.html'
       - 'assets/css/free-watchlist-v1.css'
-      - 'tests/test_watchlist_free_advanced_continuity_v1.mjs'
+      - 'tests/test_watchlist_free_advanced_continuity_v1.mjs'\n      - 'scripts/watchlist-regression-diff-v2.mjs'
       - 'advanced-tool.html'
       - 'simulator.html'
       - 'supabase/migrations/20261030_watchlist_*.sql'
@@ -98,7 +98,7 @@ jobs:
         run: |
           npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1 echarts@6.1.0
           npx playwright install --with-deps chromium
-      - name: Compare 153 focused JavaScript tests against pre-V2 main
+      - name: Compare offline JavaScript source tests against pre-V2 main
         run: |
           git worktree add --detach "$RUNNER_TEMP/watchlist-baseline" 78b3b93ccf70252127265cd7c16589e2bd7d4ae2
           ln -s "$GITHUB_WORKSPACE/node_modules" "$RUNNER_TEMP/watchlist-baseline/node_modules"
