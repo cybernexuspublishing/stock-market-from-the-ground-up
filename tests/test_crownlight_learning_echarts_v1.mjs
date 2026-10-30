@@ -31,6 +31,7 @@ test('three-step calculation review is correct and gives targeted free correctio
  assert.ok(engine.checkCalculation('vwap',['2600','300','8.67'],candle,100).every(x=>x.ok));
  const naive=engine.checkCalculation('vwap',['2600','300','9'],candle,100);
  assert.equal(naive[2].ok,false);
+ assert.equal(engine.checkCalculation('vwap',['2600','300','8.74'],candle,100)[2].ok,false,'Do not accept an inaccurate rounded VWAP');
  assert.match(naive[2].feedback,/unequal shares/i);
 });
 test('all learning entry points link the shared workstation without changing tier access',()=>{

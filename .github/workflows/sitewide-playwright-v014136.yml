@@ -53,6 +53,8 @@ jobs:
           node tests/test_v34_unified_curriculum.mjs
           node tests/test_v014167_talia_five_candle_tabs.mjs
           node tests/test_v014168_419_teaching_bridges.mjs
+          node scripts/learning-echarts-beta-audit-v1.mjs
+          node tests/test_crownlight_learning_echarts_v1.mjs
           node tests/test_v014168_academy_family.mjs
           node tests/test_v014170_academy_member_contract.mjs
           node tests/test_v35_chart_tutor_integration.mjs
@@ -127,6 +129,10 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014168_academy_browser.mjs
+      - name: Browser-verify free ECharts teaching at mobile/tablet/desktop with no credits or grades
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_crownlight_learning_echarts_browser_v1.mjs
       - name: Chromium-verify Scanner Builder data validation and private source notes
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
@@ -192,6 +198,12 @@ jobs:
         env:
           SITEWIDE_TEST_BASE: http://127.0.0.1:8765
         run: node tests/test_v014137_checkout_quote_browser.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: learning-echarts-beta-audit
+          path: artifacts/learning-echarts-beta-audit-v1.json
+          if-no-files-found: warn
       - uses: actions/upload-artifact@v4
         if: always()
         with:

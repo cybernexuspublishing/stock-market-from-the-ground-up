@@ -31,7 +31,7 @@
   return expected.map((value,i)=>{
    const input=String(typed[i]??'').trim(),numeric=Number(input);
    const ok=value===null?/^(undefined|n\/a)$/i.test(input):
-    input!==''&&Number.isFinite(numeric)&&Math.abs(numeric-value)<(i===2?.08:.016);
+    input!==''&&Number.isFinite(numeric)&&Math.abs(numeric-value)<(i===2?(kind==='vwap'?.0051:.055):.016);
    const guidance=kind==='vwap'?[
     'Multiply each price by its shares: Group A is $1,600 and Group B is $'+(10*secondVolume).toFixed(2)+'. Add these values.',
     'Add 200 shares from Group A to '+secondVolume+' from Group B.',
