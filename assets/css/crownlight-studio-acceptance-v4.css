@@ -1,0 +1,15 @@
+/* Isolated Chart Studio V4 acceptance panel — existing Studio UI remains intact. */
+.cl-studio-acceptance{margin:18px 0;padding:22px;border:1px solid rgba(99,161,191,.4);border-radius:14px;background:rgba(12,29,43,.82)}
+.cl-studio-acceptance h2{margin:0 0 8px}.cl-studio-acceptance h3{margin-top:22px}
+.cl-studio-acceptance p{line-height:1.55}
+.cl-studio-acceptance dl{display:grid;grid-template-columns:minmax(150px,210px) minmax(0,1fr);gap:0;margin:10px 0 16px;border:1px solid rgba(99,161,191,.25);border-radius:9px;overflow:hidden}
+.cl-studio-acceptance dt,.cl-studio-acceptance dd{margin:0;padding:12px 14px;border-bottom:1px solid rgba(99,161,191,.22);overflow-wrap:anywhere}
+.cl-studio-acceptance dt{font-weight:650;background:rgba(15,52,68,.7)}
+.cl-studio-acceptance dt:last-of-type,.cl-studio-acceptance dd:last-child{border-bottom:0}
+.cl-studio-acceptance .cl-studio-sample-inputs{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));align-items:end;gap:12px}
+.cl-studio-acceptance label{display:flex;flex-direction:column;gap:6px;line-height:1.3}
+.cl-studio-acceptance label input,.cl-studio-acceptance label select{width:100%;min-height:42px;color:#edf6fb;background:#102638;border:1px solid #537a8d;border-radius:7px;padding:8px}
+.cl-studio-acceptance button{cursor:pointer;padding:10px 14px;border-radius:8px;min-height:42px}
+.cl-studio-acceptance button:disabled{opacity:.55;cursor:not-allowed}
+.cl-studio-acceptance [role=status]{padding:8px 0;overflow-wrap:anywhere}
+@media(max-width:640px){.cl-studio-acceptance{padding:14px}.cl-studio-acceptance dl{grid-template-columns:1fr}.cl-studio-acceptance dt{border-bottom:0;padding-bottom:3px}.cl-studio-acceptance dd{padding-top:3px}}
