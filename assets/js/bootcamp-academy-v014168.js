@@ -112,7 +112,7 @@
     (access?'':' academy-program--locked');
    const destination=access?(p.code==='foundations30'?'bootcamp.html':
     'bootcamp-academy.html?program='+encodeURIComponent(p.code)):
-    'store-membership-ondemand-monthly.html';
+    'store-membership-ondemand-monthly.html?source=bootcamp&item='+encodeURIComponent(p.code);
    const link=node('a');link.className='academy-program-compact-link';
    link.href=destination;
    link.setAttribute('aria-label',access?'Open '+p.title:
