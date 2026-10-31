@@ -213,6 +213,25 @@
   reveal.append(refs);section.append(reveal);mount.append(section);
  }
 
+ const programResearchProtocols=Object.freeze({
+  watchlist7:{title:'Verify the candidate before watching the chart',procedure:'Record the issuer name, ticker, catalyst origin, precise publication time, free-float definition, data timestamp and relative-volume denominator. Compare the headline with the original issuer disclosure.',limits:'A high-volume screen or social-media mention cannot independently prove a catalyst or future price direction.'},
+  scanners10:{title:'Audit the signal, not just the scan result',procedure:'Record each filter threshold, selected session, comparison period, adjusted-data status and time the scanner result became available. Check the output against a separate data source before interpreting it.',limits:'A scan hit is a candidate, not evidence of profitability, sufficient liquidity, or executable fills.'},
+  foundations30:{title:'Separate chart observation from causal claim',procedure:'Record the candle timeframe, OHLC values, traded volume, indicator parameters and historical information cutoff. Describe what is visible before proposing why the market moved.',limits:'A candlestick or technical indicator cannot establish the undisclosed motivations of individual market participants.'},
+  charts45:{title:'Test a setup against invalidation and context',procedure:'For VWAP holds, high-of-day breaks or reversals, record the session, reference level, volume comparison, entry premise, invalidation and the next independent replay decision.',limits:'The cited trading-pattern preferences are hypotheses, not evidence of a profitable edge; stops may slip or fail to fill.'},
+  risk60:{title:'Audit realistic execution risk',procedure:'Distinguish a stop trigger from execution price; document spreads, quoted depth, halt exposure, stop-limit nonexecution, gap risk, position size and account-specific margin restrictions.',limits:'A fixed stop level does not guarantee a maximum realized loss; historical PDT statements require current firm-specific review.'},
+  practicum90:{title:'Build an independent evidence dossier',procedure:'Lock the information cutoff, record source URLs and data provenance, precommit thesis, invalidation, risk budget, possible no-trade result, and an after-action review without hindsight.',limits:'Retrospective winning examples and instructor anecdotes do not establish expected future performance.'}
+ });
+ function showProgramResearchProtocol(d,mount){
+  const p=programResearchProtocols[d.programCode];if(!p)return;
+  const section=node('section');section.className='academy-beta-daily-coach';
+  section.setAttribute('aria-label','Research verification protocol for this Boot Camp');
+  section.append(node('h4','Source-quality checkpoint: '+p.title),
+   node('p','Original, ungraded supporting instruction. This checkpoint is not a historical market case, private assessment, or grade.'),
+   node('p',p.procedure),node('h4','Evidence limitation'),node('p',p.limits),
+   node('p','Apply this checkpoint to today’s specific subject: '+d.title+'. Explain what is verified, what remains uncertain, and the condition that would justify no trade.'));
+  mount.append(section);
+ }
+
  function showOriginalInstruction(d){
   // New day-specific teaching is purely formative. It cannot update an official
   // grade or touch the protected answer-key service.
@@ -224,6 +243,7 @@
   }
   mount.replaceChildren();mount.hidden=false;
   showTruth5SourceAudit(d,mount);
+  showProgramResearchProtocol(d,mount);
   // Research augmentation is formative and never changes assessment, member
   // progress or saved reflections. It uses original source-informed teaching.
   if(d.researchEnrichment){
