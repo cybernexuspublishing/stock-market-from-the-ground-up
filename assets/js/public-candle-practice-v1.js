@@ -65,7 +65,7 @@ function showTable(){
  const bars=exercises[position].bars;table.replaceChildren();
  bars.forEach((bar,i)=>{const tr=create('tr');[String(i+1),...bar.slice(0,4).map(n=>'$'+n.toFixed(2)),String(bar[4])].forEach(x=>tr.append(create('td',x)));table.append(tr)});
  const last=bars.at(-1),facts=$('gu-practice-facts');facts.replaceChildren();
- [['Open','$'+last[0].toFixed(2)],['High','$'+last[1].toFixed(2)],['Low','$'+last[2].toFixed(2)],['Close','$'+last[3].toFixed(2)],['Volume',last[4]+' shares']].forEach(([k,v])=>{const x=create('div',undefined,'gu-public-fact');x.append(create('small',k),create('strong',v));facts.append(x)});
+ [['High','$'+last[1].toFixed(2)],['Close','$'+last[3].toFixed(2)],['Open','$'+last[0].toFixed(2)],['Low','$'+last[2].toFixed(2)],['Volume',last[4]+' shares']].forEach(([k,v])=>{const x=create('div',undefined,'gu-public-fact');x.append(create('small',k),create('strong',v));facts.append(x)});
 }
 function renderPart(){
  stop();
