@@ -58,8 +58,13 @@
   const explain=el('p','Choose whole Lumens to apply to this purchase, or use the standard card-only button above. Mixed payment is only available to authorized noncommercial QA accounts.');
   const label=el('label','Lumens to apply: '),input=document.createElement('input');
   input.type='number';input.min='1';input.max=String(Math.ceil(p.cents/7));input.step='1';input.value='10';input.style.width='6rem';
-  input.disabled=!eligible;label.append(input);
-  const preview=el('button','Preview Lumen discount');preview.type='button';preview.className='btn secondary';preview.disabled=!eligible;
+  // Price entry is read-only client intent, not a grant or payment action.
+  // It must remain editable even if the full-card offer lookup is unavailable.
+  input.disabled=false;input.setAttribute('aria-label','Whole Lumens to apply to '+p.title);
+  label.append(input);
+  const preview=el('button','Preview Lumen discount');preview.type='button';preview.className='btn secondary';
+  // The independent mixed-quote endpoint verifies entitlements, wallet and QA eligibility.
+  preview.disabled=!token||included;
   const summary=el('p',included?'Already included — no purchase is needed.':!token?'Sign in to see your balance and options.':'Choose an amount and select Preview Lumen discount.');
   summary.setAttribute('role','status');
   const buy=el('button','Open discounted Stripe TEST checkout');buy.type='button';buy.className='btn';buy.disabled=true;
@@ -68,9 +73,15 @@
   let quote=null,requestId=null,revision=0;
   const reset=()=>{revision++;quote=null;requestId=null;buy.disabled=true;preview.disabled=false;summary.textContent='Selection changed. Verifying your new Lumen quote…';preview.click()};
   input.addEventListener('change',reset);
+  input.addEventListener('input',()=>{revision++;quote=null;requestId=null;buy.disabled=true;
+   summary.textContent=included?'Already included — purchase blocked. Select a higher tier for a TEST purchase.':
+    !token?'Sign in to obtain a verified Lumen quote.':'Lumen quantity changed. Select Preview Lumen discount to update the payable amount.';
+  });
   preview.addEventListener('click',async()=>{
    const currentRevision=++revision;
    buy.disabled=true;quote=null;requestId=null;
+   if(!token){summary.textContent='Sign in to verify your Lumen balance and product eligibility.';return}
+   if(included){summary.textContent='Your current access includes this tier; no purchase is available.';return}
    const n=Number(input.value);
    if(!Number.isSafeInteger(n)||n<1||n>Math.ceil(p.cents/7)){summary.textContent='Enter a valid whole Lumen amount.';return}
    preview.disabled=true;summary.textContent='Checking current wallet, access and price…';
@@ -128,7 +139,7 @@
   section.append(heading,explain,label,preview,summary,cancelCard,buy);
   card.append(title,price,detail,terms,state,cash,section);
   // Read-only automatic quote for eligible QA members. Payment still requires explicit click.
-  if(eligible)void preview.click();
+  if(token&&!included)void preview.click();
   return card;
  }
  async function cancelOnReturn(){
