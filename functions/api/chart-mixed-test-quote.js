@@ -24,13 +24,14 @@ export async function onRequestGet({request,env}){
   const applied=Math.min(offer.amountCents,selected*7),cashDue=offer.amountCents-applied;
   if(selected>Math.ceil(offer.amountCents/7))return respond({ok:false,error:'EXCEEDS_PRODUCT_PRICE'},409);
   if(cashDue>0&&cashDue<50)return respond({ok:false,error:'BELOW_CARD_MINIMUM'},409);
+  // Genuine mixed settlement is available only for server-approved noncommercial QA.
+  // The separate checkout POST revalidates all eligibility and Stripe TEST proof.
   const qaEligible=selected>0&&await verifyChartMixedQa(env,identity.userId);
-  // Quote eligibility is not settlement readiness. The POST route is disabled.
-  const checkoutActive=false;
-  return respond({ok:true,testOnly:true,checkoutActive,settlementEnabled:false,qaEligible,sku,originalCents:offer.amountCents,
+  const checkoutActive=qaEligible;
+  return respond({ok:true,testOnly:true,checkoutActive,settlementEnabled:checkoutActive,qaEligible,sku,originalCents:offer.amountCents,
    lumenUnitCents:7,availableLumens:balance,selectedLumens:selected,discountCents:applied,
    remainingLumens:balance-selected,maxLumensUsable:Math.min(balance,Math.ceil(offer.amountCents/7)),cashDueCents:cashDue,fullyCovered:cashDue===0,
-   note:'Quotation only. Mixed Chart Studio checkout is disabled; no Lumens can be reserved or paid through this route.'});
+   note:checkoutActive?'Authorized TEST checkout available. Credits are reserved only when you submit.':'Preview only. TEST mixed checkout is not available for this account.'});
  }catch(e){return respond({ok:false,error:e.status===401?'SIGN_IN_REQUIRED':'QUOTE_UNAVAILABLE'},e.status===401?401:503)}
 }
 export function onRequestPost(){return respond({ok:false,error:'SETTLEMENT_NOT_ENABLED'},503)}
