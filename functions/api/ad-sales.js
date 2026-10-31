@@ -66,8 +66,8 @@ async function invoice(c,campaign,advertiser,reference){
  ]);
  if(!ir.ok||!ar.ok)throw bad('Unable to verify the Stripe invoice.',503);
  const data=await ir.json(),account=await ar.json();
- if(account.id!==acct||data.livemode!==true||data.status!=='paid'||data.paid!==true||
- data.currency!=='usd'||!Number.isInteger(data.amount_paid)||
+ if(account.id!==acct||data.livemode!==true||data.status!=='paid'||
+ data.currency!=='usd'||Number(data.amount_remaining)!==0||!Number.isInteger(data.amount_paid)||
  data.amount_paid<campaign.amount_cents||data.metadata?.ad_campaign_id!==String(campaign.id)||
  data.metadata?.advertiser_id!==String(advertiser.id)||
  !/^cus_[A-Za-z0-9_]{6,}$/.test(str(data.customer)))
