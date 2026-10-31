@@ -20,6 +20,21 @@ function sourceTitles(sources){
  return (Array.isArray(sources)?sources:[]).slice(0,3)
  .map(x=>String(x?.title||x?.sourceLabel||'').trim().slice(0,120)).filter(Boolean);
 }
+function guidedLessonFor(record){
+ const api=window.TaliaGuidedPracticeV1;
+ return api?.findLesson?.([...(Array.isArray(record.sourceCodes)?record.sourceCodes:[]),
+  ...(Array.isArray(record.sourceTitles)?record.sourceTitles:[])])||null;
+}
+function sourceOnlyTeachingPrompt(record){
+ const topic=String(record.sourceTitles?.[0]||record.question||'').slice(0,350);
+ $('tutor-question').value=('Teach this in more depth: '+topic).slice(0,450);
+ $('tutor-mode').value='explain';
+ const consent=$('tutor-ai-consent');if(consent)consent.checked=false;
+ updateCount();
+ status('Deeper source-only instruction prepared. Review the question and submit.');
+ $('tutor-question').focus();
+ window.scrollTo({top:0,behavior:'smooth'});
+}
 function sessionMessage(){return TUTOR.user?'Current-page exchanges are available now; cross-device history requires approved private storage.':'Public glossary mode: sign in for member teaching and saved private exchanges.';}
 async function token(){
  if(!TUTOR.sb)return null;
@@ -122,7 +137,17 @@ function detailsOf(record){
   }
   reply.append(study);
  }
+ const guided=guidedLessonFor(record);
+ if(guided){
+  const learning=make('div',undefined,'tutor-actions');
+  learning.append(btn('Open guided example: '+guided.title,()=>{
+   if(!window.TaliaGuidedPracticeV1?.openLesson?.(guided.id))
+    status('Original lesson unavailable. No score or purchase was changed.','error');
+  }));
+  reply.append(learning);
+ }
  const actions=make('div',undefined,'tutor-actions');
+ actions.append(btn('Teach this in more depth (source-only)',()=>sourceOnlyTeachingPrompt(record)));
  actions.append(btn('Continue this topic',()=>{
   TUTOR.lastTopic=record.sourceTitles?.[0]||record.question.slice(0,70);
   $('tutor-question').value='Follow-up on '+TUTOR.lastTopic+': ';
@@ -504,6 +529,8 @@ async function ask(){
    throw Error('Your signed-in session changed; the prior response was discarded to protect privacy.');
   const rec={requestId:TUTOR.activeRequestId,question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
+   sourceCodes:(Array.isArray(data.sources)?data.sources:[]).slice(0,3)
+    .map(x=>String(x?.id||'')).filter(x=>/^(STUDY_[A-Z0-9_]{3,80}|REPLAY_EVENT_CREX_2020_04_28)$/.test(x)),
    createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null,
    conversationId:submittedConversationId||null};
   addRecord(rec);
@@ -567,6 +594,7 @@ async function refreshAiServiceStatus(){
  }
 }
 async function initTutor(){
+ window.addEventListener('talia-guided-practice-ready',renderConversation);
  $('tutor-ask').addEventListener('click',ask);
  $('tutor-stop').addEventListener('click',()=>{
   if(TUTOR.abortController&&!TUTOR.abortController.signal.aborted)TUTOR.abortController.abort();

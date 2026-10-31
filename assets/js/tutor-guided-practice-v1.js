@@ -391,6 +391,29 @@
   if(k==='strategy-case')return {value:null,series:[],note:'Fictional chart background only; no source-named setup, signal, entry or market fill is claimed to have occurred.'};
   return {value:null,series:[],note:'Study calculation unavailable.'};
  }
+ // Select only canonical original lessons by ID, study guide code or exact title.
+ function lessonFor(topic,units=state.units){
+  if(!Array.isArray(units)||!units.length)return null;
+  const candidates=Array.isArray(topic)?topic:[topic];
+  for(const value of candidates.slice(0,8)){
+   const key=String(value??'').trim().toLowerCase();
+   if(key.length<3||key.length>120)continue;
+   const match=units.find(u=>[u.id,u.guideCode,u.title].some(v=>String(v||'').trim().toLowerCase()===key));
+   if(match)return {id:match.id,title:match.title};
+  }
+  return null;
+ }
+ function openLesson(topic){
+  const match=lessonFor(topic);
+  if(!match)return false;
+  const unit=state.units.find(u=>u.id===match.id);
+  if(!unit)return false;
+  reset(unit);
+  const host=$('tutor-guided-practice');
+  host?.scrollIntoView?.({block:'start',behavior:'smooth'});
+  host?.querySelector?.('#tgp-select')?.focus?.();
+  return true;
+ }
  function reset(unit){
   state.unit=unit;state.stage=0;state.maxStage=0;state.showBars=unit.metric==='kst'?48:['macd','ppo','macdhist','pvo','dema','tema','trix'].includes(unit.metric)?40:32;
   state.period=unit.period||8;state.attempts=0;state.answer=null;state.evaluated=false;state.correct=false;
@@ -748,7 +771,11 @@
     ids.add(m.id);
    }
    state.units=units;
-   reset(units[0]);
+   const requested=new URLSearchParams(root.location?.search||'').get('lesson');
+   const chosen=lessonFor(requested,units);
+   reset(units.find(u=>u.id===chosen?.id)||units[0]);
+   if(typeof root.dispatchEvent==='function'&&typeof Event==='function')
+    root.dispatchEvent(new Event('talia-guided-practice-ready'));
   }catch{
    host.replaceChildren();
    add(host,'h2','Guided practice is unavailable');
@@ -756,7 +783,7 @@
   }
  }
  // Nonprivate, side-effect free test exposure: neither stored learner data nor order actions.
- root.TaliaGuidedPracticeV1=Object.freeze({candleData,assessCandidate,specialGate,metric:(bars,metricName,period)=>{
+ root.TaliaGuidedPracticeV1=Object.freeze({candleData,assessCandidate,specialGate,findLesson:lessonFor,openLesson,metric:(bars,metricName,period)=>{
   const prior=state.unit,priorPeriod=state.period;
   state.unit={metric:metricName};state.period=period;
   try{return metric(bars)}finally{state.unit=prior;state.period=priorPeriod}

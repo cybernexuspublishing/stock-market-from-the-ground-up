@@ -265,7 +265,25 @@ function formatMasterStudyGuide(g,mode,reflection){
  if(mode==='question')out.push('Answer from evidence visible at the pause, not from later prices.');
  return out.join('\n\n');
 }
-function answerFromGuide(g,mode,answer){
+function answerFromGuide(g,mode,answer,question=''){
+ // Requested source-only deeper teaching cannot introduce an AI charge.
+ const deep=/\b(?:more depth|go deeper|step.by.step|walk me through|explain further)\b/i.test(String(question||''));
+ if(deep&&!g.masterStudy&&!g.decisionPlaybook){
+  const sections=[
+   'Source-only deeper teaching — '+g.title,
+   '1. First principle: '+g.concept,
+   '2. Observe and define inputs: '+g.procedure,
+   '3. Interpret cautiously: '+g.limit,
+   '4. Define invalidation before looking ahead: '+g.invalidation,
+   '5. Common live-trading error: '+g.commonError,
+   '6. Original ungraded check: '+g.selfCheck,
+   'Review criterion (not an official score): '+g.reviewExplanation,
+   'Research status: original source-informed instruction, not independently validated trade performance or historical price data.'
+  ];
+  if(mode==='review')sections.push('Your reflection remains ungraded: '+ungradedResponseReview(answer));
+  return sections.join('\n\n');
+ }
+
  if(g.masterStudy===true)return formatMasterStudyGuide(g,mode,answer);
  if(g.decisionPlaybook===true)return formatDecisionGuide(g,mode,answer);
  const links=(g.researchGuide===true&&Array.isArray(g.sourceUrls)?g.sourceUrls:[])

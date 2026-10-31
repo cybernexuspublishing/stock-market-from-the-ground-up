@@ -30,6 +30,7 @@ jobs:
           node tests/test_tutor_advanced_decision_guides_v1.mjs
           node tests/test_tutor_market_study_v1.mjs
           node tests/test_tutor_guided_practice_v1.mjs
+          node tests/test_tutor_research_guided_handoff_v1.mjs
           node --check assets/js/tutor-guided-practice-v1.js
           node tests/test_v014102_member_tutor_history.mjs
           node tests/test_v014102_tutor_ai_consent.mjs
