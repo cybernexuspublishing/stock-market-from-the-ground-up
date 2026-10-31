@@ -7,7 +7,8 @@ assert(existsSync(cssPath),'Shared teaching width stylesheet must exist');
 const css=read(cssPath);
 const pages=[
  'candle-practice.html','lab-player.html','lab-v32-member.html',
- 'labs.html','bootcamp.html','bootcamp-academy.html'
+ 'labs.html','bootcamp.html','bootcamp-academy.html',
+ 'free-watchlist.html','advanced-tool.html'
 ];
 for(const p of pages){
  const html=read(p);
@@ -23,9 +24,11 @@ assert(css.includes('#academy-days>*'),'Academy lesson selection must remain ava
 assert(css.includes('.gu-bc-shell:not(.academy-study-grid)'),'Classic Boot Camps included');
 assert(css.includes('.academy-studio-layout'),'Free Foundations teaching studio included');
 assert(css.includes('#gu-inline-lab-frame'),'Inline Labs must remain full width');
+assert(css.includes('.wrap.free-watchlist'),'Free Watchlist teaching must use page width');
+assert(css.includes('.cl-talia-v4 .cl-talia-workspace'),'Shared Watchlist / Advanced Talia teaching must remain chart and tutor side-by-side');
 assert(css.includes('@media(max-width:1050px)'),'Tutor and chart must stack responsively');
 assert(css.includes('grid-template-columns:minmax(0,1fr)!important'),'Single column mobile learning layout');
 assert(css.includes('[hidden]{display:none!important}'),'Hidden stages must remain concealed');
 assert(!css.includes('body.gu-teaching-wide main .wrap'),'Never widen arbitrary pages globally');
 assert(!/\b(?:assessmentKey|correctAnswer|answerKey)\s*=/.test(css),'No assessment logic in layout CSS');
-console.log('PASS full-width teaching layout contract: public Candlestick, Labs, embedded Labs, Boot Camps, Free Foundations, responsive chart + tutor');
+console.log('PASS full-width teaching layout contract: public Candlestick, Labs, embedded Labs, Boot Camps, Free Foundations, Watchlist Talia, advanced tool, responsive chart + tutor');
