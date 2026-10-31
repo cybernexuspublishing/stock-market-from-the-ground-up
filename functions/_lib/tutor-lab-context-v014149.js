@@ -3,6 +3,31 @@
  */
 const LAB=/\b(?:F[123]-C\d{2}-L\d{2}|DT-C\d{2}-L\d{2}|TAPE-C\d{2}-L\d{2}|SITE-\d{3})\b/i;
 const cache=new WeakMap();
+const claimCache=new WeakMap();
+const trusted=/^https:\/\/(?:www\.)?(?:investor\.gov|sec\.gov|syndication\.finra\.org|chartschool\.stockcharts\.com)\//i;
+async function checkedPublicClaim(env,request,labId,title){
+ if(typeof env.ASSETS?.fetch!=='function'||!title)return null;
+ const saved=claimCache.get(env.ASSETS);
+ let found=saved?.expires>Date.now()?saved.index:null;
+ if(!found){
+  const response=await env.ASSETS.fetch(new Request(new URL('/data/tutor-lab-claim-evidence-v1.json',request.url)));
+  if(!response.ok)return null;
+  const body=await response.json();
+  if(body?.kind!=='public_tutor_lab_claim_bridges_v1'||body.registeredLabsUnaffected!==419||
+    !Array.isArray(body.records)||body.records.length!==8)return null;
+  const index=new Map();
+  for(const x of body.records){
+   if(!/^(?:F[123]|DT|TAPE)-C\d{2}-L\d{2}$/.test(x?.id||'')||index.has(x.id)||
+      !trusted.test(x.sourceUrl)||x.reviewStatus!=='source_specific_general_claim_checked_ungraded_not_independently_approved'||
+      ['title','claim','worked','counterexample','transfer','sourceId'].some(k=>typeof x[k]!=='string'||x[k].trim().length<5))
+     return null;
+   index.set(x.id,x);
+  }
+  found=index;claimCache.set(env.ASSETS,{index,expires:Date.now()+300000});
+ }
+ const result=found.get(labId);
+ return result?.title===title?result:null;
+}
 const STAGES=['Start','Learn','Experiment','Predict','Practice','Assess','Review','Transfer','Results'];
 const EXAMPLES=Object.freeze({
  'F2-C07-L01':'Compare the open and close of the displayed candle, then locate its high and low. A bullish body describes that interval; it does not predict the next candle.',
@@ -36,7 +61,9 @@ export async function getApprovedLabContext(env,request,question){
   .map(([code])=>code).slice(0,4);
  if(!codes.length)return null;
  const title=doc.data.byLab?.[id]?.title;
+ const claimEvidence=await checkedPublicClaim(env,request,id,title).catch(()=>null);
  return {labId:id,labTitle:typeof title==='string'?title.slice(0,160):null,
+  claimEvidence,
   learningStage:requestedLearningStage(question),relatedCompetencyCodes:codes,practiceUrl:'/labs.html?q='+encodeURIComponent(id),
   registryScope:'canonical_lab_id_and_public_competency_crosswalk_only'};
 }
@@ -51,10 +78,17 @@ export function labGuidance(context,mode,reflection=''){
   'Open the linked Lab, read its setup and data-source attribution, then stop at the defined observation point. '+
   'Record what the available candle/volume evidence supports, what it cannot establish, your invalidation criterion, and a NO TRADE choice when evidence is insufficient. '+
   'Do not inspect future candles, assume historical prints exist, or treat a hypothetical example as an actual trade.';
- if(mode==='question')return a+'\n\nUngraded self-check: Which visible observation supports your interpretation and which would change your decision?';
- if(mode==='review')return a+'\n\nUngraded reflection received ('+
+ const researched=context.claimEvidence;
+ const sourceTeaching=researched?'\n\nSource-checked supplementary teaching (UNGraded; NOT whole-Lab approval): '+
+  researched.claim+'\n\nOriginal fictional worked case: '+researched.worked+
+  '\n\nWhat could go wrong: '+researched.counterexample+
+  '\n\nIndependent transfer task: '+researched.transfer+
+  '\n\nTechnical/primary reference: '+researched.sourceId+' — '+researched.sourceUrl+
+  '\nThese specific general references do not certify historical price data, protected assessment answers, or unit editorial approval.':'';
+ if(mode==='question')return a+sourceTeaching+'\n\nUngraded self-check: Which visible observation supports your interpretation and which would change your decision?';
+ if(mode==='review')return a+sourceTeaching+'\n\nUngraded reflection received ('+
   (reflection?'review your evidence and boundary against the actual Lab instructions':'no written reflection supplied')+
   '). The Tutor does not reveal restricted answers or award scores.';
- return a+'\n\nOfficial Lab link: '+context.practiceUrl+'\nNo grading result or future market evidence is supplied here.';
+ return a+sourceTeaching+'\n\nOfficial Lab link: '+context.practiceUrl+'\nNo grading result or future market evidence is supplied here.';
 }
 
