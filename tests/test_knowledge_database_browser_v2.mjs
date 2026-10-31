@@ -18,6 +18,9 @@ try{
    const path=url.pathname;
    if(['/assets/js/site.js','/config.js'].includes(path))
     return route.fulfill({status:200,contentType:'application/javascript',body:'// analytics and identity disabled in static ungraded fixture'});
+   if(path==='/assets/js/crownlight-echarts-loader-v1.js')
+    return route.fulfill({status:200,contentType:'application/javascript',body:
+     'window.CrownlightECharts={load:async()=>({init:()=>({setOption:(options)=>{window.__chartOptions=options},resize:()=>{}})})};'});
    if(path==='/favicon.ico')return route.fulfill({status:404,body:''});
    const file=join(root,path.slice(1));
    if(!file.startsWith(root+'/')||!existsSync(file))return route.fulfill({status:404,body:''});
@@ -49,16 +52,34 @@ try{
   await risk.locator('textarea').fill('I computed a pure 125 share maximum but would choose the explicitly conservative 124 share classroom example and account for slippage.');
   await compare.click();
   assert.match(await risk.locator('.kd-feedback').innerText(),/No answer or grade was saved/);
+  assert.equal(await page.locator('#kd-workshop').count(),0,'References must not contain the full exercise');
+  await page.getByRole('link',{name:'Interactive Chart Workshop'}).click();
+  await page.waitForURL('**/chart-reveal-practice.html');
   const w=page.locator('#kd-workshop');
+  await w.locator('tbody tr').first().waitFor();
   assert.equal(await w.locator('tbody tr').count(),1);
+  await page.waitForFunction(()=>!!window.__chartOptions);
+  const initial=await page.evaluate(()=>window.__chartOptions);
+  assert.equal(initial.xAxis[0].data.length,8,'Future times retain eight fixed positions');
+  assert.equal(initial.series[0].data.length,8,'Candlestick series must reserve all positions');
+  assert.equal(initial.series[0].barMaxWidth,24,'Candles must not inflate to full plot width');
+  assert.equal(initial.series[2].barMaxWidth,24,'Volume bars must not inflate to full plot width');
+  assert(initial.series[0].data.slice(1).every(x=>x==='-'),'Future prices remain hidden');
+  assert(initial.series[2].data.slice(1).every(x=>x===null),'Future volumes remain hidden');
   await w.getByRole('button',{name:'Reveal next completed candle'}).click();
   assert.equal(await w.locator('tbody tr').count(),2);
+  const second=await page.evaluate(()=>window.__chartOptions);
+  assert.equal(second.xAxis[0].data.length,8);
+  assert.equal(second.series[0].data[1][1],5.15);
+  assert.equal(second.series[0].data[2],'-');
   await w.getByRole('button',{name:'Reset to first candle'}).click();
   assert.equal(await w.locator('tbody tr').count(),1);
+  const reset=await page.evaluate(()=>window.__chartOptions);
+  assert.equal(reset.series[0].data[1],'-');
   const overflow=await page.evaluate(()=>({documentWidth:document.documentElement.scrollWidth,viewport:document.documentElement.clientWidth}));
   assert(overflow.documentWidth<=overflow.viewport+3,'Knowledge Database should not cause horizontal overflow at '+width+'px: '+JSON.stringify(overflow));
   await context.close();
  }
  assert.equal(problems.length,0,'No JavaScript exception: '+problems.join(' | '));
- console.log('PASS Knowledge Database Chromium search, category filtering, ungraded Talia help, fictional reveal and responsive layout');
+ console.log('PASS Knowledge Database Chromium 38 references, linked workshop, fixed eight-slot chart and withheld future data at desktop/mobile');
 }finally{await browser.close()}
