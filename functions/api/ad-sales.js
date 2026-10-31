@@ -404,7 +404,7 @@ export async function onRequest({request,env}){
    const start=Date.parse(str(body.startsAt)),end=Date.parse(str(body.endsAt));
    const plan=str(body.packageCode);
    if(!Number.isSafeInteger(advertiserId)||advertiserId<=0||name.length<8||name.length>160||
-    !Number.isSafeInteger(price)||price<=0||price>100000000||
+    !Number.isSafeInteger(price)||price<100||price>100000000||
     !Number.isFinite(start)||!Number.isFinite(end)||end<=start||end-start>365*86400000)
     throw bad('A reviewed advertiser, contract price, and valid flight dates are required.');
    const pack=await api(c,'gu_ad_packages_v014226?select=code&code=eq.'+encodeURIComponent(plan));
