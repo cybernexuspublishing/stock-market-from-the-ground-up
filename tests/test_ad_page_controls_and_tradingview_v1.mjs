@@ -80,7 +80,8 @@ test('Knowledge Database uses a short visible paid-referral label and fail-close
  const admin=fs.readFileSync('admin-advertising.html','utf8');
  const ui=fs.readFileSync('assets/js/admin-ad-sales-v014228.js','utf8');
  assert.match(html,/id="gu-knowledge-partner-banner"[^>]*hidden/);
- assert.match(html,/Paid link/);
+ assert.doesNotMatch(html,/Paid link/);
+ assert.doesNotMatch(html,/class="gu-ad-disclosure"/);
  assert.doesNotMatch(html,/We may earn a commission from purchases through this link/);
  assert.match(js,/KNOWLEDGE_TRADINGVIEW/);
  assert.match(js,/banner\.hidden=true/);
