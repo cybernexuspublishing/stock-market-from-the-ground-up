@@ -14,6 +14,8 @@ on:
       - 'docs/releases/2026-10-30_KNOWLEDGE_DATABASE_EXPANSION_v2.md'
       - 'bootcamp-academy.html'
       - 'assets/css/bootcamp-academy-icons-v1.css'
+      - 'assets/css/bootcamp-academy-gallery-v2.css'
+      - 'assets/images/bootcamp-covers/**'
       - 'tests/test_academy_catalog_icons_v1.mjs'
       - 'assets/js/bootcamp-academy-v014168.js'
       - 'assets/js/free-foundations-knowledge-v1.js'

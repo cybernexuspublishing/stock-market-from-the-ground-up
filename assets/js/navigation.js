@@ -554,7 +554,7 @@
     const sparkWallet=signed?`<details class="gu-nav-sparks" aria-label="Crownlight Sparks wallet"><summary aria-label="View your Crownlight Sparks wallet"><img src="/assets/img/crownlight-spark.svg" alt="" width="19" height="19"> <strong data-sparks-balance>—</strong> <span>Sparks</span></summary><div class="gu-nav-sparks-popup"><strong>Crownlight Sparks</strong><p>Available: <span data-sparks-popup-balance>—</span></p><p class="small">Redeem Sparks for optional practice and eligible temporary ad-free access. Prices are shown at redemption. Core teaching and regular practice retries remain included; assisted answers do not award mastery.</p><a href="/dashboard.html?tab=sparks">How to use &amp; wallet details</a><a class="btn" href="/store-sparks.html">Buy more Sparks</a></div></details>`:'';
     const top=groups.top.map(i=>`<a class="v12-top-link ${esc(i.style_variant||'')}" href="${esc(safeNavHref(i.href||'#'))}">${esc(i.label)}</a>`).join('');
     nav.className='navlinks v11-nav v12-nav';nav.dataset.v11Owned='1';
-    nav.innerHTML=`${learn}${tools}${top}${signed?sparkWallet+profile:'<a class="nav-cta v12-signin" href="signin.html">Sign In</a>'}`;
+    nav.innerHTML=`${learn}<a class="v12-top-link gu-nav-bootcamps" href="/bootcamp-academy.html">Boot Camps</a>${tools}${top}${signed?sparkWallet+profile:'<a class="nav-cta v12-signin" href="signin.html">Sign In</a>'}`;
     // Only one canonical profile menu and one Dashboard destination is emitted.
     // Older plugin renderers must not copy links into the profile dropdown.
     const accountMenu=nav.querySelector('#v1356-account-menu');
