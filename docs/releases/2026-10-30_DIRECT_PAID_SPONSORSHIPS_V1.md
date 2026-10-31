@@ -8,8 +8,8 @@
 | File type | Markdown source (.md) |
 | Google Drive location | Not created / not assigned; canonical source is GitHub main |
 | Repository location | docs/releases/2026-10-30_DIRECT_PAID_SPONSORSHIPS_V1.md |
-| Version | 1.1 |
-| Status | Implemented and deployed; TEST paid invoice and actual signed webhook/browser acceptance outstanding |
+| Version | 1.2 |
+| Status | Owner browser PASS; actual Stripe TEST payment and signed refund event PASS; genuine LIVE sponsor payment and signed LIVE settlement pending |
 | Decision date | October 30, 2026 (America/Chicago) |
 | Implementation timestamp | October 30–31, 2026 UTC |
 | Dependencies | Cloudflare Pages Functions; Supabase; Stripe LIVE (stock-market merchant only); sitewide Owner authentication; Turnstile |
@@ -86,7 +86,7 @@
 - Database settlement, activation, refund pause, dispute pause, duplicate-event idempotency and non-regrant were exercised in explicit PostgreSQL transactions followed by `ROLLBACK`. No fake approved campaigns, event records, funds, or delivery switches survived.
 - GitHub regression test `tests/test_direct_sponsor_signed_live_lifecycle_v1.mjs` tests signed webhook processing, invalid signature/account, underpayment, refund/dispute and unrelated-event classification with mocked provider objects. Passing source/provider-mock checks is not proof of genuine Stripe event delivery.
 
-**Open blockers before commercial acceptance**
+**Historical V1.1 blockers (superseded by V1.2 evidence below)**
 
 1. TEST invoice must be paid with a genuine Stripe TEST card transaction, and provider-created PaymentIntent and charge confirmed; the available Stripe connector cannot invoke the invoice-pay endpoint. No real-money LIVE customer charge was attempted.
 2. Confirm actual Stripe-origin signed TEST and LIVE advertising webhook deliveries are acknowledged by Cloudflare; synthetic signed HMAC events cannot substitute.
@@ -101,8 +101,35 @@
 - `supabase/migrations/20261030_paid_sponsor_signed_live_lifecycle_v1.sql` — RLS-protected, idempotent live event ledger and pause logic
 - `tests/test_direct_sponsor_signed_live_lifecycle_v1.mjs` — regression evidence
 
+## V1.2 acceptance evidence — October 30, 2026 (Central) / October 31 UTC
+
+**Genuine Owner browser sign-in acceptance: PASSED.** The Owner's visible browser result was verified against production Supabase audit record `#7` with recorded UTC time `2026-10-31T03:17:19.94217+00:00`. The record includes `ownerIdentityVerified=true`, `uiChecksReported=true`, and `readonly=true`. No invoice or advertising charge was initiated. A separate free Playwright production regression established anonymous requests HTTP 401, signed-in Free QA HTTP 403, and protection of the Owner-only Admin controls. Test run: `https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41162044503`.
+
+**Genuine Stripe TEST payment: PASSED.** TEST invoice `in_1UWRnKJY9FI7byHBqiS8OgLM` for USD $1.00 was paid, with a real TEST PaymentIntent `pi_3UWRnWJY9FI7byHB0k9jW899` and charge `ch_3UWRnWJY9FI7byHB07d9u8xa`. These are Stripe TEST API objects and created no real-money charge.
+
+**Genuine provider-signed TEST sponsorship webhook: PASSED.** A $1.00 TEST-only refund `re_3UWRnWJY9FI7byHB0O5aXqvt` succeeded. Stripe's genuine `charge.refunded` event `evt_3UWRnWJY9FI7byHB0XHkPPGI` showed `pending_webhooks=0` after delivery. The unified signed Stripe TEST webhook acknowledged the event, independently retrieved its Stripe TEST invoice/PaymentIntent/charge, and persisted an isolated Supabase service-only ledger record (received `2026-10-31T03:32:32.906063+00:00`, amount_refunded_cents=100, source=`stripe_test_signed`, signature_checked=true, stripe_provider_checked=true). The event ID and invoice/charge IDs matched in both systems.
+
+**Segregation controls:** All acceptance journal entries remain confined to `gu_ad_sponsor_test_webhook_acceptance_v1` with RLS and no direct or indirect access to LIVE sponsor payment state, entitlements, or ad delivery. The separate LIVE sponsor ledger `gu_ad_live_event_log_v1` remains empty and `ad_delivery_enabled=false`. TradingView affiliate inventory remains independent. Both free GitHub Advertising CI jobs passed on the TEST webhook change.
+
+**Still outstanding for commercial sign-off:**
+
+1. Obtain an actual advertiser and an authorized, written sponsorship quote with advertising terms, permitted creative and billing recipient. Existing sponsorship catalog remains custom-quote and no real paid advertiser campaign has been created.
+2. Issue an Owner-approved LIVE Stripe invoice and receive genuine, nonzero advertiser settlement through Stripe. Verify the resulting live `invoice.paid` delivery, the bound campaign/advertiser/invoice metadata, and the service-only LIVE payment ledger before any publication. Stripe TEST evidence is not a substitute for this.
+3. Confirm actual LIVE partial refund and dispute behavior when supported by real-world events, without manufacturing or charging a fictional sponsor. Maintain incident pause controls; signed-event simulations already passed regression tests.
+4. Review advertising contract terms, commercial disclosures, financial-promotion rules and refund policy with appropriate legal expertise.
+5. Keep paid sponsorship delivery OFF pending real financial/operational acceptance.
+
+**New implementation dependencies:**
+
+- `functions/_lib/ad-sponsor-test-webhook-acceptance-v1.js`
+- `functions/api/stripe-test-webhook.js` (added isolated signed test event routing)
+- `supabase/migrations/20261030_ad_sponsor_test_webhook_acceptance_v1.sql`
+- `tests/test_ad_sponsor_genuine_test_webhook_v1.mjs`
+
 ## Revision history
 
 | Version | Date | Summary | Status |
 |---|---|---|---|
 | 1.0 | 2026-10-30 | Quote intake, reviewed advertiser/campaign, Owner LIVE invoice issuing, test coverage, separated paid display release | Implemented, payment acceptance pending |
+| 1.1 | 2026-10-30 | Signed LIVE lifecycle controls and initial simulated acceptance | Historical snapshot |
+| 1.2 | 2026-10-30 | Genuine Owner browser and Stripe TEST payment/refund webhook acceptance verified independently; LIVE commercial sign-off open | TEST and Owner accepted, LIVE pending |
