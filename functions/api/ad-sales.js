@@ -245,6 +245,29 @@ export async function onRequest({request,env}){
    return respond({ok:true,reference:rows[0].id,notice:'Request received for manual review. No payment has been taken.'},201);
   }
   const who=await owner(c,request),actor=who.id;
+  if(action==='set_page_placements_active'){
+   const pattern=str(body.pagePattern),enabled=body.enabled;
+   if(typeof enabled!=='boolean'||!/^\\/[a-z0-9*.-]{2,90}$/.test(pattern))
+    throw bad('Specify an existing advertising page and an enabled state.');
+   // A page-level switch is one server-side, Owner-authorized database operation.
+   // It disables both paid creatives and house cards without affecting any other page,
+   // changing any payment flag, or modifying campaign approvals.
+   const existing=await api(c,'ad_placements?select=placement_code,active,page_pattern&page_pattern=eq.'+encodeURIComponent(pattern));
+   if(!Array.isArray(existing)||existing.length<1||existing.length>40||
+    !existing.every(p=>p.page_pattern===pattern&&/^[A-Z0-9_]{4,48}$/.test(p.placement_code)))
+    throw bad('Advertising page was not found or cannot be updated.',404);
+   const codes=existing.map(p=>p.placement_code);
+   const selector='ad_placements?placement_code=in.('+codes.join(',')+')';
+   const updated=await api(c,selector,{method:'PATCH',body:{active:enabled}});
+   if(!Array.isArray(updated)||updated.length!==codes.length||
+     updated.some(p=>!codes.includes(p.placement_code)||p.active!==enabled))
+    throw bad('Page inventory update could not be verified.',503);
+   await audit(c,actor,'set_page_placements_active','ad_page',pattern,{
+    enabled,placementCodes:codes,previousStates:existing.map(p=>({code:p.placement_code,active:p.active}))
+   });
+   return respond({ok:true,pagePattern:pattern,enabled,updatedCount:codes.length,
+    paymentStateChanged:false,campaignStateChanged:false});
+  }
   if(action==='set_placement_active'){
    const code=str(body.placementCode),enabled=body.enabled;
    if(!/^[A-Z0-9_]{4,48}$/.test(code)||typeof enabled!=='boolean')
