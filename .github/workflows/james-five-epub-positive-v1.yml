@@ -1,0 +1,25 @@
+name: James QA Positive Five EPUB Download Acceptance
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_james_five_epub_positive_delivery_v1.mjs'
+      - '.github/workflows/james-five-epub-positive-v1.yml'
+  workflow_dispatch:
+permissions: {contents: read}
+jobs:
+  positive-epub:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Confirm five actual signed EPUB downloads under isolated temporary QA eligibility
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_james_five_epub_positive_delivery_v1.mjs
