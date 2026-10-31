@@ -62,6 +62,12 @@ try{
   assert(!result.answer.includes(row.worked));
   assert(!result.answer.includes(row.counterexample));
   assert(!result.answer.includes(row.transfer));
+  const serialized=JSON.stringify(result);
+  assert(!serialized.includes(row.worked),'Worked example must not leak in JSON');
+  assert(!serialized.includes(row.counterexample),'Counterexample must not leak in JSON');
+  assert(!serialized.includes(row.transfer),'Transfer scaffold must not leak in JSON');
+  assert(!Object.hasOwn(result.labContext,'claimEvidence'),'No raw evidence object in public Lab response');
+  assert.equal(result.labContext.claimStatus,'narrow_public_claim_checked_not_independently_approved');
   assert.equal(result.graded,false);
   assert.equal(result.masteryAwarded,false);
   passed++;
