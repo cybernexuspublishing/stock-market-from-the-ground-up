@@ -1,0 +1,28 @@
+{
+  "version": "B01-beta-2026-10-31",
+  "status": "original_ungraded_beta_content",
+  "program": "truth5",
+  "lessons": [
+    {
+      "day": 1,
+      "title": "Vendor marketing and trading results",
+      "example": "Fictional: An advertisement reports a 90 percent win rate using three selected screenshots but provides no complete sample.",
+      "teach": "Distinguish promotional claims from independently verified results. Identify sample selection, a missing denominator, trading costs, and unknown outcomes.",
+      "checkpoint": "What documentation would be needed to evaluate the claimed success rate?"
+    },
+    {
+      "day": 3,
+      "title": "Publication and display latency",
+      "example": "Fictional: A filing is public at 8:03 ET; a news feed displays it at 8:12; a broker alert appears at 8:17.",
+      "teach": "At a cutoff of 8:10, distinguish first publication from later delivery and display. Availability does not prove an individual saw the filing.",
+      "checkpoint": "Which sources could be available by 8:10 and what remains unknown?"
+    },
+    {
+      "day": 4,
+      "title": "Limits of interpreting VWAP",
+      "example": "Fictional: Price is 10.40 dollars and session VWAP is 10.10 dollars; a commentator claims most traders made money.",
+      "teach": "VWAP weights transacted prices by volume. It does not reveal open positions, realized profit, individual trader entry prices or transaction costs.",
+      "checkpoint": "Why does price above VWAP not prove most traders are profitable?"
+    }
+  ]
+}
