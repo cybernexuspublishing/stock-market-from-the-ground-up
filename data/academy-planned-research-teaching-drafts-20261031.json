@@ -1,0 +1,70 @@
+{
+  "version": "2026-10-31-v1",
+  "status": "DRAFT_ORIGINAL_UNGRADED_NO_PRODUCTION_ROUTE",
+  "sourceNote": "Research-informed original fictional cases, not reproduced StocksToTrade source material",
+  "courses": [
+    {
+      "title": "Reading the Tape & Market Microstructure",
+      "modules": [
+        {
+          "title": "Spread and inside market",
+          "lesson": "A best bid of 5.00 and best offer of 5.04 imply a displayed four-cent spread, not a guaranteed four-cent execution cost. Depth may change before routing.",
+          "fictional": "At 5.00 x 400 and 5.04 x 250, an incoming market buy for 600 shares cannot assume the entire order fills at 5.04.",
+          "predict": "Which order-book information is missing to estimate the remainder?",
+          "review": "The next offer levels, venue/routing rules, queue dynamics, fees and possible hidden liquidity are unknown.",
+          "transfer": "Repeat with a two-cent quoted spread but only 30 shares at the best offer."
+        },
+        {
+          "title": "Time and Sales color limits",
+          "lesson": "A green ask-side print or red bid-side print is a classification relative to contemporaneous quotes; it does not reveal a trader's intentions or predict price.",
+          "fictional": "Three trades print at the displayed ask, but the next quote steps lower.",
+          "predict": "Does ask-side execution prove sustained buying momentum?",
+          "review": "No. Trades show execution, not future order flow or a confirmed catalyst.",
+          "transfer": "Compare an at-bid print with a delayed quote update and explain classification uncertainty."
+        }
+      ]
+    },
+    {
+      "title": "VWAP, EMA & Technical Indicator Mastery",
+      "modules": [
+        {
+          "title": "VWAP arithmetic and inference",
+          "lesson": "VWAP equals summed price-times-volume divided by summed volume for a defined series and session.",
+          "fictional": "Two trades of 100 shares at $10 and 300 shares at $11 have VWAP = (1000+3300)/400 = $10.75.",
+          "predict": "Does a current quote above $10.75 mean most participants made money?",
+          "review": "No; VWAP is volume weighted, not a count of individual positions or realized profits.",
+          "transfer": "Calculate VWAP from three new hypothetical trades and state its limitations."
+        },
+        {
+          "title": "EMA initialization and lag",
+          "lesson": "EMA uses smoothing coefficient alpha = 2/(N+1). EMA output depends on its prior initialized value.",
+          "fictional": "For N=9, alpha=0.2. A prior EMA of $10.00 and next close of $10.50 produce EMA = $10.10.",
+          "predict": "Does an EMA cross alone validate an entry?",
+          "review": "No; indicator lag, chop and volume/structure context matter; it is a descriptive input.",
+          "transfer": "Change N to 20 and calculate one update from the same starting EMA."
+        }
+      ]
+    },
+    {
+      "title": "SEC Filings, Catalysts & Corporate Actions",
+      "modules": [
+        {
+          "title": "Filing event and public cutoff",
+          "lesson": "Check the SEC filing item, acceptance timestamp, legal deadline and actual document; do not assume a Form 8-K always precedes a press release.",
+          "fictional": "A company releases news at 8:00 AM and its related filing becomes available later; a forum says the announcement is automatically illegal.",
+          "predict": "What official rule and facts must be established before reaching that conclusion?",
+          "review": "Confirm event category, applicable deadline and disclosure exceptions from primary authority; avoid legal conclusions from chronology alone.",
+          "transfer": "Audit a different dated release with incomplete filing information."
+        },
+        {
+          "title": "Financing authorization versus proceeds",
+          "lesson": "An approved offering or shelf capacity is not necessarily issued securities, deposited proceeds or revenue.",
+          "fictional": "A fictional issuer registers potential issuance up to $20 million but reports no completed sales in the provided records.",
+          "predict": "Can the learner describe $20 million in cash as received?",
+          "review": "No; verify terms, issuance, actual sales and net proceeds using separate dated disclosures.",
+          "transfer": "Evaluate a rights offering with conditional participation."
+        }
+      ]
+    }
+  ]
+}
