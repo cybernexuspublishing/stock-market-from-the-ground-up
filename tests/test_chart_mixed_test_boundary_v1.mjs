@@ -1,0 +1,24 @@
+/* Financial boundary regression checks. This is not an end-to-end settlement acceptance test. */
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {previewLumenDiscount,lumenDiscountPolicy} from '../functions/_lib/lumen-discount-policy-v1.js';
+const src=readFileSync(new URL('../functions/api/chart-mixed-test-quote.js',import.meta.url),'utf8');
+const cash=readFileSync(new URL('../functions/api/chart-cash-upgrade.js',import.meta.url),'utf8');
+const webhook=readFileSync(new URL('../functions/_lib/chart-cash-test-webhook-v1.js',import.meta.url),'utf8');
+const test=(lumens,total=1999,balance=286)=>previewLumenDiscount({eligibleNetCents:total,availableLumens:balance,requestedLumens:lumens,productKind:'addon'});
+assert.equal(lumenDiscountPolicy.enabled,false,'Mixed settlement must remain disabled');
+assert.deepEqual([test(0).discountCents,test(0).remainingSubtotalCents],[0,1999]);
+assert.deepEqual([test(40).discountCents,test(40).remainingSubtotalCents],[280,1719]);
+assert.deepEqual([test(80).discountCents,test(80).remainingSubtotalCents],[560,1439]);
+assert.deepEqual([test(286).discountCents,test(286).remainingSubtotalCents],[1999,0]);
+assert.deepEqual([test(286).appliedLumens,test(286).remainingLumens],[286,0]);
+assert.equal(test(100,1999,40).appliedLumens,40,'Cannot spend more than balance');
+assert.equal(test(1000).appliedLumens,286,'Cannot apply more Lumens than price');
+assert.match(src,/EXCEEDS_PRODUCT_PRICE/);
+assert.match(src,/BELOW_CARD_MINIMUM/);
+assert.match(src,/ALREADY_INCLUDED/);
+assert.match(src,/checkoutActive:false/,'No unaccepted mixed checkout may be advertised');
+assert.match(src,/SETTLEMENT_NOT_ENABLED/,'POST remains fail-closed');
+assert.match(cash,/CHART_STUDIO_TEST_CHECKOUT_ENABLED/);
+assert.match(webhook,/amount_subtotal!==offer\.amountCents/,'Undiscounted webhook must not accept discounted payment');
+console.log('Chart mixed TEST: 15 quote and financial boundary assertions passed. Payment settlement NOT yet accepted.');
