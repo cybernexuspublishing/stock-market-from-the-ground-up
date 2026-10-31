@@ -64,7 +64,7 @@
   summary.setAttribute('role','status');
   const buy=el('button','Open discounted Stripe TEST checkout');buy.type='button';buy.className='btn';buy.disabled=true;
   let quote=null,requestId=null,revision=0;
-  const reset=()=>{revision++;quote=null;requestId=null;buy.disabled=true;summary.textContent='Selection changed. Verifying your new Lumen quote…';void preview.click()};
+  const reset=()=>{revision++;quote=null;requestId=null;buy.disabled=true;preview.disabled=false;summary.textContent='Selection changed. Verifying your new Lumen quote…';preview.click()};
   input.addEventListener('change',reset);
   preview.addEventListener('click',async()=>{
    const currentRevision=++revision;
