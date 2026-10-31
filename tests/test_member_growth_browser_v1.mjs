@@ -75,32 +75,54 @@ try{
    const page=await context.newPage();
    try{
     await page.goto(origin+'/candle-practice.html',{waitUntil:'domcontentloaded',timeout:30000});
-    await page.locator('input[name="gu-practice-choice"]').first().waitFor({timeout:15000});
-    assert.equal(await page.locator('input[name="gu-practice-choice"]').count(),3,'Three plausible options');
-    assert.equal(await page.locator('#gu-practice-ohlc tr').count(),5,'Five accessible OHLC bars');
+    await page.locator('#gu-practice-journey .gu-journey-item').first().waitFor({timeout:18000});
+    assert.equal(await page.locator('#gu-practice-journey .gu-journey-item').count(),10,'Ten stages required');
+    assert.equal(await page.locator('#gu-practice-ohlc tr').count(),5,'Accessible OHLC table required');
+    const finish=async(choice)=>{
+      await page.locator('#gu-practice-full').click();
+      await page.locator('input[name="gu-journey-choice"][value="'+choice+'"]').check();
+      await page.locator('#gu-practice-submit').click();
+    };
     await page.locator('#gu-practice-full').click();
-    await page.locator('input[name="gu-practice-choice"][value="0"]').check();
-    await page.locator('#gu-practice-check').click();
-    assert.match(await page.locator('#gu-practice-feedback').innerText(),/Not quite/i,'Incorrect answer must provide corrective teaching');
-    assert.equal(await page.locator('#gu-practice-next').isVisible(),false,'Incorrect answer must not advance');
-    await page.locator('input[name="gu-practice-choice"][value="1"]').check();
-    await page.locator('#gu-practice-check').click();
-    assert.match(await page.locator('#gu-practice-feedback').innerText(),/Correct/i,'Correct response unlocks advancement');
-    await page.locator('#gu-practice-next').click();
+    await page.locator('input[name="gu-journey-choice"][value="1"]').check();
+    await page.locator('#gu-practice-submit').click();
+    assert.match(await page.locator('#gu-practice-feedback').innerText(),/Not quite/i,'Free mistake-specific retry');
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Stage 1 of 10/i,'Incorrect response cannot advance');
+    await page.locator('input[name="gu-journey-choice"][value="0"]').check();
+    await page.locator('#gu-practice-submit').click();
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Stage 2 of 10/i);
+    await finish(1); // Learn -> Calculate
     await page.locator('#gu-practice-full').click();
-    await page.locator('input[name="gu-practice-choice"][value="0"]').check();
-    await page.locator('#gu-practice-check').click();
-    assert.match(await page.locator('#gu-practice-feedback').innerText(),/supported/i,'Correct answer explained');
-    await page.locator('#gu-practice-next').click();
+    for(const [field,v] of [['body','1'],['range','2'],['percent','50']])await page.locator('[name="'+field+'"]').fill(v);
+    await page.locator('#gu-practice-submit').click();
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Experiment/);
+    await page.locator('#gu-practice-close').fill('31.50');
+    assert.match(await page.locator('#gu-practice-experiment-math').innerText(),/25.0%/);
+    await finish(0); // Experiment -> Predict
+    await finish(1); // Predict -> Replay
+    for(const correct of [1,1,0,1]){
+      await page.locator('#gu-practice-full').click();
+      await page.locator('input[name="gu-journey-choice"][value="'+correct+'"]').check();
+      await page.locator('#gu-practice-submit').click();
+    }
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Assess/);
+    assert.equal(await page.locator('#gu-practice-ohlc tr').count(),5,'Assessment uses different fictional candle');
+    for(const [field,v] of [['body','0.3'],['range','1.2'],['percent','30']])await page.locator('[name="'+field+'"]').fill(v);
+    await page.locator('#gu-practice-submit').click();
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Review/,'First submission locks before feedback');
     await page.locator('#gu-practice-full').click();
-    await page.locator('input[name="gu-practice-choice"][value="2"]').check();
-    await page.locator('#gu-practice-check').click();
-    assert.match(await page.locator('#gu-practice-progress').innerText(),/Completed 3 of 3/i,'Practice summary');
-    await page.locator('#gu-practice-reset').click();
-    assert.match(await page.locator('#gu-practice-step').innerText(),/Exercise 1 of 3/i,'Replay resets locally');
+    assert.match(await page.locator('#gu-practice-narration').innerText(),/percent needs revision/i);
+    await page.locator('input[name="gu-journey-choice"][value="1"]').check();
+    await page.locator('#gu-practice-submit').click();
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Transfer/);
+    for(const [field,v] of [['body','0.3'],['range','0.8'],['percent','37.5']])await page.locator('[name="'+field+'"]').fill(v);
+    await page.locator('[name="direction"]').selectOption('bearish');
+    await page.locator('#gu-practice-submit').click();
+    assert.match(await page.locator('#gu-practice-step').innerText(),/Results/);
+    assert.match(await page.locator('#gu-practice-results').innerText(),/Official mastery[\\s\\S]*Not assessed/i);
     await page.screenshot({path:'artifacts/growth/free-candle-phone.png',fullPage:true});
     report.quiz='PASS';
-    console.log('PASS growth actual quiz: incorrect explanation, correct explanation, progress and local replay');
+    console.log('PASS growth ten-stage interactive lesson: corrected retries, calculated body/range, experiment, replay, independent assessment, transfer and report');
    }catch(e){
     report.quiz='FAIL: '+String(e?.message||e).slice(0,400);
     report.failures.push({path:'/candle-practice.html',width:390,test:'interactive quiz',reason:report.quiz});
