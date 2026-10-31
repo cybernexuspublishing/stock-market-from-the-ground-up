@@ -246,7 +246,11 @@ export async function onRequest({request,env}){
    ok:true,generation:'original-competency-guide',mode,aiReason:'source_only',
    answer:labGuidance(labContext,mode,answer),graded:false,masteryAwarded:false,
    sources:publicCitations,
-   labContext,notice:'This is original Lab guidance, not a restricted rubric, historical data verification, or graded completion.',
+   labContext:{labId:labContext.labId,labTitle:labContext.labTitle,
+    learningStage:labContext.learningStage,relatedCompetencyCodes:labContext.relatedCompetencyCodes,
+    practiceUrl:labContext.practiceUrl,registryScope:labContext.registryScope,
+    claimStatus:evidence?'narrow_public_claim_checked_not_independently_approved':'no_independent_claim_check'},
+   notice:'This is original Lab guidance, not a restricted rubric, historical data verification, or graded completion.',
    links:{labs:labContext.practiceUrl,skills:'/skills.html',journal:'/journal.html'}
    });}
   // A valid canonical Lab ID is coverage, not an unanswered topic.
