@@ -207,3 +207,6 @@
 @media(prefers-reduced-motion:reduce){
  .gu-premium-home .gu-home-right-rail .gu-home-terminal{transition:none!important;transform:none!important}
 }
+
+/* The card's sole heading remains visible on mobile; no demonstration header slot. */
+.gu-premium-home .gu-home-right-rail .gu-terminal-top>span:first-child:last-child{display:inline-flex!important;align-items:center;color:#e6f3ff!important}
