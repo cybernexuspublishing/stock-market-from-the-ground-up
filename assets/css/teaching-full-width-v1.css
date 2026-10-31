@@ -58,7 +58,7 @@ body.gu-bc-learning.gu-teaching-wide :is(#gu-v32-teaching-slot,#academy-lab-slot
 /* Boot Camp Academy: lesson navigation becomes a full-width horizontal
    toolbar ABOVE the learning card, rather than a permanent side gutter. */
 body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .gu-learning-ad-core>.wrap{
- max-width:none!important;width:calc(100% - 2 * var(--gu-teach-gutter))!important;
+ max-width:none!important;width:calc(100% - var(--gu-teach-gutter) - var(--gu-teach-gutter))!important;
  margin-inline:auto!important;
 }
 body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid{
@@ -87,7 +87,7 @@ body.gu-bc-learning.gu-teaching-wide.academy-classroom-active #academy-lab-slot{
 /* Classic Boot Camp: retain lesson navigation, but put it before
    the full-width lesson so chart and tutor are never squeezed. */
 body.gu-bc-learning.gu-teaching-wide main.section>.wrap{
- max-width:none!important;width:calc(100% - 2 * var(--gu-teach-gutter))!important;
+ max-width:none!important;width:calc(100% - var(--gu-teach-gutter) - var(--gu-teach-gutter))!important;
  margin-inline:auto!important;
 }
 body.gu-bc-learning.gu-teaching-wide .gu-bc-shell:not(.academy-study-grid){
@@ -113,7 +113,7 @@ body.gu-bc-learning.gu-teaching-wide .academy-studio-layout{
  grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr)!important;
  gap:clamp(12px,1.4vw,22px)!important;
 }
-body.gu-teaching-wide :is(.gu-v33-stage-hero,.gu-public-classroom,.academy-studio-layout) :is(svg,canvas,img){
+body.gu-teaching-wide :is(.gu-v33-stage-hero,.gu-public-classroom,.academy-studio-layout) img{
  max-width:100%;height:auto;
 }
 @media(max-width:1050px){
@@ -132,6 +132,16 @@ body.gu-teaching-wide :is(.gu-v33-stage-hero,.gu-public-classroom,.academy-studi
  body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid>.gu-bc-lesson{
   padding:10px!important;
  }
+}
+/* Inline Labs: expand the already-entitled iframe workstation, not the
+   Registry catalog, so the lesson can use the available page width. */
+body.gu-teaching-wide #gu-labs-main:has(#gu-inline-lab:not([hidden])){max-width:none!important;width:100%!important}
+body.gu-teaching-wide #gu-inline-lab:not([hidden]){
+ width:100%!important;max-width:none!important;
+ padding-inline:var(--gu-teach-gutter)!important;
+}
+body.gu-teaching-wide #gu-inline-lab-frame{
+ width:100%!important;max-width:none!important;
 }
 /* Respect hidden screens and protective assessment controls. */
 body.gu-teaching-wide [hidden]{display:none!important}
