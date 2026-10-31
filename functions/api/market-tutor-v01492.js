@@ -230,15 +230,25 @@ export async function onRequest({request,env}){
   // Explicit Lab identifiers may access public canonical ID/skill metadata
   // only. Never query unreviewed/private questions, future bars, or answer keys.
   const labContext=await getApprovedLabContext(env,request,q).catch(()=>null);
-  if(labContext)return finish({
+  if(labContext){
+   // One exact researched public claim may accompany the canonical Lab ID.
+   // Only the existing allowlisted source asset can supply this link; there is
+   // no web fetch, user URL, model call, protected rubric or future bar.
+   const evidence=labContext.claimEvidence;
+   const publicCitations=[{id:labContext.labId,title:'Canonical Lab '+labContext.labId,
+    sourceLabel:'Public canonical Lab ID and competency crosswalk',
+    sourceId:'[1]',practiceUrl:labContext.practiceUrl}];
+   if(evidence)publicCitations.push({id:evidence.sourceId,
+    title:'Reviewed educational source: '+evidence.sourceId,
+    summary:evidence.claim,sourceLabel:'Independent public reference; limited claim scope',
+    sourceId:'[2]',referenceUrls:[evidence.sourceUrl]});
+   return finish({
    ok:true,generation:'original-competency-guide',mode,aiReason:'source_only',
    answer:labGuidance(labContext,mode,answer),graded:false,masteryAwarded:false,
-   sources:[{id:labContext.labId,title:'Canonical Lab '+labContext.labId,
-    sourceLabel:'Public canonical Lab ID and competency crosswalk',
-    sourceId:'[1]',practiceUrl:labContext.practiceUrl}],
+   sources:publicCitations,
    labContext,notice:'This is original Lab guidance, not a restricted rubric, historical data verification, or graded completion.',
    links:{labs:labContext.practiceUrl,skills:'/skills.html',journal:'/journal.html'}
-  });
+   });}
   // A valid canonical Lab ID is coverage, not an unanswered topic.
   if(!guideMatches.length&&!source.length)await recordTutorGap(env,q);
   if(guideMatches.length){
