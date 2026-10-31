@@ -13,7 +13,7 @@ export async function issuePaidSponsorInvoice({stripe,api,campaign,advertiser,ac
   Number(camp.advertiser_id)!==Number(adv.id)||camp.status!=='draft'||
   camp.approval_state!=='approved'||camp.payment_state!=='unpaid'||
   !Number.isSafeInteger(Number(camp.amount_cents))||Number(camp.amount_cents)<100||
-  !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(String(adv.contact_email||''))||
+  !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(adv.contact_email||''))||
   adv.status!=='active'||!camp.package_code)
    throw error('Approved paid campaign, active verified advertiser and an agreed amount of at least $1 are required.');
  const number=Number(camp.id),amount=Number(camp.amount_cents);
