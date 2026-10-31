@@ -55,9 +55,10 @@ function safe(c){
 }
 export async function onRequest({request,env}){try{const a=await auth(env,request),url=new URL(request.url),action=clean(url.searchParams.get('action'))||'list';if(!a.eligible)return respond({ok:false,error:'Graded assessments require eligible learning access.'},403);
  if(action==='list'&&request.method==='GET'){
- const cases=await db(env,'competency_cases_v135?select=case_code,title,description,competency_code,questions,version&active=eq.true&reviewed_at=not.is.null&limit=200');const attempts=await db(env,'competency_attempts_v135?select=case_code,final_score,submitted_at&user_id=eq.'+encodeURIComponent(a.user.id)+'&limit=200');const submitted=new Set((attempts||[]).map(x=>x.case_code));return respond({ok:true,cases:(cases||[]).map(c=>safe({...c,alreadySubmitted:submitted.has(c.case_code)})).filter(Boolean),attempts})}
+ const cases=await db(env,'competency_cases_v135?select=case_code,title,description,competency_code,questions,version&active=eq.true&reviewed_at=not.is.null&limit=200');const attempts=await db(env,'competency_attempts_v135?select=case_code,final_score,submitted_at&user_id=eq.'+encodeURIComponent(a.user.id)+'&limit=200');const submitted=new Set((attempts||[]).map(x=>x.case_code));return respond({ok:true,cases:(cases||[]).filter(c=>!String(c.case_code||'').startsWith('BC3_')).map(c=>safe({...c,alreadySubmitted:submitted.has(c.case_code)})).filter(Boolean),attempts:(attempts||[]).filter(a=>!String(a.case_code||'').startsWith('BC3_'))})}
  if(action==='submit'&&request.method==='POST'){
  const body=await request.json().catch(()=>({})),caseCode=clean(body.caseCode).toUpperCase(),answers=body.answers;
+ if(caseCode.startsWith('BC3_'))throw fail('Use the authorized Academy day assessment route.',403);
  if(!/^[A-Z0-9_\-]{3,90}$/.test(caseCode)||!answers||Array.isArray(answers)||typeof answers!=='object'||Object.keys(answers).length>40||JSON.stringify(answers).length>7000)throw fail('Invalid assessment submission.');
  const r=await db(env,'rpc/submit_competency_case_v135',{method:'POST',body:{p_user:a.user.id,p_case:caseCode,p_answers:answers}});if(!r?.ok)return respond({ok:false,error:'Assessment could not be recorded.',reason:r?.reason||'rejected'},r?.reason==='already_submitted'?409:400);return respond({ok:true,result:r})}
  return respond({ok:false,error:'Unsupported assessment action.'},404);
