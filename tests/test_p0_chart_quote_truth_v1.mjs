@@ -3,7 +3,7 @@ import {readFileSync} from 'node:fs';
 const source=readFileSync('functions/api/chart-mixed-test-quote.js','utf8');
 const guard=readFileSync('functions/_lib/chart-mixed-test-guard-v1.js','utf8');
 const checkout=readFileSync('functions/api/chart-mixed-test-checkout.js','utf8');
-assert(source.includes('const checkoutActive=qaEligible;'),'TEST readiness must match verified QA access');
+assert(source.includes('const checkoutActive=qaEligible&&!pending;'),'TEST readiness must match verified QA access');
 assert(source.includes('settlementEnabled:checkoutActive'),'Truthful per-member settlement display');
 assert(source.includes('verifyChartMixedQa(env,identity.userId)'),'Quote requires server-approved QA');
 assert(source.includes('export function onRequestPost()'),'Quote itself must not mutate a wallet');
