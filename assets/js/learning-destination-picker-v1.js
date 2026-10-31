@@ -37,8 +37,11 @@
  // A standalone Lab Pack-to-product mapping has not been verified. In that
  // case, link to the Store's published access information, never invent a
  // checkout or imply that buying a book unlocks the interactive Lab.
- const productPage=row=>release?.trainingOnly.has(row.id)||Number(row.book)===6?
-  'store-membership-ondemand-monthly.html':'store.html';
+ const productPage=row=>{
+  const training=release?.trainingOnly.has(row.id)||Number(row.book)===6;
+  const page=training?'store-membership-ondemand-monthly.html':'store-tool-interactive-learning.html';
+  return page+'?source=lab&item='+encodeURIComponent(row.id);
+ };
  const purchaseExplainer=row=>release?.trainingOnly.has(row.id)||Number(row.book)===6?
   'View the published training membership and verify access before purchasing.':
   'Review available learning access. A dedicated Lab Pack purchase has not been verified for this Lab.';
