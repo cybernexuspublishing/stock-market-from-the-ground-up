@@ -121,7 +121,7 @@ globalThis.fetch=async(url,o={})=>{
    livemode:true,currency:'usd',amount:6999,amount_refunded:6999,
    invoice:'in_live123456789',payment_intent:'pi_live123456789'});
  if(u.endsWith('/v1/payment_intents/pi_live123456789'))
-  return respond({id:'pi_live123456789',livemode:true});
+  return respond({id:'pi_live123456789',livemode:true,latest_charge:'ch_live123456789'});
  throw Error('Unexpected '+method+' '+u);
 };
 async function pay(overrides={},sku={type:'plan',code:'FULL_MONTHLY'}){
