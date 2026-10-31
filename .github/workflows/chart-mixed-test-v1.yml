@@ -1,0 +1,35 @@
+name: Chart mixed Lumens plus Stripe TEST source gate
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/chart-mixed-test-*.js'
+      - 'functions/_lib/chart-mixed-test-*.js'
+      - 'functions/api/stripe-test-webhook.js'
+      - 'assets/js/store-chart-cash-upgrades-v1.js'
+      - 'supabase/migrations/*chart_mixed_test*.sql'
+      - 'tests/test_chart_mixed_*.mjs'
+      - '.github/workflows/chart-mixed-test-v1.yml'
+  workflow_dispatch:
+jobs:
+  mixed-test-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check payment boundary syntax
+        run: |
+          node --check functions/api/chart-mixed-test-checkout.js
+          node --check functions/api/chart-mixed-test-quote.js
+          node --check functions/_lib/chart-mixed-test-guard-v1.js
+          node --check functions/_lib/chart-mixed-test-webhook-v1.js
+          node --check functions/api/stripe-test-webhook.js
+          node --check assets/js/store-chart-cash-upgrades-v1.js
+      - name: Execute mixed payment financial boundary regression
+        run: |
+          node tests/test_chart_mixed_contract_v1.mjs
+          node tests/test_chart_mixed_test_boundary_v1.mjs
+          node tests/test_chart_cash_checkout_mock_v1.mjs
+          node tests/test_stripe_test_unified_webhook_20261030.mjs
