@@ -12,6 +12,8 @@ const store=read('store.html');
 const storeJs=read('assets/js/store.js');
 const css=read('assets/css/bootcamp-academy-compact-v2.css');
 const publicHeadings=read('assets/css/premium-design-v014168.css');
+const deepDiveJs=read('assets/js/knowledge-database-expanded-v2.js');
+const deepDiveCss=read('assets/css/knowledge-database-expanded-v2.css');
 assert(knowledge.includes('id="gu-knowledge-title"'));
 assert(publicHeadings.includes('/* SMF page heading system v1'));
 assert(publicHeadings.includes('/* SMF public page heading system v2'));
@@ -36,6 +38,18 @@ assert(publicHeadings.includes('main.gu-redesign-academy .gu-learning-ad-core .w
 assert(publicHeadings.includes('main.gu-premium-home .gu-home-message > h1'));
 assert(publicHeadings.includes('h1::after'));
 assert(knowledge.includes('<title>SMF Knowledge Database | The Stock Market: From the Ground Up</title>'));
+assert(knowledge.includes('knowledge-database-expanded-v2.css?v=20261031-v3'));
+assert(knowledge.includes('knowledge-database-expanded-v2.js?v=20261031-v3'));
+assert(deepDiveJs.includes("heading.id='kd-deep-dive-title'"));
+assert(deepDiveJs.includes("heading.style.setProperty('text-align','center','important')"));
+assert(deepDiveJs.includes("heading.style.setProperty('font-size','clamp(1.45rem,1.95vw,2.1rem)','important')"));
+assert(deepDiveJs.includes("accent.setAttribute('aria-hidden','true')"));
+assert(deepDiveJs.includes("'kd-deep-dive-intro'"));
+assert(deepDiveCss.includes('#knowledge-expansion>.kd-expansion-head{'));
+assert(deepDiveCss.includes('#knowledge-expansion>.kd-expansion-head>h2.kd-title{'));
+assert(deepDiveCss.includes('align-items:center!important;'));
+assert(deepDiveCss.includes('text-align:center!important;'));
+assert(deepDiveCss.includes('background:linear-gradient(90deg,#71ccdc,#d7ad72)!important;'));
 assert(knowledge.includes('id="academy-free-knowledge"'));
 assert(knowledge.includes('aria-label="TradingView partner promotion"'));
 const dbHeroStart=knowledge.indexOf('<section class="gu-knowledge-hero"');
@@ -84,6 +98,6 @@ assert(storeJs.includes("'for_sale'"),'Canonical sale-state filters must remain 
 assert(css.includes('max-width:790px!important'));
 assert(css.includes('display:grid!important;box-sizing:border-box!important'));
 assert(css.includes('font-size:clamp(1.65rem,2.15vw,2.35rem)'));
-for(const file of ['assets/js/bootcamp-academy-v014168.js','assets/js/free-foundations-knowledge-v1.js','assets/js/navigation.js','assets/js/store.js','assets/js/knowledge-partner-banner-v1.js'])
+for(const file of ['assets/js/bootcamp-academy-v014168.js','assets/js/free-foundations-knowledge-v1.js','assets/js/navigation.js','assets/js/store.js','assets/js/knowledge-partner-banner-v1.js','assets/js/knowledge-database-expanded-v2.js'])
  assert.doesNotThrow(()=>new Script(read(file)),file+' JavaScript syntax');
 console.log('PASS Knowledge Database independent page, 12-topic renderer, Learn navigation, compact Academy layout, and nonmutating Store presentation');
