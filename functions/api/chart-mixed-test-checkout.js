@@ -94,7 +94,7 @@ export async function onRequestPost({request,env}){
    const settled=await rpc(c,'chart_mixed_test_apply_v1',{p_upgrade:upgradeId,p_kind:'zero',p_event:'zero_'+upgradeId});
    if(settled?.ok!==true)return respond({ok:false,error:'ZERO_SETTLEMENT_PENDING_REVIEW'},503);
    return respond({ok:true,testOnly:true,fullyLumens:true,sku:input.sku,lumens:input.lumens,
-    cashDueCents:0,upgradeId,verified:true,redirect:url.origin+'/purchase-thank-you.html?sku='+encodeURIComponent(input.sku)});
+    cashDueCents:0,upgradeId,verified:true,redirect:url.origin+'/purchase-thank-you.html?order_id='+encodeURIComponent(upgradeId)});
   }
   const orders=await db(c,'crownlight_chart_mixed_test_v1?select=*&upgrade_id=eq.'+encodeURIComponent(upgradeId)+'&user_id=eq.'+encodeURIComponent(identity.userId)+'&limit=1');
   const order=orders?.[0];
@@ -107,7 +107,7 @@ export async function onRequestPost({request,env}){
     'line_items[0][price_data][currency]':'usd','line_items[0][price_data][product]':verified.product_id,
     'line_items[0][price_data][unit_amount]':String(cash),'line_items[0][quantity]':'1',
     client_reference_id:upgradeId,
-    success_url:url.origin+'/purchase-thank-you.html?sku='+encodeURIComponent(input.sku),
+    success_url:url.origin+'/purchase-thank-you.html?session_id={CHECKOUT_SESSION_ID}',
     cancel_url:url.origin+'/store.html?chart_mixed_cancel='+encodeURIComponent(upgradeId),
     'metadata[chart_mixed_test_id]':upgradeId,'metadata[chart_mixed_test_user]':identity.userId,
     'metadata[chart_mixed_test_sku]':input.sku,
