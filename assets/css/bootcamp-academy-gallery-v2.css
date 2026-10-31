@@ -22,7 +22,7 @@ body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-
 }
 body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-visual{
  display:block!important;position:relative;width:100%!important;
- aspect-ratio:16/9!important;max-height:202px!important;overflow:hidden!important;
+ aspect-ratio:4/3!important;max-height:none!important;overflow:hidden!important;
  background:linear-gradient(135deg,#102c40,#23495a)!important;
 }
 body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-cover{
@@ -103,7 +103,7 @@ body.gu-bc-learning .academy-catalog-availability{max-width:none!important}
   grid-template-columns:minmax(0,1fr)!important;
  }
  body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-visual{
-  max-height:195px!important;
+  max-height:none!important;
  }
  body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .academy-free-feature{
   grid-template-columns:minmax(0,1fr)!important;gap:10px!important;

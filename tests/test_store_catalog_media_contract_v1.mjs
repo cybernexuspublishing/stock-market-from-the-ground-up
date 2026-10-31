@@ -8,7 +8,13 @@ const samples=[
  ['book:FOUNDATION_BOOK_1','book','assets/images/books/foundation-book-1.webp'],
  ['book:READING_THE_TAPE','book','assets/images/books/reading-the-tape.webp'],
  ['tool:MARKET_TUTOR','tool','assets/img/store-tools/market-tutor.svg'],
- ['course:BC-30-CORE','course','assets/images/skill-illustrations/chart-structure.svg'],
+ ['course:BC-30-CORE','course','assets/images/bootcamp-covers/foundations30.webp'],
+ ['course:BC-05-TRUTH','course','assets/images/bootcamp-covers/truth5.webp'],
+ ['course:BC-07-WATCH','course','assets/images/bootcamp-covers/watchlist7.webp'],
+ ['course:BC-10-SCAN','course','assets/images/bootcamp-covers/scanners10.webp'],
+ ['course:BC-45-CHART','course','assets/images/bootcamp-covers/charts45.webp'],
+ ['course:BC-60-RISK','course','assets/images/bootcamp-covers/risk60.webp'],
+ ['course:BC-90-PRACT','course','assets/images/bootcamp-covers/practicum90.webp'],
  ['course:SC-10-VWAP','course','assets/images/skill-illustrations/vwap-context.svg'],
  ['feature:GUIDED_HISTORICAL_LABS','feature','assets/images/skill-illustrations/candle-reading.svg'],
  ['addon:SPARKS_10','addon','assets/images/admin-illustrations/learning-system.svg']
@@ -18,6 +24,7 @@ for(const [sku,category,expected] of samples){
  assert.equal(image.src,expected,sku);
  assert.ok(existsSync(new URL('../'+image.src,import.meta.url)),sku+' image file absent');
  assert.ok(image.alt.includes(category==='book'?'Cover':'illustration'),sku+' accessible alt missing');
+ if(sku.includes('BC-')){const bytes=readFileSync(new URL('../'+image.src,import.meta.url));assert.equal(bytes.subarray(0,4).toString(),'RIFF');assert.equal(bytes.subarray(8,12).toString(),'WEBP');}
 }
 const js=read('assets/js/store.js'),inventory=read('assets/js/store-inventory-ui-v014174.js'),api=read('functions/api/storefront-public-catalog.js');
 const layout=read('assets/js/admin-store-categories-v014297.js');

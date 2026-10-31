@@ -6,14 +6,12 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const js=read('assets/js/bootcamp-academy-v014168.js');
 const html=read('bootcamp-academy.html'),css=read('assets/css/bootcamp-academy-gallery-v2.css');
 const nav=read('assets/js/navigation.js');
-const imgs={"truth5":"truth-and-sources.svg","watchlist7":"research-watchlist.svg","scanners10":"market-scanners.svg","foundations30":"trading-foundations.svg","charts45":"chart-reading-setups.svg","risk60":"risk-execution.svg","practicum90":"simulated-practicum.svg"};
+const imgs={"truth5":"truth5.webp","watchlist7":"watchlist7.webp","scanners10":"scanners10.webp","foundations30":"foundations30.webp","charts45":"charts45.webp","risk60":"risk60.webp","practicum90":"practicum90.webp"};
 for(const [code,file] of Object.entries(imgs)){
  assert(js.includes(code+":'"+file+"'"));
  assert(existsSync(new URL('../assets/images/bootcamp-covers/'+file,import.meta.url)));
- const svg=read('assets/images/bootcamp-covers/'+file);
- assert(svg.includes('viewBox="0 0 480 270"'), 'High-resolution vector viewBox missing');
- assert(!/&(?!amp;|lt;|gt;|quot;|apos;)/.test(svg), 'Invalid SVG XML ampersand');
- assert(svg.includes('<title '), 'SVG metadata title missing');
+ const image=readFileSync(new URL('../assets/images/bootcamp-covers/'+file,import.meta.url));
+ assert(image.subarray(0,4).toString('ascii')==='RIFF' && image.subarray(8,12).toString('ascii')==='WEBP','Approved WebP is missing or malformed for '+code);
 }
 assert.equal(Object.keys(imgs).length,7);
 assert(js.includes("visual.alt=''"));
@@ -42,4 +40,4 @@ assert(css.includes('grid-auto-rows:auto!important'));
 assert(html.includes('class="academy-free-entry academy-free-feature"'));
 assert(css.includes('@media(max-width:600px)'));
 assert.doesNotThrow(()=>new Script(js));
-console.log('PASS: seven high-resolution vector Boot Camp covers, 3-column gallery, unboxed Free Foundations and top-level navigation');
+console.log('PASS: seven approved course artwork files, 3-column gallery, unboxed Free Foundations and top-level navigation');

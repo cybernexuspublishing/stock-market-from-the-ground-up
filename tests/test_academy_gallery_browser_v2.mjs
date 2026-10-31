@@ -8,11 +8,10 @@ const styles=['assets/css/free-foundations-v1.css','assets/css/bootcamp-academy-
  'assets/css/bootcamp-academy-compact-v2.css','assets/css/learning-destination-picker-v1.css',
  'assets/css/bootcamp-academy-icons-v1.css','assets/css/bootcamp-academy-gallery-v2.css',
  'assets/css/premium-design-v014168.css','assets/css/sitewide-composition-v014234.css'].map(load).join('\n');
-const codes=['truth-and-sources','research-watchlist','market-scanners','trading-foundations',
- 'chart-reading-setups','risk-execution','simulated-practicum'];
+const codes=["truth5","watchlist7","scanners10","foundations30","charts45","risk60","practicum90"];
 const cards=codes.map((name,i)=>'<article class="academy-program academy-program--compact">'+
  '<a class="academy-program-compact-link" href="/bootcamp-academy.html?program='+name+'">'+
- '<span class="academy-program-visual"><img class="academy-program-cover" alt="" src="/assets/images/bootcamp-covers/'+name+'.svg"></span>'+
+ '<span class="academy-program-visual"><img class="academy-program-cover" alt="" src="/assets/images/bootcamp-covers/'+name+'.webp"></span>'+
  '<span class="academy-program-compact-name">Course '+(i+1)+'</span><span class="academy-program-compact-id">course'+(i+1)+'</span>'+
  '</a></article>').join('');
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+styles+'</style></head>'+
@@ -28,10 +27,10 @@ const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disab
 const page=await browser.newPage();
 try{
  await page.route('**/gallery-fixture',route=>route.fulfill({status:200,contentType:'text/html',body:html}));
- await page.route('**/assets/images/bootcamp-covers/*.svg',route=>{
+ await page.route('**/assets/images/bootcamp-covers/*.webp',route=>{
   const name=basename(new URL(route.request().url()).pathname),path='assets/images/bootcamp-covers/'+name;
   assert(existsSync(new URL('../'+path,import.meta.url)));
-  return route.fulfill({status:200,contentType:'image/svg+xml',body:load(path)});
+  return route.fulfill({status:200,contentType:'image/webp',body:readFileSync(new URL('../'+path,import.meta.url))});
  });
  for(const [width,expected] of [[1360,3],[860,2],[480,1]]){
   await page.setViewportSize({width,height:950});
@@ -53,10 +52,10 @@ try{
   assert(data.headingFont>=24&&data.headingFont<=34.1,'Heading is too large under production styles: '+data.headingFont+'px');
   assert(data.headingLine!=='normal','Heading line height not constrained');
   assert.equal(data.count,7,'Expected exactly seven released programs');
-  for(const cover of data.covers)assert(cover.loaded&&cover.width===480&&cover.height===270,'SVG failed at '+width+'px');
+  for(const cover of data.covers)assert(cover.loaded&&cover.width===640&&cover.height===480,'SVG failed at '+width+'px');
   assert.equal(data.freeBorder,'0px','Free Foundations still has an enclosing border');
   assert.equal(data.freeBackground,'none','Free Foundations still has an enclosing background');
   assert(data.freeWidth>0.95*data.containerWidth,'Free Foundations must use full available width');
  }
- console.log('PASS responsive 3/2/1 columns, seven SVG covers and full-width unboxed Free Foundations');
+ console.log('PASS responsive 3/2/1 columns, seven approved image covers and full-width unboxed Free Foundations');
 }finally{await browser.close()}

@@ -17,6 +17,10 @@ on:
       - 'assets/css/bootcamp-academy-icons-v1.css'
       - 'assets/css/bootcamp-academy-gallery-v2.css'
       - 'assets/images/bootcamp-covers/**'
+      - 'assets/js/store-catalog-visuals-v1.js'
+      - 'assets/js/store-training-programs-v1.js'
+      - 'assets/css/store-training-programs-v1.css'
+      - 'tests/test_store_catalog_media_contract_v1.mjs'
       - 'tests/test_academy_catalog_icons_v1.mjs'
       - 'assets/js/bootcamp-academy-v014168.js'
       - 'assets/js/free-foundations-knowledge-v1.js'
@@ -42,6 +46,7 @@ jobs:
           node --check assets/js/knowledge-database-workshop-v1.js
           node tests/test_knowledge_database_store_v1.mjs
           node tests/test_academy_catalog_icons_v1.mjs
+          node tests/test_store_catalog_media_contract_v1.mjs
           node --check assets/js/navigation.js
           node --check assets/js/store.js
           node --check assets/js/bootcamp-academy-v014168.js

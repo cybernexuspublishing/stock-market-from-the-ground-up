@@ -97,7 +97,7 @@
    'Courses are shown as locked until training entitlement is verified.')+
    ' Search by program ID, title, skill, or ticker where public course metadata contains one.';
  }
- const programCovers=Object.freeze({truth5:'truth-and-sources.svg',watchlist7:'research-watchlist.svg',scanners10:'market-scanners.svg',foundations30:'trading-foundations.svg',charts45:'chart-reading-setups.svg',risk60:'risk-execution.svg',practicum90:'simulated-practicum.svg'});
+ const programCovers=Object.freeze({truth5:'truth5.webp',watchlist7:'watchlist7.webp',scanners10:'scanners10.webp',foundations30:'foundations30.webp',charts45:'charts45.webp',risk60:'risk60.webp',practicum90:'practicum90.webp'});
  function catalog(programs){
   const root=get('academy-programs');root.replaceChildren();
   if(!Array.isArray(programs)||programs.length!==7||
@@ -122,7 +122,7 @@
     const media=node('span');media.className='academy-program-visual';
     const visual=node('img');visual.className='academy-program-cover';
     visual.src='assets/images/bootcamp-covers/'+coverFile;
-    visual.width=480;visual.height=270;visual.alt='';
+    visual.width=640;visual.height=480;visual.alt='';
     visual.loading='lazy';visual.decoding='async';visual.setAttribute('aria-hidden','true');
     media.append(visual);link.append(media);
    }

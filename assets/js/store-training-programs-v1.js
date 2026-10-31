@@ -15,6 +15,7 @@ const expected=new Map([
  ['risk60',{days:60,href:'bootcamp-academy.html?program=risk60'}],
  ['practicum90',{days:90,href:'bootcamp-academy.html?program=practicum90'}]
 ]);
+const trainingArtwork=Object.freeze({truth5:'truth5.webp',watchlist7:'watchlist7.webp',scanners10:'scanners10.webp',foundations30:'foundations30.webp',charts45:'charts45.webp',risk60:'risk60.webp',practicum90:'practicum90.webp'});
 const make=(tag,value,className)=>{
  const n=document.createElement(tag);
  if(value!==undefined)n.textContent=String(value);
@@ -29,6 +30,11 @@ function draw(programs){
  for(const code of expected.keys()){
   const spec=expected.get(code),item=programs.find(p=>p.code===code);
   const card=make('article',undefined,'store-training-course');
+  const art=make('img',undefined,'store-training-course-cover');
+  art.src='assets/images/bootcamp-covers/'+trainingArtwork[code];
+  art.width=640;art.height=480;art.loading='lazy';art.decoding='async';
+  art.alt='';art.setAttribute('aria-hidden','true');
+  card.append(art);
   const header=make('div',undefined,'store-training-course-top');
   header.append(make('span',spec.days+' days','store-training-days'),
                 make('span','Guided beta curriculum','store-training-kind'));

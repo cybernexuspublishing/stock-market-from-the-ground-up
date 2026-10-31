@@ -17,6 +17,7 @@ const tools=Object.freeze({
  MARKET_SIMULATOR:'assets/img/store-tools/market-simulator.svg',
  MARKET_TUTOR:'assets/img/store-tools/market-tutor.svg'
 });
+const bootCampCovers=Object.freeze({'BC-05-TRUTH':'truth5.webp','BC-07-WATCH':'watchlist7.webp','BC-10-SCAN':'scanners10.webp','BC-30-CORE':'foundations30.webp','BC-45-CHART':'charts45.webp','BC-60-RISK':'risk60.webp','BC-90-PRACT':'practicum90.webp'});
 const concepts=Object.freeze({
  'BC-05-TRUTH':'sec-filings','BC-07-WATCH':'candidate-quality',
  'BC-10-SCAN':'catalyst-analysis','BC-30-CORE':'chart-structure',
@@ -51,9 +52,9 @@ const fallback=Object.freeze({
 function resolve(item){
  const sku=String(item?.sku||item?.toolCode||'').split(':').pop();
  const category=String(item?.category||'').toLowerCase();
- const book=books[sku],membership=memberships[sku],tool=tools[sku],topic=concepts[sku];
- const src=book||membership||tool||(topic?'assets/images/skill-illustrations/'+topic+'.svg':fallback[category]||fallback.feature);
- return {src,alt:book?'Cover of '+String(item?.name||'the book'):membership?'Membership artwork for '+String(item?.name||'the membership'):'Educational illustration for '+String(item?.name||'this product')};
+ const book=books[sku],membership=memberships[sku],tool=tools[sku],cover=bootCampCovers[sku],topic=concepts[sku];
+ const src=book||membership||tool||(cover?'assets/images/bootcamp-covers/'+cover:(topic?'assets/images/skill-illustrations/'+topic+'.svg':fallback[category]||fallback.feature));
+ return {src,alt:book?'Cover of '+String(item?.name||'the book'):membership?'Membership artwork for '+String(item?.name||'the membership'):cover?'Educational Boot Camp cover illustration for '+String(item?.name||'this program'):'Educational illustration for '+String(item?.name||'this product')};
 }
 window.GroundUpCatalogVisuals=Object.freeze({resolve});
 })();

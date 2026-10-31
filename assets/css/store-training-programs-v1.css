@@ -14,3 +14,7 @@
 .store-training-course .btn{min-height:44px;margin-top:auto;white-space:normal;max-width:100%;text-align:center}
 .store-training-course .btn:focus-visible{outline:3px solid var(--accent,#53bcb1);outline-offset:3px}
 @media(prefers-reduced-motion:reduce){#store-training-programs *{scroll-behavior:auto}}
+
+/* Approved Boot Camp Academy cover photography, 4:3 with no title cropping. */
+.store-training-course-cover{display:block;width:100%;max-width:100%;height:auto;aspect-ratio:4/3;object-fit:cover;object-position:center;border-radius:9px;border:1px solid rgba(130,183,206,.3);background:#0a2036}
+.store-training-course{overflow:hidden}
