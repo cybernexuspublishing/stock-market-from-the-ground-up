@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.2  
+**Version:** 1.3  
 **Status:** PARTIAL ACCEPTANCE; paid purchases, signed LIVE delivery, and Lumens package purchases not accepted end-to-end  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -95,6 +95,22 @@ Source CI PASSED: https://github.com/cybernexuspublishing/stock-market-from-the-
 
 The exact five customer-facing book SKUs remain sale-ready. Twelve of sixty-one storefront SKUs are customer-visible and sale-ready; five Lumens packages are not yet customer sellable.
 
+## October 30 continuation — independent provider/configuration audit (20:48 America/Chicago)
+
+**Result: PARTIAL ACCEPTANCE, NOT SIGNED PAYMENT ACCEPTANCE.** Live API reads through the connected Stripe account, Cloudflare Pages production config, primary Supabase and repository confirm the exact remaining constraints. No card was charged and no test grant or refund was fabricated.
+
+- **Stripe TEST account:** `acct_1URGkDJY9FI7byHB`. One active unified event destination `we_1UWNRSJY9FI7byHBHABdyP3R` at `https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-test-webhook`; five older standalone TEST webhook destinations are disabled. Book I `cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg` remains open/unpaid ($10.99). The 25-Lumens `cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB` remains open/unpaid ($5.00). These are genuine provider-hosted sessions but **not paid purchases**.
+- **Database state:** `gu_book_test_intents_v1`: one `checkout_created`; `gu_lumen_bundle_test_orders_v1`: one `bound`; `gu_book_test_events_v1`: zero; `gu_lumen_bundle_test_events_v1`: zero; `gu_lumen_bundle_test_shadow_credits_v1`: zero; `gu58_live_stripe_events`: zero. This matches the unpaid sessions and lack of signed recorded fulfillment. No TEST or LIVE refund is eligible without a successful provider payment.
+- **LIVE account:** `acct_1OxhOiJL0O4GGVBH`. Stripe LIVE endpoint `we_1UUZvAJL0O4GGVBH5Tp77DVM` is enabled at `/api/stripe-live-webhook`, subscribed to `checkout.session.completed`. A separate LIVE Founding Members endpoint `we_1UUZvEJL0O4GGVBHa1CTpKMO` remains enabled for invoice/subscription/refund lifecycle, not this zero-dollar checkout. The historical zero-dollar `evt_1UVaw9JL0O4GGVBHKjQTd21w` is provider-verified as complete/paid and has `pending_webhooks=1`. There is no verified 2xx signature acknowledgment.
+- **Cloudflare production:** `GU58_LIVE_DB_CONTRACT_APPROVED`, `GU58_LIVE_FULFILLMENT_APPROVED`, `GU58_LIVE_WEBHOOK_ENABLED` and `GU71_ZERO_LIVE_QA_ENABLED` are all `true`. `STRIPE_LIVE_ACCOUNT_ID` and `GU71_ZERO_LIVE_PRICE_ID` match the actual diagnostic Stripe event's account/price. Encrypted LIVE signing and API key variable names exist; plaintext secret contents were not exposed or compared. Most recent successful main deployment observed at `d3653ee36284cd5f545b4f25868c3f54f6c32bc4`. Therefore a signing-secret mismatch, prior failure before current flags, and/or transport errors are **possibilities requiring real delivery-attempt evidence**, not demonstrated root causes.
+- **Cloudflare observability:** scoped search for `stripe-live-webhook` returned no matching available telemetry events. This neither proves nor disproves a Stripe HTTP delivery, and does not substitute for the Stripe Dashboard webhook-attempt status/body.
+- **Five TEST Lumens packages:** official TEST provider prices remain configured. The `lumen-bundle-test-webhook.js` intentionally writes ONLY isolated QA shadow-credit balances, not the live nonexpiring purchased-Lumens wallet. Separately implement and validate actual customer wallet issuance, accounting, refund, negative balance/clawback rules and entitlement synchronization before releasing customer bundle sales.
+- **Automation constraint:** the optional connected browser automation wallet has insufficient funds and its workflow is metered. With the Owner's $0 budget, no charged browser run was initiated. Stripe's current API surface here can read/create Sessions but does not provide a hosted payment-form submission or legacy event-resend/delivery-attempt operation. Do not substitute API-generated payment intents or forged events for Session completion.
+
+**Remaining acceptance actions, in strict order:** (1) complete original Book I TEST hosted session with official fake test card and verify signed provider event, Book I grant, real EPUB download, TEST refund and revocation; (2) complete original 25-Lumens TEST hosted session, signed shadow issuance and full TEST refund/reversal; (3) inspect and resend original LIVE event through Stripe Dashboard/CLI, verify actual 2xx and event linkage; (4) only afterward extend purchased-Lumens to the production nonexpiring wallet with controlled refund rules, repeating real TEST acceptance before customer sale.
+
+**Release gates:** all five EPUB titles remain in their current sale-ready state as recorded previously, but paid-fulfillment acceptance is NOT asserted. Lumens package LIVE customer checkout remains disabled. No LIVE nonzero QA payment, secret rotation, new webhook endpoint, customer entitlement grant or automated billing mutation was performed.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -103,3 +119,4 @@ The exact five customer-facing book SKUs remain sale-ready. Twelve of sixty-one 
 
 | 1.1 | 2026-10-30 | Corrected extensionless My Books test passed; verified unauthorized downloads denied for all five books as Free QA member. |
 | 1.2 | 2026-10-30 | Positive five-book EPUB delivery passed; five Stripe TEST Lumens packages, new shadow ledger and refund contracts, authenticated $5 TEST Checkout, comprehensive regression, QA rollback and remaining signed-event gaps recorded. |
+| 1.3 | 2026-10-30 | Independently reverified Stripe sessions, TEST/LIVE endpoint routing, Cloudflare LIVE switches, deployment, Supabase payment ledgers, QA shadow-only boundary and original pending LIVE event. No false acceptance of paid fulfillment. |
