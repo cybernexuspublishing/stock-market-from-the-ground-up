@@ -30,6 +30,7 @@ jobs:
       - name: Execute mixed payment financial boundary regression
         run: |
           node tests/test_chart_mixed_contract_v1.mjs
+          node tests/test_chart_mixed_cancel_card_mock_v1.mjs
           node tests/test_chart_mixed_test_boundary_v1.mjs
           node tests/test_chart_cash_checkout_mock_v1.mjs
           node tests/test_stripe_test_unified_webhook_20261030.mjs
