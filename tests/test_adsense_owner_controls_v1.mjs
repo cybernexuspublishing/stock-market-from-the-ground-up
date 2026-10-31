@@ -1,0 +1,33 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+const read=p=>readFileSync(p,'utf8');
+const sql=read('supabase/migrations/20261030_adsense_owner_controls_v1.sql');
+const api=read('functions/api/ad-sales.js');
+const publicApi=read('functions/api/adsense-controls.js');
+const loader=read('assets/js/adsense-controlled-v1.js');
+const admin=read('admin-advertising.html');
+const adminJs=read('assets/js/admin-ad-sales-v014228.js');
+assert.match(sql,/approved boolean not null default false/);
+assert.match(sql,/enabled boolean not null default false/);
+assert.match(sql,/check \(enabled=false or approved=true\)/);
+assert.match(sql,/revoke all on public.gu_adsense_controls_v1 from anon,authenticated,public/);
+assert.match(api,/if\(action==='set_adsense_controls'\)/);
+assert.match(api,/await owner\(c,request\)/);
+assert.match(api,/Confirm Google site approval before enabling AdSense/);
+assert.match(publicApi,/control.approved===true&&control.enabled===true&&control.pages\?\.\[page\]===true/);
+assert.match(publicApi,/if\(credential\)return json\(disabled\)/);
+assert.match(loader,/if\(!window.getSupabaseClient\)return true/);
+assert.match(loader,/if\(config.enabled!==true\|\|config.pageEnabled!==true/);
+assert.match(admin,/id="gu-adsense-toggle"/);
+assert.match(adminJs,/action:'set_adsense_controls'/);
+for(const p of ['index.html','knowledge-database.html','store.html','advertise.html']){
+ const html=read(p);
+ assert.match(html,/meta name="google-adsense-account" content="ca-pub-6531971840615114"/);
+ assert.match(html,/adsense-controlled-v1.js/);
+ assert.doesNotMatch(html,/<script async src="https:\/\/pagead2\.googlesyndication\.com\/pagead\/js\/adsbygoogle\.js/);
+}
+new Function(publicApi.replace('export async function onRequestGet','async function onRequestGet'));
+new Function(loader);
+new Function(adminJs);
+new Function(api.replace(/^import .*;$/gm,'').replace('export async function onRequest','async function onRequest'));
+console.log('PASS AdSense Owner-only master OFF, approval gate, four page controls, publisher verification, session protections, independent advertising');
