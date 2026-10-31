@@ -25,6 +25,9 @@
    const offer=offers?.find(x=>x.sku===product.sku&&x.tier===product.tier&&
     x.amountCents===product.cents&&x.durationDays===30&&x.oneTime===true&&x.renews===false);
    const card=el('article','');card.className='v11-tool-card';
+   const included=offer?.included===true;
+   if(included){card.classList.add('chart-upgrade-included');card.setAttribute('data-purchase-blocked','included');
+    card.style.opacity='0.56';card.style.filter='grayscale(0.85)';card.style.borderStyle='dashed';}
    const price=el('p','$'+(product.cents/100).toFixed(2)+' · one payment · 30 days');
    const note=el('p','Access expires 30 days after verified payment. A full refund or dispute revokes this upgrade. Existing membership and Crownlight Lumens remain unchanged. No historical market data or redistribution license is included.');
    const state=el('p',!token?'Sign in to check eligibility.':!offer?'Eligibility temporarily unavailable.':
@@ -33,8 +36,9 @@
     'Eligible for this independent Studio upgrade.');
    state.setAttribute('role','status');
    const button=el('button','Open Stripe TEST checkout');button.type='button';button.className='btn';
-   button.disabled=!token||!offer||offer.included||offer.checkoutEnabled!==true;
-   if(!offer?.checkoutEnabled)button.textContent='Checkout not yet available';
+   button.disabled=!token||!offer||included||offer.checkoutEnabled!==true;
+   if(included){button.textContent='Already included — purchase blocked';button.title='Your effective membership or active access already includes this Chart Studio tier.';}
+   else if(!offer?.checkoutEnabled)button.textContent='Checkout not yet available';
    button.addEventListener('click',async()=>{
     button.disabled=true;state.textContent='Verifying eligibility and creating TEST checkout…';
     try{
