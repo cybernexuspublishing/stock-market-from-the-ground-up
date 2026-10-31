@@ -1,4 +1,4 @@
-/* Seven Academy programs, one instructor engine. Progress server-owned.
+/* Ten Academy programs, one instructor engine. Progress server-owned.
  * No client-side credentials, assessment keys, grades, unverified replay or
  * member entitlements. Thirty-day course uses its existing canonical route.
  */
@@ -9,7 +9,8 @@
  const programIllustration=Object.freeze({"truth5":"sec-filings","watchlist7":"candidate-quality","scanners10":"catalyst-analysis","foundations30":"chart-structure","charts45":"multi-timeframe","risk60":"risk-per-share","practicum90":"independent-plan"});
 
  const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
-  ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
+  ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90],
+  ['tape10',10],['indicators10',10],['filings7',7]]);
  let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0,guidedSession=null;
  // Enrich course search using ONLY public, already published Lab metadata.
  // Private course material and member entitlements never enter the index.
@@ -157,9 +158,9 @@
  const programCovers=Object.freeze({truth5:'truth5-v2.webp',watchlist7:'watchlist7-v2.webp',scanners10:'scanners10-v2.webp',foundations30:'foundations30-v2.webp',charts45:'charts45-v2.webp',risk60:'risk60-v2.webp',practicum90:'practicum90-v2.webp'});
  function catalog(programs){
   const root=get('academy-programs');root.replaceChildren();
-  if(!Array.isArray(programs)||programs.length!==7||
+  if(!Array.isArray(programs)||![7,10].includes(programs.length)||
    programs.some(p=>!expected.has(p.code)||expected.get(p.code)!==p.days)||
-   new Set(programs.map(p=>p.code)).size!==7)throw Error('Academy catalog or durations could not be verified.');
+   new Set(programs.map(p=>p.code)).size!==programs.length)throw Error('Academy catalog or durations could not be verified.');
   academyBrowsePrograms=programs;
   const access=academyBrowseRights?.training===true;
   for(const p of programs){
@@ -852,7 +853,7 @@
    catalog(programs);
    void loadAcademySearchMetadata();
    void verifyAcademyBrowseRights();
-   status('Explore our seven Boot Camps. Choose a program to see what you will learn and review the available access options.');
+   status('Explore the available Boot Camps. Choose a program to see what you will learn and review the available access options.');
   }catch(error){status(error.message||'The Academy catalog cannot be verified.')}
  }
  get('academy-program-search')?.addEventListener('input',filterAcademyCatalog);

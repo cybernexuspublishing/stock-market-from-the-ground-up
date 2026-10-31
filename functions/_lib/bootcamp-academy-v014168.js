@@ -1,5 +1,5 @@
 /* Crown & Lantern Press / The Stock Market: From the Ground Up.
- * Seven separately versioned Academy study paths on ONE Lab Engine.
+ * Ten separately versioned Academy study paths on ONE Lab Engine.
  * The original thirty-day course is imported, not overwritten or duplicated.
  * Official competencies/grades and future historical bars stay in their own
  * protected assessment/replay services.
@@ -7,6 +7,7 @@
 import {bootcampCurriculumV014144 as original} from './bootcamp-curriculum-v014144.js';
 import {freeFoundationsV1} from './free-foundations-v1.js';
 import {phaseAFreeFoundations} from './free-foundations-phase-a-v1.js';
+import {threeCampDefinitions} from './academy-three-camps-v1.js';
 export const ACADEMY_VERSION='0.14.0.168';
 const current=new Map(original.days.map(day=>[day.day,day]));
 if(current.size!==30)throw Error('Thirty-day original curriculum changed unexpectedly.');
@@ -214,7 +215,7 @@ const authored={
   ]
  }
 };
-const definitions=[
+ const definitions=[
  {code:'truth5',days:5,metadata:authored.truth5},
  {code:'watchlist7',days:7,metadata:authored.watchlist7},
  {code:'scanners10',days:10,metadata:authored.scanners10},
@@ -232,10 +233,23 @@ const definitions=[
  {code:'practicum90',days:90,metadata:{title:'Advanced Simulated Trading Practicum',
   level:'Advanced',theme:'Research, planning, simulation, performance analysis and independent review',
   summary:'All thirty original market-skill themes revisited across three successive evidence-based practice cycles.'},
-  source:Array.from({length:30},(_,i)=>i+1)}
+  source:Array.from({length:30},(_,i)=>i+1)},
+ ...threeCampDefinitions.map(c=>({code:c.code,days:c.days,metadata:{title:c.title,
+  level:c.level,theme:c.theme,summary:c.summary},lessons:c.lessons}))
 ];
 function dayFor(d,i){
  const day=i+1;
+ if(d.lessons){
+  const lesson=d.lessons[i];
+  return Object.freeze({day,programDay:day,programCode:d.code,title:lesson.title,
+   objective:lesson.teach,observe:lesson.terms,practice:lesson.transfer,
+   phase:'learn',phaseLabel:'Original ten-stage instructional day',
+   method:[lesson.method,lesson.experiment],remediation:lesson.review,
+   limitation:'Fictional teaching case. No verified historical data or independent mastery is implied.',
+   relatedLabs:[],toolPath:'bootcamp-academy.html?program='+d.code,
+   officiallyGraded:false,masteryAwarded:false,sourceStatus:lesson.editorialStatus,
+   lesson});
+ }
  if(d.code==='foundations30'){
   const originalDay=current.get(day);
   return Object.freeze({...originalDay,programCode:d.code,programDay:day,sourceDay:day,
@@ -281,7 +295,7 @@ function dayFor(d,i){
 export const academyPrograms=Object.freeze(definitions.map(d=>Object.freeze({
  code:d.code,title:d.metadata.title,days:d.days,level:d.metadata.level,theme:d.metadata.theme,
  summary:d.metadata.summary,
- version:ACADEMY_VERSION,status:d.code==='foundations30'?'original_30_day_controlling':'original_study_design_editorial_acceptance_pending',
+ version:ACADEMY_VERSION,status:d.code==='foundations30'?'original_30_day_controlling':d.lessons?'original_27_day_instruction_editorial_acceptance_pending':'original_study_design_editorial_acceptance_pending',
  entitlement:'ONDEMAND_TRAINING',route:d.code==='foundations30'?'bootcamp.html':'bootcamp-academy.html?program='+d.code,
  priceStatus:'covered_by_existing_authorized_training_entitlement_no_new_purchase',
  creditPolicy:'No Crownlight Sparks needed for teaching; optional assisted Practice has separate authenticated service.',

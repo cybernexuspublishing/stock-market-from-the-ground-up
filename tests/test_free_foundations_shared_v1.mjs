@@ -8,8 +8,8 @@ import {academyCatalog,academyByCode,freeFoundationsProgram} from '../functions/
 import {onRequest} from '../functions/api/bootcamp-academy.js';
 const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const html=read('bootcamp-academy.html'),client=read('assets/js/bootcamp-academy-v014168.js');
-assert.equal(academyCatalog.length,7,'Canonical number of Boot Camps must remain seven');
-assert.equal(new Set(academyCatalog.map(x=>x.code)).size,7);
+assert.equal(academyCatalog.length,10,'Canonical number of Boot Camps must be ten');
+assert.equal(new Set(academyCatalog.map(x=>x.code)).size,10);
 assert(!academyCatalog.some(x=>x.code==='free5'),'Free five-day starter is NOT an eighth official Boot Camp');
 assert.equal(freeFoundationsProgram.days,5);
 assert.equal(academyByCode.free5,freeFoundationsProgram);

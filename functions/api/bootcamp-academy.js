@@ -8,7 +8,10 @@ const HEADERS={'content-type':'application/json; charset=utf-8','cache-control':
  'x-content-type-options':'nosniff'};
 const respond=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:HEADERS});
 const fault=(reason,status=400)=>Object.assign(new Error(reason),{status});
-const allowed=code=>Object.hasOwn(academyByCode,code)&&code!=='foundations30';
+const newCourses=new Set(['tape10','indicators10','filings7']);
+const released=env=>env?.ACADEMY_THREE_CAMPS_ENABLED==='true';
+const allowed=(code,env)=>Object.hasOwn(academyByCode,code)&&code!=='foundations30'&&
+ (!newCourses.has(code)||released(env));
 function database(env){
  const base=String(env.SUPABASE_URL||'').replace(/\/$/,'');
  const secret=String(env.SUPABASE_SECRET_KEY||'');
@@ -35,7 +38,7 @@ function sameOrigin(request){
  const site=request.headers.get('sec-fetch-site');
  if(site&&!['same-origin','none'].includes(site))throw fault('Cross-site changes are denied.',403);
 }
-async function readInput(request){
+async function readInput(request,env){
  const declared=Number(request.headers.get('content-length')||0);
  if(declared>5000)throw fault('Request is too large.',413);
  const body=await request.text();
@@ -43,7 +46,7 @@ async function readInput(request){
  let data;
  try{data=JSON.parse(body)}catch{throw fault('Invalid JSON request.')}
  if(!data||typeof data!=='object'||Array.isArray(data))throw fault('Invalid Academy request.');
- if(!allowed(data.program))throw fault('Unknown Academy program. The existing 30-day course has a separate route.');
+ if(!allowed(data.program,env))throw fault('Unknown Academy program. The existing 30-day course has a separate route.');
  const plan=academyByCode[data.program];
  if(!['enroll','start','save_reflection'].includes(data.action))throw fault('Unknown progress action.');
  if(data.program==='foundations30'&&data.action!=='enroll')throw fault('The existing 30-day learning service owns all day-progress updates.');
@@ -65,7 +68,7 @@ export async function onRequest({request,env}){
   if(!['GET','POST'].includes(request.method))throw fault('Method not allowed.',405);
   const url=new URL(request.url);
   if(request.method==='GET'&&(url.searchParams.get('action')==='catalog'||!url.searchParams.has('program'))){
-   return respond({ok:true,version:ACADEMY_VERSION,programs:academyCatalog,
+   return respond({ok:true,version:ACADEMY_VERSION,programs:academyCatalog.filter(p=>!newCourses.has(p.code)||released(env)),
     notice:'Study-only curriculum listings; course completion never awards an official competency or trade result.'});
   }
   // Reuse the existing Auth/profiles/suspension checks for every Academy
@@ -74,7 +77,7 @@ export async function onRequest({request,env}){
   let form=null;
   if(request.method==='POST'){
    sameOrigin(request);
-   form=await readInput(request);
+   form=await readInput(request,env);
   }
   const requestedCode=request.method==='GET'?url.searchParams.get('program'):form.program;
   const eligibleFree=requestedCode==='free5'&&
@@ -83,7 +86,7 @@ export async function onRequest({request,env}){
    throw fault(auth.reason||'Authorized member training access required.',403);
   if(request.method==='GET'){
    const code=url.searchParams.get('program');
-   if(!allowed(code))throw fault('Unknown Academy program.',404);
+   if(!allowed(code,env))throw fault('Unknown Academy program.',404);
    if(code==='foundations30'){
     const rows=await db(env,'gu_bootcamp_academy_enrollments_v014168?select=status,program_version&user_id=eq.'+
      encodeURIComponent(auth.userId)+'&program_code=eq.foundations30&limit=1');

@@ -27,7 +27,7 @@ for(const tag of ['id="store-product-root"','data-product-type="plan"',
  assert(page.includes(tag),'Missing live offer element '+tag);
 }
 assert(script.includes("fetch('/api/bootcamp-academy?action=catalog'"));
-assert(script.includes("new Set(rows.map(p=>p.code)).size!==7"));
+assert(script.includes("new Set(rows.map(p=>p.code)).size!==rows.length"));
 assert(script.includes('root.querySelector'));
 assert(!script.includes('innerHTML='),'Untrusted catalog text must be rendered as text nodes');
 assert(!script.includes('Stripe')&&!script.includes('fetch("/api/checkout'),

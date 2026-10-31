@@ -13,12 +13,12 @@ const names={
  practicum90:['Advanced Simulated Trading Practicum',90]
 };
 assert.equal(ACADEMY_VERSION,'0.14.0.168');
-assert.equal(academyPrograms.length,7);
+assert.equal(academyPrograms.length,10);
 assert(academyByCode.truth5.curriculum[1].lesson.reviewGuide.includes('public-availability'));
 assert(academyByCode.truth5.curriculum[2].lesson.sourceProcedure.some(s=>s.includes('acceptance timestamp')&&s.includes('public availability')));
 
-assert.equal(academyCatalog.length,7);
-assert.equal(new Set(academyPrograms.map(p=>p.code)).size,7);
+assert.equal(academyCatalog.length,10);
+assert.equal(new Set(academyPrograms.map(p=>p.code)).size,10);
 const official=new Set(guides.guides.map(g=>g.code));
 assert.equal(official.size,30);
 for(const [code,[name,duration]] of Object.entries(names)){

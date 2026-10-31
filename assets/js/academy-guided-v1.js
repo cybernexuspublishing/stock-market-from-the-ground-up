@@ -1,4 +1,4 @@
-/* Boot Camp guided learning: 247 existing study days, 7 course IDs.
+/* Boot Camp guided learning: 274 study days, 10 course IDs.
  * Formative only. Never unlock a Lab, give a grade, fabricate historical replay,
  * deduct Lumens, or modify the existing authenticated progress APIs.
  */
@@ -24,6 +24,25 @@ function guidance(d,kind){
   'Limitations: '+clean(d.limitation||d.caution)]);
 }
 function plan(d){
+ if(d.lesson?.evidenceType==='FICTIONAL_EDUCATIONAL_DATA_NO_HISTORICAL_LICENSE'){
+  const l=d.lesson;
+  return {kind:classify(d),limitation:clean(d.limitation),stages:[
+   ['Start',[l.title,l.terms,'Talia introduces the skill and the evidence boundary.']],
+   ['Learn',[l.teach,'Source for definitions: '+l.source.url]],
+   ['Calculate / Analyze',[l.worked,l.method]],
+   ['Experiment',[l.experiment,'Record what changed and what stayed uncertain.']],
+   ['Predict',[l.predict,'Commit to a provisional answer before revealing the review.']],
+   ['Replay / Practice',[l.replay,'The example is fictional. No historical feed is implied.']],
+   ['Assess',[l.transfer,'Use a new case and keep the first response in your private reflection. This is formative, not an official grade.']],
+   ['Review & Retry',[l.review,'Revise the method after checking the source and the unknowns.']],
+   ['Transfer Challenge',[l.transfer,'A different case requires fresh evidence and a no-trade option.']],
+   ['Results',['Save the private reflection using the course controls.','Official protected assessment: Not Yet Assessed. Whole-lesson editorial review remains pending.']]
+  ],checks:{2:{question:'Which method applies to this lesson?',correct:clean(l.method)},
+   4:{question:'What should you examine before seeing the later evidence?',correct:clean(l.predict)},
+   5:{question:'What is the replay procedure?',correct:clean(l.replay)},
+   6:{question:'How should this skill transfer?',correct:clean(l.transfer)},
+   8:{question:'What is the independent transfer task?',correct:clean(l.transfer)}}};
+ }
  const kind=classify(d),teach=guidance(d,kind),method=clean((Array.isArray(d.method)?d.method[0]:d.method)||d.practice);
  const limitation=clean(d.limitation||d.caution||'An observation cannot guarantee a future market outcome.');
  const stages=[

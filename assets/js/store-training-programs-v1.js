@@ -13,7 +13,10 @@ const expected=new Map([
  ['foundations30',{days:30,href:'bootcamp.html'}],
  ['charts45',{days:45,href:'bootcamp-academy.html?program=charts45'}],
  ['risk60',{days:60,href:'bootcamp-academy.html?program=risk60'}],
- ['practicum90',{days:90,href:'bootcamp-academy.html?program=practicum90'}]
+ ['practicum90',{days:90,href:'bootcamp-academy.html?program=practicum90'}],
+ ['tape10',{days:10,href:'bootcamp-academy.html?program=tape10'}],
+ ['indicators10',{days:10,href:'bootcamp-academy.html?program=indicators10'}],
+ ['filings7',{days:7,href:'bootcamp-academy.html?program=filings7'}]
 ]);
 const trainingArtwork=Object.freeze({truth5:'truth5-v2.webp',watchlist7:'watchlist7-v2.webp',scanners10:'scanners10-v2.webp',foundations30:'foundations30-v2.webp',charts45:'charts45-v2.webp',risk60:'risk60-v2.webp',practicum90:'practicum90-v2.webp'});
 const make=(tag,value,className)=>{
@@ -27,11 +30,11 @@ function draw(programs){
  const host=root.querySelector('[data-training-courses]');
  if(!host)return;
  host.replaceChildren();
- for(const code of expected.keys()){
+ for(const code of programs.map(p=>p.code)){
   const spec=expected.get(code),item=programs.find(p=>p.code===code);
   const card=make('article',undefined,'store-training-course');
   const art=make('img',undefined,'store-training-course-cover');
-  art.src='assets/images/bootcamp-covers/'+trainingArtwork[code];
+  art.src='assets/images/bootcamp-covers/'+(trainingArtwork[code]||'foundations30-v2.webp');
   art.width=640;art.height=480;art.loading='lazy';art.decoding='async';
   art.alt='';art.setAttribute('aria-hidden','true');
   card.append(art);
@@ -57,14 +60,14 @@ async function init(){
   if(!r.ok)throw Error('Live Academy catalog unavailable.');
   const data=await r.json();
   const rows=data?.programs;
-  if(data?.ok!==true||!Array.isArray(rows)||rows.length!==7||
-     new Set(rows.map(p=>p.code)).size!==7||
+  if(data?.ok!==true||!Array.isArray(rows)||![7,10].includes(rows.length)||
+     new Set(rows.map(p=>p.code)).size!==rows.length||
      !rows.every(p=>expected.has(p.code)&&expected.get(p.code).days===p.days&&
        typeof p.title==='string'&&p.title.trim().length>=8&&
        typeof p.summary==='string'&&p.summary.trim().length>=25))
    throw Error('Academy catalog differs from this membership scope.');
   draw(rows);
-  status('Seven Academy program routes are listed in the live curriculum. Open any course to confirm your account access and current lesson availability. Individual assessments may still be under review.');
+  status(rows.length+' Academy program routes are listed in the curriculum. Open any course to confirm your account access and current lesson availability. Individual assessments may still be under review.');
  }catch(error){
   // Losing a catalog read must never turn an unknown curriculum into a false
   // paid promise or redirect the member to a payment page.
