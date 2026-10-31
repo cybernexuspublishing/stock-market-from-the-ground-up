@@ -74,7 +74,7 @@ test('Knowledge Database banner follows server placement toggle, even with paid 
   assert.equal(disabled.ad,null);
  }finally{m.restore()}
 });
-test('Knowledge Database uses a short visible paid-referral label and fail-closed visibility script',()=>{
+test('Knowledge Database banner hides until eligible and preserves owner-requested absence of caption',()=>{
  const html=fs.readFileSync('knowledge-database.html','utf8');
  const js=fs.readFileSync('assets/js/knowledge-partner-banner-v1.js','utf8');
  const admin=fs.readFileSync('admin-advertising.html','utf8');
@@ -86,6 +86,12 @@ test('Knowledge Database uses a short visible paid-referral label and fail-close
  assert.match(js,/KNOWLEDGE_TRADINGVIEW/);
  assert.match(js,/banner\.hidden=true/);
  assert.match(ui,/set_page_placements_active/);
+ assert.match(ui,/const affiliateSlots=new Set/);
+ assert.match(ui,/activeAffiliateCampaignIds/);
+ assert.match(ui,/Live affiliate placement \(eligible viewers/);
+ assert.match(ui,/Paid sponsorship display:/);
+ assert.match(ui,/Affiliate banner enabled for eligible visitors/);
+ assert.doesNotMatch(ui,/Affiliate banner enabled.*verified_paid/);
  assert.match(admin,/Page advertising visibility/);
  assert.match(admin,/Placements &amp; Creatives/);
 });
