@@ -1,0 +1,28 @@
+name: Crownlight Lumens Stripe TEST Bundle QA Contracts
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'functions/api/lumen-bundle-test-checkout.js'
+      - 'functions/api/lumen-bundle-test-webhook.js'
+      - 'functions/api/stripe-test-webhook.js'
+      - 'tests/test_lumen_bundle_stripe_test_shadow_v1.mjs'
+      - '.github/workflows/lumen-bundle-test-shadow-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  lumen-test-shadow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: TEST-only file syntax and isolated contracts
+        run: |
+          node --check functions/api/lumen-bundle-test-checkout.js
+          node --check functions/api/lumen-bundle-test-webhook.js
+          node --check functions/api/stripe-test-webhook.js
+          node --test tests/test_lumen_bundle_stripe_test_shadow_v1.mjs
+          node --test tests/test_stripe_test_unified_webhook_20261030.mjs
