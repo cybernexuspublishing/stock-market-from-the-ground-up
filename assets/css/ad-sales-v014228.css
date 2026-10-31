@@ -172,3 +172,6 @@
  .gu-all-products-ad-shell>.gu-store-rail{position:static!important;width:100%}
  .gu-all-products-ad-shell>.gu-store-ad-core{width:100%}
 }
+
+/* Partner artwork stays within the Owner review panel; no third-party embedding. */
+.gu-ad-creative-preview{display:block;max-width:min(100%,728px);height:auto;aspect-ratio:728/90;object-fit:contain;margin:10px 0;border-radius:4px}
