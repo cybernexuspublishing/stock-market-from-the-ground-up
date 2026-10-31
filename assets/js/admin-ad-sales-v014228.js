@@ -46,6 +46,16 @@ function render(){
   e('gu-adsense-approval').textContent=ad.approved?'Revoke approval confirmation':'Confirm Google approval';
   e('gu-adsense-toggle').textContent=ad.enabled?'Disable Google AdSense':'Enable Google AdSense';
   e('gu-adsense-toggle').disabled=!ad.approved&&!ad.enabled;
+  const reports=e('gu-ad-channel-reports');
+  if(reports){
+   reports.replaceChildren();
+   const separate=[
+    ['Google AdSense','Provider-reported performance: view Google AdSense dashboard; not collected locally.'],
+    ['TradingView Affiliate','Partner referral commissions: reported by TradingView; no unverified conversion counts.'],
+    ['Direct Paid Sponsorships','Local ad engagement: '+Object.values(model.recentEventSamples||{}).reduce((sum,v)=>sum+(Number(v.impressions)||0),0)+' impressions and '+Object.values(model.recentEventSamples||{}).reduce((sum,v)=>sum+(Number(v.clicks)||0),0)+' clicks recorded for tracked campaigns.']
+   ];
+   for(const [title,body] of separate){const p=n('p');p.append(n('strong',title+' — '),n('span',body));reports.append(p)}
+  }
   const pages=e('gu-adsense-pages');pages.replaceChildren();
   for(const [path,title] of [['/index.html','Homepage'],['/knowledge-database.html','Knowledge Database'],['/store.html','Store'],['/advertise.html','Advertise']]){
    const label=n('label',undefined,'gu-ad-carousel-control');
