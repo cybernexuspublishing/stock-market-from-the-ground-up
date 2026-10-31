@@ -8,6 +8,7 @@ import {onRequestPost as membershipWebhook} from './gu39-stripe-webhook.js';
 import {onRequestPost as bookWebhook} from './book-stripe-test-webhook-v1.js';
 import {onRequestPost as lumenBundleWebhook} from './lumen-bundle-test-webhook.js';
 import {acceptSignedSponsorTestEvent} from '../_lib/ad-sponsor-test-webhook-acceptance-v1.js';
+import {acceptChartCashTestEvent} from '../_lib/chart-cash-test-webhook-v1.js';
 
 const respond=(message,status)=>new Response(message,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 const TEST_ACCOUNT='acct_1URGkDJY9FI7byHB';
@@ -90,6 +91,8 @@ export async function onRequestPost({request,env,...context}){
   // This never credits or publishes a LIVE sponsorship campaign.
   if(await acceptSignedSponsorTestEvent(event,env))
    return respond('SPONSOR_TEST_SIGNED_AND_RECORDED',200);
+  if(await acceptChartCashTestEvent(event,env))
+   return respond('CHART_CASH_TEST_SIGNED_AND_RECORDED',200);
   // Classify provider-verified TEST purchases without trusting payload metadata.
   const lumenBundle=await isLumenBundleEvent(event,env);
   const book=lumenBundle?false:await isBookEvent(event,env);

@@ -52,7 +52,7 @@ async function permission(){
   state.allowed=['STANDARD',...['ADVANCED','PROFESSIONAL'].filter(t=>j.allowed.includes(t))];
   state.tier=state.allowed.at(-1);state.verified=true;state.authUserId=session.user?.id||null;
   const access=j.temporaryAccess;
-  const expiry=access&&['QA','SPARKS'].includes(access.kind)&&
+  const expiry=access&&['QA','SPARKS','CASH'].includes(access.kind)&&
    ['ADVANCED','PROFESSIONAL'].includes(access.tier)&&
    Number.isFinite(Date.parse(access.expiresAt||''))&&Date.parse(access.expiresAt)>Date.now()
    ?String(access.expiresAt):null;
@@ -61,7 +61,7 @@ async function permission(){
   state.accessTier=expiry?access.tier:null;
   state.sparksAvailable=j.sparksChartPasses?.enabled===true;
   if(!isEntitled(state.selected)){state.selected='STANDARD';stopCharts()}
-  status('Your membership includes Crownlight '+state.tier+'. Advanced chart tools use the same revealed replay data.');
+  status('Your verified access includes Crownlight '+state.tier+'. Advanced chart tools use the same revealed replay data.');
  }catch{if(authEpoch!==state.authEpoch)return;state.allowed=['STANDARD'];state.tier='STANDARD';state.verified=false;state.selected='STANDARD';stopCharts();
   state.accessExpiry=null;state.accessKind=null;state.accessTier=null;
   status('Advanced chart permissions could not be verified. Standard chart remains available to eligible signed-in members.');}
@@ -106,7 +106,7 @@ function updateCountdown(){
  output.hidden=false;
  output.textContent=remaining<=0
   ?'Temporary '+state.accessTier+' Studio access expired. Rechecking authorization…'
-  :'Temporary '+state.accessTier+' '+(state.accessKind==='SPARKS'?'Lumens pass':'QA access')+
+  :'Temporary '+state.accessTier+' '+(state.accessKind==='SPARKS'?'Lumens pass':state.accessKind==='CASH'?'cash upgrade':'QA access')+
    ' · Remaining '+remainingText(remaining)+' · Ends '+new Date(expiry).toLocaleString();
  if(remaining<=0&&!state.expireRechecked){
   state.expireRechecked=true;

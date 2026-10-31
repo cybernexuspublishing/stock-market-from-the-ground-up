@@ -50,14 +50,15 @@ export async function crownlightChartEntitlement(env,request){
  const free=await toolAccess(env,request,'MARKET_SIMULATOR');
  if(free.freeEligible!==true)return {ok:true,eligible:false,tier:null,allowed:[]};
  const uid=encodeURIComponent(free.userId),now=Date.now(),c=cfg(env);
- const [founder,cycles,grants,launch,chartQA,chartPasses]=await Promise.all([
+ const [founder,cycles,grants,launch,chartQA,chartPasses,cashUpgrades]=await Promise.all([
   rows(c,'gu_founder_members_v014173?select=revoked_at&user_id=eq.'+uid+'&limit=1'),
   rows(c,'gu_founder_paid_cycles_v014173?select=plan_code,billing_start,billing_end,reversed_at&user_id=eq.'+uid+'&limit=100'),
   rows(c,'user_plan_grants?select=plan_code,status,starts_at,ends_at&user_id=eq.'+uid+'&limit=100'),
   foundingOfferState(env),
   // Independent, time-limited chart access; never treated as a paid plan.
   rows(c,'crownlight_chart_qa_grants_v1?select=tier,scope,starts_at,ends_at,revoked_at&user_id=eq.'+uid+'&limit=2'),
-  rows(c,'gu_sparks_chart_passes_v1?select=tier,expires_at&user_id=eq.'+uid+'&limit=2')
+  rows(c,'gu_sparks_chart_passes_v1?select=tier,expires_at&user_id=eq.'+uid+'&limit=2'),
+  rows(c,'crownlight_chart_cash_upgrades_v1?select=tier,state,expires_at,revoked_at&user_id=eq.'+uid+'&state=eq.active&limit=30')
  ]);
  let tier='STANDARD',reason='Free Membership',temporaryAccess=null;
  const consider=(plan,label)=>{const t=tierOf[plan];if(t&&rank[t]>rank[tier]){tier=t;reason=label}
@@ -83,6 +84,15 @@ export async function crownlightChartEntitlement(env,request){
   if(['ADVANCED','PROFESSIONAL'].includes(pass.tier)&&Number.isFinite(until)&&until>now&&rank[pass.tier]>rank[tier]){
    tier=pass.tier;reason='Active Crownlight Sparks Chart Studio pass';
    temporaryAccess={kind:'SPARKS',tier:pass.tier,expiresAt:new Date(until).toISOString()};
+  }
+ }
+ for(const upgrade of cashUpgrades){
+  const until=Date.parse(upgrade.expires_at);
+  if(['ADVANCED','PROFESSIONAL'].includes(upgrade.tier)&&upgrade.state==='active'&&
+     upgrade.revoked_at==null&&Number.isFinite(until)&&until>now&&
+     rank[upgrade.tier]>rank[tier]){
+   tier=upgrade.tier;reason='Verified 30-day Chart Studio cash upgrade';
+   temporaryAccess={kind:'CASH',tier:upgrade.tier,expiresAt:new Date(until).toISOString()};
   }
  }
  // OWNER is a server-verified administrative role, not a purchased plan.

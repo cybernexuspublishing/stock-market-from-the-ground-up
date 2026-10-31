@@ -8,6 +8,7 @@ const env={SUPABASE_URL:'https://studio-lifecycle-fixture.supabase.co',
 const now=Date.now(),future=new Date(now+3600000).toISOString(),past=new Date(now-3600000).toISOString();
 const uuid='77777777-7777-4777-8777-777777777777';
 let plan=null,staff=false,passExpiry=past,passTier='ADVANCED',seen=[],rpcCalls=0,receipts=new Map(),badPrice=false;
+let cashTier='ADVANCED',cashExpiry=past,cashRevoked=false;
 const answer=(v,status=200)=>new Response(JSON.stringify(v),{status,headers:{'content-type':'application/json'}});
 const old=globalThis.fetch;
 globalThis.fetch=async(url,init={})=>{
@@ -30,6 +31,11 @@ globalThis.fetch=async(url,init={})=>{
  if(path==='/rest/v1/user_plan_grants')return answer([]);
  if(path==='/rest/v1/gu_product_access_config_v1')return answer([]);
  if(path==='/rest/v1/crownlight_chart_qa_grants_v1')return answer([]);
+ if(path==='/rest/v1/crownlight_chart_cash_upgrades_v1'){
+  assert.equal(x.searchParams.get('user_id'),'eq.'+u,'cash upgrades must be member-scoped');
+  return answer([{tier:cashTier,state:'active',expires_at:cashExpiry,
+   revoked_at:cashRevoked?new Date().toISOString():null}]);
+ }
  if(path==='/rest/v1/gu_sparks_chart_passes_v1'){
   assert.equal(x.searchParams.get('user_id'),'eq.'+u,'pass query must be private');
   return answer([{tier:passTier,expires_at:passExpiry}]);
@@ -58,6 +64,16 @@ try{
  let data=await g.json();assert.equal(data.passes.length,0,'expired pass must not look active');
  assert.equal(data.offers.length,1);assert.equal(data.offers[0].costSparks,6);
  assert.equal(await (await entitlement({request:req(),env})).json().then(x=>x.tier),'STANDARD');
+ cashExpiry=future;
+ assert.equal((await (await entitlement({request:req(),env})).json()).tier,'ADVANCED',
+  'verified active cash upgrade grants Advanced');
+ cashTier='PROFESSIONAL';
+ assert.equal((await (await entitlement({request:req(),env})).json()).tier,'PROFESSIONAL',
+  'higher valid cash tier wins');
+ cashRevoked=true;
+ assert.equal((await (await entitlement({request:req(),env})).json()).tier,'STANDARD',
+  'revoked cash upgrade cannot grant premium');
+ cashRevoked=false;cashExpiry=past;
  passExpiry=future;
  data=await (await passes({request:req(),env})).json();
  assert.equal(data.passes.length,1);
