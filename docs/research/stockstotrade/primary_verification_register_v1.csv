@@ -1,0 +1,4 @@
+source_id,source_authority,url,verification_scope,publication_status,conclusion
+SEC-EXEC-001,SEC Investor.gov,https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/executing-order,order execution and observed price no guarantee,current_accessible,"A displayed quote and prior last trade cannot guarantee subsequent execution price"
+SEC-ORDER-001,SEC Investor.gov,https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-14,order types risk and broker variation,updated_2026-08-18,"Market order price is not guaranteed; firm-specific instructions vary"
+FINRA-LIQ-001,FINRA,https://syndication.finra.org/content/understanding-disclosure-documents,liquidity spread and execution risk,published_2026-08-27,"Low liquidity may widen spreads and affect execution"
