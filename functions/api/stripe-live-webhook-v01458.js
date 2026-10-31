@@ -347,7 +347,7 @@ async function verifiedSponsorEvent(c,event){
   pi=await getStripe(c,'payment_intents/'+encodeURIComponent(pid));
   if(pi.id!==pid||pi.livemode!==true||value(pi.latest_charge)!==chargeId)
    throw Error('Sponsor charge does not match its LIVE PaymentIntent');
-  invId=value(charge.invoice)||value(pi.invoice);
+  invId=value(charge.invoice)||value(pi.invoice)||value(pi.payment_details?.order_reference);
   if(!ident(invId,'in'))return false;
  }
  if(!ident(invId,'in'))return false;
