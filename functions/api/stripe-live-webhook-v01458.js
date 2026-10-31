@@ -218,6 +218,127 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
  * Only after raw Stripe HMAC verification and LIVE merchant verification.
  * No subscription, credit, paid cycle, or entitlement is granted or revoked.
  */
+/* LU301: Genuine LIVE paid-Lumen credits into the single canonical wallet.
+ * The provider's signed event, verified LIVE account, Stripe Session, line item,
+ * PaymentIntent, and charge are all checked against a prebound service-only order.
+ * A refund removes only the remaining purchased bucket balance, never earned credits.
+ * This does NOT create/open paid Checkout for customers.
+ */
+async function lumenLiveOrder(c,id){
+ const r=await fetch(c.base+'/rest/v1/gu_lumen_live_orders_v1?select=*&id=eq.'+encodeURIComponent(id)+'&limit=2',{
+  headers:{apikey:c.key,...(c.key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.key})},
+  cache:'no-store'});
+ if(!r.ok)throw Error('LU301:order_unavailable');
+ const rows=await r.json();
+ if(rows?.length!==1)return null;
+ return rows[0];
+}
+async function lumenLiveApply(c,args){
+ const r=await fetch(c.base+'/rest/v1/rpc/gu_lumen_live_apply_v1',{
+  method:'POST',headers:{apikey:c.key,...(c.key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.key}),'content-type':'application/json'},
+  cache:'no-store',body:JSON.stringify(args)});
+ if(!r.ok)throw Error('LU301:ledger_unavailable');
+ const out=await r.json();
+ if(out?.ok!==true)throw Error('LU301:ledger_rejected');
+ return out;
+}
+const lumenLiveTagged=s=>Object.keys(s?.metadata||{}).some(k=>k.startsWith('gu_lumen_live_'));
+async function lumenLiveSessionProof(c,id){
+ if(!ident(id,'cs_live'))throw Error('LU301:session_id');
+ const s=await getStripe(c,'checkout/sessions/'+encodeURIComponent(id));
+ if(s.id!==id||s.livemode!==true)throw Error('LU301:session_mode');
+ if(!lumenLiveTagged(s))return null;
+ const m=s.metadata||{},idOrder=m.gu_lumen_live_id;
+ if(!uuid(idOrder)||!uuid(m.gu_lumen_live_user)||!/^SPARKS_[0-9]+$/.test(m.gu_lumen_live_sku||'')||
+    s.client_reference_id!==idOrder||s.mode!=='payment'||s.currency!=='usd')
+   throw Error('LU301:metadata_mismatch');
+ const order=await lumenLiveOrder(c,idOrder);
+ if(!order||order.user_id!==m.gu_lumen_live_user||order.sku!==m.gu_lumen_live_sku||
+   order.stripe_session_id!==s.id||!['bound','paid','refunded','disputed','expired','failed'].includes(order.status)||
+   order.quantity<=0||order.amount_cents<=0||!ident(order.stripe_product_id,'prod')||
+   !ident(order.stripe_price_id,'price')||s.amount_subtotal!==order.amount_cents)
+   throw Error('LU301:order_binding_mismatch');
+ const [lines,price,product]=await Promise.all([
+  getStripe(c,'checkout/sessions/'+encodeURIComponent(id)+'/line_items?limit=2'),
+  getStripe(c,'prices/'+encodeURIComponent(order.stripe_price_id)),
+  getStripe(c,'products/'+encodeURIComponent(order.stripe_product_id))]);
+ if(lines?.has_more!==false||lines.data?.length!==1||
+   lines.data[0]?.price?.id!==order.stripe_price_id||
+   (typeof lines.data[0].price.product==='string'?lines.data[0].price.product:lines.data[0].price.product?.id)!==order.stripe_product_id||
+   lines.data[0].quantity!==1||lines.data[0].amount_subtotal!==order.amount_cents||
+   price.id!==order.stripe_price_id||price.livemode!==true||
+   (typeof price.product==='string'?price.product:price.product?.id)!==order.stripe_product_id||
+   price.currency!=='usd'||price.type!=='one_time'||price.unit_amount!==order.amount_cents||
+   product.id!==order.stripe_product_id||product.livemode!==true)
+   throw Error('LU301:line_or_product_mismatch');
+ return {s,order};
+}
+async function lumenLivePaymentProof(c,sessionId){
+ const v=await lumenLiveSessionProof(c,sessionId);
+ if(!v) return null;
+ const {s,order}=v;
+ if(s.status!=='complete'||s.payment_status!=='paid'||!ident(s.payment_intent,'pi'))
+  throw Error('LU301:not_paid');
+ const pi=await getStripe(c,'payment_intents/'+encodeURIComponent(s.payment_intent));
+ if(pi.id!==s.payment_intent||pi.livemode!==true||pi.currency!=='usd'||
+   pi.status!=='succeeded'||Number(pi.amount_received)<order.amount_cents||
+   pi.metadata?.gu_lumen_live_id!==order.id||
+   pi.metadata?.gu_lumen_live_user!==order.user_id||
+   pi.metadata?.gu_lumen_live_sku!==order.sku||
+   (order.stripe_payment_intent_id!==null&&order.stripe_payment_intent_id!==pi.id))
+  throw Error('LU301:payment_proof_mismatch');
+ return {...v,pi};
+}
+async function lumenLiveVerifiedEvent(c,event){
+ const obj=event.data?.object||{},type=event.type;
+ const sessionTypes=['checkout.session.completed','checkout.session.async_payment_succeeded',
+   'checkout.session.async_payment_failed','checkout.session.expired'];
+ if(sessionTypes.includes(type)){
+  if(!ident(obj.id,'cs_live'))return false;
+  const v=await lumenLiveSessionProof(c,obj.id);
+  if(!v)return false;
+  if(type==='checkout.session.completed'||type==='checkout.session.async_payment_succeeded'){
+   if(v.s.payment_status!=='paid')return true;
+   const paid=await lumenLivePaymentProof(c,obj.id);
+   await lumenLiveApply(c,{p_id:v.order.id,p_event:event.id,p_kind:'paid',
+    p_session:paid.s.id,p_pi:paid.pi.id,p_amount:paid.order.amount_cents});
+   return true;
+  }
+  if(type==='checkout.session.expired'&&v.s.status!=='expired')return true;
+  if(v.s.payment_status==='paid')throw Error('LU301:cannot_fail_paid');
+  await lumenLiveApply(c,{p_id:v.order.id,p_event:event.id,
+    p_kind:type==='checkout.session.expired'?'expired':'failed',p_session:v.s.id});
+  return true;
+ }
+ if(type!=='charge.refunded'&&type!=='charge.dispute.created')return false;
+ const chargeId=type==='charge.refunded'?obj.id:obj.charge;
+ if(!ident(chargeId,'ch'))return false;
+ const charge=await getStripe(c,'charges/'+encodeURIComponent(chargeId));
+ if(charge.id!==chargeId||charge.livemode!==true||!ident(charge.payment_intent,'pi'))return false;
+ const pi=await getStripe(c,'payment_intents/'+encodeURIComponent(charge.payment_intent));
+ const m=pi.metadata||{};
+ if(!Object.keys(m).some(k=>k.startsWith('gu_lumen_live_')))return false;
+ if(!uuid(m.gu_lumen_live_id)||!uuid(m.gu_lumen_live_user)||!/^SPARKS_[0-9]+$/.test(m.gu_lumen_live_sku||'')||
+   pi.id!==charge.payment_intent||pi.livemode!==true||
+   (typeof pi.latest_charge==='string'?pi.latest_charge:pi.latest_charge?.id)!==chargeId)
+  throw Error('LU301:refund_payment_mismatch');
+ const order=await lumenLiveOrder(c,m.gu_lumen_live_id);
+ if(!order||order.user_id!==m.gu_lumen_live_user||order.sku!==m.gu_lumen_live_sku||
+   order.stripe_payment_intent_id!==pi.id||!ident(order.stripe_session_id,'cs_live'))
+  throw Error('LU301:refund_order_mismatch');
+ const v=await lumenLivePaymentProof(c,order.stripe_session_id);
+ if(!v||v.pi.id!==pi.id)throw Error('LU301:refund_session_mismatch');
+ if(type==='charge.refunded'){
+  if(charge.refunded!==true||Number(charge.amount_refunded)<Number(charge.amount)||
+     Number(charge.amount)<order.amount_cents)
+    throw Error('LU301:partial_refund_requires_review');
+ }else if(charge.disputed!==true)throw Error('LU301:dispute_not_confirmed');
+ await lumenLiveApply(c,{p_id:order.id,p_event:event.id,
+  p_kind:type==='charge.refunded'?'refunded':'disputed',
+  p_session:v.s.id,p_pi:pi.id});
+ return true;
+}
+
 async function reconcileExpiredFounderCheckout(c,event){
  if(event.type!=='checkout.session.expired')return false;
  const obj=event.data?.object||{},meta=obj.metadata||{};
@@ -569,6 +690,8 @@ export async function onRequestPost({request,env}){
   if(bookApplied===true)return resp('book-live-verified',200);
   const founderExpired=await reconcileExpiredFounderCheckout(c,event);
   if(founderExpired===true)return resp('founder-expired-reconciled',200);
+  const lumenApplied=await lumenLiveVerifiedEvent(c,event);
+  if(lumenApplied===true)return resp('lumen-live-accounted',200);
     const action=await processEvent(c,event);if(!action)return resp('ignored',200);
   const result=await apply(c,action);if(!result?.ok)throw Error('No verified result');return resp('verified',200);
  }catch{ // Retry on out-of-order events; no silent acknowledgement of failed fulfillment.
