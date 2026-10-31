@@ -22,7 +22,12 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with: {node-version: '22'}
-      - run: |
+      - name: Install browser verification runtime
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Check Boot Camp curriculum and guided browser interaction
+        run: |
           node --check assets/js/academy-guided-v1.js
           node --check assets/js/bootcamp.js
           node --check assets/js/bootcamp-academy-v014168.js
