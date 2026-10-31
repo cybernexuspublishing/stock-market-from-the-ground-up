@@ -1,0 +1,5 @@
+surface,url,access_status,unique_items_enumerated,exception
+"courses","https://www.youtube.com/@Stockstotrade/courses","fetch_disabled","0","YouTube page access disabled; no course IDs enumerated"
+"videos","https://www.youtube.com/@Stockstotrade/videos","html_shell_only","0","Returned three-line copyright/footer shell, no upload IDs"
+"streams","https://www.youtube.com/@Stockstotrade/streams","html_shell_only","0","Returned three-line copyright/footer shell, no stream IDs"
+"shorts","https://www.youtube.com/@Stockstotrade/shorts","fetch_throttled","0","Fetch throttled; no Shorts IDs enumerated"
