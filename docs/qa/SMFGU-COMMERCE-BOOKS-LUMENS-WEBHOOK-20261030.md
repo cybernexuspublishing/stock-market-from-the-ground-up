@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.8  
+**Version:** 1.9  
 **Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST purchase/payment/webhook/refund/reversal lifecycles accepted; real LIVE book fulfillment, production purchased-Lumens wallet and LIVE webhook acknowledgment remain OPEN  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -254,6 +254,29 @@ Three independent official Stripe LIVE API event/session records were cross-chec
 
 **Follow-up design work, not yet performed:** Implement tested, idempotent, Stripe-verified cleanup of definitively expired checkout-bound Founder reservations through an approved server path, rather than relying on manual SQL. Do not indiscriminately release all bound or time-expired reservations because payment could still complete and require a valid Founder seat. Any cleanup must verify the real provider Checkout is terminal (`expired`), `subscription=null`, and no paid cycle/member exists.
 
+## GU300 operational correction and verification (October 31, 2026 UTC)
+
+**Owner direction:** Execute with connected plugins, main branch only; do not use paid browser automation, nonzero LIVE charges, unverified webhook rewrites, or secret rotation.
+
+### Implemented changes
+
+- Added source-controlled migration `supabase/migrations/v0.14.0.300_founder_expired_checkout_release.sql`, directly applied to the existing Supabase project as `public.gu_founder_release_expired_checkout_v014300(uuid,uuid,text,text,text,text,integer)`.
+- Function is `SECURITY INVOKER`, holds the existing Founder capacity advisory lock, locks the exact bound reservation row, refuses a subscription, any existing Founder member or paid-cycle record, and any mismatched checkout/user/plan/price/amount. Releases only an expired bound reservation; previously released reservations return replay success without modification. It **does not grant or revoke a membership**.
+- Function's `EXECUTE` privilege verified: `anon=false`, `authenticated=false`, `service_role=true`.
+- Updated `functions/api/stripe-live-webhook-v01458.js` so an HMAC-signed, LIVE-account-verified `checkout.session.expired` event with complete `f600_*` metadata is independently matched against terminal Stripe Checkout and its single Price/line item before calling this service-only RPC; bad/mismatched provider evidence results in retryable failure, not an unverified seat release.
+- Added `tests/test_v014300_founder_expired_webhook.mjs`, a fully mocked HMAC-signed positive/replay and forbidden forged/paid/subscription/price negative lifecycle suite, and independent free workflow `.github/workflows/gu300-founder-expiry.yml`. Also registered it in the existing locked LIVE fulfillment suite.
+- Supabase direct replay check against actual previously **manually released** Founding 30-Day reservation `f03db0bf-da5e-4790-a4ef-54dd86b70fcd` returned `{"ok":true,"released":false,"replayed":true}`. Its row remains `released` with unchanged `finalized_at=2026-10-31 03:12:30.861642+00`.
+
+### Acceptance evidence and limitations
+
+- **PASS: isolated source/handler syntax and signed webhook regression.** GitHub Actions `GU300 Signed Founder Expiry Reconciliation`, run `41164074514`, completed `success` on commit `81059e771aaa58e50df0c75e6cbc64c59db937d6`.
+- **PASS: live deployment commit match.** Cloudflare production Pages deployment `7d0ed99d-7284-4873-b078-e939127e555a` reports `active`, exact commit `81059e771aaa58e50df0c75e6cbc64c59db937d6`.
+- **OPEN: legacy broad commerce suite.** GitHub Actions `Locked LIVE Membership Fulfillment v0.14.0.59`, run `41164011930`, failed in preexisting `tests/test_v014058_live_fulfillment.mjs` at test line 200 (mock refund expected 200, got 503) **before new GU300 regression ran**. No broad-suite acceptance claimed; isolated GU300 suite independently passed.
+- **OPEN: actual Stripe signed delivery acknowledgment.** Final connector recheck: `evt_1UVaw9JL0O4GGVBHKjQTd21w`, `evt_1UWRaCJL0O4GGVBHK5A1POGx`, and `evt_1UWPc4JL0O4GGVBHDgiuSFrD` each still show `pending_webhooks=1`. Stripe plugin does not expose endpoint attempt HTTP response details or resend controls, and Cloudflare logs do not retroactively supply their status codes. A successful CI simulation/deployment is **not** substitute proof of a provider-signed 2xx event.
+- **NO LIVE monetary effect:** No nonzero LIVE purchase, refund, entitlement or production Lumen wallet credit was triggered during this work; no Stripe/Cloudflare secret rotated, no new services purchased.
+
+**Release posture:** GU300 stale-reservation handling implemented/deployed and independently tested; earlier TEST Book I and Lumens purchase/refund tests PASS. Remaining LIVE webhook acknowledgments and real nonzero fulfillment remain OPEN. Follow-up investigation must not invent actual per-attempt HTTP status codes.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -268,3 +291,4 @@ Three independent official Stripe LIVE API event/session records were cross-chec
 | 1.6 | 2026-10-31 UTC | Real 25-Lumens $5 Stripe TEST payment and signed crediting PASS; $5 TEST refund and signed zero-balance reversal PASS; LIVE signed webhook events still pending; $0 spent. |
 | 1.7 | 2026-10-30 CDT / 2026-10-31 UTC | Consolidated Stripe LIVE webhook, Cloudflare bindings/observability and Supabase LIVE ledger audit; both pending 0-dollar events remain open, one Workbench inspection batch required, protected $0 budget. |
 | 1.8 | 2026-10-30 CDT / 2026-10-31 UTC | Owner's two LIVE event links and three Checkout payloads reconciled. Third LIVE event is an expired/unpaid $49.99 Founding 30 checkout, not a charge; released one verified stale bound Founder seat. All three webhook attempt responses remain unverified. |
+| 1.9 | 2026-10-31 UTC | Implemented service-only Stripe-verified Founding expiry release; guarded SQL replay/permissions verified; isolated GitHub Actions PASS and matching Cloudflare production deployment confirmed; broad legacy fixture failed refund test; three signed LIVE event acknowledgments still pending. |
