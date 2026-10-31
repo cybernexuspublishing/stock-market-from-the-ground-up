@@ -8,8 +8,8 @@
 | File type | Markdown source (.md) |
 | Google Drive location | Not created / not assigned; canonical source is GitHub main |
 | Repository location | docs/releases/2026-10-30_DIRECT_PAID_SPONSORSHIPS_V1.md |
-| Version | 1.0 |
-| Status | Implemented in main; staged customer-payment acceptance outstanding |
+| Version | 1.1 |
+| Status | Implemented and deployed; TEST paid invoice and actual signed webhook/browser acceptance outstanding |
 | Decision date | October 30, 2026 (America/Chicago) |
 | Implementation timestamp | October 30–31, 2026 UTC |
 | Dependencies | Cloudflare Pages Functions; Supabase; Stripe LIVE (stock-market merchant only); sitewide Owner authentication; Turnstile |
@@ -73,6 +73,33 @@
 - `supabase/migrations/20261030_direct_paid_sponsorship_invoice_v1.sql`
 - `supabase/migrations/20261030_direct_paid_sponsorship_invoice_url_regex_fix.sql`
 - `tests/test_direct_paid_sponsor_invoices_v1.mjs`
+
+## October 30/31 acceptance continuation (V1.1)
+
+**Evidence classification — real provider vs isolated simulation**
+
+- Production paid sponsorship switches: inquiries = on, Owner LIVE invoice issuing = on, paid advertisement delivery = off. TradingView affiliate placement remains active.
+- Stripe LIVE merchant verified: `acct_1OxhOiJL0O4GGVBH`. Enabled LIVE event destination `/api/stripe-live-webhook` was read directly from Stripe and subscribes to `invoice.paid`, `charge.refunded`, and `charge.dispute.created` alongside existing commerce lifecycle events. Endpoint presence is not proof of a successfully delivered advertising event.
+- Actual Stripe TEST provider: synthetic noncommercial customer `cus_VXWqc22rOO43mC`; invoice `in_1UWRnKJY9FI7byHBqiS8OgLM`; `send_invoice`; one $1.00 USD test invoice line; finalized with `status=open`, total 100 cents, LIVE mode false, and genuine Stripe-hosted test invoice page. Invoice remains unpaid until a TEST card completes it; no email was sent.
+- Stripe provider schema correction: current invoice objects use `status=paid`, `amount_paid`, `amount_remaining` rather than a `paid` boolean. Existing verification and signed webhook now use those fields. Current invoice PaymentIntent's `payment_details.order_reference` identifies its invoice even when charge/PaymentIntent lack historical `invoice` properties.
+- Signed LIVE webhook routing now checks HMAC and account first; it independently retrieves invoice, invoice allocations, PaymentIntent and charge, binds the verified Stripe invoice/customer/amount to the Owner-approved campaign and records events in a service-only ledger. Validated refunds (including partial) and disputes pause campaign delivery. Untagged membership/book events retain the original routing.
+- Database settlement, activation, refund pause, dispute pause, duplicate-event idempotency and non-regrant were exercised in explicit PostgreSQL transactions followed by `ROLLBACK`. No fake approved campaigns, event records, funds, or delivery switches survived.
+- GitHub regression test `tests/test_direct_sponsor_signed_live_lifecycle_v1.mjs` tests signed webhook processing, invalid signature/account, underpayment, refund/dispute and unrelated-event classification with mocked provider objects. Passing source/provider-mock checks is not proof of genuine Stripe event delivery.
+
+**Open blockers before commercial acceptance**
+
+1. TEST invoice must be paid with a genuine Stripe TEST card transaction, and provider-created PaymentIntent and charge confirmed; the available Stripe connector cannot invoke the invoice-pay endpoint. No real-money LIVE customer charge was attempted.
+2. Confirm actual Stripe-origin signed TEST and LIVE advertising webhook deliveries are acknowledged by Cloudflare; synthetic signed HMAC events cannot substitute.
+3. Verify full/partial refund and dispute transitions using actual Stripe TEST transaction events without enabling the shared LIVE/TEST switches unsafely; a genuine LIVE reversal is unavailable without a real advertiser contract/payment.
+4. Authenticated Owner Admin browser E2E remains unverified: the available browser connector has no saved sign-in for the site and the metered browser wallet is not funded. Never simulate access using a fake user.
+5. Final legal review of written advertising agreement, cancellation/refund terms, permitted financial promotions, and disclosures.
+6. Leave `ad_delivery_enabled=false` pending signed real-provider and authenticated acceptance. Existing TradingView affiliate inventory stays separate.
+
+**Files added**
+
+- `functions/api/stripe-live-webhook-v01458.js` — signed LIVE ad event routing
+- `supabase/migrations/20261030_paid_sponsor_signed_live_lifecycle_v1.sql` — RLS-protected, idempotent live event ledger and pause logic
+- `tests/test_direct_sponsor_signed_live_lifecycle_v1.mjs` — regression evidence
 
 ## Revision history
 
