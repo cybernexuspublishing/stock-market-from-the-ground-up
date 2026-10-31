@@ -19,6 +19,8 @@ assert.match(src,/BELOW_CARD_MINIMUM/);
 assert.match(src,/ALREADY_INCLUDED/);
 assert.match(src,/verifyChartMixedQa/,'Only server-authorized TEST identities may be offered mixed checkout');
 assert.match(src,/SETTLEMENT_NOT_ENABLED/,'POST remains fail-closed');
+assert.match(src,/const checkoutActive=false;/,'Quote must never advertise available settlement while POST is disabled');
+assert.match(src,/settlementEnabled:false,qaEligible/,'QA entitlement is not payment readiness');
 assert.match(cash,/CHART_STUDIO_TEST_CHECKOUT_ENABLED/);
 assert.match(webhook,/amount_subtotal!==offer\.amountCents/,'Undiscounted webhook must not accept discounted payment');
 console.log('Chart mixed TEST: 15 quote and financial boundary assertions passed. Payment settlement NOT yet accepted.');
