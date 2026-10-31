@@ -13,8 +13,8 @@
   if(!Number.isSafeInteger(total)||!Number.isSafeInteger(active)||total<0||active<0||active>total){
    host.textContent='Member chart unavailable.';return;
   }
-  const demo=['custom','range'].includes(d.mode);
-  host.setAttribute('aria-label',(demo?'Demo figures: ':'Aggregate member snapshot: ')+active+
+  if(d.mode!=='live'){host.textContent='Verified activity data unavailable.';return}
+  host.setAttribute('aria-label','Aggregate member snapshot: '+active+
     ' active in the preceding 60 minutes of '+total+' registered accounts.');
   const share=total?Math.round(active/total*100):0;
   const percent=panel.querySelector('[data-percent]');if(percent)percent.textContent=total?share+'%':'—';
@@ -66,7 +66,7 @@
   ];
   for(const [key,title,source] of planned){
    if(extras?.[key]!==true)continue;
-   const article=document.createElement('article');article.className='gu-home-future-card';
+   const article=document.createElement('div');article.className='gu-home-future-card';
    const h=document.createElement('h3');h.textContent=title;
    const detail=document.createElement('p');detail.textContent=source;
    const status=document.createElement('span');status.className='gu-home-future-status';
@@ -83,12 +83,10 @@
   const panel=document.createElement('aside');panel.id='v1353-member-stats';
   panel.className='v1353-member-stats';panel.setAttribute('aria-label','Member statistics');
   panel.setAttribute('role','region');
-  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><span class="gu-stat-mode" data-mode>—</span></div>'+
-   '<div class="gu-home-stats-layout"><div class="gu-stats-hero"><div class="v1353-stats-graph" data-stats-chart role="img" aria-label="Member activity"></div>'+
-   '<div class="gu-stats-track"><div class="gu-stats-track-head"><span>Activity share</span><strong data-percent>—</strong></div><div class="gu-stats-track-rail"><span data-active-bar></span></div></div></div>'+
-   '<div class="gu-stats-metrics"><div class="v1353-stat-row"><span class="gu-stat-label" data-online-label>Active in last hour</span><strong data-online>—</strong><small>Activity in the last 60 minutes</small></div>'+
-   '<div class="v1353-stat-row"><span class="gu-stat-label" data-registered-label>Registered members</span><strong data-registered>—</strong><small>Member accounts</small></div>'+
-   '<p class="gu-stats-note" data-short-note></p></div></div>'+
+  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><span class="gu-stat-mode" data-mode>LIVE DATA</span></div>'+
+   '<div class="gu-home-stats-layout"><div class="gu-stats-hero"><div class="v1353-stats-graph" data-stats-chart role="img" aria-label="Member activity"></div></div>'+
+   '<dl class="gu-stats-metrics"><div class="v1353-stat-row"><dt data-online-label>Activity in the last 60 minutes</dt><dd data-online>—</dd></div>'+
+   '<div class="v1353-stat-row"><dt data-registered-label>Member accounts</dt><dd data-registered>—</dd></div></dl></div>'+
    '<div class="gu-home-future-modules" data-future-modules hidden></div>'+
    '<p data-caption class="small" hidden></p>';
   if(premium){hero.append(panel);hero.classList.add('gu-home-member-stats-visible')}
@@ -104,23 +102,20 @@
    const d=snapshot;
    if(d.show===false){panel.hidden=true;hero?.classList.remove('v1358-stat-visible');return}
    panel.hidden=false;hero?.classList.add('v1358-stat-visible');
-   const demo=['custom','range'].includes(d.mode);
-   panel.querySelector('[data-mode]').textContent=demo?'DEMO DATA':'LIVE DATA';
-   panel.querySelector('[data-mode]').dataset.sample=String(demo);
-   panel.querySelector('[data-online]').textContent=Number(d.online||0).toLocaleString();
-   panel.querySelector('[data-registered]').textContent=Number(d.registered||0).toLocaleString();
-   panel.querySelector('[data-online-label]').textContent=demo?'Example activity':'Active in last hour';
-   panel.querySelector('[data-registered-label]').textContent=demo?'Example members':'Registered members';
-   panel.querySelector('[data-short-note]').textContent=demo?'Sample statistics':'Member activity · past 60 minutes';
-   const caption=panel.querySelector('[data-caption]');
-   caption.textContent=(typeof d.label==='string'?d.label:'').trim();
-   caption.hidden=!caption.textContent;
-   caption.classList.toggle('v01414-owner-caption',demo);
+   const valid=d.mode==='live'&&Number.isSafeInteger(Number(d.registered))&&
+     Number.isSafeInteger(Number(d.online))&&Number(d.registered)>=0&&
+     Number(d.online)>=0&&Number(d.online)<=Number(d.registered);
+   panel.querySelector('[data-mode]').textContent=valid?'LIVE DATA':'UNAVAILABLE';
+   panel.querySelector('[data-online]').textContent=valid?Number(d.online).toLocaleString():'—';
+   panel.querySelector('[data-registered]').textContent=valid?Number(d.registered).toLocaleString():'—';
+   const caption=panel.querySelector('[data-caption]');caption.textContent='';
+   caption.hidden=true;
    renderFuture(panel,d.extras);
-   drawActivity(panel,d);
+   if(valid)drawActivity(panel,d);
+   else {const host=panel.querySelector('[data-stats-chart]');if(host)host.textContent='Live member statistics temporarily unavailable.'}
   }else if(failed){
    panel.querySelector('[data-mode]').textContent='UNAVAILABLE';
-   panel.querySelector('[data-short-note]').textContent='Member statistics temporarily unavailable.';
+   const host=panel.querySelector('[data-stats-chart]');if(host)host.textContent='Live member statistics temporarily unavailable.';
   }
  }
 
