@@ -28,11 +28,11 @@ export async function onRequest({request,env}){try{const action=str(new URL(requ
   if(action==='settings')await owner(env,await identity(env,request));
   const s=await settings(env);if(action==='settings')return send({ok:true,settings:s});
   if(!s.show)return send({ok:true,show:false});
-  if(s.mode==='custom')return send({ok:true,show:true,mode:'custom',registered:s.customRegistered,online:s.customOnline,label:s.message,extras:s.extras,nextRefreshSeconds:60});
-  if(s.mode==='range'){const period=demonstrationPeriod(s),registered=sampleInt('registered:'+period.key,s.registeredMin,s.registeredMax),online=sampleInt('online:'+period.key,s.onlineMin,s.onlineMax);return send({ok:true,show:true,mode:'range',registered,online:Math.min(online,registered),label:s.message,extras:s.extras,nextRefreshSeconds:period.nextRefreshSeconds,intervalMinutes:period.minutes})}
+  // The public homepage always uses actual aggregates. Legacy owner demo settings
+  // remain stored for archival reference but cannot masquerade as live members.
   const since=new Date(Date.now()-60*60000).toISOString();const [registered,online]=await Promise.all([
     count(env,'profiles?select=id&account_kind=eq.member'),count(env,'member_presence_v01353?select=user_id&last_seen_at=gte.'+encodeURIComponent(since))]);
-  return send({ok:true,show:true,mode:'live',registered,online,label:'',extras:s.extras});
+  return send({ok:true,show:true,mode:'live',registered,online:Math.min(online,registered),label:'',extras:s.extras});
  }
  if(request.method==='POST'&&action==='heartbeat'){
   const user=await identity(env,request),kind=(await table(env,'profiles?select=account_kind&id=eq.'+encodeURIComponent(user.id)+'&limit=1')).data?.[0]?.account_kind;
