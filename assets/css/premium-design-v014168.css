@@ -556,3 +556,118 @@ body main.gu-premium-home .gu-home-message > h1 {
   font-size:clamp(2.1rem,7vw,3rem)!important;
  }
 }
+
+
+/* SMF public page heading system v2 — restrained luminous type and route-specific accents. */
+body main.section,
+body main.gu-knowledge-page,
+body main.gu-redesign-store,
+body main.gu-redesign-labs,
+body main.gu-redesign-academy {
+ --gu-heading-ink-start:#f9fbff;
+ --gu-heading-ink-end:#b6cbe5;
+ --gu-heading-rule-start:#bda7f0;
+ --gu-heading-rule-end:#72c8d5;
+}
+body main.gu-knowledge-page {
+ --gu-heading-ink-end:#a5d9e4;
+ --gu-heading-rule-start:#77cfe1;
+ --gu-heading-rule-end:#d5ae75;
+}
+body main.gu-redesign-learn,
+body main.gu-redesign-labs {
+ --gu-heading-ink-end:#b0d6ec;
+ --gu-heading-rule-start:#66ccdc;
+ --gu-heading-rule-end:#a8b9e7;
+}
+body main.gu-redesign-store {
+ --gu-heading-ink-end:#f2d4a3;
+ --gu-heading-rule-start:#d5b075;
+ --gu-heading-rule-end:#ba9ee7;
+}
+body main.gu-redesign-academy {
+ --gu-heading-ink-end:#cbc7f0;
+ --gu-heading-rule-start:#a992e8;
+ --gu-heading-rule-end:#70cdd8;
+}
+/* Only the main public page title is styled. Lesson headings, dashboard
+   panels, instructional charts and the Admin Control Center are untouched. */
+body:not([data-auth-required="true"]) main.section > .wrap > h1,
+body main.gu-redesign-store .gu-store-ad-core .wrap > h1,
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1,
+body main.gu-redesign-labs #gu-lab-registry-view > h1,
+body main.gu-knowledge-page .gu-knowledge-intro > h1 {
+ font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ font-size:clamp(1.7rem,2.45vw,2.75rem)!important;
+ font-weight:780!important;
+ line-height:1.19!important;
+ letter-spacing:-.043em!important;
+ text-wrap:balance;
+ color:transparent!important;
+ background-image:linear-gradient(110deg,var(--gu-heading-ink-start),var(--gu-heading-ink-end))!important;
+ background-clip:text!important;
+ -webkit-background-clip:text!important;
+ -webkit-text-fill-color:transparent!important;
+ text-shadow:none!important;
+ margin-top:10px!important;
+ margin-bottom:16px!important;
+}
+body:not([data-auth-required="true"]) main.section > .wrap > h1::after,
+body main.gu-redesign-store .gu-store-ad-core .wrap > h1::after,
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1::after,
+body main.gu-redesign-labs #gu-lab-registry-view > h1::after,
+body main.gu-knowledge-page .gu-knowledge-intro > h1::after {
+ content:"";
+ display:block;
+ width:74px;
+ max-width:35%;
+ height:3px;
+ margin:13px 0 0;
+ border-radius:99px;
+ background:linear-gradient(90deg,var(--gu-heading-rule-start),var(--gu-heading-rule-end));
+ box-shadow:0 1px 10px rgba(122,177,218,.12);
+}
+body main.gu-knowledge-page .gu-knowledge-intro > h1 {
+ font-size:clamp(1.7rem,2.25vw,2.35rem)!important;
+ text-align:center!important;
+ margin:11px auto 15px!important;
+ max-width:100%;
+}
+body main.gu-knowledge-page .gu-knowledge-intro > h1::after {
+ width:96px;
+ margin:14px auto 0!important;
+}
+body main.gu-redesign-store .gu-store-ad-core .wrap > h1 {
+ font-size:clamp(1.85rem,2.8vw,2.85rem)!important;
+ max-width:30ch!important;
+}
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1 {
+ font-size:clamp(1.6rem,2vw,2.15rem)!important;
+ max-width:32ch!important;
+}
+html[data-gu-design="premium-light"] body main.section,
+html[data-gu-design="premium-light"] body main.gu-knowledge-page,
+html[data-gu-design="premium-light"] body main.gu-redesign-store,
+html[data-gu-design="premium-light"] body main.gu-redesign-labs,
+html[data-gu-design="premium-light"] body main.gu-redesign-academy {
+ --gu-heading-ink-start:#172c44;
+ --gu-heading-ink-end:#45647a;
+}
+/* Respect operating-system high contrast; the heading remains ordinary text. */
+@media(forced-colors:active) {
+ body:not([data-auth-required="true"]) main.section > .wrap > h1,
+ body main.gu-redesign-store .gu-store-ad-core .wrap > h1,
+ body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1,
+ body main.gu-redesign-labs #gu-lab-registry-view > h1,
+ body main.gu-knowledge-page .gu-knowledge-intro > h1 {
+  background-image:none!important;
+  color:CanvasText!important;
+  -webkit-text-fill-color:CanvasText!important;
+ }
+}
+@media(max-width:600px) {
+ body main.gu-knowledge-page .gu-knowledge-intro > h1 {
+  font-size:clamp(1.6rem,6.3vw,2.05rem)!important;
+  overflow-wrap:anywhere;
+ }
+}
