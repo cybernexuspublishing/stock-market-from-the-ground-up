@@ -161,7 +161,12 @@ function render(){
   }
  }
  const advertisers=e('gu-ad-advertisers');advertisers.replaceChildren();
- for(const a of model.advertisers||[])line(advertisers,'#'+a.id+' · '+a.name,a.contact_email+' · '+a.status);
+ for(const a of model.advertisers||[]){
+  const row=line(advertisers,'#'+a.id+' · '+a.name,
+   (a.contact_email||'Affiliate partner — no verified business contact')+' · '+a.status);
+  if(a.notes)block(row,a.notes);
+  if(a.website_url){const link=n('a','Visit verified website');link.href=a.website_url;link.target='_blank';link.rel='noopener noreferrer';row.append(link)}
+ }
  options(e('gu-ad-campaign-advertiser'),model.advertisers||[],x=>x.id,x=>'#'+x.id+' · '+x.name);
  options(e('gu-ad-campaign-package'),model.packages||[],x=>x.code,x=>x.name);
  options(e('gu-ad-creative-campaign'),(model.campaigns||[]).filter(x=>x.status==='draft'),x=>x.id,x=>'#'+x.id+' · '+x.name);
@@ -172,6 +177,10 @@ function render(){
   const item=line(creatives,'Creative #'+cr.id+' · '+cr.headline,
    'Campaign #'+cr.campaign_id+' · '+cr.placement_code+' · '+cr.status);
   block(item,cr.body||'');
+  if(typeof cr.image_url==='string'&&/^data:image\\/webp;base64,[A-Za-z0-9+/=]{300,120000}$/.test(cr.image_url)){
+   const img=n('img');img.src=cr.image_url;img.alt=cr.alt_text||'Approved partner creative';
+   img.className='gu-ad-creative-preview';img.loading='lazy';item.append(img);
+  }
   if(cr.destination_url){const l=n('a','Open reviewed destination');l.href=cr.destination_url;l.target='_blank';l.rel='noopener noreferrer';item.append(l)}
   if(cr.status==='draft'||cr.status==='paused'){
    const label=n('label');const checked=n('input');checked.type='checkbox';
