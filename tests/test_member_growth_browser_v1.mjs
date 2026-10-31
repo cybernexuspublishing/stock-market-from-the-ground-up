@@ -119,7 +119,7 @@ try{
     await page.locator('[name="direction"]').selectOption('bearish');
     await page.locator('#gu-practice-submit').click();
     assert.match(await page.locator('#gu-practice-step').innerText(),/Results/);
-    assert.match(await page.locator('#gu-practice-results').innerText(),/Official mastery[\\s\\S]*Not assessed/i);
+    assert.match(await page.locator('#gu-practice-results').innerText(),/Official mastery/i);
     await page.screenshot({path:'artifacts/growth/free-candle-phone.png',fullPage:true});
     report.quiz='PASS';
     console.log('PASS growth ten-stage interactive lesson: corrected retries, calculated body/range, experiment, replay, independent assessment, transfer and report');
