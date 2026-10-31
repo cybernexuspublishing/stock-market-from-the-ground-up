@@ -1,0 +1,19 @@
+name: Five Book Production Noncharging Readiness
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_book_readiness_20261030.mjs'
+      - '.github/workflows/five-book-readiness-20261030.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  book-readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: node tests/test_book_readiness_20261030.mjs
