@@ -6,6 +6,13 @@ on:
     paths:
       - '.github/workflows/bootcamp-full-width-acceptance-v1.yml'
       - 'assets/css/teaching-full-width-v1.css'
+      - 'assets/css/academy-protected-v1.css'
+      - 'assets/js/academy-protected-assessment-v1.js'
+      - 'assets/js/academy-three-camps-evidence-v1.js'
+      - 'functions/api/academy-protected-assessment-v1.js'
+      - 'functions/api/assessment-v0135.js'
+      - 'supabase/migrations/20261031_academy_protected_case_routing_v1.sql'
+      - 'tests/test_academy_three_camps_protected_assessment_v1.mjs'
       - 'assets/css/bootcamp.css'
       - 'assets/css/bootcamp-academy-compact-v2.css'
       - 'assets/css/learning-workstation-v44.css'
@@ -33,6 +40,13 @@ jobs:
       - name: Verify all seven programs and independent Free Foundations path
         run: |
           node tests/test_teaching_full_width_v1.mjs
+          node --check functions/api/academy-protected-assessment-v1.js
+          node --check assets/js/academy-protected-assessment-v1.js
+          node --check assets/js/academy-three-camps-evidence-v1.js
+          node --check assets/js/academy-guided-v1.js
+          node --check assets/js/bootcamp-academy-v014168.js
+          node tests/test_academy_three_camps_protected_assessment_v1.mjs
+          node tests/test_v135_public_assessment_projection.mjs
           node tests/test_v014168_academy_family.mjs
           node tests/test_v014144_bootcamp.mjs
           node tests/test_v014162_bootcamp_v32.mjs
