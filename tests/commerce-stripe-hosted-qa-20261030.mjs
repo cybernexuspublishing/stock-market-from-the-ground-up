@@ -82,8 +82,11 @@ async function attempt(s){
   const label=(await submit.innerText().catch(()=>'')).trim().slice(0,120);
   if(s.livemode&&!/complete|pay|confirm|submit|place order|continue/i.test(label))throw Error('LIVE ZERO SAFETY STOP: unexpected button '+label);
   console.log('INVALID_BEFORE_SUBMIT '+s.kind+' '+JSON.stringify(await invalidFields(page)));
+  await page.waitForTimeout(3000);
+  console.log('BUTTON_STATE '+s.kind+' '+JSON.stringify({enabled:await submit.isEnabled(),visible:await submit.isVisible(),disabled:await submit.getAttribute('disabled'),ariaDisabled:await submit.getAttribute('aria-disabled')}));
   console.log('SUBMIT '+s.kind+' '+label);
-  await submit.click({timeout:20000});
+  if(!await submit.isEnabled())throw Error('Stripe TEST Pay button disabled by native form validation; no card payment attempted');
+  await submit.click({timeout:15000});
   await page.waitForTimeout(9000);
   // In some Stripe TEST Checkout renderings, phone becomes required only after
   // the first submit. Correct this normal validation once; never bypass CAPTCHA.
