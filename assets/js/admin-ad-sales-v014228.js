@@ -41,8 +41,8 @@ function render(){
  const gates=model.settings||{},gate=e('gu-ad-gate-state');
  gate.textContent='New quote inquiries: '+(gates.accepting_inquiries?'Open':'Paused')+
   ' · Online ad payments: '+(gates.accepting_payments?'Enabled':'Disabled')+
-  ' · Advertising display: '+(gates.ad_delivery_enabled?'Enabled':'Disabled')+
-  ' · No automatic ad checkout is available.';
+  ' · Paid sponsorship display: '+(gates.ad_delivery_enabled?'Enabled':'Disabled')+
+  ' · Independent affiliate banners follow their page placement switches. No automatic ad checkout is available.';
  e('gu-ad-toggle-inquiries').textContent=gates.accepting_inquiries?'Pause quote inquiries':'Reopen quote inquiries';
  const perPage=e('gu-ad-page-controls');
  if(perPage){
@@ -168,10 +168,19 @@ function render(){
     'Inquiry marked '+state+'. No advertising contract or charge created.')));
   }
  }
+ // Affiliate banners are first-party placements, not Stripe-paid sponsorships.
+ // Derive their live state from placement inventory, never the invoice gate.
+ const affiliateSlots=new Set((model.placements||[]).filter(p=>p.active===true&&p.metadata?.affiliate===true).map(p=>p.placement_code));
+ const affiliateCampaigns=new Map((model.campaigns||[]).filter(c=>Number(c.amount_cents)===0).map(c=>[c.id,c]));
+ const activeAffiliateCreatives=(model.creatives||[]).filter(cr=>affiliateSlots.has(cr.placement_code)&&affiliateCampaigns.has(cr.campaign_id));
+ const activeAffiliateCreativeIds=new Set(activeAffiliateCreatives.map(cr=>cr.id));
+ const activeAffiliateCampaignIds=new Set(activeAffiliateCreatives.map(cr=>cr.campaign_id));
+ const activeAffiliateAdvertiserIds=new Set(activeAffiliateCreatives.map(cr=>affiliateCampaigns.get(cr.campaign_id).advertiser_id));
  const advertisers=e('gu-ad-advertisers');advertisers.replaceChildren();
  for(const a of model.advertisers||[]){
   const row=line(advertisers,'#'+a.id+' · '+a.name,
    (a.contact_email||'Affiliate partner — no verified business contact')+' · '+a.status);
+  if(activeAffiliateAdvertiserIds.has(a.id))block(row,'Affiliate banner enabled for eligible visitors · Controlled by page placement visibility · Not paid sponsorship delivery.');
   if(a.notes)block(row,a.notes);
   if(a.website_url){const link=n('a','Visit verified website');link.href=a.website_url;link.target='_blank';link.rel='noopener noreferrer';row.append(link)}
  }
@@ -183,14 +192,15 @@ function render(){
  if(!(model.creatives||[]).length)block(creatives,'No creatives have been submitted.');
  for(const cr of model.creatives||[]){
   const item=line(creatives,'Creative #'+cr.id+' · '+cr.headline,
-   'Campaign #'+cr.campaign_id+' · '+cr.placement_code+' · '+cr.status);
+   'Campaign #'+cr.campaign_id+' · '+cr.placement_code+' · '+cr.status+(activeAffiliateCreativeIds.has(cr.id)?' · Affiliate banner enabled on website':''));
   block(item,cr.body||'');
   if(typeof cr.image_url==='string'&&(cr.image_url.startsWith('data:image/webp;base64,')&&/^[A-Za-z0-9+/=]{300,120000}$/.test(cr.image_url.slice(23)))){
    const img=n('img');img.src=cr.image_url;img.alt=cr.alt_text||'Approved partner creative';
    img.className='gu-ad-creative-preview';img.loading='lazy';item.append(img);
   }
   if(cr.destination_url){const l=n('a','Open reviewed destination');l.href=cr.destination_url;l.target='_blank';l.rel='noopener noreferrer';item.append(l)}
-  if(cr.status==='draft'||cr.status==='paused'){
+  if(activeAffiliateCreativeIds.has(cr.id))block(item,'This supplied partner artwork is enabled in the separate affiliate placement. Paid creative approval and Stripe invoices do not control it.');
+  if(!activeAffiliateCreativeIds.has(cr.id)&&(cr.status==='draft'||cr.status==='paused')){
    const label=n('label');const checked=n('input');checked.type='checkbox';
    label.append(checked,n('span',' I verified advertiser identity, HTTPS destination, creative rights, sponsor disclosure, and absence of misleading or prohibited financial-promotion claims.'));
    item.append(label);
@@ -210,7 +220,8 @@ function render(){
  for(const cp of model.campaigns||[]){
   const item=line(campaigns,'Campaign #'+cp.id+' · '+cp.name,
    cp.status+' · Approval: '+cp.approval_state+' · Payment: '+cp.payment_state+
-   ' · Contract: '+(cp.amount_cents===0?'Affiliate / unpaid referral (no fixed-price contract)':money(cp.amount_cents)));
+   ' · Contract: '+(cp.amount_cents===0?'Affiliate / unpaid referral (no fixed-price contract)':money(cp.amount_cents))+
+   (activeAffiliateCampaignIds.has(cp.id)?' · Live affiliate placement (eligible viewers; separate from paid campaign workflow)':''));
   block(item,'Run dates: '+(cp.starts_at?new Date(cp.starts_at).toLocaleDateString():'Unset')+
    '–'+(cp.ends_at?new Date(cp.ends_at).toLocaleDateString():'Unset'));
   if(cp.status==='draft'&&cp.approval_state==='pending'&&cp.amount_cents>0){
