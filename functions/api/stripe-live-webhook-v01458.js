@@ -325,6 +325,94 @@ async function storeZeroMonthlyQA(request,e,raw){
  }catch{return resp('Zero QA grant processing unavailable; retry',503)}
 }
 
+/* V1 DIRECT PAID SPONSOR settlement and reversal.
+ * Called only AFTER raw-body Stripe HMAC and LIVE merchant account validation.
+ * No subscription/book entitlements, prices, tests or Stripe mutations.
+ * The event is a discovery hint: verify the current provider objects first.
+ */
+async function verifiedSponsorEvent(c,event){
+ const kind=event.type;
+ if(!['invoice.paid','charge.refunded','charge.dispute.created'].includes(kind))return false;
+ const obj=event.data?.object||{};
+ const value=x=>typeof x==='string'?x:x?.id||null;
+ let invId=null,charge=null,pi=null;
+ if(kind==='invoice.paid')invId=obj.id;
+ else {
+  const chargeId=kind==='charge.refunded'?obj.id:value(obj.charge);
+  if(!ident(chargeId,'ch'))return false;
+  charge=await getStripe(c,'charges/'+encodeURIComponent(chargeId));
+  if(charge.id!==chargeId||charge.livemode!==true)return false;
+  const pid=value(charge.payment_intent);
+  if(!ident(pid,'pi'))return false;
+  pi=await getStripe(c,'payment_intents/'+encodeURIComponent(pid));
+  if(pi.id!==pid||pi.livemode!==true||value(pi.latest_charge)!==chargeId)
+   throw Error('Sponsor charge does not match its LIVE PaymentIntent');
+  invId=value(charge.invoice)||value(pi.invoice);
+  if(!ident(invId,'in'))return false;
+ }
+ if(!ident(invId,'in'))return false;
+ const invoice=await getStripe(c,'invoices/'+encodeURIComponent(invId));
+ if(invoice.id!==invId||invoice.livemode!==true)return false;
+ const meta=invoice.metadata||{},hasTag=Object.prototype.hasOwnProperty.call(meta,'ad_campaign_id')||
+  Object.prototype.hasOwnProperty.call(meta,'advertiser_id');
+ if(!hasTag)return false; // Not an advertising invoice; allow ordinary commerce.
+ const campaignId=Number(meta.ad_campaign_id),advertiserId=Number(meta.advertiser_id),
+  customer=value(invoice.customer);
+ if(!Number.isSafeInteger(campaignId)||campaignId<1||
+    !Number.isSafeInteger(advertiserId)||advertiserId<1||
+    !ident(customer,'cus')||invoice.currency!=='usd'||
+    invoice.collection_method!=='send_invoice')
+  throw Error('Sponsor LIVE invoice metadata or currency invalid');
+ const dbHeaders={apikey:c.key,...(c.key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.key})};
+ const check=await fetch(c.base+'/rest/v1/ad_campaigns?select=id,advertiser_id,amount_cents,approval_state,payment_state,stripe_invoice_id,stripe_customer_id'+
+  '&id=eq.'+campaignId+'&limit=2',{headers:dbHeaders,cache:'no-store'});
+ if(!check.ok)throw Error('Sponsor campaign lookup unavailable');
+ const rows=await check.json(),camp=rows?.[0];
+ if(rows.length!==1||Number(camp.advertiser_id)!==advertiserId||
+  camp.stripe_invoice_id!==invId||camp.stripe_customer_id!==customer||
+  camp.approval_state!=='approved'||Number(camp.amount_cents)<100||
+  Number(meta.approved_quote_cents)!==Number(camp.amount_cents))
+  throw Error('Sponsor LIVE invoice not bound to approved campaign');
+ const paid=Number(invoice.amount_paid);
+ if(kind==='invoice.paid'){
+  if(invoice.status!=='paid'||invoice.paid!==true||paid<Number(camp.amount_cents))
+   throw Error('Sponsor invoice not settled');
+  const payments=await getStripe(c,'invoice_payments?invoice='+encodeURIComponent(invId)+'&limit=10');
+  if(payments.has_more===true||!Array.isArray(payments.data))
+   throw Error('Sponsor invoice allocations incomplete');
+  const allocated=payments.data.filter(x=>x.status==='paid'&&
+   Number(x.amount_paid)>=Number(camp.amount_cents)&&ident(value(x.payment?.payment_intent),'pi'));
+  if(allocated.length!==1)throw Error('Sponsor payment not allocated uniquely');
+  const pid=value(allocated[0].payment.payment_intent);
+  pi=await getStripe(c,'payment_intents/'+encodeURIComponent(pid));
+  if(pi.id!==pid||pi.livemode!==true||pi.status!=='succeeded'||
+   pi.currency!=='usd'||value(pi.customer)!==customer||
+   Number(pi.amount_received)<Number(camp.amount_cents)||
+   !ident(value(pi.latest_charge),'ch'))throw Error('Sponsor PaymentIntent invalid');
+  charge=await getStripe(c,'charges/'+encodeURIComponent(value(pi.latest_charge)));
+  if(charge.livemode!==true||charge.paid!==true||charge.disputed===true||
+   Number(charge.amount_refunded)>0||value(charge.payment_intent)!==pi.id||
+   value(charge.customer)!==customer)throw Error('Sponsor charge refunded or disputed');
+ }else{
+  if(charge.paid!==true||value(charge.customer)!==customer||
+   value(charge.payment_intent)!==pi.id||
+   pi.currency!=='usd'||value(pi.customer)!==customer)
+   throw Error('Sponsor charge identity mismatch');
+  if(kind==='charge.refunded'&&Number(charge.amount_refunded)<=0)
+   throw Error('Sponsor refund not confirmed');
+  if(kind==='charge.dispute.created'&&charge.disputed!==true)
+   throw Error('Sponsor dispute not confirmed');
+ }
+ const rpc=await fetch(c.base+'/rest/v1/rpc/gu_ad_signed_live_apply_v1',{
+  method:'POST',cache:'no-store',headers:{...dbHeaders,'content-type':'application/json'},
+  body:JSON.stringify({p_event:event.id,p_campaign:campaignId,p_invoice:invId,
+   p_type:kind,p_amount:kind==='invoice.paid'?paid:Number(charge.amount_refunded||0),
+   p_customer:customer})
+ });
+ if(!rpc.ok)throw Error('Sponsor LIVE settlement RPC unavailable');
+ const result=await rpc.json();if(result?.ok!==true)throw Error('Sponsor LIVE event could not be recorded');
+ return true;
+}
 // Independent book event subprocessor: included inline to preserve the verified
 // standalone GU58 webhook's data-URL test harness. Only signed GU58 events reach here.
 const BOOK_LIVE_PRICE='price_1UVBsDJL0O4GGVBHdqAaP15z';
@@ -429,6 +517,8 @@ export async function onRequestPost({request,env}){
  try{
   const account=await getStripe(c,'account');
   if(account.id!==c.account)throw Error('Unexpected LIVE Stripe merchant account.');
+  const sponsorApplied=await verifiedSponsorEvent(c,event);
+  if(sponsorApplied===true)return resp('sponsor-live-verified',200);
   const bookApplied=await bookVerifiedEvent(c,event);
   if(bookApplied===true)return resp('book-live-verified',200);
     const action=await processEvent(c,event);if(!action)return resp('ignored',200);
