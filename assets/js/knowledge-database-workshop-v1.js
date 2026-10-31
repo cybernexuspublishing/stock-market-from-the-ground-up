@@ -18,6 +18,18 @@ function evaluate(visible){
   return {...b,typical,vwap:numerator/denominator};
  });
 }
+/* Eight fixed intervals; future candle and volume values remain withheld. */
+function chartSeries(visible){
+ const count=Math.max(1,Math.min(bars.length,Math.trunc(Number(visible)||1)));
+ const rows=evaluate(count);
+ return {
+  times:bars.map(b=>b.time),
+  candles:bars.map((b,i)=>i<count?[b.o,b.c,b.l,b.h]:'-'),
+  vwap:bars.map((b,i)=>i<count?Number(rows[i].vwap.toFixed(5)):null),
+  volume:bars.map((b,i)=>i<count?b.v:null),
+  rows,count
+ };
+}
 function N(tag,text,cls){const x=document.createElement(tag);if(text!==undefined)x.textContent=text;if(cls)x.className=cls;return x}
 function mount(){
  const host=document.getElementById('kd-workshop');if(!host)return;
@@ -61,27 +73,27 @@ function mount(){
   next.disabled=count>=bars.length;
  }
  async function draw(){
-  const token=++renderNumber,rows=evaluate(count);renderTable(rows);
+  const token=++renderNumber,model=chartSeries(count);renderTable(model.rows);
   try{
    const lib=await root.CrownlightECharts?.load?.();
    if(!lib||token!==renderNumber)return;
    if(!chart)chart=lib.init(visual,'dark',{renderer:'canvas'});
-   const times=rows.map(x=>x.time);
+   // Fixed eight-slot timeline prevents first-candle stretching.
    const opts={animation:false,backgroundColor:'transparent',
     textStyle:{color:'#dcebf4',fontSize:11},
     legend:{top:5,data:['Fictional OHLC','Approximate VWAP','Share volume'],textStyle:{color:'#c5d8e4'}},
     tooltip:{trigger:'axis',axisPointer:{type:'cross'}},
-    grid:[{left:53,right:16,top:43,height:'52%'},{left:53,right:16,top:'79%',height:'12%'}],
-    xAxis:[{type:'category',gridIndex:0,data:times,axisLabel:{color:'#a9c7d8'}},
-     {type:'category',gridIndex:1,data:times,axisLabel:{show:false}}],
-    yAxis:[{type:'value',gridIndex:0,scale:true,axisLabel:{color:'#accbd9'}},
-     {type:'value',gridIndex:1,min:0,axisLabel:{color:'#accbd9'}}],
-    series:[{name:'Fictional OHLC',type:'candlestick',
+    grid:[{left:58,right:20,top:48,height:'50%'},{left:58,right:20,top:'77%',height:'15%'}],
+    xAxis:[{type:'category',gridIndex:0,data:model.times,boundaryGap:true,axisLabel:{color:'#a9c7d8',interval:0,formatter:(v,i)=>i<model.count?v:''}},
+     {type:'category',gridIndex:1,data:model.times,boundaryGap:true,axisLabel:{show:false}}],
+    yAxis:[{type:'value',gridIndex:0,min:4.7,max:5.4,axisLabel:{color:'#accbd9',formatter:v=>'$'+Number(v).toFixed(2)}},
+     {type:'value',gridIndex:1,min:0,max:6000,axisLabel:{color:'#accbd9'}}],
+    series:[{name:'Fictional OHLC',type:'candlestick',barMaxWidth:24,barMinWidth:6,
       itemStyle:{color:'#3cc399',color0:'#e68181',borderColor:'#3cc399',borderColor0:'#e68181'},
-      data:rows.map(x=>[x.o,x.c,x.l,x.h])},
+      data:model.candles},
      {name:'Approximate VWAP',type:'line',symbol:'circle',symbolSize:5,
-      data:rows.map(x=>Number(x.vwap.toFixed(5))),lineStyle:{color:'#e0b77b',width:2},itemStyle:{color:'#e0b77b'}},
-     {name:'Share volume',type:'bar',data:rows.map(x=>x.v),xAxisIndex:1,yAxisIndex:1,
+      data:model.vwap,connectNulls:false,lineStyle:{color:'#e0b77b',width:2},itemStyle:{color:'#e0b77b'}},
+     {name:'Share volume',type:'bar',barMaxWidth:24,data:model.volume,xAxisIndex:1,yAxisIndex:1,
       itemStyle:{color:'#6c99ca'}}]};
    chart.setOption(opts,true);chart.resize();
   }catch(e){status.textContent+=' Visual chart unavailable; the accessible calculations and reveal controls remain usable.'}
@@ -92,5 +104,5 @@ function mount(){
  void draw();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',mount,{once:true});else mount();
-root.GroundUpKnowledgeWorkshopV1=Object.freeze({bars,evaluate,version:'1.0'});
+root.GroundUpKnowledgeWorkshopV1=Object.freeze({bars,evaluate,chartSeries,version:'1.1'});
 })(typeof window==='undefined'?globalThis:window);
