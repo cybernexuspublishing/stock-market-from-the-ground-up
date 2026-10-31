@@ -87,8 +87,8 @@ function stopCharts(){
  state.charts=[];state.view?.querySelector('[data-cl-tier-panels]')?.replaceChildren();document.body.classList.remove('cl-tier-enhanced');
 }
 const requirements={
- ADVANCED:'Requires an eligible intermediate membership (such as an active Founding 30-Day plan), or an eligible temporary Crownlight Lumens Studio pass when available.',
- PROFESSIONAL:'Requires an eligible premium membership (such as an active Founding 60-Day, Full, or Lifetime plan), or an eligible temporary Crownlight Lumens Studio pass when available.'
+ ADVANCED:'Available through an included membership, an active 30-day Advanced cash upgrade, or an eligible temporary Crownlight Lumens Studio pass.',
+ PROFESSIONAL:'Available through an included premium membership, an active 30-day Professional cash upgrade, or an eligible temporary Crownlight Lumens Studio pass.'
 };
 function remainingText(ms){
  const total=Math.max(0,Math.ceil(ms/1000));
@@ -207,7 +207,9 @@ function explainLockedTier(){
   const description=el('p','',requirements[tier]);
   const membership=el('a','btn secondary','Compare memberships');
   membership.href='/membership.html';
-  block.append(heading,description,membership);
+  const upgrades=el('a','btn secondary','View 30-day upgrades');
+  upgrades.href='/store.html#tools';
+  block.append(heading,description,membership,upgrades);
   host.append(block);
  }
  if(!locked)host.append(el('p','','Your account can use all three Chart Studios. No additional membership is required.'));

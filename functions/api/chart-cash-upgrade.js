@@ -56,7 +56,7 @@ export async function onRequestPost({request,env}){
   const existing=await rows(c,identity.userId);
   if(existing.some(x=>active(x)&&rank[x.tier]>=rank[offer.tier]))return fail('TIER_ALREADY_INCLUDED',409);
   const account=await stripe(env,'account');
-  if(account.id!==env.STRIPE_TEST_ACCOUNT_ID||account.livemode!==false)
+  if(account.id!==env.STRIPE_TEST_ACCOUNT_ID)
    throw Error('CHART_TEST_ACCOUNT_MISMATCH');
   const item=await verifyPrice(env,input.sku);
   let pending=existing.find(x=>x.sku===input.sku&&x.state==='pending');

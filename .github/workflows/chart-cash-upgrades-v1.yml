@@ -12,6 +12,7 @@ on:
       - 'store.html'
       - 'supabase/migrations/20261031_chart_cash_*.sql'
       - 'tests/test_chart_cash_upgrade_contract_v1.mjs'
+      - 'tests/test_chart_cash_checkout_mock_v1.mjs'
       - 'tests/test_crownlight_chart_pass_lifecycle_v5.mjs'
       - 'tests/test_crownlight_chart_workspace_v2.mjs'
       - 'tests/test_crownlight_chart_tiers_v1.mjs'
@@ -35,6 +36,7 @@ jobs:
           node --check assets/js/store-chart-cash-upgrades-v1.js
           node --check assets/js/crownlight-chart-tiers-v1.js
           node tests/test_chart_cash_upgrade_contract_v1.mjs
+          node tests/test_chart_cash_checkout_mock_v1.mjs
           node tests/test_crownlight_chart_pass_lifecycle_v5.mjs
           node tests/test_crownlight_chart_workspace_v2.mjs
           node tests/test_crownlight_chart_tiers_v1.mjs
