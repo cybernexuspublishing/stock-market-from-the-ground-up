@@ -8,7 +8,7 @@ for(const p of ['/assets/js/home-community.js','/assets/js/crownlight-echarts-lo
 assert(js.includes("fetch('/api/home-member-stats-v01353?action=public'"),'Only existing aggregate endpoint');
 assert(js.includes('window.CrownlightECharts.load()'),'Use first-party local ECharts loader');
 assert(js.includes("badge.textContent=valid?'LIVE DATA':'UNAVAILABLE'"),'Badge says LIVE DATA for validated selected mode');
-assert(js.includes('gu-stat-provenance'),'Illustrative figures disclose origin without Sample statistics paragraph');
+assert(!js.includes('gu-stat-provenance')&&!js.includes('data-source-info'),'No statistics information tooltip or icon');
 assert(!js.includes('Sample statistics'),'No sample-statistics caption');
 assert(!js.includes('Example activity')&&!js.includes('Example members'),'No sample member labels');
 assert(!js.includes("'DEMO DATA'"),'No demo badge on homepage');
@@ -35,6 +35,13 @@ assert(api.includes("if(s.mode==='custom')return send({ok:true,show:true"),'Owne
 assert(api.includes("if(s.mode==='range'){"),'Owner-configured changing-range mode is supported');
 assert(api.includes("mode:'live',registered,online:"),'Verified live aggregate mode remains available');
 assert(js.includes("const example=d.mode==='custom'||d.mode==='range'"),'Illustrative ECharts snapshots use explicit source metadata');
-assert(js.includes("disclosure.hidden=!valid||!example"),'Illustrative figures expose an accessible source indicator');
+assert(js.includes("badge.setAttribute('aria-label'"),'Selected source remains disclosed accessibly without a visual tooltip');
 assert(js.includes('aria-label'),'Source disclosure is accessible');
 assert(style.includes('background:transparent!important'),'Homepage statistics have no metric cards');
+
+assert(home.includes('href="candle-practice.html" aria-label="Open the free interactive candlestick learning workstation"'),'Entire workstation links to its actual public learning experience');
+assert(!home.includes('DEMONSTRATION · NOT LIVE DATA'),'Promotional demonstration banner removed');
+assert(js.includes('gu-home-right-rail'),'Homepage statistics are mounted directly above the linked workstation');
+assert(js.includes("rail.insertBefore(panel,rail.firstChild)"),'Statistics appear before workstation');
+assert(js.includes("existing.closest('.gu-home-stage-grid')"),'Moving component into rail must not cause observer remount loop');
+assert(style.includes('gu-home-right-rail'),'Compact right-hand layout must be styled');
