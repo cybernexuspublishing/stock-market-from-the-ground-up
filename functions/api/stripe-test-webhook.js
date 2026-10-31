@@ -91,11 +91,11 @@ export async function onRequestPost({request,env,...context}){
   // This never credits or publishes a LIVE sponsorship campaign.
   if(await acceptSignedSponsorTestEvent(event,env))
    return respond('SPONSOR_TEST_SIGNED_AND_RECORDED',200);
-  if(await acceptChartCashTestEvent(event,env))
-   return respond('CHART_CASH_TEST_SIGNED_AND_RECORDED',200);
   // Classify provider-verified TEST purchases without trusting payload metadata.
   const lumenBundle=await isLumenBundleEvent(event,env);
   const book=lumenBundle?false:await isBookEvent(event,env);
+  if(!lumenBundle&&!book&&await acceptChartCashTestEvent(event,env))
+   return respond('CHART_CASH_TEST_SIGNED_AND_RECORDED',200);
   // Reconstruct the original request because the existing handlers consume its body.
   // Both handlers reverify the same unified endpoint signature before processing.
   const forwarded=new Request(request.url,{method:'POST',headers:request.headers,body:raw});

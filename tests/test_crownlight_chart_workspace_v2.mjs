@@ -32,6 +32,10 @@ globalThis.fetch=async(input,opts={})=>{const u=new URL(input);assert.equal(u.or
  if(u.pathname==='/rest/v1/gu_founder_reservations_v014173'||u.pathname==='/rest/v1/user_plan_grants')return j([]);
  if(u.pathname==='/rest/v1/gu_storefront_items_v014174')return j([]);
  if(u.pathname==='/rest/v1/gu_sparks_chart_passes_v1')return j([]);
+ if(u.pathname==='/rest/v1/crownlight_chart_cash_upgrades_v1'){
+  assert.equal(u.searchParams.get('user_id'),'eq.'+uid);
+  return j([]);
+ }
  if(u.pathname==='/rest/v1/crownlight_chart_qa_grants_v1')return j([]);
  if(u.pathname==='/rest/v1/crownlight_chart_workspaces_v1')return j([db]);
  if(u.pathname==='/rest/v1/rpc/gu_crownlight_chart_workspace_save_v4'){

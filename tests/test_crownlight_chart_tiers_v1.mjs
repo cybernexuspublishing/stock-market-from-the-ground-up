@@ -43,6 +43,7 @@ globalThis.fetch=async(url,opt={})=>{
  if(u.pathname==='/rest/v1/user_plan_grants')return json(state.grant?[{
   plan_code:state.grant,status:'active',starts_at:before,ends_at:after}]:[]);
  if(u.pathname==='/rest/v1/gu_sparks_chart_passes_v1')return json([]);
+ if(u.pathname==='/rest/v1/crownlight_chart_cash_upgrades_v1')return json([]);
  if(u.pathname==='/rest/v1/crownlight_chart_qa_grants_v1')return json(state.manualTier?[{
   tier:state.manualTier,scope:state.manualScope,starts_at:before,
   ends_at:state.manualExpired?before:after,revoked_at:state.manualRevoked?before:null}]:[]);

@@ -13,6 +13,8 @@ on:
       - 'supabase/migrations/20261031_chart_cash_*.sql'
       - 'tests/test_chart_cash_upgrade_contract_v1.mjs'
       - 'tests/test_crownlight_chart_pass_lifecycle_v5.mjs'
+      - 'tests/test_crownlight_chart_workspace_v2.mjs'
+      - 'tests/test_crownlight_chart_tiers_v1.mjs'
       - '.github/workflows/chart-cash-upgrades-v1.yml'
   workflow_dispatch:
 jobs:
@@ -34,5 +36,8 @@ jobs:
           node --check assets/js/crownlight-chart-tiers-v1.js
           node tests/test_chart_cash_upgrade_contract_v1.mjs
           node tests/test_crownlight_chart_pass_lifecycle_v5.mjs
+          node tests/test_crownlight_chart_workspace_v2.mjs
+          node tests/test_crownlight_chart_tiers_v1.mjs
+          node tests/test_stripe_test_unified_webhook_20261030.mjs
           node tests/test_crownlight_chart_entitlement_continuity_v4.mjs
           node tests/test_crownlight_chart_studio_v3_integrity.mjs

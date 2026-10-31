@@ -13,9 +13,13 @@ async function apply(c,event,row,kind,session=null,pi=null){
  if(result?.ok!==true)fail();return true;
 }
 export async function acceptChartCashTestEvent(event,env){
- const obj=event.data?.object,c=config(env);
+ const obj=event.data?.object;
  if(['checkout.session.completed','checkout.session.async_payment_succeeded',
       'checkout.session.expired'].includes(event.type)){
+  // Event metadata only selects a candidate; canonical Stripe objects and
+  // database binding below still establish payment and ownership.
+  if(!obj?.metadata?.chart_cash_test_id)return false;
+  const c=config(env);
   if(!validId(obj?.id,'cs_test'))return false;
   const s=await stripe(env,'checkout/sessions/'+encodeURIComponent(obj.id));
   if(!s.metadata?.chart_cash_test_id)return false;
@@ -47,6 +51,7 @@ export async function acceptChartCashTestEvent(event,env){
   return apply(c,event,row,'paid',s.id,pi.id);
  }
  if(!['charge.refunded','charge.dispute.created'].includes(event.type))return false;
+ const c=config(env);
  const chargeId=event.type==='charge.refunded'?obj?.id:obj?.charge;
  if(!validId(chargeId,'ch'))return false;
  const charge=await stripe(env,'charges/'+encodeURIComponent(chargeId));
