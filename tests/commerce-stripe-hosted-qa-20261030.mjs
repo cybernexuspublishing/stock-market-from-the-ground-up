@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 // Temporary QA fixtures only, exact server-verified Stripe Checkout sessions; no credit card numbers except Stripe TEST 4242.
-const sessions=[{"kind":"book","id":"cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg","livemode":false,"cents":1099,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"},{"kind":"lumens","id":"cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB","livemode":false,"cents":500,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"},{"kind":"live-zero","id":"cs_live_a1cfvoCm3vgnKzYaqn71dk4eJiyYrrOjNeUPQyS65eqePFK4btQU00Tl1V","livemode":true,"cents":0,"url":"https://checkout.stripe.com/c/pay/cs_live_a1cfvoCm3vgnKzYaqn71dk4eJiyYrrOjNeUPQyS65eqePFK4btQU00Tl1V#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5aaWxzYFowNEp9bUpsT0k1SjFCQlNHTWBgU01OXVBvNmNWUHxBQ2N%2FX21gZHBgVF9AQmEwT25ddHNraUJiZmNXSmZzaGNHcHQ2X11MX188Y2kzYzBhdV1QTz10XE1TSDU1Q0pLM2NmQUEnKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"}];
+// Avoid re-submitting the already-complete LIVE zero-dollar session.
+const sessions=[{"kind":"book","id":"cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg","livemode":false,"cents":1099,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"},{"kind":"lumens","id":"cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB","livemode":false,"cents":500,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"}];
 
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const errors=[];
@@ -17,6 +18,19 @@ async function fillFirst(page,selectors,value,required=false){
 }
 async function attempt(s){
  const page=await browser.newPage({serviceWorkers:'block',viewport:{width:1440,height:1100}});
+ const issues=[], failed=[];
+ page.on('response',response=>{
+  const status=response.status();
+  if(status<400)return;
+  let u;try{u=new URL(response.url())}catch{return}
+  if(!/(^|\.)stripe\.com$/.test(u.hostname) && !/(^|\.)stripe\.network$/.test(u.hostname))return;
+  issues.push({status,origin:u.origin,path:u.pathname.slice(0,130),method:response.request().method()});
+ });
+ page.on('requestfailed',request=>{
+  let u;try{u=new URL(request.url())}catch{return}
+  if(/(^|\.)stripe\.com$/.test(u.hostname) || /(^|\.)stripe\.network$/.test(u.hostname))
+   failed.push({origin:u.origin,path:u.pathname.slice(0,110),error:request.failure()?.slice(0,100)});
+ });
  try{
   console.log('BEGIN '+s.kind+' '+s.id.slice(0,19)+' amount='+s.cents+' mode='+(s.livemode?'LIVE ZERO':'TEST'));
   assert(!s.livemode||s.cents===0,'LIVE NONZERO SAFETY STOP');
@@ -53,13 +67,18 @@ async function attempt(s){
   if(s.livemode&&!/complete|pay|confirm|submit|place order|continue/i.test(label))throw Error('LIVE ZERO SAFETY STOP: unexpected button '+label);
   console.log('SUBMIT '+s.kind+' '+label);
   await submit.click({timeout:20000});
-  await page.waitForTimeout(6000);
+  await page.waitForTimeout(9000);
   const alerts=[];
   for(const f of page.frames())for(const sel of ['[role="alert"]','[data-testid*="error"]','[aria-invalid="true"]']){
    const loc=f.locator(sel);for(const node of (await loc.all()).slice(0,4))if(await node.isVisible().catch(()=>false))alerts.push((await node.innerText().catch(()=>'')).slice(0,140));
   }
   const after=originLocation(page.url());
-  console.log('AFTER '+s.kind+' '+after+' errors='+JSON.stringify(alerts.slice(0,5)));
+  const challenges=page.frames().filter(f=>/hcaptcha|captcha/i.test(f.url()));
+  console.log('AFTER '+s.kind+' '+after+' alerts='+JSON.stringify(alerts.slice(0,5)));
+  console.log('NETWORK_HTTP_FAILURES '+s.kind+' '+JSON.stringify(issues.slice(-15)));
+  console.log('NETWORK_ABORTS '+s.kind+' '+JSON.stringify(failed.slice(-10)));
+  console.log('CAPTCHA_EMBED_COUNT '+s.kind+' '+challenges.length);
+  console.log('FIELD_INVALID_COUNT '+s.kind+' '+await page.locator('[aria-invalid="true"]:visible').count().catch(()=>0));
   // Provider state checked independently after this run; browser success alone never grants acceptance.
   if(after.includes('/c/pay/'))throw Error('Checkout remained hosted after submit; provider reconciliation required');
   if(!page.url().startsWith('https://stock-market-from-the-ground-up-d1r.pages.dev/'))throw Error('No expected site return after submit');
