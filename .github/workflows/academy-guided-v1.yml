@@ -12,6 +12,7 @@ on:
       - 'bootcamp-academy.html'
       - 'bootcamp.html'
       - 'tests/test_academy_guided_v1.mjs'
+      - 'tests/test_academy_guided_browser_v1.mjs'
 permissions: {contents: read}
 jobs:
   shared-instructional-contract:
@@ -26,5 +27,6 @@ jobs:
           node --check assets/js/bootcamp.js
           node --check assets/js/bootcamp-academy-v014168.js
           node tests/test_academy_guided_v1.mjs
+          node tests/test_academy_guided_browser_v1.mjs
           node tests/test_v014168_academy_family.mjs
           node tests/test_v014162_bootcamp_v32.mjs
