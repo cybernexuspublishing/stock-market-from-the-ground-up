@@ -290,7 +290,7 @@ function render(){
  const top=n('div',undefined,'kd-expansion-head');
  top.append(n('p','DEEP-DIVE REFERENCE · UNGRADED · INCLUDED','kd-eyebrow'),
   n('h2','Research, chart interpretation and disciplined decision-making'),
-  n('p','Twenty-four additional original reference lessons connect the Foundations to research watchlists, Chart Studio, Market Tutor, historical replay and trade planning. All examples are fictional; a named trading pattern is not a validated predictive signal.'));
+  n('p','Twenty-six additional original reference lessons connect the Foundations to research watchlists, Chart Studio, Market Tutor, historical replay and trade planning. All examples are fictional; a named trading pattern is not a validated predictive signal.'));
  target.append(top);
  const groups=new Map();
  for(const [key,name] of Object.entries(categoryNames)){
@@ -302,7 +302,7 @@ function render(){
   details.id='knowledge-'+t.id;
   details.append(n('summary',String(index+13).padStart(2,'0')+' · '+t.title));
   const content=n('div',undefined,'kd-article-body');
-  const status=n('p','Original educational synthesis · Source interpretation separated from market evidence','kd-status');
+  const status=n('p','Original educational synthesis · Research heuristic does not imply verified predictive power','kd-status');
   content.append(status,n('h4','What this means'),n('p',t.definition),n('h4','Why this matters'),n('p',t.why),n('h4','Talia’s step-by-step method'));
   const ol=n('ol');for(const x of t.steps)ol.append(n('li',x));content.append(ol);
   content.append(n('h4','Worked fictional example'),n('p',t.caseStudy),
@@ -321,8 +321,9 @@ function render(){
   compare.addEventListener('click',()=>{if(compare.disabled)return;feedback.hidden=false;feedback.textContent='Talia’s comparison: '+t.review+' Common limitation: '+t.limits+' No answer or grade was saved.'});
   tools.append(explain,depth,compare);content.append(tools,feedback);
   const related=n('div',undefined,'kd-related');
-  const source=n('a','Open source primer');source.href=t.link;source.target='_blank';source.rel='noopener noreferrer';
-  related.append(source);
+  const provenance=n('p','Research framing: '+t.source+'. Source primer is general educational context, not independent proof of this pattern or its effectiveness.','kd-status');
+  const source=n('a','Open public source primer');source.href=t.link;source.target='_blank';source.rel='noopener noreferrer';
+  related.append(provenance,source);
   for(const [name,url] of linkByCategory[t.category]){
    const a=n('a',name);a.href=url;related.append(a);
   }
