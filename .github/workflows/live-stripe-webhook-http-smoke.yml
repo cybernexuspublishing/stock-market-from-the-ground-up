@@ -1,0 +1,26 @@
+name: LIVE Stripe Webhook External HTTP Smoke (nonpayment)
+on:
+  push:
+    paths:
+      - '.github/workflows/live-stripe-webhook-http-smoke.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  external-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify production webhook GET (405) and unsigned POST (401), no charge
+        shell: bash
+        run: |
+          set -euo pipefail
+          url='https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-live-webhook'
+          echo 'Production webhook transport check; no Stripe API keys, signed events, payment or customer writes.'
+          get_status=$(curl --silent --show-error --max-time 20 --output /tmp/gu-webhook-get.txt --write-out '%{http_code}' "$url") || { echo 'GET transport failed'; exit 1; }
+          echo "GET HTTP status: ${get_status}; body: $(head -c 180 /tmp/gu-webhook-get.txt)"
+          post_status=$(curl --silent --show-error --max-time 20 --output /tmp/gu-webhook-post.txt --write-out '%{http_code}' -X POST "$url" -H 'Content-Type: application/json' -H 'Stripe-Signature: t=123,v1=0000000000000000000000000000000000000000000000000000000000000000' --data-binary '{}' ) || { echo 'POST transport failed'; exit 1; }
+          echo "Unsigned POST HTTP status: ${post_status}; body: $(head -c 180 /tmp/gu-webhook-post.txt)"
+          test "$get_status" = '405'
+          test "$post_status" = '401'
+          echo 'PASS: public Stripe endpoint reachable, method guard active and unsigned delivery rejected.'
