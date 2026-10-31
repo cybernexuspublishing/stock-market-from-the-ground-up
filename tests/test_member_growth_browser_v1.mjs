@@ -52,6 +52,27 @@ try{
              path.includes('free-foundations-challenge'),
         'No Free account path for '+path);
     }
+    if(path==='/candle-practice.html'){
+      const layout=await page.evaluate(()=>{
+       const card=document.querySelector('.gu-learning-journey-v3');
+       const room=document.querySelector('.gu-learning-journey-v3 .gu-public-classroom');
+       const evidence=document.querySelector('.gu-public-evidence');
+       const tutor=document.querySelector('.gu-public-tutor');
+       return {cardWidth:card?.getBoundingClientRect().width||0,
+        viewport:innerWidth,
+        columns:getComputedStyle(room).gridTemplateColumns.split(' ').filter(Boolean).length,
+        evidenceWidth:evidence?.getBoundingClientRect().width||0,
+        tutorWidth:tutor?.getBoundingClientRect().width||0,
+        stylesheet:document.querySelector('link[href*="teaching-full-width-v1.css"]')!==null};
+      });
+      assert(layout.stylesheet,'Shared full-width teaching stylesheet must load');
+      assert(layout.cardWidth>=layout.viewport*.87,
+        'Learning card must use page width: '+JSON.stringify(layout));
+      assert.equal(layout.columns,width>=1051?2:1,
+        'ECharts left and Talia right on desktop, stacked on phone: '+JSON.stringify(layout));
+      assert(layout.evidenceWidth>100&&layout.tutorWidth>100,
+        'Chart and tutor must both remain visible: '+JSON.stringify(layout));
+    }
     if(path==='/free-foundations-challenge.html'){
       for(let i=1;i<=5;i++)assert(await page.locator('a[href*="program=free5"][href*="day='+i+'"]').count()>=1,'Missing Day '+i);
     }
