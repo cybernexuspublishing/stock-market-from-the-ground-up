@@ -37,8 +37,15 @@ for(const icon of Object.values(illustrations)){
  assert(existsSync(new URL('../assets/images/skill-illustrations/'+icon+'.svg',import.meta.url)),icon+' illustration missing');
  assert(catalog.includes(icon),'Missing program illustration mapping: '+icon);
 }
-assert(catalog.includes("image.alt='Conceptual illustration"),'Course artwork needs disclosure and meaningful alternative text');
-assert(catalog.includes('card.append(image,duration,heading,description,note,action)'),'Course card artwork should render before content');
+// Boot Camp cards use decorative covers with empty alt text; the containing
+// link provides the program name and an explicit accessible destination label.
+assert(catalog.includes("visual.alt=''")&&catalog.includes("visual.setAttribute('aria-hidden','true')"),
+ 'Decorative program cover must not duplicate the accessible program title');
+assert(catalog.includes("link.setAttribute('aria-label',access?")&&
+ catalog.includes("const name=node('span',p.title)")&&
+ catalog.includes("link.append(media)")&&catalog.includes("link.append(name)")&&
+ catalog.includes("card.append(link)"),
+ 'Compact Boot Camp cover must precede the named, accessible program link');
 assert(record.includes('function progressMeter(')&&record.includes('<progress max="100"'),'Skills record requires semantic progress bars');
 assert(record.includes('subScores')&&record.includes('known.length/4*100'),'Official coverage must reflect verified scored dimensions');
 assert(record.includes('distinctLabs=new Set('),'Repeated attempts may not inflate unique Lab progress');
