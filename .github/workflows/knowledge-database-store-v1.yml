@@ -6,6 +6,7 @@ on:
     paths:
       - '.github/workflows/knowledge-database-store-v1.yml'
       - 'knowledge-database.html'
+      - 'chart-reveal-practice.html'
       - 'assets/js/knowledge-database-expanded-v2.js'
       - 'assets/js/knowledge-database-workshop-v1.js'
       - 'assets/css/knowledge-database-expanded-v2.css'
