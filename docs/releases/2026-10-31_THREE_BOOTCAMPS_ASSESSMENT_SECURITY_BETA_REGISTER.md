@@ -2,7 +2,7 @@
 
 **Document ID:** SMFGU-ACADEMY-THREE-001
 **Project:** The Stock Market: From the Ground Up — Boot Camp Academy
-**Version:** 1.0
+**Version:** 1.1
 **Created:** October 31, 2026
 **Last reviewed:** October 31, 2026
 **File type:** Markdown (.md)
@@ -67,6 +67,17 @@
 | filings7 | 6 | Catalysts, Market Expectations, and Verification | 2 staged cases | Editorial + authentic QA blocked |
 | filings7 | 7 | Independent Corporate Disclosure Research Practicum | 2 staged cases | Editorial + authentic QA blocked |
 
+## Additional controlling depth requirement (concurrent Owner-approved V1 register)
+
+The newer `docs/product/ACADEMY_LUMENS_WALLET_BILLING_V1_20261031.md`
+(Document ID `SMFGU-ACADEMY-LUMEN-20261031-001`) now establishes:
+- At least **30 minutes of planned active instruction per day**, presented as a 30–45 minute study itinerary rather than an idle attendance timer.
+- At least **12 distinct, purposeful, individually authored formative teaching questions per day** as the initial editorial floor.
+- Multiple substantially worked numerical or source cases, error-specific teaching, independent reviewed assessment and transfer.
+- No student rewards or numeric Lumen amounts without a server-approved earning schedule; no second currency.
+
+**Gap on this release:** The newly drafted 27 lessons and ten-stage formative controller do not yet meet the independently verified 30–45 minute / 12-question-per-day editorial depth standard. This is material unfinished implementation, not merely a browser test. All three programs remain IN DEVELOPMENT despite working routes and private protected-case infrastructure.
+
 ## Release gates — do not bypass
 
 1. **Editorial:** independently verify each of 54 case scenarios, correct answers, distractors, numeric units, primary references, evidence cutoff and separate retake originality; reject generic or memorized-answer cases. Record reviewer identity/date. Check complete 27 lesson bodies for zero-knowledge sequencing, correction and accessible experience.
@@ -93,5 +104,6 @@ The companion CI gate is `.github/workflows/bootcamp-full-width-acceptance-v1.ym
 | Version | Date | Author | Change |
 |---|---|---|---|
 | 1.0 | October 31, 2026 | Project engineering | Established 27-day private assessment inventory and acceptance register without declaring editorial or member beta approval. |
+| 1.1 | October 31, 2026 | Project engineering | Incorporated later controlling 30–45-minute and 12-formative-question daily depth requirement; revised unfinished release classification. |
 
-**Status classification:** All three courses: IMPLEMENTED — TESTING PENDING; **not Beta Accepted and not Production Release Approved**.
+**Status classification:** All three courses: IN DEVELOPMENT (technical infrastructure deployed, depth and assessment editorial acceptance unfinished); **not Beta Testing Ready, not Beta Accepted and not Production Release Approved**.
