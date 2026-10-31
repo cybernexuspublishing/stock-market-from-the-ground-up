@@ -43,7 +43,28 @@
   put('greeting',withName('Thank you for being here',first)+'.');
   put('intro','We appreciate the time you invest in learning. Every new concept you understand and every decision you practice is progress worth building on.');
   if(!sessionId&&!orderId){
-   change('pending','We are checking your purchase information','This return link does not identify a specific order. Please review My Purchases or your dashboard; this page alone does not confirm payment.');
+   // Earlier Stripe TEST sessions returned only ?sku=. Confirm current access,
+   // never claim that this legacy URL verifies a particular payment.
+   const legacySku=preview.get('sku');
+   const required={CHART_ADVANCED_30D:'ADVANCED',CHART_PROFESSIONAL_30D:'PROFESSIONAL'};
+   if(Object.hasOwn(required,legacySku)){
+    try{
+     const check=await fetch('/api/chart-tier-access',{
+      headers:{authorization:'Bearer '+session.access_token},cache:'no-store'});
+     const access=await check.json();
+     if(check.ok&&access?.eligible===true&&access.allowed?.includes(required[legacySku])){
+      change('pending','Your Chart Studio access is available',
+       'Your account currently has '+required[legacySku].toLowerCase()+
+       ' Studio access. This earlier checkout link does not identify a specific order, so it cannot verify that particular payment.');
+      put('nextTitle','Continue where you left off');
+      put('nextCopy','Open your Chart Studio workspace or visit My Purchases to check the separate order record. Your learning progress remains yours.');
+      node.primary.href='/simulator.html';node.primary.textContent='Open Chart Studio';
+      return;
+     }
+    }catch{/* The generic verification message remains accurate. */}
+   }
+   change('pending','We are checking your purchase information',
+    'This earlier checkout link does not identify a specific order. Please review My Purchases or your dashboard; this page alone does not confirm payment.');
    return;
   }
   const ref=sessionId?'session_id='+encodeURIComponent(sessionId):'order_id='+encodeURIComponent(orderId);
