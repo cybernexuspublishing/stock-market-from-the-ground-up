@@ -45,3 +45,11 @@ assert(js.includes('gu-home-right-rail'),'Homepage statistics are mounted direct
 assert(js.includes("rail.insertBefore(panel,rail.firstChild)"),'Statistics appear before workstation');
 assert(js.includes("existing.closest('.gu-home-stage-grid')"),'Moving component into rail must not cause observer remount loop');
 assert(style.includes('gu-home-right-rail'),'Compact right-hand layout must be styled');
+
+assert(js.includes("fontSize:32,fontWeight:800"),'Gauge percentage should be visually dominant');
+assert(js.includes('gu-stats-content'),'Statistics title and text must sit beside the gauge');
+assert(style.includes('grid-template-columns:122px minmax(0,1fr)!important'),'Compact desktop gauge geometry required');
+assert(style.includes('font-size:clamp(.64rem,.76vw,.72rem)'),'Metric captions should be smaller than the percentage');
+assert(style.includes('padding:4px 0!important'),'Reduce vertical whitespace around metric labels');
+assert(style.includes('height:122px!important'),'Gauge must stay compact at desktop widths');
+assert(style.includes('height:102px!important'),'Gauge scales down on narrow devices');
