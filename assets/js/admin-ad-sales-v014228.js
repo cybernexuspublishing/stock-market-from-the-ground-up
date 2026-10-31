@@ -44,6 +44,42 @@ function render(){
   ' · Advertising display: '+(gates.ad_delivery_enabled?'Enabled':'Disabled')+
   ' · No automatic ad checkout is available.';
  e('gu-ad-toggle-inquiries').textContent=gates.accepting_inquiries?'Pause quote inquiries':'Reopen quote inquiries';
+ const perPage=e('gu-ad-page-controls');
+ if(perPage){
+  perPage.replaceChildren();
+  const groups=new Map();
+  for(const placement of model.placements||[]){
+   const pattern=String(placement.page_pattern||'');
+   if(!/^\\/[a-z0-9*.-]{2,90}$/.test(pattern))continue;
+   if(!groups.has(pattern))groups.set(pattern,[]);
+   groups.get(pattern).push(placement);
+  }
+  for(const [pattern,items] of groups){
+   const current=items.filter(x=>x.active===true).length;
+   const item=line(perPage,pattern,
+    current+' of '+items.length+' placement'+(items.length===1?'':'s')+' enabled');
+   const label=n('label',undefined,'gu-ad-carousel-control');
+   const input=n('input');input.type='checkbox';input.checked=current===items.length;
+   input.indeterminate=current>0&&current<items.length;
+   input.setAttribute('aria-label','Enable all advertising placements on '+pattern);
+   label.append(input,n('span',' Show all placements on this page'));
+   const feedback=n('p',undefined,'gu-ad-note');feedback.setAttribute('role','status');
+   input.addEventListener('change',async()=>{
+    input.disabled=true;
+    try{
+     const result=await request({action:'set_page_placements_active',pagePattern:pattern,enabled:input.checked});
+     if(result.pagePattern!==pattern||result.updatedCount!==items.length)throw Error('Page update was not verified.');
+     feedback.textContent='Saved '+result.updatedCount+' placements. Payment and campaign release settings unchanged.';
+     await refresh();
+    }catch(err){
+     input.checked=current===items.length;input.indeterminate=current>0&&current<items.length;
+     feedback.textContent='Not saved: '+err.message;
+    }finally{input.disabled=false}
+   });
+   item.append(label,feedback);
+  }
+  if(!groups.size)block(perPage,'No managed advertising placements are configured.');
+ }
  const placements=e('gu-ad-placements');placements.replaceChildren();
  for(const p of model.placements||[]){
   const item=line(placements,p.name,
@@ -157,17 +193,17 @@ function render(){
  for(const cp of model.campaigns||[]){
   const item=line(campaigns,'Campaign #'+cp.id+' · '+cp.name,
    cp.status+' · Approval: '+cp.approval_state+' · Payment: '+cp.payment_state+
-   ' · Contract: '+money(cp.amount_cents));
+   ' · Contract: '+(cp.amount_cents===0?'Affiliate / unpaid referral (no fixed-price contract)':money(cp.amount_cents)));
   block(item,'Run dates: '+(cp.starts_at?new Date(cp.starts_at).toLocaleDateString():'Unset')+
    '–'+(cp.ends_at?new Date(cp.ends_at).toLocaleDateString():'Unset'));
-  if(cp.status==='draft'&&cp.approval_state==='pending'){
+  if(cp.status==='draft'&&cp.approval_state==='pending'&&cp.amount_cents>0){
    item.append(button('Approve campaign',()=>act({action:'review_campaign',id:cp.id,verb:'approve'},
     'Owner approval recorded; ad delivery remains disabled.')));
    item.append(button('Reject campaign',()=>act({action:'review_campaign',id:cp.id,verb:'reject'},'Campaign rejected.')));
   }
   if(['active','scheduled'].includes(cp.status))
    item.append(button('Pause campaign',()=>act({action:'review_campaign',id:cp.id,verb:'pause'},'Campaign paused.')));
-  if(cp.status==='draft'&&cp.approval_state==='approved'){
+  if(cp.status==='draft'&&cp.approval_state==='approved'&&cp.amount_cents>0){
    const proof=n('form');proof.className='gu-ad-form';
    const label=n('label','Paid LIVE Stripe invoice ID (verification only)');
    const input=n('input');input.placeholder='in_…';input.required=true;input.pattern='in_[A-Za-z0-9_]{6,}';label.append(input);
