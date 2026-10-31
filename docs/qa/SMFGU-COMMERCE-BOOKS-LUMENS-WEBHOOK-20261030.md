@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.3  
+**Version:** 1.4  
 **Status:** PARTIAL ACCEPTANCE; paid purchases, signed LIVE delivery, and Lumens package purchases not accepted end-to-end  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -111,6 +111,31 @@ The exact five customer-facing book SKUs remain sale-ready. Twelve of sixty-one 
 
 **Release gates:** all five EPUB titles remain in their current sale-ready state as recorded previously, but paid-fulfillment acceptance is NOT asserted. Lumens package LIVE customer checkout remains disabled. No LIVE nonzero QA payment, secret rotation, new webhook endpoint, customer entitlement grant or automated billing mutation was performed.
 
+
+## Provider-hosted execution on October 30, 2026 — independent acceptance results
+
+**Browser-run evidence:** [Stripe TEST and $0 LIVE run 41157810796](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41157810796), concluded FAILURE by design. GitHub Actions reached all three official hosted Checkout forms and submitted the approved Stripe TEST card only for the two TEST sessions. The hosted UI displayed "Please try again" and remained on Stripe for each attempt. A browser-only failure message cannot establish actual provider payment state.
+
+**Provider reconciliation (authoritative Stripe API):**
+
+| Item | Actual Stripe state | Acceptance |
+|---|---|---|
+| Book I $10.99 TEST, cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg | open / unpaid / PaymentIntent null | No paid book or refund |
+| 25 Lumens $5 TEST, cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB | open / unpaid / PaymentIntent null | No purchased credits or refund |
+| LIVE $0, cs_live_a1cfvoCm3vgnKzYaqn71dk4eJiyYrrOjNeUPQyS65eqePFK4btQU00Tl1V | complete / paid / exactly $0 / PaymentIntent null | Provider checkout PASSED; webhook NOT passed |
+
+The new genuine LIVE `checkout.session.completed` event is `evt_1UWRaCJL0O4GGVBHK5A1POGx` (2026-10-31T01:59:48Z). Its `pending_webhooks=1`, and original event `evt_1UVaw9JL0O4GGVBHKjQTd21w` also remains at 1. Actual signed HTTP 2xx acknowledgment was **not confirmed**.
+
+**LIVE webhook negative preflight:** [run 41158103786](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41158103786) PASSED. GET returned expected 405 and invalid-signature POST returned expected HTTP 401 `Invalid signature`. This verifies public route availability and fail-closed behavior, NOT acceptance of a legitimate Stripe signature.
+
+**Official provider resend attempt:** [run 41158165130](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41158165130) successfully ran the readiness check, but **did not resend** the original LIVE event: no authorized Stripe LIVE API key was available in the checked GitHub Actions secrets. Cloudflare signing secrets were not extracted, copied, or rotated. The original event must be retried using authorized Stripe Workbench/Dashboard or CLI credentials.
+
+**Supabase post-run:** `gu_book_test_events_v1` = 0, `gu_lumen_bundle_test_events_v1` = 0, `gu_lumen_bundle_test_shadow_credits_v1` = 0, `gu58_live_stripe_events` = 0. No customer purchased-Lumens balance was altered. No nonzero LIVE payment occurred. No TEST refunds can be performed before a successful TEST charge.
+
+**Remaining owner/provider interactions:** Inspect LIVE Workbench event delivery-attempt HTTP status/body for both pending events, correct the evidence-backed cause, resend the original; complete two existing TEST Checkout sessions in an interactive browser accepted by Stripe, then independently verify genuine signed payment events, paid book entitlement/private EPUB, 25-Lumens QA shadow credit, and Stripe TEST refunds/reversals. Paid customer Lumens checkout remains disabled until real-wallet issuance/refund logic is independently accepted.
+
+**Do not close** book paid-fulfillment, original/new LIVE webhook delivery, purchased-Lumens credit, or refund acceptance on the evidence available.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -120,3 +145,4 @@ The exact five customer-facing book SKUs remain sale-ready. Twelve of sixty-one 
 | 1.1 | 2026-10-30 | Corrected extensionless My Books test passed; verified unauthorized downloads denied for all five books as Free QA member. |
 | 1.2 | 2026-10-30 | Positive five-book EPUB delivery passed; five Stripe TEST Lumens packages, new shadow ledger and refund contracts, authenticated $5 TEST Checkout, comprehensive regression, QA rollback and remaining signed-event gaps recorded. |
 | 1.3 | 2026-10-30 | Independently reverified Stripe sessions, TEST/LIVE endpoint routing, Cloudflare LIVE switches, deployment, Supabase payment ledgers, QA shadow-only boundary and original pending LIVE event. No false acceptance of paid fulfillment. |
+| 1.4 | 2026-10-30 | Executed live Stripe-hosted QA; genuine $0 LIVE Checkout completion, both LIVE events still pending, unsigned route preflight 405/401, no available CI LIVE resend key, two TEST sessions unpaid, no phantom grants/refunds. |
