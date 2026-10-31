@@ -133,6 +133,25 @@ body.gu-teaching-wide :is(.gu-v33-stage-hero,.gu-public-classroom,.academy-studi
   padding:10px!important;
  }
 }
+/* Watchlist Research and premium tool education: only Talia's instructional
+   workspaces expand; the tools' commerce/access contracts are untouched. */
+body.gu-teaching-wide main.section>.wrap.free-watchlist,
+body.gu-teaching-wide main.section>.wrap:has(#tool-content .cl-talia-v4){
+ max-width:none!important;width:100%!important;
+ padding-inline:var(--gu-teach-gutter)!important;
+}
+body.gu-teaching-wide .cl-talia-v4{
+ width:100%!important;max-width:none!important;min-width:0!important;
+}
+body.gu-teaching-wide .cl-talia-v4 .cl-talia-workspace{
+ width:100%!important;max-width:none!important;
+ display:grid!important;grid-template-columns:minmax(0,1.28fr) minmax(0,.9fr)!important;
+ gap:clamp(12px,1.4vw,24px)!important;align-items:start!important;
+}
+body.gu-teaching-wide .cl-talia-v4 .cl-talia-workspace>*{min-width:0!important;max-width:100%!important}
+@media(max-width:1050px){
+ body.gu-teaching-wide .cl-talia-v4 .cl-talia-workspace{grid-template-columns:minmax(0,1fr)!important}
+}
 /* Inline Labs: expand the already-entitled iframe workstation, not the
    Registry catalog, so the lesson can use the available page width. */
 body.gu-teaching-wide #gu-labs-main:has(#gu-inline-lab:not([hidden])){max-width:none!important;width:100%!important}
