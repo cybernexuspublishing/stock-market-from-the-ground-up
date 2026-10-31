@@ -70,7 +70,7 @@
   const buy=el('button','Open discounted Stripe TEST checkout');buy.type='button';buy.className='btn';buy.disabled=true;
   const cancelCard=el('button','Cancel unpaid card-only TEST checkout');
   cancelCard.type='button';cancelCard.className='btn secondary';cancelCard.hidden=true;cancelCard.disabled=true;
-  let quote=null,requestId=null,revision=0;
+  let quote=null,requestId=null,revision=0,cancelMode=null,cancelUpgradeId=null;
   const reset=()=>{revision++;quote=null;requestId=null;buy.disabled=true;preview.disabled=false;summary.textContent='Selection changed. Verifying your new Lumen quote…';preview.click()};
   input.addEventListener('change',reset);
   input.addEventListener('input',()=>{revision++;quote=null;requestId=null;buy.disabled=true;
@@ -91,14 +91,26 @@
     if(d.originalCents!==p.cents||d.selectedLumens!==n)throw Error('Quote no longer matches the selection.');
     summary.textContent='Available: '+d.availableLumens+' Lumens · Apply: '+n+' · Discount: '+usd(d.discountCents)+' · Card due: '+usd(d.cashDueCents)+' · Balance after: '+d.remainingLumens+'.';
     cancelCard.hidden=true;cancelCard.disabled=true;
+    cancelMode=null;cancelUpgradeId=null;
     if(d.pendingCardCheckout){
      summary.textContent+=' An unpaid full-price TEST checkout is still pending for this product. Cancel it before using Lumens.';
+     cancelMode='card';
+     cancelCard.textContent='Cancel unpaid card-only TEST checkout';
      cancelCard.hidden=!d.cancelPendingCardAvailable;
      cancelCard.disabled=!d.cancelPendingCardAvailable;
      if(!d.cancelPendingCardAvailable)summary.textContent+=' Checkout creation is still completing; retry Preview shortly.';
      return;
     }
-    if(d.pendingMixedCheckout){summary.textContent+=' A prior mixed checkout is awaiting payment or reconciliation.';return}
+    if(d.pendingMixedCheckout){
+     summary.textContent+=' An earlier mixed checkout is pending. You can cancel it without paying.';
+     const safeId=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+     if(d.cancelPendingMixedAvailable===true&&safeId.test(d.pendingMixedUpgradeId||'')){
+      cancelMode='mixed';cancelUpgradeId=d.pendingMixedUpgradeId;
+      cancelCard.textContent='Cancel unpaid mixed TEST checkout';
+      cancelCard.hidden=false;cancelCard.disabled=false;
+     }else summary.textContent+=' If checkout is still being created, refresh the quote shortly.';
+     return;
+    }
     if(!d.checkoutActive){summary.textContent+=' TEST checkout is not authorized for this account.';return}
     quote=d;buy.disabled=false;
     buy.textContent=d.fullyCovered?'Redeem Lumens — no card charge (TEST)':'Pay '+usd(d.cashDueCents)+' using Stripe TEST';
@@ -110,12 +122,14 @@
    cancelCard.disabled=true;buy.disabled=true;
    summary.textContent='Confirming unpaid Stripe TEST checkout expiration…';
    try{
+    if(!cancelMode)throw Error('Refresh the quote before canceling.');
+    const payload=cancelMode==='mixed'?
+     {action:'cancel',upgradeId:cancelUpgradeId}:{action:'cancel_card_pending',sku:p.sku};
     const result=await requestJson('/api/chart-mixed-test-checkout',{method:'POST',
-     headers:{'content-type':'application/json'},
-     body:JSON.stringify({action:'cancel_card_pending',sku:p.sku})});
-    if(result.testOnly!==true||result.canceled!==true)throw Error('TEST cancellation not verified.');
-    cancelCard.hidden=true;
-    summary.textContent='Unpaid card-only TEST checkout expired. Waiting for its signed Stripe event to clear the pending order. The Lumen quote will be checked again.';
+     headers:{'content-type':'application/json'},body:JSON.stringify(payload)});
+    if(result.canceled!==true)throw Error('TEST cancellation not verified.');
+    cancelCard.hidden=true;cancelMode=null;cancelUpgradeId=null;
+    summary.textContent='Unpaid Stripe TEST checkout expired. Awaiting the signed Stripe expiration event to restore any reserved Lumens. Please refresh the quote before another purchase.';
     setTimeout(()=>{if(!preview.disabled)preview.click()},1200);
    }catch(error){
     summary.textContent=error.message+' Do not attempt another payment until the earlier checkout is reconciled.';
