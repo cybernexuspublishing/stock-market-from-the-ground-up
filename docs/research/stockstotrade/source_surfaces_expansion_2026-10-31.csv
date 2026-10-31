@@ -1,0 +1,16 @@
+source_id,url,source_class,access_status,topic_family,learning_target,verification_status
+STT-X001,https://help.stockstotrade.com/,support_index,publisher_count_216,platform_help,Free Foundations and Tool Orientation,metadata_only
+STT-X002,https://help.stockstotrade.com/category?categoryId=Getting_Started,support_category,public_index_34_articles,platform_setup,Free Foundations,metadata_only
+STT-X003,https://support.stockstotrade.com/hc/en-us/categories/202169077-Using-StocksToTrade,support_legacy_category,public_index,scanner_chart_and_watchlist,Existing Labs and Chart Studio,metadata_only
+STT-X004,https://support.stockstotrade.com/hc/en-us/articles/4405724299543-How-to-Use-the-STT-Platform-and-Its-Features,support_article,public_text,platform_tutorials,Free Foundations,article_read
+STT-X005,https://university.stockstotrade.com/course/tutorial-center,university_course,linked_subscription_login_possible,platform_tutorials,Free Foundations,access_unverified
+STT-X006,https://university.stockstotrade.com/posts/stt-demos,university_course,linked_subscription_login_possible,platform_demos,Free Foundations,access_unverified
+STT-X007,https://university.stockstotrade.com/course/traders-feature-guide,university_course,linked_subscription_login_possible,tool_based_trading,Existing Labs and Boot Camps,access_unverified
+STT-X008,https://university.stockstotrade.com/course/trading-terms,university_course,linked_subscription_login_possible,terminology,Free Foundations,access_unverified
+STT-X009,https://stockstotrade.com/blog/,blog_index,public_text,article_discovery,All Lab and Boot Camp topics,index_read
+STT-X010,https://stockstotrade.com/platform/,platform_marketing,public_text,level2_scanners,Chart Studio and Lab research,marketing_claims_unverified
+STT-X011,https://stockstotrade.com/news/,rolling_news,public_text,dated_market_catalysts,BC-05-TRUTH,factual_claims_unverified
+STT-X012,https://www.youtube.com/@Stockstotrade/courses,youtube_surface,not_enumerated,course_index,All Academy Boot Camps,metadata_unavailable
+STT-X013,https://www.youtube.com/@Stockstotrade/videos,youtube_surface,not_enumerated,video_index,All Lab topics,metadata_unavailable
+STT-X014,https://www.youtube.com/@Stockstotrade/streams,youtube_surface,not_enumerated,stream_index,All Lab topics,metadata_unavailable
+STT-X015,https://www.youtube.com/@Stockstotrade/shorts,youtube_surface,not_enumerated,short_index,All Lab topics,metadata_unavailable
