@@ -1,0 +1,27 @@
+name: James Test Genuine Lumens TEST Checkout Initiation
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_james_lumen_test_checkout_browser_v1.mjs'
+      - '.github/workflows/james-lumen-test-checkout-v1.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  authenticated-qa-checkout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Authenticate James and create a QA-only Stripe TEST Lumen Checkout
+        env:
+          LAB_QA_EMAIL: ${{ secrets.LAB_QA_EMAIL }}
+          LAB_QA_PASSWORD: ${{ secrets.LAB_QA_PASSWORD }}
+        run: node tests/test_james_lumen_test_checkout_browser_v1.mjs
