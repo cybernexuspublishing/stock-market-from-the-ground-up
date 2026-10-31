@@ -733,7 +733,7 @@
    catalog(programs);
    void loadAcademySearchMetadata();
    void verifyAcademyBrowseRights();
-   status('Explore the seven Boot Camps. Sign in with eligible training access to save your progress.');
+   status('Explore our seven Boot Camps. Choose a program to see what you will learn and review the available access options.');
   }catch(error){status(error.message||'The Academy catalog cannot be verified.')}
  }
  get('academy-program-search')?.addEventListener('input',filterAcademyCatalog);
