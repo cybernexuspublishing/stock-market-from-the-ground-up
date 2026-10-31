@@ -1,0 +1,29 @@
+/* SMFGU-ACADEMY-ASSESS-001 v1.0 — secure learning presentation.
+   Assessment prompts are fetched only after authenticated, reviewed release. */
+.academy-protected-assessment{border-top:1px solid #3c6377;margin:25px 0;padding:22px clamp(10px,2vw,24px);background:#0c2435;border-radius:12px;color:#e7f2f8}
+.academy-protected-assessment[hidden]{display:none!important}
+.academy-protected-assessment h4{font-size:1.2rem;color:#f8fdff;margin:0 0 12px}
+.academy-assessment-status{color:#bcd5e2;font-size:.9rem;line-height:1.65}
+.academy-assessment-question{border:1px solid #36576c;background:#112e42;border-radius:9px;padding:15px;margin:15px 0;min-width:0}
+.academy-assessment-question legend{font-weight:700;color:#f1fafb;line-height:1.5;padding:0 5px;max-width:100%}
+.academy-assessment-option{display:flex;align-items:flex-start;gap:10px;padding:11px 8px;border-radius:6px;margin:6px 0;cursor:pointer;line-height:1.5}
+.academy-assessment-option:has(input:checked){background:#225347;outline:1px solid #77dab9}
+.academy-assessment-option input{margin-top:5px;flex-shrink:0;accent-color:#65d7b2}
+.academy-assessment-detail .btn{margin-top:8px;white-space:normal}
+.academy-evidence-head{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.academy-evidence-head strong{font-size:.89rem;color:#effafb}
+.academy-evidence-head small{font-size:.65rem;color:#a5c8d7;letter-spacing:.06em}
+.academy-evidence-sequence{padding-left:23px;margin:14px 0;display:grid;gap:9px}
+.academy-evidence-event{background:#0e2f42;border-left:2px solid #51ccb2;border-radius:5px;padding:10px}
+.academy-evidence-event strong{color:#d5f3ea}
+.academy-evidence-event p{margin:7px 0 0;font-size:.86rem;line-height:1.65;color:#d0e4f0}
+.academy-evidence-limit{font-size:.75rem;color:#c1dae7;line-height:1.5}
+.academy-evidence-levels{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+.academy-evidence-levels span{font-size:.66rem;font-weight:650;letter-spacing:.04em;border:1px solid #3a6879;border-radius:20px;padding:7px 9px;color:#b8eada;background:#103248}
+@media(max-width:750px){
+ .academy-protected-assessment{margin:12px 0;padding:12px}
+ .academy-assessment-question{padding:10px}
+ .academy-evidence-head{display:grid}
+ .academy-evidence-event{padding:8px}
+}
+@media(prefers-reduced-motion:reduce){.academy-protected-assessment *, .academy-guided-evidence *{transition:none!important;animation:none!important}}
