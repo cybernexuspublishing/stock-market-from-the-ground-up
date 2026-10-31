@@ -127,6 +127,7 @@
     media.append(visual);link.append(media);
    }
    const name=node('span',p.title);name.className='academy-program-compact-name';link.append(name);
+   const codeLabel=node('span',p.code);codeLabel.className='academy-program-compact-code';link.append(codeLabel);
    if(!access){
     const lock=node('span','🔒');lock.className='gu-academy-lock';
     lock.setAttribute('aria-hidden','true');link.append(lock);
