@@ -294,7 +294,10 @@ async function lumenLiveVerifiedEvent(c,event){
  const sessionTypes=['checkout.session.completed','checkout.session.async_payment_succeeded',
    'checkout.session.async_payment_failed','checkout.session.expired'];
  if(sessionTypes.includes(type)){
-  if(!ident(obj.id,'cs_live'))return false;
+  // The Stripe snapshot Session carries metadata. Unrelated commerce must not
+  // incur a separate Lumen provider fetch or fail due to its own checkout state.
+  if(!lumenLiveTagged(obj))return false;
+  if(!ident(obj.id,'cs_live'))throw Error('LU301:tagged_session_invalid');
   const v=await lumenLiveSessionProof(c,obj.id);
   if(!v)return false;
   if(type==='checkout.session.completed'||type==='checkout.session.async_payment_succeeded'){
