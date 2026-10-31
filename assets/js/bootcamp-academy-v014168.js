@@ -282,6 +282,15 @@
   risk60:{title:'Audit realistic execution risk',procedure:'Distinguish a stop trigger from execution price; document spreads, quoted depth, halt exposure, stop-limit nonexecution, gap risk, position size and account-specific margin restrictions.',limits:'A fixed stop level does not guarantee a maximum realized loss; historical PDT statements require current firm-specific review.'},
   practicum90:{title:'Build an independent evidence dossier',procedure:'Lock the information cutoff, record source URLs and data provenance, precommit thesis, invalidation, risk budget, possible no-trade result, and an after-action review without hindsight.',limits:'Retrospective winning examples and instructor anecdotes do not establish expected future performance.'}
  });
+ const researchReferenceByProgram=Object.freeze({
+  truth5:{url:'https://www.sec.gov/search-filings',authority:'SEC EDGAR original issuer filings',limit:'An issuer filing is not proof that a trader saw it before the historical pause.'},
+  watchlist7:{url:'https://www.investor.gov/introduction-investing',authority:'SEC Investor.gov research and investing basics',limit:'A research watchlist does not prove a scanner signal or future trade outcome.'},
+  scanners10:{url:'https://www.finra.org/investors/investing/investment-products/stocks',authority:'FINRA stock-investing education',limit:'This broad investor resource does not validate a specific scanner filter or winning strategy.'},
+  foundations30:{url:'https://chartschool.stockcharts.com/table-of-contents/chart-analysis/candlestick-charts/introduction-to-candlesticks',authority:'ChartSchool candle definitions',limit:'A candle does not identify who traded or prove future price direction.'},
+  charts45:{url:'https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/volume-weighted-average-price-vwap',authority:'ChartSchool original VWAP formula reference',limit:'Bar-based VWAP may differ from tick-based VWAP; neither verifies an actual trading edge.'},
+  risk60:{url:'https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders',authority:'SEC Investor.gov order types and fill uncertainty',limit:'A stop trigger or limit instruction does not guarantee execution.'},
+  practicum90:{url:'https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/executing-order',authority:'SEC Investor.gov trade execution and quoted-size risk',limit:'A research record, hypothetical position or displayed quote is not a broker execution.'}
+ });
  function showProgramResearchProtocol(d,mount){
   const p=programResearchProtocols[d.programCode];if(!p)return;
   const section=node('section');section.className='academy-beta-daily-coach';
@@ -290,6 +299,14 @@
    node('p','Original, ungraded supporting instruction. This checkpoint is not a historical market case, private assessment, or grade.'),
    node('p',p.procedure),node('h4','Evidence limitation'),node('p',p.limits),
    node('p','Apply this checkpoint to today’s specific subject: '+d.title+'. Explain what is verified, what remains uncertain, and the condition that would justify no trade.'));
+  const reference=researchReferenceByProgram[d.programCode];
+  if(reference){
+   const a=node('a',reference.authority);
+   a.href=reference.url;a.target='_blank';a.rel='noopener noreferrer';
+   section.append(node('h4','Independently checked topic-level reference'),a,
+    node('p','Source status: public topical reference only. NOT verification, grading or independent editorial acceptance of this exact Boot Camp day.'),
+    node('p','Source limit: '+reference.limit));
+  }
   mount.append(section);
  }
 
