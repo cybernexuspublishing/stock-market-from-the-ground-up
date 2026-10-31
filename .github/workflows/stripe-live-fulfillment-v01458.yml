@@ -24,6 +24,7 @@ on:
       - 'tests/test_v014083_*'
       - 'tests/test_v014084_*'
       - 'tests/test_v014155_*'
+      - 'tests/test_v014300_*'
       - 'assets/js/store.js'
       - 'assets/js/store-product-detail-v01484.js'
       - 'store.html'
@@ -105,6 +106,7 @@ jobs:
           node tests/test_v014140_live_checkout_recovery.mjs
           node tests/test_v014155_live_checkout_body_limits.mjs
           node tests/test_v014155_webhook_body_limits.mjs
+          node tests/test_v014300_founder_expired_webhook.mjs
           node tests/test_v014155_release_metadata.mjs
       - name: Verify production checkout wiring cannot bypass TEST/LIVE, webhook or product gates
         run: |
