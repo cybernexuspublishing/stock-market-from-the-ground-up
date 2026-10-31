@@ -63,23 +63,25 @@
   const summary=el('p',included?'Already included — no purchase is needed.':!token?'Sign in to see your balance and options.':'Choose an amount and select Preview Lumen discount.');
   summary.setAttribute('role','status');
   const buy=el('button','Open discounted Stripe TEST checkout');buy.type='button';buy.className='btn';buy.disabled=true;
-  let quote=null,requestId=null;
-  const reset=()=>{quote=null;requestId=null;buy.disabled=true;summary.textContent='Selection changed. Verify your Lumen quote again.'};
-  input.addEventListener('input',reset);
+  let quote=null,requestId=null,revision=0;
+  const reset=()=>{revision++;quote=null;requestId=null;buy.disabled=true;summary.textContent='Selection changed. Verifying your new Lumen quote…';void preview.click()};
+  input.addEventListener('change',reset);
   preview.addEventListener('click',async()=>{
+   const currentRevision=++revision;
    buy.disabled=true;quote=null;requestId=null;
    const n=Number(input.value);
    if(!Number.isSafeInteger(n)||n<1||n>Math.ceil(p.cents/7)){summary.textContent='Enter a valid whole Lumen amount.';return}
    preview.disabled=true;summary.textContent='Checking current wallet, access and price…';
    try{
     const d=await requestJson('/api/chart-mixed-test-quote?sku='+encodeURIComponent(p.sku)+'&lumens='+n);
+    if(currentRevision!==revision)return;
     if(d.originalCents!==p.cents||d.selectedLumens!==n)throw Error('Quote no longer matches the selection.');
     summary.textContent='Available: '+d.availableLumens+' Lumens · Apply: '+n+' · Discount: '+usd(d.discountCents)+' · Card due: '+usd(d.cashDueCents)+' · Balance after: '+d.remainingLumens+'.';
     if(!d.checkoutActive){summary.textContent+=' TEST checkout is not authorized for this account.';return}
     quote=d;buy.disabled=false;
     buy.textContent=d.fullyCovered?'Redeem Lumens — no card charge (TEST)':'Pay '+usd(d.cashDueCents)+' using Stripe TEST';
-   }catch(e){summary.textContent=e.message}
-   finally{preview.disabled=false}
+   }catch(e){if(currentRevision===revision)summary.textContent=e.message}
+   finally{if(currentRevision===revision)preview.disabled=false}
   });
   buy.addEventListener('click',async()=>{
    if(!quote||!quote.checkoutActive||buy.disabled)return;
@@ -97,6 +99,8 @@
   });
   section.append(heading,explain,label,preview,summary,buy);
   card.append(title,price,detail,terms,state,cash,section);
+  // Read-only automatic quote for eligible QA members. Payment still requires explicit click.
+  if(eligible)void preview.click();
   return card;
  }
  async function cancelOnReturn(){
