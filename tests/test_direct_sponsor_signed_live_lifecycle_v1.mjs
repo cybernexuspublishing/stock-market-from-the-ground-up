@@ -18,7 +18,8 @@ const invoice={id:invoiceId,livemode:true,status:'paid',amount_remaining:0,amoun
 const campaign={id:42,advertiser_id:8,amount_cents:25000,approval_state:'approved',
  payment_state:'unpaid',stripe_invoice_id:invoiceId,stripe_customer_id:customerId};
 const pi={id:intentId,livemode:true,status:'succeeded',currency:'usd',
- customer:customerId,amount_received:25000,latest_charge:chargeId,invoice:invoiceId};
+ customer:customerId,amount_received:25000,latest_charge:chargeId,
+ payment_details:{order_reference:invoiceId}};
 function mocks({refund=0,dispute=false,underpaid=false,unrelated=false}={}){
  const prior=globalThis.fetch,seen=[],ledger=[];
  globalThis.fetch=async(url,opts={})=>{
