@@ -22,6 +22,12 @@ on:
       - 'tests/test_ad_page_controls_and_tradingview_v1.mjs'
       - 'assets/css/ad-sales-v014228.css'
       - 'functions/api/ad-sales.js'
+      - 'functions/api/adsense-controls.js'
+      - 'assets/js/adsense-controlled-v1.js'
+      - 'tests/test_adsense_owner_controls_v1.mjs'
+      - 'supabase/migrations/20261030_adsense_owner_controls_v1.sql'
+      - 'index.html'
+      - 'store.html'
       - 'functions/_lib/paid-sponsor-invoicing-v1.js'
       - 'tests/test_direct_paid_sponsor_invoices_v1.mjs'
       - 'supabase/migrations/20261030_direct_paid_sponsorship_invoice_v1.sql'
@@ -61,6 +67,8 @@ jobs:
       - name: Check Advertising API, Owner controls and rendering source
         run: |
           node --check functions/api/ad-sales.js
+          node --check functions/api/adsense-controls.js
+          node --test tests/test_adsense_owner_controls_v1.mjs
           node --check functions/_lib/paid-sponsor-invoicing-v1.js
           node --test tests/test_direct_paid_sponsor_invoices_v1.mjs
           node --check functions/api/ad-slot.js
