@@ -5,8 +5,8 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 2.0  
-**Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST purchase/payment/webhook/refund/reversal lifecycles accepted; real LIVE book fulfillment, production purchased-Lumens wallet and LIVE webhook acknowledgment remain OPEN  
+**Version:** 2.1  
+**Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST lifecycles PASS; genuine signed LIVE webhook transport PASS on replacement endpoint; real nonzero LIVE book fulfillment and production purchased-Lumens wallet acceptance remain OPEN; legacy events remain historical delivery failures  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
 **Purpose:** Record precise verified controls, changes, gaps, and cleanup.
@@ -292,6 +292,31 @@ After the isolated GU300 test passed, the preexisting broad LIVE-commerce workfl
 
 **Result:** The automated expired Founding checkout release bug is **FIXED AND DEPLOYED** with isolated and broad security/commerce CI PASS. Real Stripe signed LIVE event acknowledgment and paid-production fulfilment acceptance are **OPEN**.
 
+## GU301 verified LIVE webhook migration — October 31, 2026 UTC
+
+**Scope:** Resolve actual Stripe LIVE-to-Cloudflare signature/delivery acceptance without any nonzero LIVE charges, subscriptions, customer entitlements, or paid automation. No endpoint signing secret or Stripe API key value was exposed or committed.
+
+### Provider-delivered evidence
+
+1. Primary original LIVE endpoint `we_1UUZvAJL0O4GGVBH5Tp77DVM` was present and enabled, but three prior events (`evt_1UVaw9JL0O4GGVBHKjQTd21w`, `evt_1UWRaCJL0O4GGVBHK5A1POGx`, and `evt_1UWPc4JL0O4GGVBHDgiuSFrD`) each had `pending_webhooks=1`. The original per-attempt HTTP status and response text were not exposed by the connected Stripe API, so the exact old failure mechanism remains unproven.
+2. A no-charge live `customer.updated` on an existing Owner QA-only customer temporarily subscribed to the **original** endpoint produced `evt_1UWTGUJL0O4GGVBHAF5OvUCI` with `pending_webhooks=1`. The event subscription and QA customer's metadata were restored.
+3. Free GitHub Actions external HTTP smoke `41165917731`: canonical production endpoint returned `GET 405 POST required` and `POST 401 Invalid signature` for an intentionally unsigned request. Thus production transport/routing was reachable and rejected unauthenticated requests.
+4. Created a separate diagnostic LIVE webhook destination `we_1UWTJZJL0O4GGVBHnnFiG4X8` initially subscribed only to `customer.updated`; Stripe returned its unique signing secret **once** at creation. Saved that value directly into Cloudflare encrypted production binding `GU301_STRIPE_LIVE_SIGNING_SECRET`, without copying it into repository source, chat, or logs. Existing production bindings were preserved (48 original + one verified secret = 49 bindings).
+5. Isolated non-entitling signature and LIVE merchant-account probe with the new secret accepted real provider-signed `evt_1UWTLvJL0O4GGVBHEx6P8GPs` (`pending_webhooks=0`). The existing QA customer's temporary metadata was restored. The probe did not write Stripe commerce or Supabase entitlements.
+6. Updated all four signature-selection sites in `functions/api/stripe-live-webhook-v01458.js` to prioritize `GU301_STRIPE_LIVE_SIGNING_SECRET`, retaining legacy secret fallback solely for existing mocks/emergency configuration. After its GitHub deployment was `active`, repointed verified endpoint `we_1UWTJZJL0O4GGVBHnnFiG4X8` to exact production URL `https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-live-webhook`.
+7. With the replacement endpoint temporarily subscribed to `customer.updated` **in addition to** the existing ten commerce event types, real provider event **`evt_1UWTNCJL0O4GGVBHZWNeUofu`** was independently retrieved from Stripe as `livemode=true`, `pending_webhooks=0`. The original endpoint had not subscribed to `customer.updated`, so this provider-delivered signed acknowledgment was uniquely attributable to the replacement endpoint on the canonical route.
+8. Removed temporary `customer.updated` subscription, restored exactly ten required commerce events on new primary destination, and **disabled** failed endpoint `we_1UUZvAJL0O4GGVBH5Tp77DVM`. The unrelated dedicated founding webhook remained unchanged. Deleted the temporary `functions/api/stripe-live-signed-probe-v1.js` route and removed its temporary GitHub external smoke check; left the canonical external 405/401 boundary smoke workflow.
+9. Final production deployment `a1399a4b-f39c-44d6-81ee-a8e1196f8c7b` reports `active` for main commit `abd67b0fed6b1a4e799bb6e8aac0e893aa6a0cea`. Final main-branch free CI **PASS**: `Locked LIVE Membership Fulfillment` run `41166404172`; `Deployment 08 Source Release Gate` run `41166404156`.
+10. The original three old events remain historically `pending_webhooks=1` against the **now-disabled** former destination. Do not label them delivered or grant anything based on them. Connected Stripe API cannot resend historical endpoint deliveries; their checkout contents were $0 diagnostics and an expired unpaid $49.99 subscription Checkout. The expired founder reservation was separately safely released in GU300.
+
+### Acceptance result and production dependency
+
+- **PASS:** Actual provider-signed Stripe LIVE event delivery and acknowledgment on the canonical Cloudflare route using the replacement, encrypted, provider-created signing secret. Retired the old failing signing destination. Exact historical root cause cannot be proven without its delivery-attempt response; original secret mismatch is a strongly supported inference, not a demonstrated 401 HTTP record.
+- **PASS:** The protected expired-founder reservation cleanup fix, isolated GU300 regression, full LIVE source/fulfillment mock suite, and production release gate.
+- **OPEN:** Genuine *nonzero* LIVE purchase fulfillment into an authenticated member's My Books entitlement, paid Founding Member lifecycle, and production purchased Crownlight Lumens credit/refund ledger. Signed `customer.updated` proves webhook transport/signature but does **not** prove these paid entitlement flows.
+- **CREDENTIAL CONTROL:** `GU301_STRIPE_LIVE_SIGNING_SECRET` is now the controlling production Stripe webhook signing variable. Do not remove or overwrite it with the retired endpoint's `whsec`. `GU58_STRIPE_LIVE_WEBHOOK_SECRET` remains an encrypted legacy fallback. The Stripe endpoint secret cannot be recovered from Stripe API after initial creation; future maintenance must preserve the verified Cloudflare binding.
+- **$0 budget / safety:** No real LIVE card payments, subscriptions, refunds, credits, or charges; no additional paid service. The QA customer metadata was restored to an empty object.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -308,3 +333,4 @@ After the isolated GU300 test passed, the preexisting broad LIVE-commerce workfl
 | 1.8 | 2026-10-30 CDT / 2026-10-31 UTC | Owner's two LIVE event links and three Checkout payloads reconciled. Third LIVE event is an expired/unpaid $49.99 Founding 30 checkout, not a charge; released one verified stale bound Founder seat. All three webhook attempt responses remain unverified. |
 | 1.9 | 2026-10-31 UTC | Implemented service-only Stripe-verified Founding expiry release; guarded SQL replay/permissions verified; isolated GitHub Actions PASS and matching Cloudflare production deployment confirmed; broad legacy fixture failed refund test; three signed LIVE event acknowledgments still pending. |
 | 2.0 | 2026-10-31 UTC | Legacy mock Stripe PaymentIntent corrected; broad LIVE commerce CI run 41164179095 PASS, isolated GU300 CI PASS, Cloudflare exact main commit active; three provider LIVE webhook events remain pending. |
+| 2.1 | 2026-10-31 UTC | Real LIVE signed Stripe webhook transport confirmed on replacement endpoint; old destination disabled, original ten events preserved, isolated diagnostic removed; full commerce and deployment CI PASS; paid entitlement acceptance OPEN. |
