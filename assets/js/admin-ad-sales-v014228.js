@@ -42,8 +42,10 @@ function render(){
  gate.textContent='New quote inquiries: '+(gates.accepting_inquiries?'Open':'Paused')+
   ' · Online ad payments: '+(gates.accepting_payments?'Enabled':'Disabled')+
   ' · Paid sponsorship display: '+(gates.ad_delivery_enabled?'Enabled':'Disabled')+
-  ' · Independent affiliate banners follow their page placement switches. No automatic ad checkout is available.';
+  ' · Affiliate placements remain independent; direct sponsorship invoices are Owner-issued, never automatic.';
  e('gu-ad-toggle-inquiries').textContent=gates.accepting_inquiries?'Pause quote inquiries':'Reopen quote inquiries';
+ e('gu-ad-toggle-paid-billing').textContent=gates.accepting_payments?'Disable paid sponsorship invoicing':'Enable paid sponsorship invoicing';
+ e('gu-ad-toggle-paid-delivery').textContent=gates.ad_delivery_enabled?'Disable paid sponsor delivery':'Enable verified paid sponsor delivery';
  const perPage=e('gu-ad-page-controls');
  if(perPage){
   perPage.replaceChildren();
@@ -182,6 +184,12 @@ function render(){
    (a.contact_email||'Affiliate partner — no verified business contact')+' · '+a.status);
   if(activeAffiliateAdvertiserIds.has(a.id))block(row,'Affiliate banner enabled for eligible visitors · Controlled by page placement visibility · Not paid sponsorship delivery.');
   if(a.notes)block(row,a.notes);
+  if(['prospect','paused'].includes(a.status))row.append(button('Approve advertiser',()=>act({
+    action:'review_advertiser',id:a.id,status:'active'
+   },'Advertiser qualified. Written quote and creative approval remain required.')));
+  if(a.status==='active'&&!activeAffiliateAdvertiserIds.has(a.id))
+    row.append(button('Pause advertiser',()=>act({action:'review_advertiser',id:a.id,status:'paused'},
+     'Advertiser paused; review existing active campaigns separately.')));
   if(a.website_url){const link=n('a','Visit verified website');link.href=a.website_url;link.target='_blank';link.rel='noopener noreferrer';row.append(link)}
  }
  options(e('gu-ad-campaign-advertiser'),model.advertisers||[],x=>x.id,x=>'#'+x.id+' · '+x.name);
@@ -232,9 +240,39 @@ function render(){
   if(['active','scheduled'].includes(cp.status))
    item.append(button('Pause campaign',()=>act({action:'review_campaign',id:cp.id,verb:'pause'},'Campaign paused.')));
   if(cp.status==='draft'&&cp.approval_state==='approved'&&cp.amount_cents>0){
+   const advertiser=(model.advertisers||[]).find(a=>a.id===cp.advertiser_id);
+   const canInvoice=advertiser?.status==='active'&&Boolean(advertiser?.contact_email)&&gates.accepting_payments===true;
+   if(cp.stripe_invoice_id)block(item,'Stripe LIVE invoice: '+cp.stripe_invoice_id+
+     (cp.stripe_invoice_sent_at?' · Sent to advertiser':' · Draft or incomplete; verify before retry'));
+   if(cp.stripe_invoice_url){
+    try{const u=new URL(cp.stripe_invoice_url);
+     if(u.protocol==='https:'&&u.hostname==='invoice.stripe.com'){
+      const link=n('a','Open advertiser Stripe invoice');link.href=u.href;link.target='_blank';link.rel='noopener noreferrer';item.append(link)
+     }}catch{}
+   }
+   if(cp.payment_state==='unpaid'){
+    const box=n('div',undefined,'gu-ad-invoice-controls');
+    const review=n('label',undefined,'gu-ad-carousel-control'),r=n('input');
+    r.type='checkbox';review.append(r,n('span',' I verified the written quote, exact USD amount, placement, campaign flight and advertiser approval.'));
+    const contact=n('label',undefined,'gu-ad-carousel-control'),c=n('input');
+    c.type='checkbox';contact.append(c,n('span',' I am authorized to email the LIVE Stripe invoice to the advertiser business contact.'));
+    const recipient=n('p','Billing email: '+(advertiser?.contact_email||'Not available'),'gu-ad-note');
+    const send=button(cp.stripe_invoice_sent_at?'Invoice already emailed':'Create & email LIVE Stripe invoice',async()=>{
+     if(!r.checked||!c.checked)throw Error('Confirm the written quote and billing contact first.');
+     const result=await request({action:'issue_sponsorship_invoice',campaignId:cp.id,
+      confirmedWrittenQuote:true,confirmedAdvertiserEmail:true});
+     if(result.livemode!==true||result.amountCents!==cp.amount_cents||result.deliveryEnabled!==false)
+      throw Error('LIVE invoice response did not match the campaign.');
+     e('gu-ad-admin-status').textContent='Stripe invoice emailed: '+result.invoiceId+
+      '. No advertisement has been published.';
+     await refresh();
+    },!canInvoice||!!cp.stripe_invoice_sent_at);
+    box.append(recipient,review,contact,send);item.append(box);
+   }
    const proof=n('form');proof.className='gu-ad-form';
    const label=n('label','Paid LIVE Stripe invoice ID (verification only)');
-   const input=n('input');input.placeholder='in_…';input.required=true;input.pattern='in_[A-Za-z0-9_]{6,}';label.append(input);
+   const input=n('input');input.placeholder='in_…';input.required=true;
+   input.value=cp.stripe_invoice_id||'';input.pattern='in_[A-Za-z0-9_]{6,}';label.append(input);
    const send=n('button','Verify existing paid invoice','btn secondary');send.type='submit';
    const message=n('p');message.setAttribute('role','status');proof.append(label,send,message);
    proof.addEventListener('submit',async ev=>{
@@ -262,7 +300,7 @@ function renderSandbox(){
  packages=e('gu-ad-sandbox-packages'),orders=e('gu-ad-sandbox-orders');
  if(!status||!toggle||!packages||!orders)return;
  status.textContent=(enabled?'TEST MODE ON':'TEST MODE OFF')+
-  ' · QA Stripe charge: $1.00 per package · LIVE advertising and customer checkout remain disabled.';
+  ' · Sandbox QA is TEST-only ($1 per category). LIVE sponsor invoices require written authorization; no test payment publishes advertising.';
  toggle.textContent=enabled?'Disable advertising Sandbox and restore site payment mode':
   'Enable advertising Sandbox (blocks LIVE customer checkout)';
  packages.replaceChildren();orders.replaceChildren();
