@@ -13,7 +13,7 @@ try{
   const page=await context.newPage();
   page.on('pageerror',e=>problems.push(width+': '+e.message));
   await page.route('**/*',async route=>{
-   const url=new URL(route.request().url);
+   const url=new URL(route.request().url());
    if(url.origin!=='https://knowledge.fixture.test')return route.abort();
    const path=url.pathname;
    if(['/assets/js/site.js','/config.js'].includes(path))
