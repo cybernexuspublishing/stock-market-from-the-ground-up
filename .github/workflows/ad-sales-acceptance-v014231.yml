@@ -22,6 +22,9 @@ on:
       - 'tests/test_ad_page_controls_and_tradingview_v1.mjs'
       - 'assets/css/ad-sales-v014228.css'
       - 'functions/api/ad-sales.js'
+      - 'functions/_lib/paid-sponsor-invoicing-v1.js'
+      - 'tests/test_direct_paid_sponsor_invoices_v1.mjs'
+      - 'supabase/migrations/20261030_direct_paid_sponsorship_invoice_v1.sql'
       - 'functions/api/ad-slot.js'
       - 'functions/api/ads.js'
       - 'tests/test_ad_legacy_delivery_guard_v014248.mjs'
@@ -50,6 +53,8 @@ jobs:
       - name: Check Advertising API, Owner controls and rendering source
         run: |
           node --check functions/api/ad-sales.js
+          node --check functions/_lib/paid-sponsor-invoicing-v1.js
+          node --test tests/test_direct_paid_sponsor_invoices_v1.mjs
           node --check functions/api/ad-slot.js
           node --check functions/api/ads.js
           node --check functions/_lib/ad-sandbox-lifecycle-v014242.js
