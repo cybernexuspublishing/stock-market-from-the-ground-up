@@ -4,7 +4,7 @@
 (()=>{'use strict';
  const q=id=>document.getElementById(id),root=q('gu-bc-shell');
  if(!root)return;
- let sb=null,activeUser='',days=[],selected=1,progress=new Map(),checkpoints=new Map(),sourceCases=new Map(),progressAvailable=false,busy=false,loadSerial=0;
+ let sb=null,activeUser='',days=[],selected=1,progress=new Map(),checkpoints=new Map(),sourceCases=new Map(),progressAvailable=false,busy=false,loadSerial=0,guidedSession=null;
  const status=text=>{q('gu-bc-status').textContent=text};
  async function betaEnrollment(enroll=false){
   const note=q('gu-bc-enrollment-status'),button=q('gu-bc-enroll');
@@ -29,6 +29,7 @@
    const a=el('a',title);a.href=href;return a;
  };
  function clear(){
+  guidedSession?.dispose?.();guidedSession=null;
   progress.clear();checkpoints.clear();sourceCases.clear();progressAvailable=false;days=[];root.hidden=true;
   q('gu-bc-note').value='';q('gu-bc-days').replaceChildren();q('gu-bc-labs').replaceChildren();
  }
@@ -62,7 +63,9 @@
  }
  function render(){
   const d=days.find(x=>x.day===selected);
+  guidedSession?.dispose?.();guidedSession=null;
   if(!d)return;
+  guidedSession=globalThis.GroundUpAcademyGuidedV1?.mount?.(q('gu-bc-guided'),{day:d,programCode:'foundations30'})||null;
   const checkpoint=checkpoints.get(selected);
   const guideSlot=q('gu-bc-v32-stage')?.querySelector('#gu-v32-teaching-slot')||q('gu-bc-v32-stage');
   if(guideSlot){

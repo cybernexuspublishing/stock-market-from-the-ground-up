@@ -1,0 +1,23 @@
+.academy-guided-ten{background:#102638;border:1px solid #43647c;border-radius:13px;padding:clamp(12px,1.6vw,22px);margin:13px 0 24px;color:#eef4f8;min-width:0}
+.academy-guided-head{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.academy-guided-head h3{margin:0;color:#fff;font-size:clamp(1.15rem,1.8vw,1.5rem)}
+.academy-guided-head progress,.academy-guided-head>p,.academy-guided-nav{grid-column:1/-1}
+.academy-guided-head progress{width:100%;height:8px;accent-color:#58c9a5}
+.academy-guided-nav{list-style:none;display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;padding:0;margin:9px 0 14px}
+.academy-guided-nav button{height:100%;min-height:46px;width:100%;text-align:left;padding:6px 10px;border:1px solid #466b82;background:#153448;color:#d4e4f0;border-radius:7px;font-size:.8rem}
+.academy-guided-nav .current button{border-color:#7dd7b9;background:#174d43;color:#fff}
+.academy-guided-nav .complete button{color:#a4e4d0}
+.academy-guided-nav button:disabled{opacity:.68}
+.academy-guided-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:14px}
+.academy-guided-evidence,.academy-guided-talia{background:#0c2233;border:1px solid #3a5d75;border-radius:11px;padding:12px;min-width:0}
+.academy-guided-evidence h4,.academy-guided-talia h4{color:#f0dbad;margin:0 0 10px}
+.academy-guided-content p,.academy-guided-evidence li{font-size:.91rem;line-height:1.65;color:#e6edf4}
+.academy-guided-choice{display:flex;gap:9px;align-items:flex-start;line-height:1.5;padding:9px 4px;font-size:.88rem}
+.academy-guided-choice input{width:18px;height:18px;flex:none}
+.academy-guided-content fieldset{border:1px solid #426b81;border-radius:8px}
+.academy-guided-chart .gu-echarts-lesson{max-width:100%;padding:6px}
+.academy-guided-controls{display:flex;gap:9px;flex-wrap:wrap;margin:12px 0}
+.academy-guided-ten button:focus-visible{outline:3px solid #efd58b;outline-offset:2px}
+@media(max-width:1000px){.academy-guided-nav{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:800px){.academy-guided-grid{grid-template-columns:1fr}}
+@media(max-width:550px){.academy-guided-nav{grid-template-columns:repeat(2,minmax(0,1fr))}.academy-guided-head{grid-template-columns:1fr}}

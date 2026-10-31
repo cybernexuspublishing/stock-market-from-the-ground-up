@@ -1,0 +1,30 @@
+name: Seven Boot Camps Shared Guided Learning
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/academy-guided-v1.yml'
+      - 'assets/js/academy-guided-v1.js'
+      - 'assets/css/academy-guided-v1.css'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'assets/js/bootcamp.js'
+      - 'bootcamp-academy.html'
+      - 'bootcamp.html'
+      - 'tests/test_academy_guided_v1.mjs'
+permissions: {contents: read}
+jobs:
+  shared-instructional-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - run: |
+          node --check assets/js/academy-guided-v1.js
+          node --check assets/js/bootcamp.js
+          node --check assets/js/bootcamp-academy-v014168.js
+          node tests/test_academy_guided_v1.mjs
+          node tests/test_v014168_academy_family.mjs
+          node tests/test_v014162_bootcamp_v32.mjs

@@ -10,7 +10,7 @@
 
  const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90]]);
- let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0;
+ let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0,guidedSession=null;
  // Enrich course search using ONLY public, already published Lab metadata.
  // Private course material and member entitlements never enter the index.
  async function loadAcademySearchMetadata(){
@@ -39,6 +39,8 @@
   return element;
  }
  function clean(){
+  guidedSession?.dispose?.();guidedSession=null;
+  get('academy-guided-host')?.remove();
   program=null;days=[];enrolled=false;progress.clear();drafts.clear();selfCheckDrafts.clear();progressAvailable=false;dayIndex=1;
   ++renderSerial;busy=false;get('academy-workspace').hidden=true;
   globalThis.CrownlightLearningProgress?.unmount?.('academy-learning-progress');
@@ -573,6 +575,13 @@
   get('academy-practice').textContent=d.practice;
   get('academy-limits').textContent=d.limitation||d.caution;
   showOriginalInstruction(d);
+  guidedSession?.dispose?.();guidedSession=null;
+  get('academy-guided-host')?.remove();
+  if(d.programCode!=='free5'){
+   const h=node('div');h.id='academy-guided-host';
+   get('academy-original-instruction')?.before(h);
+   guidedSession=globalThis.GroundUpAcademyGuidedV1?.mount?.(h,{day:d,programCode:d.programCode})||null;
+  }
   // Every Academy lesson offers the same OPTIONAL ECharts chart-literacy
   // workstation, including days without an independently authorized book Lab.
   // This fictional supplement cannot unlock a related Lab or confer mastery.

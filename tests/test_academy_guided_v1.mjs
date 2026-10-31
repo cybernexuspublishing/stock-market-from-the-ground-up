@@ -1,0 +1,14 @@
+import assert from 'node:assert/strict';import {readFileSync} from 'node:fs';import {Script} from 'node:vm';import {academyPrograms} from '../functions/_lib/bootcamp-academy-v014168.js';
+const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
+assert.deepEqual(academyPrograms.map(p=>p.days),[5,7,10,30,45,60,90]);
+assert.equal(academyPrograms.reduce((v,p)=>v+p.curriculum.length,0),247);
+for(const p of academyPrograms)for(const day of p.curriculum)assert(day.objective&&day.observe&&day.practice&&day.officiallyGraded===false);
+const js=read('assets/js/academy-guided-v1.js');
+for(const word of ['Start','Learn','Calculate / Analyze','Experiment','Predict','Replay / Practice','Assess','Review & Retry','Transfer Challenge','Results','Close & Next — Submit answer','No Lumens charged','CrownlightLearningEChartsV1.mount','Not Yet Assessed'])assert(js.includes(word),word);
+assert(read('assets/js/bootcamp.js').includes("GroundUpAcademyGuidedV1?.mount"));
+assert(read('assets/js/bootcamp-academy-v014168.js').includes("GroundUpAcademyGuidedV1?.mount"));
+assert(read('bootcamp.html').includes('gu-bc-guided'));
+assert(read('bootcamp-academy.html').includes('academy-guided-v1.js'));
+assert(read('assets/css/academy-guided-v1.css').includes('grid-template-columns:minmax(0,1.15fr) minmax(0,1fr)'));
+assert.doesNotThrow(()=>new Script(js));
+console.log('PASS shared guided experience mapped to seven Boot Camps and 247 existing day records without protected grading');
