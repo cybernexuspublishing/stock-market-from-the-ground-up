@@ -15,6 +15,7 @@
     "/sitemap.xml",
     "/images/*",
     "/img/*",
-    "/fonts/*"
+    "/fonts/*",
+    "/ads.txt"
   ]
 }
