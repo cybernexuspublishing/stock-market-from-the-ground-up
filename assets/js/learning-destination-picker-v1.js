@@ -8,7 +8,10 @@
  const host=document.getElementById('player-catalog-results');
  const status=document.getElementById('player-catalog-status');
  if(!search||!host||!status)return;
- const browse='lab'; // The Academy has its own dedicated seven-program chooser.
+ // Boot Camp discovery belongs exclusively to the Academy, including legacy deep links.
+ const params=new URLSearchParams(location.search);
+ if(params.get('browse')==='bootcamp')return;
+ const browse='lab';
  const selected=new URLSearchParams(location.search).get('lab')||'';
  const retry=document.getElementById('player-catalog-retry');
  const panel=document.getElementById('player-catalog-browser');
