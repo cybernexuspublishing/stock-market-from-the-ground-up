@@ -100,7 +100,7 @@ async function invoice(c,campaign,advertiser,reference){
  return {amount:data.amount_paid,customer:data.customer};
 }
 async function readOwner(c){
- const [settings,packages,placements,inquiries,advertisers,campaigns,creatives,proof]=await Promise.all([
+ const [settings,packages,placements,inquiries,advertisers,campaigns,creatives,proof,adsenseRows]=await Promise.all([
  api(c,'gu_ad_sales_settings_v014226?select=*&singleton=eq.true'),
  api(c,'gu_ad_packages_v014226?select=*&order=code.asc'),
  api(c,'ad_placements?select=placement_code,name,page_pattern,active,free_only,metadata&order=sort_order.asc'),
@@ -108,7 +108,8 @@ async function readOwner(c){
  api(c,'advertisers?select=id,name,contact_email,website_url,status,notes,created_at&order=created_at.desc&limit=150'),
  api(c,'ad_campaigns?select=*&order=created_at.desc&limit=150'),
  api(c,'ad_creatives?select=id,campaign_id,placement_code,status,headline,body,image_url,destination_url,alt_text&order=created_at.desc&limit=150'),
- api(c,'gu_ad_order_evidence_v014226?select=campaign_id,invoice_ref,state,payment_mode,paid_amount_cents,verified_at&order=verified_at.desc&limit=100')
+ api(c,'gu_ad_order_evidence_v014226?select=campaign_id,invoice_ref,state,payment_mode,paid_amount_cents,verified_at&order=verified_at.desc&limit=100'),
+ api(c,'gu_adsense_controls_v1?select=*&singleton=eq.true')
  ]);
  const stats=await api(c,'rpc/gu_ad_campaign_counts_v014233',{method:'POST',
    body:{p_campaigns:(campaigns||[]).map(x=>Number(x.id)).filter(Number.isSafeInteger)}});
@@ -116,7 +117,7 @@ async function readOwner(c){
  for(const e of stats||[])metrics[e.campaign_id]={impressions:Number(e.impressions)||0,clicks:Number(e.clicks)||0};
  return {settings:settings?.[0]||null,packages:packages||[],placements:placements||[],
  inquiries:inquiries||[],advertisers:advertisers||[],campaigns:campaigns||[],
- creatives:creatives||[],paymentEvidence:proof||[],recentEventSamples:metrics};
+ creatives:creatives||[],paymentEvidence:proof||[],recentEventSamples:metrics,adsense:adsenseRows?.[0]||null};
 }
 async function audit(c,actor,action,type,id,details={}){
  await api(c,'gu_ad_admin_audit_v014226',{method:'POST',
@@ -290,6 +291,25 @@ export async function onRequest({request,env}){
     scope:'OWNER_SESSION_AND_ADVERTISING_UI_ONLY',
     sponsorPaymentVerified:false,
     signedSponsorWebhookVerified:false});
+  }
+  if(action==='set_adsense_controls'){
+   const existing=(await api(c,'gu_adsense_controls_v1?select=*&singleton=eq.true'))?.[0];
+   if(!existing)throw bad('AdSense controls unavailable.',503);
+   const data={updated_at:new Date().toISOString()};
+   if(typeof body.approved==='boolean')data.approved=body.approved;
+   if(typeof body.enabled==='boolean')data.enabled=body.enabled;
+   if(body.page!==undefined){
+    const allowed=['/index.html','/knowledge-database.html','/store.html','/advertise.html'];
+    if(!allowed.includes(body.page)||typeof body.pageEnabled!=='boolean')throw bad('Invalid AdSense page control.');
+    data.pages={...existing.pages,[body.page]:body.pageEnabled};
+   }
+   if(data.enabled===true&&(data.approved??existing.approved)!==true)
+    throw bad('Confirm Google site approval before enabling AdSense.',409);
+   if(data.approved===false)data.enabled=false;
+   const result=await api(c,'gu_adsense_controls_v1?singleton=eq.true',{method:'PATCH',body:data});
+   if(result?.length!==1)throw bad('AdSense settings were not saved.',503);
+   await audit(c,actor,'set_adsense_controls','settings','adsense',{approved:result[0].approved,enabled:result[0].enabled,pages:result[0].pages});
+   return respond({ok:true,adsense:result[0]});
   }
   if(action==='set_paid_sponsorship_billing'){
    if(typeof body.enabled!=='boolean')throw bad('Select whether direct sponsorship billing is enabled.');
