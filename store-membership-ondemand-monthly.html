@@ -27,10 +27,27 @@
 <div><strong>Shop</strong><br><a href="store.html#memberships">Memberships</a><br><a href="store.html#books">Books</a><br><a href="store.html#tools">À-la-Carte Tools</a></div>
 <div><strong>Information</strong><br><a href="membership.html">Membership comparison</a><br><a href="subscription-terms.html">Billing Terms</a><br><a href="refund-policy.html">Refund Policy</a><br><a href="privacy.html">Privacy</a></div></div></footer>
 <script>
-(()=>{'use strict';const q=new URLSearchParams(location.search),source=q.get('source'),item=q.get('item')||'';
+(async()=>{'use strict';
+ const q=new URLSearchParams(location.search),source=q.get('source'),item=q.get('item')||'';
  if(!((source==='lab'&&/^(?:F[123]|DT|TAPE|SITE)-[A-Z0-9-]{3,45}$/i.test(item))||(source==='bootcamp'&&/^[a-z0-9-]{3,32}$/i.test(item))))return;
  const box=document.getElementById('gu-locked-selection');if(!box)return;
- box.hidden=false;box.textContent='Selected '+(source==='lab'?'Lab':'Boot Camp')+': '+item+'. Access is restricted. This page describes a possible access product, not confirmation that it unlocks this specific item. Verify included entitlements, release status, price, and checkout availability below before purchasing. If no eligible purchase option is available, this item is currently unavailable for purchase.';
+ const training=source==='bootcamp'||item.startsWith('SITE-');
+ const kind=training?'plan':'tool',code=training?'ONDEMAND_MONTHLY':'INTERACTIVE_LEARNING';
+ const label=source==='lab'?'Lab':'Boot Camp';
+ box.hidden=false;box.textContent='Selected '+label+': '+item+' · Checking verified access-product availability…';
+ const denied='Selected '+label+': '+item+'. Currently unavailable for purchase. No confirmed eligible checkout for this item is available. Check your existing entitlements or contact support; do not purchase an unrelated book or plan expecting this item to unlock.';
+ try{
+  if(!window.CommerceTools?.load||!window.CommerceTools?.verifiedCheckout){box.textContent=denied;return}
+  const catalog=await window.CommerceTools.load();
+  if(catalog.commerceUnavailable){box.textContent=denied;return}
+  const verified=await window.CommerceTools.verifiedCheckout(catalog,{type:kind,code});
+  const product=kind==='plan'?(verified.plans||[]).find(p=>p.planCode===code):
+   (verified.tools||[]).find(t=>t.toolCode===code);
+  if(!product||product.checkoutEnabled!==true||Number(product.priceCents)<=0){
+   box.textContent=denied;return;
+  }
+  box.textContent='Selected '+label+': '+item+'. '+product.name+' has a verified current checkout route. This is a possible access product, not proof of item-specific coverage or an entitlement grant. Confirm the coverage and billing terms on this product page before checkout. Your access will be checked again after settlement.';
+ }catch{box.textContent=denied}
 })();
 </script>
 </body></html>
