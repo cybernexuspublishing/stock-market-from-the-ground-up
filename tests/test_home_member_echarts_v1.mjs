@@ -7,7 +7,8 @@ assert.doesNotThrow(()=>new Script(js));
 for(const p of ['/assets/js/home-community.js','/assets/js/crownlight-echarts-loader-v1.js','/assets/css/home-member-stats.css'])assert(home.includes(p),p+' must be included in homepage');
 assert(js.includes("fetch('/api/home-member-stats-v01353?action=public'"),'Only existing aggregate endpoint');
 assert(js.includes('window.CrownlightECharts.load()'),'Use first-party local ECharts loader');
-assert(js.includes("valid?'LIVE DATA':'UNAVAILABLE'"),'LIVE DATA is shown only for validated live response');
+assert(js.includes("badge.textContent=valid?'LIVE DATA':'UNAVAILABLE'"),'Badge says LIVE DATA for validated selected mode');
+assert(js.includes('gu-stat-provenance'),'Illustrative figures disclose origin without Sample statistics paragraph');
 assert(!js.includes('Sample statistics'),'No sample-statistics caption');
 assert(!js.includes('Example activity')&&!js.includes('Example members'),'No sample member labels');
 assert(!js.includes("'DEMO DATA'"),'No demo badge on homepage');
@@ -30,7 +31,10 @@ for(const key of ['registrationTrends','membershipBreakdown','learningEngagement
 }
 assert(api.includes("extras:s.extras"),'Public response exposes display switches');
 
-assert(!api.includes("if(s.mode==='custom')return send({ok:true,show:true"),'Custom counts are not served publicly');
-assert(!api.includes("if(s.mode==='range'){const period="),'Range counts are not served publicly');
-assert(api.includes("mode:'live',registered,online:"),'Public API only returns live aggregates');
+assert(api.includes("if(s.mode==='custom')return send({ok:true,show:true"),'Owner-configured fixed figure mode is supported');
+assert(api.includes("if(s.mode==='range'){"),'Owner-configured changing-range mode is supported');
+assert(api.includes("mode:'live',registered,online:"),'Verified live aggregate mode remains available');
+assert(js.includes("const example=d.mode==='custom'||d.mode==='range'"),'Illustrative ECharts snapshots use explicit source metadata');
+assert(js.includes("disclosure.hidden=!valid||!example"),'Illustrative figures expose an accessible source indicator');
+assert(js.includes('aria-label'),'Source disclosure is accessible');
 assert(style.includes('background:transparent!important'),'Homepage statistics have no metric cards');
