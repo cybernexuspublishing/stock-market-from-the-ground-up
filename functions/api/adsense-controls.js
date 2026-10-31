@@ -12,7 +12,7 @@ export async function onRequestGet({request,env}){
   if(!allowed.includes(page))return json(disabled);
   const credential=request.headers.get('authorization')||'';
   if(credential)return json(disabled); // Never show third-party ads to members by default.
-  const base=String(env.SUPABASE_URL||'').replace(/\\/$/,'');
+  const base=String(env.SUPABASE_URL||'').replace(new RegExp('/$'),'');
   const key=String(env.SUPABASE_SECRET_KEY||'');
   if(!base||!key)return json(disabled);
   const headers={apikey:key,...(key.startsWith('eyJ')?{authorization:'Bearer '+key}:{})};
