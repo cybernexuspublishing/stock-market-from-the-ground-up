@@ -39,12 +39,22 @@ assert(signup.includes('after verifying your email')||signup.includes('After ver
 assert(signup.includes('signin.html?next=%2Fbootcamp-academy.html%3Fprogram%3Dfree5%26day%3D1'),'No verified-user redirect path');
 assert(dashboard.includes('free-learning-launchpad')&&dashboard.includes('free-next-action'),'Existing authenticated progress-aware launchpad must remain');
 assert(dashboard.includes('candle-practice.html')&&dashboard.includes('free-foundations-challenge.html'),'Member retention links missing');
-const practice=read('assets/js/public-candle-practice-v1.js'),sharing=read('assets/js/public-share-v1.js');
-new Script(practice,{filename:'public-candle-practice-v1.js'});
+const practice=read('assets/js/public-candle-learning-journey-v3.js'),sharing=read('assets/js/public-share-v1.js');
+new Script(practice,{filename:'public-candle-learning-journey-v3.js'});
 new Script(sharing,{filename:'public-share-v1.js'});
 assert(practice.includes('fictional')&&practice.includes('CrownlightECharts.load')&&practice.includes("type:'candlestick'"),'Original fictional chart must use locally hosted ECharts');
 assert(read('candle-practice.html').includes('/assets/js/crownlight-echarts-loader-v1.js'),'Public page loads the first-party local ECharts adapter');
 assert(read('candle-practice.html').includes('gu-practice-ohlc'),'Accessible table must remain available without the chart');
+assert(read('candle-practice.html').includes('public-candle-learning-journey-v3.js'),'Ten-stage source must be mounted');
+assert(read('candle-practice.html').includes('gu-practice-journey'),'Three-column journey must appear on the page');
+assert(practice.includes("['Start','Learn','Calculate','Experiment','Predict','Replay','Assess','Review','Transfer','Results']"),'All ten stages must be present');
+assert(practice.includes("Math.abs(b[3]-b[0])"),'Independent body calculation must use absolute difference');
+assert(practice.includes("replayBars.slice(0,replayCount)"),'Future replay candles must stay hidden');
+assert(practice.includes('if(firstAssessment!==null)return'),'First assessment submission must remain immutable');
+assert(practice.includes('stage=7;render()'),'Assessment must move to review without answer disclosure');
+assert(practice.includes('No Lumens required')||practice.includes('no Lumens required'),'Free retries must not incur credits');
+assert(practice.includes("stage===5&&replayCount<replayBars.length"),'Replay next bar requires submitted checkpoint');
+
 assert(!/\bfetch\s*\(|\bXMLHttpRequest\b|localStorage|sessionStorage|gtag\s*\(/.test(practice),'No browsing, account storage or analytics inside practice');
 assert(!/\bfetch\s*\(|localStorage|sessionStorage|\bgtag\b|mailto:|location\.search/.test(sharing),'Share without data collection or subscriber email');
 assert(sharing.includes('navigator.share')&&sharing.includes('navigator.clipboard'),'Voluntary browser share/copy required');
