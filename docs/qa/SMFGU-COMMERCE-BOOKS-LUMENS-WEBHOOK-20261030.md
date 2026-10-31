@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.1  
+**Version:** 1.2  
 **Status:** PARTIAL ACCEPTANCE; paid purchases, signed LIVE delivery, and Lumens package purchases not accepted end-to-end  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -48,6 +48,53 @@ A second isolated $0 LIVE session was created by authorized Stripe administrator
 3. Align the five package catalog SKUs and pricing in all systems, implement TEST-only protected bundle purchase/credit/refund ledger and verify with real TEST card events; only then authorize LIVE product exposure.
 4. Preserve original customer entitlement and payment records, and prevent any nonzero LIVE QA charges absent a genuine user-controlled payment method.
 
+## October 30 addendum — exact QA acceptance and release state
+
+### Five private EPUB files: real authenticated delivery ACCEPTED
+
+Browser acceptance https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41156247733 (PASS). Real James_Test member authentication, five My Books records, five server-issued private signed URLs, five HTTP 200 private downloads, and ZIP/EPUB header validation. Actual bytes: Foundations I 4,407,701; II 4,523,352; III 4,811,622; Day Trading 4,391,053; Reading the Tape 4,592,189. The temporary QA-only Lifetime grant (id 12) was canceled immediately after passing. Read-only account check confirmed FREE and zero active temporary grants. The delivery test is not payment-granted ownership.
+
+Unentitled negative test previously passed: https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41150779618 — the Free member could not download any of the five books.
+
+### Five official Stripe TEST Lumens packages
+
+Five isolated Stripe TEST products and prices were created to **match the existing five approved storefront packages** exactly:
+
+| Internal SKU | Lumens | TEST price | TEST Stripe Price |
+|---|---:|---:|---|
+| SPARKS_25 | 25 | $5.00 | price_1UWQzYJY9FI7byHBEuMNO2lI |
+| SPARKS_55 | 55 | $10.00 | price_1UWQzrJY9FI7byHBGqJqnVVb |
+| SPARKS_90 | 90 | $15.00 | price_1UWR0AJY9FI7byHBBUc0L3uw |
+| SPARKS_125 | 125 | $20.00 | price_1UWR0SJY9FI7byHBqmNHBTyt |
+| SPARKS_275 | 275 | $40.00 | price_1UWR0lJY9FI7byHBhETFtRi0 |
+
+All five QA TEST Products explicitly have \`qa_only=true\`, \`site_checkout_enabled=false\`, \`fulfillment_verified=false\`, and belong exclusively to TEST account \`acct_1URGkDJY9FI7byHB\`. Existing LIVE obsolete bundle prices and customer checkout flags are unchanged.
+
+New isolated TEST-only runtime:
+- \`functions/api/lumen-bundle-test-checkout.js\`: authenticated QA-only server checkout, real TEST Prices, immutable TEST Checkout line items, server-bound reservation, explicit QA gate. Never grants production credits.
+- \`functions/api/lumen-bundle-test-webhook.js\`: verified HMAC and account, provider fetched Checkout/PaymentIntent, exact TEST price, quantity and amount, duplicate/refund protection, atomic database shadow-credit reconciliation.
+- \`functions/api/stripe-test-webhook.js\`: routes provider-verified bundle events to the dedicated processor, without weakening Book or GU39 processors.
+- \`supabase/migrations/20261030_lumen_bundle_stripe_test_shadow_v1.sql\`: versioned already-applied SQL migration (schema originally applied as \`smfgu_stripe_test_lumen_bundle_shadow_checkout_v1\`). Separate TEST catalog, order, events, QA allowlist, nonexpiring QA-only credit ledger, service-role-only RPCs, denied anonymous/member direct table access.
+- \`tests/test_lumen_bundle_stripe_test_shadow_v1.mjs\`: all five package prices, server gate, no real-wallet writes and signature rejection.
+
+Source CI PASSED: https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41155410195. Comprehensive payment regression PASSED: https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41156183615.
+
+**Transactional database acceptance PASSED with rollback:** Test order reserved 25/$5, bound to a QA session ID, applied QA paid event, verified exactly 25 purchased shadow credits with null expiry, replayed same event without duplicates, applied full refund to zero shadow credits, and denied late paid replay. This test generated **no real Stripe provider event** and was rolled back. It is a database contract test, not provider-signed acceptance.
+
+**Authenticated provider checkout initiation PASSED:** https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41155826848. James_Test signed in, GET verified all five active Stripe TEST Prices, and POST created a genuine $5.00 Stripe TEST Checkout for \`SPARKS_25\`. Stripe session \`cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB\` remains open/unpaid; no credits were issued or refunded.
+
+**QA cleanup VERIFIED:** Removed Cloudflare \`LUMEN_BUNDLE_TEST_CHECKOUT_ENABLED\`; production returned to 48 variables. Disabled James_Test in \`gu_lumen_bundle_test_qa_v1\`; removed James_Test from \`gu_book_test_qa_v1\`. No TEST bundle shadow-credit rows exist; real James_Test wallet remains 53 manual, zero purchased. LIVE keys, paid prices, general member roles and the retired GU72 gate remain unchanged.
+
+### Remaining release blockers after this addendum
+
+1. **Genuine book paid fulfillment:** Complete an authenticated Book I TEST Checkout with official Stripe test card and receive a genuine Checkout completion event; confirm signed TEST webhook, book ledger, real QA EPUB download, actual TEST Stripe refund, and revocation. There is an existing genuine but unpaid Book I TEST session. Automated hosted card completion was not accepted.
+2. **Original LIVE $0 webhook:** Genuine Stripe event \`evt_1UVaw9JL0O4GGVBHKjQTd21w\` still reports \`pending_webhooks=1\`. The configured LIVE route is \`/api/stripe-live-webhook\`, which forwards to the versioned implementation. Provider delivery-attempt HTTP evidence and Stripe Dashboard resend or a newly completed $0 hosted Checkout are still necessary. No claim of 2xx signed acknowledgment.
+3. **Actual purchased Lumens:** Complete the genuine $5.00 TEST Checkout above; verify real Stripe signed event, QA shadow-credit grant, full TEST refund event, zero shadow balance and replay protection. Then separately build/approve the real LIVE wallet issuance and legal customer refund model before allowing paid package checkout. Do not count simulated shadow-credit tests as customer fulfillment.
+
+### Independent note
+
+The exact five customer-facing book SKUs remain sale-ready. Twelve of sixty-one storefront SKUs are customer-visible and sale-ready; five Lumens packages are not yet customer sellable.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -55,3 +102,4 @@ A second isolated $0 LIVE session was created by authorized Stripe administrator
 | 1.0 | 2026-10-30 | Books metadata reconciled; 12/61 catalog count; QA tests and grant cleanup; zero-dollar webhook event pending; Lumens five-vs-three catalog discrepancy. |
 
 | 1.1 | 2026-10-30 | Corrected extensionless My Books test passed; verified unauthorized downloads denied for all five books as Free QA member. |
+| 1.2 | 2026-10-30 | Positive five-book EPUB delivery passed; five Stripe TEST Lumens packages, new shadow ledger and refund contracts, authenticated $5 TEST Checkout, comprehensive regression, QA rollback and remaining signed-event gaps recorded. |
