@@ -10,10 +10,14 @@ const imgs={"truth5":"truth-and-sources.svg","watchlist7":"research-watchlist.sv
 for(const [code,file] of Object.entries(imgs)){
  assert(js.includes(code+":'"+file+"'"));
  assert(existsSync(new URL('../assets/images/bootcamp-covers/'+file,import.meta.url)));
+ const svg=read('assets/images/bootcamp-covers/'+file);
+ assert(svg.includes('viewBox="0 0 480 270"'), 'High-resolution vector viewBox missing');
+ assert(!/&(?!amp;|lt;|gt;|quot;|apos;)/.test(svg), 'Invalid SVG XML ampersand');
+ assert(svg.includes('<title '), 'SVG metadata title missing');
 }
 assert.equal(Object.keys(imgs).length,7);
-assert(js.includes("icon.alt=''"));
-assert(js.includes("icon.setAttribute('aria-hidden','true')"));
+assert(js.includes("visual.alt=''"));
+assert(js.includes("visual.setAttribute('aria-hidden','true')"));
 assert(js.includes("const name=node('span',p.title)"));
 assert(js.includes("const id=node('span',p.code)"));
 assert(js.includes("academy-program--locked"));
@@ -31,4 +35,4 @@ assert(html.includes('Boot Camps are not sold individually.'));
 assert(css.includes('font-size:clamp(1.4rem,1.65vw,1.75rem)!important'));
 assert(css.includes('@media(max-width:600px)'));
 assert.doesNotThrow(()=>new Script(js));
-console.log('PASS: seven subject icons, compact title, access control and sales disclosure');
+console.log('PASS: seven high-resolution vector Boot Camp covers, 3-column gallery, unboxed Free Foundations and top-level navigation');
