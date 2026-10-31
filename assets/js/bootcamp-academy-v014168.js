@@ -186,6 +186,33 @@
   const link=node('a','Your Market Skills Record');link.href='skills.html';mount.append(link);
  }
 
+ const truth5ResearchCases=Object.freeze([
+  {title:'Distinguish an announcement from confirmed revenue',fact:'A fictional issuer announces a nonbinding distribution proposal with a maximum potential value of $6 million over two years.',claim:'A repost states that $6 million in revenue is secured.',method:'Locate the original issuer announcement. Quote its conditions; distinguish potential value, signed commitments, cash receipts, and recognized revenue.',limit:'A filing or announcement can establish that words were published without proving future performance.'},
+  {title:'Trace independent corroboration',fact:'At 8:12 a.m. ET a fictional issuer posts a conditional agreement; a blog copies it at 9:58 and a forum repeats it at 10:06.',claim:'Three websites independently confirmed the same contract.',method:'Draw the source chain and check whether each later publication adds new primary evidence or merely cites the earliest announcement.',limit:'Repeated publication is not independent corroboration.'},
+  {title:'Freeze the information cutoff',fact:'A fictional filing is publicly retrievable at 7:45 a.m. ET; an article appears at 9:10; its correction appears at 11:20.',claim:'At a 9:00 a.m. research cutoff, traders could have relied on the article correction.',method:'Normalize timestamps and classify each document as available, unavailable, or uncertain at exactly 9:00 a.m. ET.',limit:'Publication does not prove any particular trader read the information.'},
+  {title:'Audit the denominator and financing conditions',fact:'A fictional business reports revenue increasing from $100,000 to $400,000; a separate financing announcement allows issuance of up to $8 million of securities.',claim:'The 300% increase proves profitability, and the $8 million was already received.',method:'Compute (400000 - 100000) / 100000 x 100 = 300%. Then check operating costs, financing conditions, issuance, and cash received separately.',limit:'Growth does not establish profit; financing capacity does not prove completed proceeds.'},
+  {title:'Write a defensible independent claim audit',fact:'A fictional promotional post claims that high short-sale volume proves a guaranteed short squeeze and imminent price appreciation.',claim:'A high short-sale volume statistic proves that outstanding short interest is high.',method:'Identify the publication date, precise metric and denominator; distinguish reported short-sale trading volume from shares outstanding as short interest, then record what remains unresolved.',limit:'Neither metric on its own proves a squeeze or future price direction.'}
+ ]);
+ function showTruth5SourceAudit(d,mount){
+  if(d.programCode!=='truth5'||!Number.isInteger(d.day)||d.day<1||d.day>5)return;
+  const study=truth5ResearchCases[d.day-1];
+  const section=node('section');section.className='academy-beta-daily-coach';
+  section.setAttribute('aria-label','Evidence verification practice for Truth Behind the Ticker Day '+d.day);
+  section.append(node('h4','Independent source audit: '+study.title),
+   node('p','FICTIONAL CASE — ORIGINAL UNGRADED INSTRUCTION. No historical price, regulatory conclusion or trading outcome is asserted.'),
+   node('p',study.fact),node('h4','Claim to investigate'),node('p',study.claim),
+   node('h4','Talia’s verification procedure'),node('p',study.method),
+   node('h4','What the evidence cannot establish'),node('p',study.limit));
+  const reveal=node('details');reveal.append(node('summary','Primary-source research references'),
+   node('p','When investigating actual issuers, compare company disclosures with SEC EDGAR and the current official Form 8-K instructions. Confirm original publication time, conditions, and applicable exceptions.'),
+   node('p','Background research: StocksToTrade educational articles discuss catalysts and trading claims, but their methods and marketing statements do not replace primary regulatory evidence.'));
+  const refs=node('p');
+  for(const [label,url] of [['SEC EDGAR','https://www.sec.gov/edgar/search/'],['SEC Form 8-K guidance','https://www.investor.gov/introduction-investing/investing-basics/glossary/form-8-k'],['Source research registry','https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/blob/main/docs/research/stockstotrade/source_registry_v1.csv']]){
+   const a=node('a',label);a.href=url;a.target='_blank';a.rel='noopener noreferrer';refs.append(a,node('span',' · '));
+  }
+  reveal.append(refs);section.append(reveal);mount.append(section);
+ }
+
  function showOriginalInstruction(d){
   // New day-specific teaching is purely formative. It cannot update an official
   // grade or touch the protected answer-key service.
@@ -196,6 +223,7 @@
    get('academy-engine').before(mount);
   }
   mount.replaceChildren();mount.hidden=false;
+  showTruth5SourceAudit(d,mount);
   // Research augmentation is formative and never changes assessment, member
   // progress or saved reflections. It uses original source-informed teaching.
   if(d.researchEnrichment){
