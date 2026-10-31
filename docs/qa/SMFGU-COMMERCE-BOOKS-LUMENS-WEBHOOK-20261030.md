@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.6  
+**Version:** 1.7  
 **Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST purchase/payment/webhook/refund/reversal lifecycles accepted; real LIVE book fulfillment, production purchased-Lumens wallet and LIVE webhook acknowledgment remain OPEN  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -213,6 +213,29 @@ The owner completed the original $5.00 Stripe TEST Checkout manually. Connected 
 
 **LIVE webhook final recheck at report revision:** `evt_1UVaw9JL0O4GGVBHKjQTd21w` and `evt_1UWRaCJL0O4GGVBHK5A1POGx` both remain at `pending_webhooks=1`. Genuine 2xx signed delivery cannot be claimed. The authorized Stripe Workbench user must inspect endpoint-specific HTTP delivery attempts, correct the verified failure, resend both events, and have the result re-read via the Stripe plugin. Secrets must not be printed, guessed, or rotated without diagnosing which endpoint secret is actually bound.
 
+
+## Consolidated LIVE commerce readiness batch — October 30, 2026 (October 31 UTC)
+
+**Owner instruction:** All remaining commerce launch checks are one coordinated acceptance batch. Do not split work into recurring approvals or propose paid third-party services. Preserve the existing $0 budget and ban on nonzero LIVE charge tests without explicit authorization.
+
+### Fresh read-only multi-provider reconciliation
+
+- **Stripe LIVE event 1:** `evt_1UVaw9JL0O4GGVBHKjQTd21w`, `checkout.session.completed`, `pending_webhooks=1`. The event carries zero-dollar Owner diagnostic metadata for the Founding 14 plan, not a paid membership.
+- **Stripe LIVE event 2:** `evt_1UWRaCJL0O4GGVBHK5A1POGx`, `checkout.session.completed`, `pending_webhooks=1`. The event carries zero-dollar Owner diagnostic metadata for Foundations Book I, not a paid book order.
+- **Destination:** `we_1UUZvAJL0O4GGVBH5Tp77DVM` is enabled with `checkout.session.completed`, pointing to `https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-live-webhook`. Disabled legacy endpoint(s) were not reactivated or duplicated.
+- **Cloudflare production:** Pages production deployment reports `active`. `GU58_LIVE_WEBHOOK_ENABLED`, `GU58_LIVE_FULFILLMENT_APPROVED`, `GU58_LIVE_DB_CONTRACT_APPROVED` and `GU71_ZERO_LIVE_QA_ENABLED` all report `true`. The encrypted `GU58_STRIPE_LIVE_SECRET_KEY` and `GU58_STRIPE_LIVE_WEBHOOK_SECRET` bindings are present; generic Stripe LIVE overrides are absent; account and zero-Price IDs match Stripe. Presence of encrypted bindings does not prove their contents are valid.
+- **Cloudflare observability:** Worker telemetry query for 2026-10-31 01:56–02:07 UTC returned 0 matching events. Lack of telemetry is not evidence of successful delivery or of a specific failure code.
+- **Supabase LIVE records:** `gu58_live_checkout_intents`, `gu58_live_stripe_events`, `gu_book_live_intents_v1` and `gu_book_live_events_v1` all contain 0 rows at this check. These genuine $0 QA sessions were not entitled paid orders, so 0 paid-transaction rows must not be treated as a separate failure or falsely credited.
+- **TEST control group:** Book I and the 25 Crownlight Lumens bundle each have independently verified official Stripe TEST payment + signed webhook acknowledgment + full TEST refund + signed reversal. Each `charge.refunded` and `checkout.session.completed` TEST event has `pending_webhooks=0`; the isolated TEST QA balance was restored to 0.
+
+### Combined remaining owner-access requirement and acceptance gates
+
+The connected Stripe API offers neither endpoint delivery-attempt response details nor manual event resend. **One consolidated Stripe Workbench intervention** is therefore required, not separate ongoing owner requests: in LIVE Workbench, inspect the exact HTTP response status/body and recent attempt time for *both* event IDs against `we_1UUZvAJL0O4GGVBH5Tp77DVM`, then resend each event only after the identified configuration or handler problem is corrected. Do not invent event delivery evidence or try an unsigned/fabricated payload.
+
+After signed provider 2xx delivery is verified, re-read both original events and reconcile any expected QA batch acknowledgment. Then run only free, authorized tests for the LIVE book entitlement and production purchased-Crownlight-Lumens wallet contracts; those require separate proof because the current signed TEST webhook processors deliberately write to QA-only ledgers. Do not equate a $0 Checkout or a temporary QA download grant to genuine paid LIVE commerce acceptance.
+
+**Current release decision:** Book I TEST and Crownlight Lumens TEST payment/refund lifecycles **PASS**; original two LIVE delivery acknowledgments **OPEN**; nonzero LIVE book-sale fulfillment and real purchased-Lumens member wallet/refund **OPEN**. No LIVE nonzero charges, secret rotations, unapproved entitlements, or third-party spending were performed.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -225,3 +248,4 @@ The owner completed the original $5.00 Stripe TEST Checkout manually. Connected 
 | 1.4 | 2026-10-30 | Executed live Stripe-hosted QA; genuine $0 LIVE Checkout completion, both LIVE events still pending, unsigned route preflight 405/401, no available CI LIVE resend key, two TEST sessions unpaid, no phantom grants/refunds. |
 | 1.5 | 2026-10-30 CDT / 2026-10-31 UTC | Real Stripe TEST Book I charge/refund and signed provider/database events accepted; omitted TEST phone fixed; Lumens blocked by Stripe interactive verification; LIVE event delivery remains pending, encrypted-secret validation bounded; $0 spend. |
 | 1.6 | 2026-10-31 UTC | Real 25-Lumens $5 Stripe TEST payment and signed crediting PASS; $5 TEST refund and signed zero-balance reversal PASS; LIVE signed webhook events still pending; $0 spent. |
+| 1.7 | 2026-10-30 CDT / 2026-10-31 UTC | Consolidated Stripe LIVE webhook, Cloudflare bindings/observability and Supabase LIVE ledger audit; both pending 0-dollar events remain open, one Workbench inspection batch required, protected $0 budget. |
