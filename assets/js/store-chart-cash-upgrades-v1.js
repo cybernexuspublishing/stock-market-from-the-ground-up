@@ -63,6 +63,8 @@
   const summary=el('p',included?'Already included — no purchase is needed.':!token?'Sign in to see your balance and options.':'Choose an amount and select Preview Lumen discount.');
   summary.setAttribute('role','status');
   const buy=el('button','Open discounted Stripe TEST checkout');buy.type='button';buy.className='btn';buy.disabled=true;
+  const cancelCard=el('button','Cancel unpaid card-only TEST checkout');
+  cancelCard.type='button';cancelCard.className='btn secondary';cancelCard.hidden=true;cancelCard.disabled=true;
   let quote=null,requestId=null,revision=0;
   const reset=()=>{revision++;quote=null;requestId=null;buy.disabled=true;preview.disabled=false;summary.textContent='Selection changed. Verifying your new Lumen quote…';preview.click()};
   input.addEventListener('change',reset);
@@ -77,11 +79,37 @@
     if(currentRevision!==revision)return;
     if(d.originalCents!==p.cents||d.selectedLumens!==n)throw Error('Quote no longer matches the selection.');
     summary.textContent='Available: '+d.availableLumens+' Lumens · Apply: '+n+' · Discount: '+usd(d.discountCents)+' · Card due: '+usd(d.cashDueCents)+' · Balance after: '+d.remainingLumens+'.';
+    cancelCard.hidden=true;cancelCard.disabled=true;
+    if(d.pendingCardCheckout){
+     summary.textContent+=' An unpaid full-price TEST checkout is still pending for this product. Cancel it before using Lumens.';
+     cancelCard.hidden=!d.cancelPendingCardAvailable;
+     cancelCard.disabled=!d.cancelPendingCardAvailable;
+     if(!d.cancelPendingCardAvailable)summary.textContent+=' Checkout creation is still completing; retry Preview shortly.';
+     return;
+    }
+    if(d.pendingMixedCheckout){summary.textContent+=' A prior mixed checkout is awaiting payment or reconciliation.';return}
     if(!d.checkoutActive){summary.textContent+=' TEST checkout is not authorized for this account.';return}
     quote=d;buy.disabled=false;
     buy.textContent=d.fullyCovered?'Redeem Lumens — no card charge (TEST)':'Pay '+usd(d.cashDueCents)+' using Stripe TEST';
    }catch(e){if(currentRevision===revision)summary.textContent=e.message}
    finally{if(currentRevision===revision)preview.disabled=false}
+  });
+  cancelCard.addEventListener('click',async()=>{
+   if(cancelCard.disabled)return;
+   cancelCard.disabled=true;buy.disabled=true;
+   summary.textContent='Confirming unpaid Stripe TEST checkout expiration…';
+   try{
+    const result=await requestJson('/api/chart-mixed-test-checkout',{method:'POST',
+     headers:{'content-type':'application/json'},
+     body:JSON.stringify({action:'cancel_card_pending',sku:p.sku})});
+    if(result.testOnly!==true||result.canceled!==true)throw Error('TEST cancellation not verified.');
+    cancelCard.hidden=true;
+    summary.textContent='Unpaid card-only TEST checkout expired. Waiting for its signed Stripe event to clear the pending order. The Lumen quote will be checked again.';
+    setTimeout(()=>{if(!preview.disabled)preview.click()},1200);
+   }catch(error){
+    summary.textContent=error.message+' Do not attempt another payment until the earlier checkout is reconciled.';
+    cancelCard.disabled=false;
+   }
   });
   buy.addEventListener('click',async()=>{
    if(!quote||!quote.checkoutActive||buy.disabled)return;
@@ -97,7 +125,7 @@
     window.location.assign(dest.href);
    }catch(e){summary.textContent=e.message;buy.disabled=false}
   });
-  section.append(heading,explain,label,preview,summary,buy);
+  section.append(heading,explain,label,preview,summary,cancelCard,buy);
   card.append(title,price,detail,terms,state,cash,section);
   // Read-only automatic quote for eligible QA members. Payment still requires explicit click.
   if(eligible)void preview.click();
