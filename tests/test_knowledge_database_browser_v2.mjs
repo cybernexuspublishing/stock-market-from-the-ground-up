@@ -68,6 +68,7 @@ try{
   assert(initial.series[2].data.slice(1).every(x=>x===null),'Future volumes remain hidden');
   await w.getByRole('button',{name:'Reveal next completed candle'}).click();
   assert.equal(await w.locator('tbody tr').count(),2);
+  await page.waitForFunction(()=>window.__chartOptions?.series?.[0]?.data?.[1]?.[1]===5.15);
   const second=await page.evaluate(()=>window.__chartOptions);
   assert.equal(second.xAxis[0].data.length,8);
   assert.equal(second.series[0].data[1][1],5.15);
