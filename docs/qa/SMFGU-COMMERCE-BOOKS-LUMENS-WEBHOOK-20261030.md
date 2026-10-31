@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.9  
+**Version:** 2.0  
 **Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST purchase/payment/webhook/refund/reversal lifecycles accepted; real LIVE book fulfillment, production purchased-Lumens wallet and LIVE webhook acknowledgment remain OPEN  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -277,6 +277,21 @@ Three independent official Stripe LIVE API event/session records were cross-chec
 
 **Release posture:** GU300 stale-reservation handling implemented/deployed and independently tested; earlier TEST Book I and Lumens purchase/refund tests PASS. Remaining LIVE webhook acknowledgments and real nonzero fulfillment remain OPEN. Follow-up investigation must not invent actual per-attempt HTTP status codes.
 
+## GU300 final CI recovery and production verification
+
+After the isolated GU300 test passed, the preexisting broad LIVE-commerce workflow failed in its legacy refund fixture because the mocked Stripe PaymentIntent omitted `latest_charge`, a property required by the already-existing sponsor cross-check. This was corrected in **the test fixture only** (`tests/test_v014058_live_fulfillment.mjs`, commit `5c81c108c23e1cd9fcce78986035008558b023f3`); no charge or payout logic was relaxed or modified.
+
+**Verified final checkpoints:**
+
+- Isolated `GU300 Signed Founder Expiry Reconciliation` Actions run `41164074514`: **SUCCESS**, no real provider requests.
+- Full `Locked LIVE Membership Fulfillment v0.14.0.59` Actions run `41164179095`: **SUCCESS** after the fixture correction.
+- Cloudflare Pages production latest deployment `e58336bb-19dd-42ad-ac4a-be000baf6d65`: `active`, exact commit `5c81c108c23e1cd9fcce78986035008558b023f3`.
+- Supabase `gu_founder_release_expired_checkout_v014300` invoked for verified previously released reservation: `ok=true`, `replayed=true`, `released=false`; privileges `anon=false`, `authenticated=false`, `service_role=true`.
+- The three original LIVE events remain `pending_webhooks=1` each. Production deploy and signed **mock** tests are not genuine signed Stripe delivery. LIVE webhook HTTP status and body remain unavailable via the Stripe connector; no unsupported success claim or unsanctioned event fabrication was made.
+- All changes used existing free connected tools and main branch; no LIVE nonzero payments, refunds, secret rotation or charge tests occurred.
+
+**Result:** The automated expired Founding checkout release bug is **FIXED AND DEPLOYED** with isolated and broad security/commerce CI PASS. Real Stripe signed LIVE event acknowledgment and paid-production fulfilment acceptance are **OPEN**.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -292,3 +307,4 @@ Three independent official Stripe LIVE API event/session records were cross-chec
 | 1.7 | 2026-10-30 CDT / 2026-10-31 UTC | Consolidated Stripe LIVE webhook, Cloudflare bindings/observability and Supabase LIVE ledger audit; both pending 0-dollar events remain open, one Workbench inspection batch required, protected $0 budget. |
 | 1.8 | 2026-10-30 CDT / 2026-10-31 UTC | Owner's two LIVE event links and three Checkout payloads reconciled. Third LIVE event is an expired/unpaid $49.99 Founding 30 checkout, not a charge; released one verified stale bound Founder seat. All three webhook attempt responses remain unverified. |
 | 1.9 | 2026-10-31 UTC | Implemented service-only Stripe-verified Founding expiry release; guarded SQL replay/permissions verified; isolated GitHub Actions PASS and matching Cloudflare production deployment confirmed; broad legacy fixture failed refund test; three signed LIVE event acknowledgments still pending. |
+| 2.0 | 2026-10-31 UTC | Legacy mock Stripe PaymentIntent corrected; broad LIVE commerce CI run 41164179095 PASS, isolated GU300 CI PASS, Cloudflare exact main commit active; three provider LIVE webhook events remain pending. |
