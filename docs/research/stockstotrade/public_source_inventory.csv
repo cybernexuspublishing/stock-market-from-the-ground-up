@@ -1,0 +1,19 @@
+kind,canonical_url,title,record_ids,statuses,provenance,transcript_verified
+website,https://stockstotrade.com/be-a-great-student/,Want Trading Success? Be a Great Student,WEB-012,article_opened,discovered_batch_002.csv:6,false
+website,https://stockstotrade.com/blog/,StocksToTrade Blog index,WEB-008,index_reviewed,discovered_batch_002.csv:2,false
+website,https://stockstotrade.com/chart-patterns/,Essential Stock Chart Patterns for Traders,STT-W004,partially_reviewed,source_registry_v1.csv:5,false
+website,https://stockstotrade.com/finding-and-interpreting-catalysts/,Finding and Interpreting Stock Catalysts,STT-W002,article_reviewed,source_registry_v1.csv:3,false
+website,https://stockstotrade.com/key-to-smarter-trades/,"Big Float, Smaller Targets",WEB-015,article_opened,discovered_batch_002.csv:9,false
+website,https://stockstotrade.com/never-predict-with-money/,Never Predict With Money on the Line,WEB-010,article_read,discovered_batch_002.csv:4,false
+website,https://stockstotrade.com/stock-catalysts/,Stock Catalysts: What You Need to Know to Find HOT Trades,STT-W003,article_reviewed,source_registry_v1.csv:4,false
+website,https://stockstotrade.com/stocks-to-watch/,Stocks To Watch Today: Be Updated,STT-W005,partially_reviewed,source_registry_v1.csv:6,false
+website,https://stockstotrade.com/strong-resistance-means-better-breakouts/,Strong Resistance Leads to Better Breakouts,WEB-011,article_opened,discovered_batch_002.csv:5,false
+website,https://stockstotrade.com/top-pattern-for-part-time-traders/,The Top Pattern for Part-Time Day Traders,STT-W001,article_reviewed,source_registry_v1.csv:2,false
+website,https://stockstotrade.com/trade-what-the-market-gives/,Trade What the Market Gives,WEB-009,article_read,discovered_batch_002.csv:3,false
+website,https://stockstotrade.com/why-long-term-ai-bulls-still-de-risk/,Why Long-Term AI Bulls Still De-Risk,WEB-014,article_opened,discovered_batch_002.csv:8,false
+website,https://stockstotrade.com/your-trade-plan-is-the-law/,Your Trade Plan Is the Law,WEB-013,article_opened,discovered_batch_002.csv:7,false
+youtube,https://www.youtube.com/watch?v=F7jJJBI6pR8,"Day Trading 101, Episode 1",YT-005,linked_metadata_only_transcript_unavailable,discovered_batch_002.csv:12,false
+youtube,https://www.youtube.com/watch?v=Ka638b5p3C0,The Best Stock Screeners for New Day Traders,YT-003,linked_metadata_only_transcript_unavailable,discovered_batch_002.csv:10,false
+youtube,https://www.youtube.com/watch?v=uH2qWOeJ1GE,StocksToTrade Sunday market discussion,STT-Y002,description_only,source_registry_v1.csv:8,false
+youtube,https://www.youtube.com/watch?v=wmMYeKyXr0E,StocksToTrade Oracle educational product video,STT-Y001,description_only,source_registry_v1.csv:7,false
+youtube,https://www.youtube.com/watch?v=y3pJarOEe_k,Mastering Risk Management: The Key to Sustainable Trading Success,YT-004,linked_metadata_only_transcript_unavailable,discovered_batch_002.csv:11,false

@@ -1,101 +1,71 @@
 #!/usr/bin/env python3
-"""Public URL/video discovery utility. Free, resumable, metadata only.
-Requires optional pip packages: requests, beautifulsoup4, yt-dlp.
-Do not use to evade restrictions; honor robots.txt and site terms.
-No transcript text or copyrighted article bodies are retained.
-"""
-import argparse, csv, json, pathlib, time, urllib.parse, urllib.robotparser
-from collections import deque
+"""Reconcile manually observed public URLs offline; no network requests."""
+import argparse
+import csv
+import json
+from collections import Counter
+from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
-FIELDS = ["kind","url","title","date","status","source","error"]
-def write_csv(path, data):
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", newline="", encoding="utf-8") as fh:
-        w=csv.DictWriter(fh, fieldnames=FIELDS)
-        w.writeheader()
-        w.writerows(data)
-def site_scan(args, output):
-    try:
-        import requests
-        from bs4 import BeautifulSoup
-    except ImportError as e:
-        raise SystemExit("Install optional free packages: pip install requests beautifulsoup4") from e
-    origin="https://stockstotrade.com"
-    base=urllib.parse.urlsplit(origin).netloc
-    robots=urllib.robotparser.RobotFileParser()
-    robots.set_url(origin+"/robots.txt")
-    try:
-        robots.read()
-        robots_known=True
-    except Exception:
-        robots_known=False
-    if not robots_known:
-        raise SystemExit("robots.txt unavailable: stop automated crawl; use allowed manual/index methods")
-    state=output/"site_state.json"
-    if state.exists():
-        s=json.loads(state.read_text())
-        queue=deque(s["queue"]); seen=set(s["seen"]); rows=s["rows"]
-    else:
-        queue=deque([origin+"/",origin+"/blog/"]); seen=set(); rows=[]
-    while queue and (args.limit==0 or len(seen)<args.limit):
-        url=queue.popleft()
-        if url in seen: continue
-        seen.add(url)
-        entry=dict(kind="web",url=url,title="",date="",status="unknown",source="internal_link",error="")
-        if not robots.can_fetch("SMFGUResearchBot",url):
-            entry["status"]="robots_disallowed"
-        else:
-            try:
-                r=requests.get(url,timeout=20,headers={"User-Agent":"SMFGUResearchBot/1.0 (educational URL inventory)"})
-                entry["status"]=str(r.status_code)
-                if r.ok and "text/html" in r.headers.get("Content-Type",""):
-                    soup=BeautifulSoup(r.text,"html.parser")
-                    entry["title"]=soup.title.get_text(" ",strip=True) if soup.title else ""
-                    tm=soup.find("meta",property="article:published_time")
-                    if tm: entry["date"]=tm.get("content","")
-                    for a in soup.find_all("a",href=True):
-                        parsed=urllib.parse.urlsplit(urllib.parse.urljoin(url,a["href"]))
-                        if parsed.scheme not in ("https","http") or parsed.netloc.lower()!=base: continue
-                        nxt=urllib.parse.urlunsplit((parsed.scheme,parsed.netloc,parsed.path,"",""))
-                        if nxt not in seen and nxt not in queue: queue.append(nxt)
-            except Exception as e:
-                entry["status"]="fetch_error"; entry["error"]=str(e)[:240]
-            time.sleep(args.delay)
-        rows.append(entry)
-        state.write_text(json.dumps(dict(queue=list(queue),seen=sorted(seen),rows=rows),indent=2))
-    write_csv(output/"website_discovery.csv",rows)
-    print("web observed:",len(rows),"queued:",len(queue))
-def youtube_scan(args,output):
-    try:
-        import yt_dlp
-    except ImportError as e:
-        raise SystemExit("Install optional free package: pip install yt-dlp") from e
-    opts={"quiet":True,"extract_flat":True,"skip_download":True,"ignoreerrors":True}
-    rows=[]
-    with yt_dlp.YoutubeDL(opts) as y:
-        for suffix in ("videos","shorts","streams"):
-            target="https://www.youtube.com/@Stockstotrade/"+suffix
-            try:
-                data=y.extract_info(target,download=False)
-                for e in (data or {}).get("entries",[]) or []:
-                    if not e: continue
-                    vid=e.get("id") or ""
-                    if not vid: continue
-                    rows.append(dict(kind="youtube",url="https://www.youtube.com/watch?v="+vid,
-                       title=e.get("title") or "",date=str(e.get("upload_date") or ""),
-                       status="metadata_only",source=target,error="No transcript assessed"))
-            except Exception as e:
-                rows.append(dict(kind="youtube",url=target,title="",date="",
-                    status="discovery_error",source=target,error=str(e)[:240]))
-    unique={row["url"]:row for row in rows}
-    write_csv(output/"youtube_discovery.csv",list(unique.values()))
-    print("video ids:",sum(r["status"]=="metadata_only" for r in unique.values()))
-if __name__=="__main__":
-    p=argparse.ArgumentParser()
-    p.add_argument("--mode",choices=["site","youtube","both"],default="both")
-    p.add_argument("--output",default="research-output")
-    p.add_argument("--limit",type=int,default=0,help="0 means no page-count cap")
-    p.add_argument("--delay",type=float,default=1.5)
-    a=p.parse_args(); out=pathlib.Path(a.output);out.mkdir(parents=True,exist_ok=True)
-    if a.mode in ("site","both"):site_scan(a,out)
-    if a.mode in ("youtube","both"):youtube_scan(a,out)
+ROOT = Path(__file__).resolve().parent
+FIELDS = ("kind", "canonical_url", "title", "record_ids", "statuses", "provenance", "transcript_verified")
+
+
+def canonical(url):
+    p = urlsplit(url.strip())
+    host = (p.hostname or "").lower()
+    if host in {"youtube.com", "www.youtube.com", "m.youtube.com"} and p.path == "/watch":
+        video_id = parse_qs(p.query).get("v", [""])[0]
+        return "https://www.youtube.com/watch?v=" + video_id if video_id else url
+    if host in {"stockstotrade.com", "www.stockstotrade.com"}:
+        return "https://stockstotrade.com" + (p.path.rstrip("/") or "") + "/"
+    return url
+
+
+def reconcile(output):
+    sources = (("source_registry_v1.csv", "id", "review_status"),
+               ("discovered_batch_002.csv", "source_id", "access_status"))
+    items = {}
+    input_counts = Counter()
+    for filename, id_field, status_field in sources:
+        with (ROOT / filename).open(newline="", encoding="utf-8-sig") as stream:
+            for line, row in enumerate(csv.DictReader(stream), 2):
+                kind = "youtube" if row[id_field].startswith(("YT-", "STT-Y")) else "website"
+                url = canonical(row["url"])
+                expected = "https://www.youtube.com/watch?v=" if kind == "youtube" else "https://stockstotrade.com/"
+                if not url.startswith(expected):
+                    raise ValueError(f"Unexpected URL at {filename}:{line}: {url}")
+                input_counts[kind] += 1
+                item = items.setdefault((kind, url), {"kind": kind, "canonical_url": url,
+                    "title": row["title"], "record_ids": set(), "statuses": set(),
+                    "provenance": set(), "transcript_verified": False})
+                item["record_ids"].add(row[id_field])
+                item["statuses"].add(row[status_field])
+                item["provenance"].add(f"{filename}:{line}")
+                item["transcript_verified"] |= row.get("transcript_verified", "false").lower() == "true"
+    output.mkdir(parents=True, exist_ok=True)
+    rows = []
+    for item in sorted(items.values(), key=lambda r: (r["kind"], r["canonical_url"])):
+        rows.append({key: ";".join(sorted(value)) if isinstance(value, set) else
+                     str(value).lower() if isinstance(value, bool) else value
+                     for key, value in item.items()})
+    with (output / "public_source_inventory.csv").open("w", newline="", encoding="utf-8") as stream:
+        writer = csv.DictWriter(stream, fieldnames=FIELDS)
+        writer.writeheader()
+        writer.writerows(rows)
+    counts = Counter(row["kind"] for row in rows)
+    report = {"method": "offline reconciliation of manually observed source records",
+              "input_rows": dict(input_counts), "unique_urls": dict(counts),
+              "duplicate_rows": sum(input_counts.values()) - len(rows),
+              "youtube_transcripts_verified": sum(row["transcript_verified"] == "true" for row in rows if row["kind"] == "youtube"),
+              "coverage": "partial; exhaustive site and channel enumeration unverified",
+              "wbs_task_count": None,
+              "wbs_note": "Source URLs are not research tasks; no canonical research WBS was found."}
+    (output / "public_inventory_audit.json").write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(report, indent=2))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", type=Path, default=ROOT)
+    reconcile(parser.parse_args().output)
