@@ -42,7 +42,9 @@ assert(dashboard.includes('candle-practice.html')&&dashboard.includes('free-foun
 const practice=read('assets/js/public-candle-practice-v1.js'),sharing=read('assets/js/public-share-v1.js');
 new Script(practice,{filename:'public-candle-practice-v1.js'});
 new Script(sharing,{filename:'public-share-v1.js'});
-assert(practice.includes('fictional')&&practice.includes('createElementNS'),'Original chart visualization must be real and fictional');
+assert(practice.includes('fictional')&&practice.includes('CrownlightECharts.load')&&practice.includes("type:'candlestick'"),'Original fictional chart must use locally hosted ECharts');
+assert(read('candle-practice.html').includes('/assets/js/crownlight-echarts-loader-v1.js'),'Public page loads the first-party local ECharts adapter');
+assert(read('candle-practice.html').includes('gu-practice-ohlc'),'Accessible table must remain available without the chart');
 assert(!/\bfetch\s*\(|\bXMLHttpRequest\b|localStorage|sessionStorage|gtag\s*\(/.test(practice),'No browsing, account storage or analytics inside practice');
 assert(!/\bfetch\s*\(|localStorage|sessionStorage|\bgtag\b|mailto:|location\.search/.test(sharing),'Share without data collection or subscriber email');
 assert(sharing.includes('navigator.share')&&sharing.includes('navigator.clipboard'),'Voluntary browser share/copy required');
