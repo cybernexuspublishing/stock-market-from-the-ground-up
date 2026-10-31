@@ -345,8 +345,6 @@ async function submit(id,mapper,message){
 async function start(){
  try{
   sb=await window.getSupabaseClient();
-  await refresh();
-  e('gu-ad-refresh').addEventListener('click',()=>refresh().catch(err=>e('gu-ad-admin-status').textContent=err.message));
   e('gu-ad-verify-owner-browser')?.addEventListener('click',async()=>{
    const btn=e('gu-ad-verify-owner-browser'),note=e('gu-ad-owner-browser-acceptance');
    btn.disabled=true;note.textContent='Checking the signed-in Owner session and visible Advertising Admin controls…';
@@ -357,6 +355,7 @@ async function start(){
     const person=await sb.auth.getUser();
     if(person.error||!person.data?.user?.id)throw Error('Owner user verification failed.');
     const summary=await request();
+    if(e('gu-ad-admin-main').hidden)await refresh();
     if(!summary.settings||!Array.isArray(summary.placements)||!Array.isArray(summary.campaigns))
      throw Error('Owner-only sponsor inventory is not available.');
     const visible=id=>{
@@ -383,6 +382,14 @@ async function start(){
     note.textContent='NOT ACCEPTED — '+(error?.message||'Owner browser verification failed.');
    }finally{btn.disabled=false}
   });
+  try{await refresh()}catch(err){
+   const message='Owner controls are unavailable: '+(err?.message||'Please sign in again.');
+   e('gu-ad-admin-status').textContent=message;
+   e('gu-ad-owner-browser-acceptance').textContent=message+
+     ' The verification button above remains available for a retry.';
+  }
+  e('gu-ad-refresh').addEventListener('click',()=>refresh().catch(err=>e('gu-ad-admin-status').textContent=err.message));
+
   e('gu-ad-sandbox-refresh')?.addEventListener('click',()=>refresh().catch(err=>e('gu-ad-sandbox-feedback').textContent=err.message));
   e('gu-ad-sandbox-toggle')?.addEventListener('click',async()=>{
    const btn=e('gu-ad-sandbox-toggle');btn.disabled=true;
