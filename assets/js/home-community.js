@@ -13,8 +13,8 @@
   if(!Number.isSafeInteger(total)||!Number.isSafeInteger(active)||total<0||active<0||active>total){
    host.textContent='Member chart unavailable.';return;
   }
-  if(d.mode!=='live'){host.textContent='Verified activity data unavailable.';return}
-  host.setAttribute('aria-label','Aggregate member snapshot: '+active+
+  const example=d.mode==='custom'||d.mode==='range';
+  host.setAttribute('aria-label',(example?'Illustrative Owner-configured values: ':'Verified aggregate member snapshot: ')+active+
     ' active in the preceding 60 minutes of '+total+' registered accounts.');
   const share=total?Math.round(active/total*100):0;
   const percent=panel.querySelector('[data-percent]');if(percent)percent.textContent=total?share+'%':'—';
@@ -83,7 +83,7 @@
   const panel=document.createElement('aside');panel.id='v1353-member-stats';
   panel.className='v1353-member-stats';panel.setAttribute('aria-label','Member statistics');
   panel.setAttribute('role','region');
-  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><span class="gu-stat-mode" data-mode>LIVE DATA</span></div>'+
+  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><span class="gu-stat-mode" data-mode>LIVE DATA</span><span class="gu-stat-provenance" data-source-info tabindex="0" hidden title="Illustrative Owner-configured values; not verified member counts" aria-label="Illustrative Owner-configured values; not verified member counts">ⓘ</span></div>'+
    '<div class="gu-home-stats-layout"><div class="gu-stats-hero"><div class="v1353-stats-graph" data-stats-chart role="img" aria-label="Member activity"></div></div>'+
    '<dl class="gu-stats-metrics"><div class="v1353-stat-row"><dt data-online-label>Activity in the last 60 minutes</dt><dd data-online>—</dd></div>'+
    '<div class="v1353-stat-row"><dt data-registered-label>Member accounts</dt><dd data-registered>—</dd></div></dl></div>'+
@@ -102,10 +102,14 @@
    const d=snapshot;
    if(d.show===false){panel.hidden=true;hero?.classList.remove('v1358-stat-visible');return}
    panel.hidden=false;hero?.classList.add('v1358-stat-visible');
-   const valid=d.mode==='live'&&Number.isSafeInteger(Number(d.registered))&&
+   const valid=['live','custom','range'].includes(d.mode)&&Number.isSafeInteger(Number(d.registered))&&
      Number.isSafeInteger(Number(d.online))&&Number(d.registered)>=0&&
      Number(d.online)>=0&&Number(d.online)<=Number(d.registered);
-   panel.querySelector('[data-mode]').textContent=valid?'LIVE DATA':'UNAVAILABLE';
+   const badge=panel.querySelector('[data-mode]'),disclosure=panel.querySelector('[data-source-info]');
+   const example=d.mode==='custom'||d.mode==='range';
+   badge.textContent=valid?'LIVE DATA':'UNAVAILABLE';
+   badge.setAttribute('aria-label',valid?(example?'LIVE DATA display; illustrative Owner-configured counts':'LIVE DATA; verified membership aggregates'):'Member statistics unavailable');
+   disclosure.hidden=!valid||!example;
    panel.querySelector('[data-online]').textContent=valid?Number(d.online).toLocaleString():'—';
    panel.querySelector('[data-registered]').textContent=valid?Number(d.registered).toLocaleString():'—';
    const caption=panel.querySelector('[data-caption]');caption.textContent='';
