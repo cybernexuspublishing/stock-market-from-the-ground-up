@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';
+import {execFileSync} from 'node:child_process';
+import {readFileSync} from 'node:fs';
+execFileSync(process.execPath,['scripts/mandatory_671_source_investigation_v1.mjs'],{stdio:'pipe'});
+const result=JSON.parse(readFileSync('artifacts/mandatory-671-research-summary.json','utf8'));
+assert.equal(result.baseline,671);
+assert.equal(result.labs,419);
+assert.equal(result.academy,252);
+assert.equal(result.reviewedTopicAuthorityPages,20);
+assert.equal(result.counts.specific_claim_sources_researched,5);
+assert.equal(Object.values(result.counts).reduce((a,b)=>a+b,0),671);
+assert.equal(result.approvedByResearch,0);
+const csv=readFileSync('artifacts/mandatory-671-research-queue.csv','utf8');
+assert(csv.includes('mandatory_next_action'));
+assert(csv.includes('family_authority_researched_unit_not_verified'));
+assert(csv.includes('unresolved_requires_active_source_discovery'));
+assert(csv.includes('free5:5'));
+console.log('PASS 419 Labs + 252 Academy units, 20 family authority sources, five exact-source lesson records and no invented editorial approvals.');
