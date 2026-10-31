@@ -1,10 +1,10 @@
-/* Public candlestick practice: original invented training values only.
- * No network requests, accounts, browser storage, grading, or trade placement.
+/* Public no-login ECharts and Talia v2. Fictional authored examples; no entitlement,
+ * server writes, market feeds, paid credits or independently graded mastery.
  */
 (()=>{'use strict';
 const $=id=>document.getElementById(id);
-const chart=$('gu-practice-chart'),table=$('gu-practice-ohlc'),form=$('gu-practice-form');
-if(!chart||!table||!form)return;
+const form=$('gu-practice-form'),chart=$('gu-practice-chart'),table=$('gu-practice-ohlc');
+if(!form||!chart||!table)return;
 const exercises=[
  {question:'The final fictional candle reached a high of $21.00. What does that tell you?',
  bars:[[19.65,19.92,19.45,19.80,90],[19.80,20.13,19.60,19.98,110],[19.98,20.20,19.84,20.04,120],[20.04,20.32,19.89,20.00,98],[20.00,21.00,19.75,20.50,150]],
@@ -19,85 +19,102 @@ const exercises=[
  options:['This confirms a successful breakout and a profitable trade.','The new high was reached after the interval closed.','A higher observed high occurred, but one candle cannot prove breakout acceptance or a profitable trade.'],correct:2,
  feedback:'A high of $22.20 exceeds the preceding high of $21.80, yet the close was $20.90. A higher high is observable. Its timing, fills, cause, and future acceptance are not established.'}
 ];
-let position=0,answered=false,correctCount=0;
-const svgNS='http://www.w3.org/2000/svg';
-function svg(tag,attrs={},value){
- const el=document.createElementNS(svgNS,tag);
- for(const [k,v] of Object.entries(attrs))el.setAttribute(k,String(v));
- if(value!==undefined)el.textContent=String(value);
- return el;
+const explanations=[
+ ['A candle summarizes prices during a defined time interval. Open is the first recorded price, close is the last, and high and low are the extremes. A candle alone cannot tell us what happens next.',
+  'Read the final fictional candle on the left: Open $20.00, High $21.00, Low $19.75 and Close $20.50. The vertical wick touches the high and low; the body runs from open to close.',
+  'The high means at least one recorded price reached $21.00 during this interval. It does not mean the candle closed there or that the next candle must go higher.'],
+ ['A bullish candle closes above its open; a bearish candle closes below its open. The real body measures the absolute distance between those two prices.',
+  'Look at the fifth fictional candle: the open is $20.40 and the close is $19.90. Subtract: $20.40 − $19.90 = $0.50. That is a bearish $0.50 real body.',
+  'The wick indicates prices beyond the real body. It does not reveal the order of intrabar movements or guarantee a reversal.'],
+ ['A higher high means the latest candle’s high exceeded a preceding high. A breakout is more than a single observed price level; context and follow-through are required.',
+  'The prior candle reached $21.80 while the newest reached $22.20: the observed high increased by $0.40. But the newest candle opened at $21.10 and closed at $20.90.',
+  'A higher observed high is not proof of a profitable trade or future acceptance above resistance. Distinguish measured evidence from an unsupported prediction.']
+];
+let position=0,part=0,autoplay=false,autoTimer=null,passed=0,mistakes=0,chartMode='Price + Volume',chartInstance=null,disposed=false;
+const stop=()=>{if(autoTimer!==null){clearTimeout(autoTimer);autoTimer=null}};
+function create(name,text,className){const el=document.createElement(name);if(text!==undefined)el.textContent=text;if(className)el.className=className;return el}
+function mark(text){$('gu-practice-tutor-status').textContent=text}
+function updateAuto(){const button=$('gu-practice-auto');button.textContent=autoplay?'Pause guided teaching':'Start guided teaching';button.setAttribute('aria-pressed',String(autoplay))}
+function chartDraw(){
+ const item=exercises[position],bars=item.bars;
+ if(chartInstance){chartInstance.dispose();chartInstance=null}
+ chart.replaceChildren();
+ const fallback=()=>{chart.append(create('p','ECharts unavailable. Use the full accessible OHLC and volume table directly beneath this chart.','gu-public-chart-fallback'))};
+ if(!window.CrownlightECharts?.load){fallback();return}
+ window.CrownlightECharts.load().then(e=>{
+  if(disposed||position!==item.index&&item!==exercises[position])return;
+  chartInstance=e.init(chart,null,{renderer:'svg'});
+  const showCandle=chartMode!=='Volume Only',showVolume=chartMode!=='Price Only';
+  const labels=bars.map((_,i)=>'Bar '+(i+1)),volumeMax=Math.max(...bars.map(b=>b[4]));
+  const series=[];
+  if(showCandle)series.push({name:'Fictional OHLC',type:'candlestick',data:bars.map(b=>[b[0],b[3],b[2],b[1]]),itemStyle:{color:'#51d5b0',color0:'#e57f95',borderColor:'#51d5b0',borderColor0:'#e57f95'},barMaxWidth:34});
+  if(showVolume)series.push({name:'Fictional volume',type:'bar',xAxisIndex:1,yAxisIndex:1,data:bars.map(b=>({value:b[4],itemStyle:{color:b[3]>=b[0]?'#4cbb9e':'#cc7087'}})),barMaxWidth:32});
+  chartInstance.setOption({animation:false,backgroundColor:'#081e2e',
+   tooltip:{trigger:'axis',axisPointer:{type:'cross'},backgroundColor:'#153449',borderColor:'#42677b',textStyle:{color:'#fff'},formatter:params=>{
+    const i=params?.[0]?.dataIndex??0,b=bars[i];return 'Fictional bar '+(i+1)+'<br>Open $'+b[0].toFixed(2)+' · High $'+b[1].toFixed(2)+'<br>Low $'+b[2].toFixed(2)+' · Close $'+b[3].toFixed(2)+'<br>Volume '+b[4];
+   }},
+   legend:{top:4,textStyle:{color:'#c5daea'}},
+   grid:[{left:58,right:28,top:40,height:chartMode==='Volume Only'?'42%':'56%'},{left:58,right:28,top:'77%',height:'14%'}],
+   xAxis:[{type:'category',gridIndex:0,data:labels,axisLabel:{color:'#c5d6e3'},axisLine:{lineStyle:{color:'#405b70'}}},{type:'category',gridIndex:1,data:labels,axisLabel:{color:'#bcd0de'},axisLine:{lineStyle:{color:'#405b70'}}}],
+   yAxis:[{type:'value',scale:true,gridIndex:0,axisLabel:{color:'#c4d6e6',formatter:v=>'$'+Number(v).toFixed(2)},splitLine:{lineStyle:{color:'#294457'}}},{type:'value',gridIndex:1,min:0,max:volumeMax*1.2,axisLabel:{color:'#9fbacc'},splitLine:{show:false}}],
+   series},true);
+  chartInstance.resize();
+ }).catch(fallback);
 }
-function displayChart(bars){
- chart.replaceChildren(svg('title',{},'Original fictional candlestick and volume sequence'));
- const lows=bars.map(b=>b[2]),highs=bars.map(b=>b[1]);
- const min=Math.min(...lows)-.22,max=Math.max(...highs)+.22;
- const y=p=>18+(max-p)/(max-min)*203;
- chart.append(svg('rect',{x:1,y:1,width:758,height:308,rx:10,fill:'#081826',stroke:'#36556a'}));
- for(let i=0;i<=4;i++){
-  const v=min+(max-min)*i/4,yy=y(v);
-  chart.append(svg('line',{x1:58,y1:yy,x2:718,y2:yy,stroke:'#2a4559','stroke-width':1}));
-  chart.append(svg('text',{x:8,y:yy+4,fill:'#c2d4de','font-size':12},'$'+v.toFixed(2)));
+function showTable(){
+ const bars=exercises[position].bars;table.replaceChildren();
+ bars.forEach((bar,i)=>{const tr=create('tr');[String(i+1),...bar.slice(0,4).map(n=>'$'+n.toFixed(2)),String(bar[4])].forEach(x=>tr.append(create('td',x)));table.append(tr)});
+ const last=bars.at(-1),facts=$('gu-practice-facts');facts.replaceChildren();
+ [['Open','$'+last[0].toFixed(2)],['High','$'+last[1].toFixed(2)],['Low','$'+last[2].toFixed(2)],['Close','$'+last[3].toFixed(2)],['Volume',last[4]+' shares']].forEach(([k,v])=>{const x=create('div',undefined,'gu-public-fact');x.append(create('small',k),create('strong',v));facts.append(x)});
+}
+function renderPart(){
+ stop();
+ const lines=explanations[position],n=$('gu-practice-narration');
+ if(part<lines.length){
+  n.append(create('p',lines[part++]));
+  if(part<lines.length){mark('Teaching part '+part+' of '+lines.length+'.');if(autoplay)autoTimer=setTimeout(renderPart,1300)}
+  else{mark('Instruction complete. Talia has loaded the question.');$('gu-practice-questionbox').hidden=false;$('gu-practice-next-teaching').disabled=true;}
  }
- chart.append(svg('text',{x:12,y:252,fill:'#aac0ce','font-size':12},'VOLUME (fictional units)'));
- const maxVolume=Math.max(...bars.map(b=>b[4]));
- bars.forEach((b,i)=>{
-  const x=108+i*124, rising=b[3]>=b[0],color=rising?'#68d7b6':'#ee8798';
-  chart.append(svg('line',{x1:x,y1:y(b[1]),x2:x,y2:y(b[2]),stroke:color,'stroke-width':3}));
-  chart.append(svg('rect',{x:x-15,y:Math.min(y(b[0]),y(b[3])),width:30,
-    height:Math.max(2,Math.abs(y(b[0])-y(b[3]))),fill:color,rx:1}));
-  chart.append(svg('rect',{x:x-15,y:286-(b[4]/maxVolume)*29,width:30,
-    height:b[4]/maxVolume*29,fill:color,opacity:.52}));
-  chart.append(svg('text',{x,y:306,fill:'#c2d4df','text-anchor':'middle','font-size':12},'Bar '+(i+1)));
- });
 }
 function show(){
- answered=false;
+ stop();part=0;
+ $('gu-practice-narration').replaceChildren();
  $('gu-practice-step').textContent='Exercise '+(position+1)+' of '+exercises.length;
- const item=exercises[position];
- $('gu-practice-question').textContent=item.question;
- displayChart(item.bars);
- table.replaceChildren();
- item.bars.forEach((bar,i)=>{
-  const tr=document.createElement('tr');
-  [String(i+1),...bar.slice(0,4).map(x=>'$'+x.toFixed(2)),String(bar[4])].forEach(value=>{
-   const td=document.createElement('td');td.textContent=value;tr.append(td);
-  });table.append(tr);
- });
+ $('gu-practice-question').textContent=exercises[position].question;
+ $('gu-practice-questionbox').hidden=true;
+ $('gu-practice-next-teaching').disabled=false;
  const box=$('gu-practice-answers');box.replaceChildren();
- item.options.forEach((option,i)=>{
-  const label=document.createElement('label');label.className='gu-growth-answer';
-  const input=document.createElement('input');input.type='radio';input.name='gu-practice-choice';input.value=String(i);
-  input.required=true;
-  const words=document.createElement('span');words.textContent=option;
-  label.append(input,words);box.append(label);
- });
- $('gu-practice-feedback').hidden=true;
- $('gu-practice-feedback').textContent='';
- $('gu-practice-check').hidden=false;
- $('gu-practice-next').hidden=true;
- $('gu-practice-reset').hidden=true;
- $('gu-practice-progress').textContent='You have reviewed '+position+' of '+exercises.length+' fictional examples. Answers are not stored or graded.';
+ exercises[position].options.forEach((opt,i)=>{const label=create('label',undefined,'gu-growth-answer');const input=create('input');input.type='radio';input.name='gu-practice-choice';input.value=String(i);const words=create('span',opt);label.append(input,words);box.append(label)});
+ const feedback=$('gu-practice-feedback');feedback.textContent='';feedback.hidden=true;
+ $('gu-practice-next').hidden=true;$('gu-practice-reset').hidden=true;$('gu-practice-check').hidden=false;
+ $('gu-practice-progress').textContent='Completed '+passed+' of 3 fictional exercises. Incorrect attempts: '+mistakes+'. No grades or account data are saved.';
+ showTable();chartDraw();renderPart();
 }
-form.addEventListener('submit',event=>{
+function stepForward(){
+ if(position<exercises.length-1){position++;show()}
+ else{$('gu-practice-reset').hidden=false;$('gu-practice-progress').textContent='All three exercises completed. These are ungraded fictional examples; independent mastery was not assessed.';mark('You completed all public sample questions. Repeat them or continue into the Free Foundations lessons.')}
+}
+function answer(event){
  event.preventDefault();
- if(answered)return;
- const input=form.querySelector('input[name="gu-practice-choice"]:checked'),feedback=$('gu-practice-feedback');
- if(!input){feedback.textContent='Select an observation before reviewing the explanation.';feedback.dataset.state='missing';feedback.hidden=false;return;}
- const chosen=Number(input.value),item=exercises[position],correct=chosen===item.correct;
- if(correct)correctCount++;
- answered=true;
- feedback.dataset.state=correct?'correct':'try-again';
- feedback.textContent=(correct?'Your observation is supported. ':'That conclusion goes beyond the displayed evidence. ')+item.feedback;
- feedback.hidden=false;
- form.querySelectorAll('input[name="gu-practice-choice"]').forEach(e=>e.disabled=true);
+ const f=$('gu-practice-feedback'),chosen=form.querySelector('input[name="gu-practice-choice"]:checked');
+ if(!chosen){f.hidden=false;f.dataset.state='missing';f.textContent='Select an answer first.';return}
+ const item=exercises[position],correct=Number(chosen.value)===item.correct;
+ f.hidden=false;f.dataset.state=correct?'correct':'try-again';
+ if(!correct){mistakes++;f.textContent='Not quite. '+item.feedback+' Compare the chart to the OHLC table, then choose again. Free retries are available.';mark('The question remains open. Review Talia’s explanation and try again.');return}
+ passed++;f.textContent='Correct. '+item.feedback;
  $('gu-practice-check').hidden=true;
- if(position<exercises.length-1){$('gu-practice-next').hidden=false;}
- else {$('gu-practice-reset').hidden=false;}
- $('gu-practice-progress').textContent=position===exercises.length-1
-  ?'Practice complete: '+correctCount+' of '+exercises.length+' observations matched the evidence. This is not an official score or qualification.'
-  :'Example reviewed. Continue when you are ready; this training is ungraded.';
-});
-$('gu-practice-next').addEventListener('click',()=>{if(!answered||position>=exercises.length-1)return;position++;show();});
-$('gu-practice-reset').addEventListener('click',()=>{position=0;correctCount=0;show();});
-show();
+ form.querySelectorAll('input[name="gu-practice-choice"]').forEach(x=>x.disabled=true);
+ if(position<exercises.length-1)$('gu-practice-next').hidden=false;else $('gu-practice-reset').hidden=false;
+ $('gu-practice-progress').textContent='Completed '+passed+' of 3 fictional exercises. No saved grades or mastery.';
+ mark('Correct answer confirmed. Continue to the next fictional example when ready.');
+}
+form.addEventListener('submit',answer);
+$('gu-practice-auto').addEventListener('click',()=>{autoplay=!autoplay;updateAuto();stop();if(autoplay&&part<explanations[position].length)autoTimer=setTimeout(renderPart,400);else mark(autoplay?'Question ready: submit your answer to advance.':'Automatic teaching paused.')});
+$('gu-practice-next-teaching').addEventListener('click',renderPart);
+$('gu-practice-full').addEventListener('click',()=>{stop();while(part<explanations[position].length)renderPart()});
+$('gu-practice-next').addEventListener('click',stepForward);
+$('gu-practice-reset').addEventListener('click',()=>{position=0;passed=0;mistakes=0;show()});
+$('gu-practice-chart-mode').addEventListener('change',e=>{chartMode=e.target.value;chartDraw()});
+window.addEventListener('resize',()=>chartInstance?.resize());
+updateAuto();show();
 })();
