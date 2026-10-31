@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.0  
+**Version:** 1.1  
 **Status:** PARTIAL ACCEPTANCE; paid purchases, signed LIVE delivery, and Lumens package purchases not accepted end-to-end  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -25,7 +25,7 @@ Five separate digital titles are rights-attested and present in private storage 
 
 An authorized, 12-minute QA-only `LIFETIME` grant was temporarily created solely for download testing. It was **canceled** with an explicit QA audit marker immediately after a first browser-runner pathname error (`/my-books` instead of `/my-books.html`). Subsequent database verification showed `James_Test` on FREE, with no active QA grant. No paid order or synthetic provider event was created. The first run is https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41149822162 (failure unrelated to file payload). The browser test was corrected to support both URLs and to require server denial when the authenticated member has no entitlement; passing that test demonstrates access control, not a paid purchase.
 
-**Still open:** A genuine Stripe TEST checkout paid via official card -> signed webhook -> book ledger paid -> My Books entitlement -> actual EPUB download -> refund -> disappearance of entitlement. A manual QA grant is never equivalent to provider-verified paid fulfillment.
+**New verified evidence:** The corrected James_Test QA browser passed at https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41150779618. Authentication succeeded, and the secured download API correctly denied all five books to the Free QA member. No file payload was downloaded because the user had no genuine paid entitlement. The prior 12-minute test grant had been canceled.\n\n**Still open:** A genuine Stripe TEST checkout paid via official card -> signed webhook -> book ledger paid -> My Books entitlement -> actual EPUB download -> refund -> disappearance of entitlement. A manual QA grant is never equivalent to provider-verified paid fulfillment.
 
 ## LIVE $0 diagnostic and webhook
 
@@ -53,3 +53,5 @@ A second isolated $0 LIVE session was created by authorized Stripe administrator
 | Version | Date | Change |
 |---|---|---|
 | 1.0 | 2026-10-30 | Books metadata reconciled; 12/61 catalog count; QA tests and grant cleanup; zero-dollar webhook event pending; Lumens five-vs-three catalog discrepancy. |
+
+| 1.1 | 2026-10-30 | Corrected extensionless My Books test passed; verified unauthorized downloads denied for all five books as Free QA member. |
