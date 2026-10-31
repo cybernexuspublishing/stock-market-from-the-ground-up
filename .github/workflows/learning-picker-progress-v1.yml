@@ -11,6 +11,9 @@ on:
       - 'assets/js/lab-engine-v32-universal.js'
       - 'assets/css/learning-workstation-v44.css'
       - 'assets/css/learning-destination-picker-v1.css'
+      - 'assets/css/bootcamp-academy-gallery-v2.css'
+      - 'assets/images/bootcamp-covers/**'
+      - 'tests/test_academy_gallery_browser_v2.mjs'
       - 'lab-player.html'
       - 'bootcamp-academy.html'
       - 'tests/test_learning_destination_picker_browser_v2.mjs'
@@ -37,3 +40,4 @@ jobs:
           node tests/test_learning_destination_picker_v1.mjs
           node tests/test_learning_progress_echarts_v1.mjs
           node tests/test_learning_destination_picker_browser_v2.mjs
+          node tests/test_academy_gallery_browser_v2.mjs
