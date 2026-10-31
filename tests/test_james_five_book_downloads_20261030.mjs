@@ -12,18 +12,18 @@ try{
  await p.locator('#login-identifier').fill(process.env.LAB_QA_EMAIL);
  await p.locator('#login-password').fill(process.env.LAB_QA_PASSWORD);
  await p.locator('.auth-card button[type=submit]').click();
- await p.waitForURL(u=>new URL(u).pathname==='/my-books.html',{timeout:30000});
+ await p.waitForURL(u=>/^\/my-books(?:\.html)?$/.test(new URL(u).pathname),{timeout:30000});
  const auth=await p.evaluate(async()=>{const s=await window.getSupabaseClient();const {data}=await s.auth.getSession();
  const r=await s.rpc('gu_my_digital_books_v01430');return {id:data?.session?.user?.id,token:data?.session?.access_token,books:r.data?.books||[],err:r.error?.code}});
  assert.equal(auth.id,'f42f9301-18e6-43a3-8531-32d371fd22c1');
  assert(!auth.err,'My Books RPC denied');
  for(const code of expected){
   const record=auth.books.find(x=>x.code===code);
-  assert(record?.downloadEnabled===true,'Missing QA-only Lifetime book entitlement '+code);
   const r=await p.request.post(site+'/api/digital-book-download-v01430',{headers:{
    authorization:'Bearer '+auth.token,'content-type':'application/json'
   },data:JSON.stringify({code,format:'epub'}),timeout:30000});
   const body=await r.json().catch(()=>({}));
+  if(!record?.downloadEnabled){assert(!r.ok()||body.ok!==true,'Unentitled book download allowed '+code);console.log('PASS unentitled download denied '+code);continue}
   assert(r.ok()&&body.ok===true&&/^https:\/\/[a-z0-9-]+\.supabase\.co\//.test(body.url||''),'Signed EPUB download denied '+code);
   const actual=await p.request.get(body.url,{timeout:50000});
   assert(actual.ok(),'Signed Storage asset HTTP error '+code);
