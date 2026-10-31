@@ -19,6 +19,36 @@ export async function onRequestPost({request,env}){
   if(!input||typeof input!=='object'||Array.isArray(input))return respond({ok:false,error:'INVALID_REQUEST'},400);
   const identity=await memberIdentity(env,request),c=config(env);
   if(!await verifyChartMixedQa(env,identity.userId))return respond({ok:false,error:'NONCOMMERCIAL_QA_ONLY'},403);
+  // Explicit QA switch of payment method. Never delete a Stripe session or
+  // rewrite an unverified pending order; only the signed expiration webhook
+  // may release its server-side pending entitlement.
+  if(input.action==='cancel_card_pending'){
+   if(!Object.hasOwn(OFFERS,input.sku))return respond({ok:false,error:'INVALID_SKU'},400);
+   const candidates=await db(c,'crownlight_chart_cash_upgrades_v1?select=id,user_id,sku,state,stripe_session_id,stripe_price_id,amount_cents'+
+    '&user_id=eq.'+encodeURIComponent(identity.userId)+'&sku=eq.'+encodeURIComponent(input.sku)+'&state=eq.pending&limit=2');
+   if(!Array.isArray(candidates)||candidates.length!==1)return respond({ok:false,error:'NO_SINGLE_PENDING_CARD_CHECKOUT'},409);
+   const pending=candidates[0];
+   const mixed=await db(c,'crownlight_chart_mixed_test_v1?select=upgrade_id&upgrade_id=eq.'+encodeURIComponent(pending.id)+'&limit=1');
+   if(mixed?.length)return respond({ok:false,error:'PENDING_MIXED_PAYMENT_REQUIRES_RECONCILIATION'},409);
+   if(!validId(pending.stripe_session_id,'cs_test'))
+    return respond({ok:false,error:'CARD_CHECKOUT_NOT_READY_TO_CANCEL'},409);
+   const s=await stripe(env,'checkout/sessions/'+encodeURIComponent(pending.stripe_session_id));
+   const offer=OFFERS[input.sku],m=s.metadata||{};
+   if(s.id!==pending.stripe_session_id||s.livemode!==false||s.mode!=='payment'||
+    s.client_reference_id!==pending.id||m.chart_cash_test_id!==pending.id||
+    m.chart_cash_test_user!==identity.userId||m.chart_cash_test_sku!==input.sku||
+    s.amount_subtotal!==offer.amountCents||pending.amount_cents!==offer.amountCents)
+    return respond({ok:false,error:'CARD_CHECKOUT_PROVIDER_MISMATCH'},409);
+   if(s.status==='complete'||s.payment_status==='paid'||s.payment_intent)
+    return respond({ok:false,error:'PAYMENT_RECONCILIATION_REQUIRED'},409);
+   if(s.status==='open'){
+    const expired=await stripe(env,'checkout/sessions/'+encodeURIComponent(s.id)+'/expire',{method:'POST'});
+    if(expired.id!==s.id||expired.livemode!==false||expired.status!=='expired')
+     throw Error('CARD_CHECKOUT_EXPIRY_UNVERIFIED');
+   }else if(s.status!=='expired')return respond({ok:false,error:'PAYMENT_RECONCILIATION_REQUIRED'},409);
+   return respond({ok:true,testOnly:true,canceled:true,awaitingSignedWebhook:true,
+    message:'The unpaid TEST checkout has expired. Its signed Stripe event must clear the pending order before switching to Lumens.'});
+  }
   if(input.action==='refund_zero'){
    if(!UUID.test(input.upgradeId))return respond({ok:false,error:'INVALID_ORDER'},400);
    const orderRows=await db(c,'crownlight_chart_mixed_test_v1?select=*&upgrade_id=eq.'+
