@@ -12,7 +12,7 @@
   // A stored session might not yet be available while the auth library loads.
   if(location.pathname.startsWith('/admin'))return;
   if(await (async()=>{try{
-   if(!window.getSupabaseClient)return false;
+   if(!window.getSupabaseClient)return true;
    const client=await window.getSupabaseClient();
    return Boolean((await client.auth.getSession()).data?.session);
   }catch{return true}})())return;
