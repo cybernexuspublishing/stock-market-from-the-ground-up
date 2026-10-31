@@ -1,9 +1,74 @@
-/* Public homepage ECharts statistics — truthful aggregate snapshot. */
-#v1353-member-stats{min-width:0}
-#v1353-member-stats .v1353-stats-graph{grid-column:1/-1;display:block;min-width:0;width:100%;height:206px;min-height:180px;border-radius:11px;overflow:hidden;border:1px solid #3a5b75;background:linear-gradient(145deg,#0c2537,#0d2138);color:#c1d5e2}
-#v1353-member-stats .v1353-chart-description{grid-column:1/-1;margin:0;font-size:.79rem;line-height:1.55;color:#bed3df}
-#v1353-member-stats [data-caption]{grid-column:1/-1}
-#v1353-member-stats .v1353-stat-row strong{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
-@media(max-width:830px){#v1353-member-stats .v1353-stats-graph,#v1353-member-stats .v1353-chart-description{flex:1 1 100%}}
-@media(max-width:480px){#v1353-member-stats .v1353-stats-graph{height:175px;min-height:175px}}
-@media(prefers-reduced-motion:reduce){#v1353-member-stats .v1353-stats-graph *{animation:none!important;transition:none!important}}
+/* SMFGU Home Member Statistics v2 — premium community telemetry.
+   One public aggregate endpoint. Example data is visibly marked.
+   Future modules fail closed until verified sources are delivered. */
+.gu-premium-home .gu-home-stage-grid>#v1353-member-stats{
+ grid-column:1/-1!important;display:block!important;order:3;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ margin:clamp(16px,2.2vw,30px) 0 0!important;
+ padding:clamp(18px,2.4vw,30px)!important;
+ border:1px solid rgba(112,150,196,.47)!important;
+ border-radius:19px!important;
+ background:radial-gradient(ellipse at 87% -32%,rgba(65,132,191,.26),transparent 59%),
+ radial-gradient(ellipse at 3% 118%,rgba(46,184,147,.13),transparent 48%),
+ linear-gradient(118deg,rgba(11,33,54,.98),rgba(19,35,68,.96))!important;
+ box-shadow:0 27px 72px rgba(0,0,0,.4),inset 0 1px rgba(214,237,255,.12)!important;
+ position:relative;isolation:isolate;overflow:hidden;color:#f2f7fc;
+}
+#v1353-member-stats[hidden],.gu-premium-home #v1353-member-stats[hidden]{display:none!important}
+#v1353-member-stats:before{content:'';position:absolute;inset:0 0 auto;height:2px;
+ background:linear-gradient(90deg,transparent,#65e7c2,#74bce9,#ab9cf0,transparent);opacity:.8;pointer-events:none}
+#v1353-member-stats .gu-stats-head{display:flex;gap:15px;align-items:center;justify-content:space-between;margin-bottom:14px}
+#v1353-member-stats .gu-stats-head .eyebrow{display:block;margin:0 0 7px;color:#95cdd9;letter-spacing:.18em;font-size:.67rem}
+#v1353-member-stats .gu-stats-head h2{margin:0;color:#fff;font-size:clamp(1.25rem,2vw,1.75rem);line-height:1.2;letter-spacing:-.03em}
+#v1353-member-stats .gu-stat-mode{display:inline-flex;align-items:center;gap:8px;flex:none;
+ border:1px solid rgba(103,207,176,.45);border-radius:99px;padding:8px 12px;
+ background:rgba(21,100,83,.23);font-size:.66rem;letter-spacing:.1em;font-weight:800;color:#a2f4d8}
+#v1353-member-stats .gu-stat-mode:before{content:'';width:7px;height:7px;background:#66e5b7;border-radius:50%;box-shadow:0 0 12px #66e5b7}
+#v1353-member-stats .gu-stat-mode[data-sample=true]{color:#f8dba0;border-color:#957851;background:rgba(122,89,24,.23)}
+#v1353-member-stats .gu-stat-mode[data-sample=true]:before{background:#efc97b;box-shadow:0 0 11px #efc97b}
+#v1353-member-stats .gu-home-stats-layout{display:grid;grid-template-columns:minmax(230px,.95fr) minmax(0,1.4fr);align-items:stretch;gap:clamp(12px,2vw,24px)}
+#v1353-member-stats .gu-stats-hero{min-width:0;background:radial-gradient(circle at 50% 45%,rgba(48,131,151,.16),transparent 65%),rgba(5,22,39,.54);
+ border:1px solid rgba(98,145,167,.31);border-radius:14px;padding:7px 14px 12px}
+#v1353-member-stats .v1353-stats-graph{position:relative;min-width:0;width:100%;height:226px;min-height:190px;
+ background:transparent!important;border:0!important;display:block;overflow:hidden;color:#b7d9e4}
+#v1353-member-stats .gu-stats-track{max-width:360px;margin:0 auto 4px}
+#v1353-member-stats .gu-stats-track-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 9px;color:#a7c2d1;font-size:.73rem}
+#v1353-member-stats .gu-stats-track-head strong{color:#abf4df;font-size:.87rem;font-variant-numeric:tabular-nums}
+#v1353-member-stats .gu-stats-track-rail{height:7px;border-radius:8px;background:#2b465d;overflow:hidden}
+#v1353-member-stats .gu-stats-track-rail span{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#50cda8,#61dff0)}
+#v1353-member-stats .gu-stats-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-content:center;gap:13px;min-width:0}
+#v1353-member-stats .v1353-stat-row{display:flex!important;flex-direction:column!important;align-items:flex-start!important;
+ gap:9px!important;min-width:0;margin:0!important;padding:20px!important;border:1px solid #45637c!important;border-radius:13px!important;
+ background:linear-gradient(130deg,rgba(24,52,77,.9),rgba(21,42,69,.73));box-shadow:inset 0 1px #d7eaff12}
+#v1353-member-stats .v1353-stat-row:nth-child(2){background:linear-gradient(130deg,rgba(38,48,82,.9),rgba(20,40,66,.76))}
+#v1353-member-stats .v1353-stat-row .gu-stat-label{font-size:.8rem;line-height:1.4;color:#b9cfe0;font-weight:650}
+#v1353-member-stats .v1353-stat-row strong{font-size:clamp(2rem,3.7vw,3.5rem)!important;line-height:1!important;
+ font-weight:800!important;letter-spacing:-.04em;color:#fff!important;font-variant-numeric:tabular-nums}
+#v1353-member-stats .v1353-stat-row:first-child strong{color:#91edd2!important}
+#v1353-member-stats .v1353-stat-row small{color:#8fb0c7;font-size:.7rem;line-height:1.55}
+#v1353-member-stats .gu-stats-note{grid-column:1/-1;margin:0;color:#92b6c7;font-size:.75rem}
+#v1353-member-stats .gu-home-future-modules{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0 0}
+#v1353-member-stats .gu-home-future-modules[hidden]{display:none!important}
+#v1353-member-stats .gu-home-future-card{min-width:0;padding:17px;border:1px solid rgba(112,146,184,.36);
+ border-radius:11px;background:linear-gradient(140deg,rgba(18,51,79,.85),rgba(19,39,68,.6))}
+#v1353-member-stats .gu-home-future-card h3{color:#f1f7fc;font-size:.89rem;margin:0 0 8px}
+#v1353-member-stats .gu-home-future-card p{color:#a6c1d2;font-size:.75rem;margin:0 0 13px;line-height:1.55}
+#v1353-member-stats .gu-home-future-status{font-size:.69rem;color:#ead5a4}
+#v1353-member-stats [data-caption]{display:block;color:#b9cad9;font-size:.74rem;margin:13px 0 0}
+#v1353-member-stats [data-caption][hidden]{display:none!important}
+/* Admin toggle labels remain keyboard-operable and compact. */
+#v1353-community-settings .gu-member-stats-futures{display:grid;gap:12px;border:1px solid #4a7187;border-radius:11px;padding:16px}
+#v1353-community-settings .gu-member-stats-futures>label{display:flex;align-items:flex-start;flex-wrap:wrap;gap:8px;padding:11px 12px;border-radius:8px;background:#11293e;border:1px solid #355773}
+#v1353-community-settings .gu-member-stats-futures>label input{width:18px;height:18px;flex:none}
+#v1353-community-settings .gu-member-stats-futures>label small{flex-basis:100%;margin-left:26px;color:#aac4d4}
+@media(max-width:970px){
+ #v1353-member-stats .gu-home-stats-layout{grid-template-columns:minmax(0,1fr)}
+ #v1353-member-stats .gu-stats-hero{max-width:none}
+}
+@media(max-width:680px){
+ #v1353-member-stats .gu-stats-metrics{grid-template-columns:minmax(0,1fr)}
+ #v1353-member-stats .gu-home-future-modules{grid-template-columns:minmax(0,1fr)}
+ #v1353-member-stats .gu-stats-head{align-items:flex-start;flex-wrap:wrap}
+ #v1353-member-stats .v1353-stats-graph{height:205px}
+}
+@media(prefers-reduced-motion:reduce){#v1353-member-stats *{transition:none!important;animation:none!important}}
