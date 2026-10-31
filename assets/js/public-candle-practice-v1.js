@@ -20,15 +20,34 @@ const exercises=[
  feedback:'A high of $22.20 exceeds the preceding high of $21.80, yet the close was $20.90. A higher high is observable. Its timing, fills, cause, and future acceptance are not established.'}
 ];
 const explanations=[
- ['A candle summarizes prices during a defined time interval. Open is the first recorded price, close is the last, and high and low are the extremes. A candle alone cannot tell us what happens next.',
-  'Read the final fictional candle on the left: Open $20.00, High $21.00, Low $19.75 and Close $20.50. The vertical wick touches the high and low; the body runs from open to close.',
-  'The high means at least one recorded price reached $21.00 during this interval. It does not mean the candle closed there or that the next candle must go higher.'],
- ['A bullish candle closes above its open; a bearish candle closes below its open. The real body measures the absolute distance between those two prices.',
-  'Look at the fifth fictional candle: the open is $20.40 and the close is $19.90. Subtract: $20.40 − $19.90 = $0.50. That is a bearish $0.50 real body.',
-  'The wick indicates prices beyond the real body. It does not reveal the order of intrabar movements or guarantee a reversal.'],
- ['A higher high means the latest candle’s high exceeded a preceding high. A breakout is more than a single observed price level; context and follow-through are required.',
-  'The prior candle reached $21.80 while the newest reached $22.20: the observed high increased by $0.40. But the newest candle opened at $21.10 and closed at $20.90.',
-  'A higher observed high is not proof of a profitable trade or future acceptance above resistance. Distinguish measured evidence from an unsupported prediction.']
+ [
+ 'Welcome to your free candlestick workstation. A candlestick records four distinct prices during a chosen time interval. We will read the evidence before deciding what it supports. The five candles are fictional; they are not a quote or trading signal.',
+ 'Start with Open. It is the first recorded price for that interval. The latest candle opened at $20.00. The Close is the last recorded price in that interval: $20.50. The green real body extends between those two prices.',
+ 'The High is the greatest recorded price during the interval, $21.00. The Low is the smallest, $19.75. The upper and lower wicks extend to these extremes. Follow the four horizontal price guides beside the latest candle.',
+ 'Calculate the real body: |Close − Open| = |$20.50 − $20.00| = $0.50. The absolute-value bars mean the size cannot be negative. This bullish body is $0.50 because the close is above the open.',
+ 'Calculate the full range separately: High − Low = $21.00 − $19.75 = $1.25. Unlike the body, this range includes both the upper and lower wick.',
+ 'What percentage of the full range is body? Divide the part ($0.50) by the whole ($1.25), then multiply by 100: 0.50 ÷ 1.25 × 100 = 40%. This is the body’s share of the range, not a probability of a price increase.',
+ 'Interpret the evidence cautiously. The High of $21.00 tells us that at least one recorded price reached that level. It does not tell us when within the interval it happened, nor does it mean the candle closed there.',
+ 'Now Talia will ask you to distinguish an observed fact from an unsupported prediction. You may retry without spending Lumens. The question appears only after this instruction is completed.'
+ ],
+ [
+ 'We will now read a different fictional candlestick. The newest candle opened at $20.40 and closed at $19.90. Compare the two horizontal price levels on the chart.',
+ 'A candle is bearish when Close is below Open. The color describes that recorded relationship, not the certainty of the next price move. A red candle is not proof of a profitable short trade.',
+ 'Calculate the body step by step: subtract the closing price from the opening price here, $20.40 − $19.90 = $0.50. More generally use |Close − Open|.',
+ 'The candle’s High is $20.85 and Low is $19.72. The range is $20.85 − $19.72 = $1.13. The body and the range are different measurements.',
+ 'The body occupies $0.50 ÷ $1.13 × 100, approximately 44.25% of the range. What does that mean? Less than half the total price span is between the first and last recorded prices.',
+ 'The lower wick means trading occurred below the body. It cannot reveal the sequence of trades within this interval, nor establish that buyers will drive the next interval upward.',
+ 'Compare the exact Open and Close on the chart and in the OHLC table. Submit the next recognition question after reading all the instruction. Incorrect responses lead to free guided correction.'
+ ],
+ [
+ 'This new example teaches market structure rather than a single candle’s direction. A higher high compares the High of the latest completed candle with the High of the previous completed candle.',
+ 'First find the prior high: Bar 4 reached $21.80. Next find the current high: Bar 5 reached $22.20. Subtract: $22.20 − $21.80 = $0.40. The new candle recorded a high $0.40 higher.',
+ 'Now inspect the latest body: it opened at $21.10 and closed at $20.90, which is $0.20 lower. The latest candle is bearish despite having reached a higher high.',
+ 'The full range of that candle is $22.20 − $20.60 = $1.60. Its $0.20 body occupies 12.5% of that full range. A small body and extended wick deserve context, not an automatic trade signal.',
+ 'A higher observed high does not independently verify a successful breakout. You would also evaluate the prior resistance area, follow-through, relative volume, broader context, and risk constraints. A single candle does not reveal trade profitability.',
+ 'Compare the highs and closes of Bars 4 and 5 using the ECharts display and OHLC table. Explain to yourself which facts are known and which predictions cannot be justified.',
+ 'This final check is a new application of earlier evidence skills. After you answer, your report shows completed sample exercises and correction attempts; it does not assign official competency or independent mastery.'
+ ]
 ];
 let position=0,part=0,autoplay=false,autoTimer=null,passed=0,mistakes=0,chartMode='Price + Volume',chartInstance=null,disposed=false;
 const stop=()=>{if(autoTimer!==null){clearTimeout(autoTimer);autoTimer=null}};
@@ -100,7 +119,11 @@ function answer(event){
  if(!chosen){f.hidden=false;f.dataset.state='missing';f.textContent='Select an answer first.';return}
  const item=exercises[position],correct=Number(chosen.value)===item.correct;
  f.hidden=false;f.dataset.state=correct?'correct':'try-again';
- if(!correct){mistakes++;f.textContent='Not quite. '+item.feedback+' Compare the chart to the OHLC table, then choose again. Free retries are available.';mark('The question remains open. Review Talia’s explanation and try again.');return}
+ if(!correct){mistakes++;const hints=[
+ ['The Close is $20.50, not $21.00. High is the greatest price reached during the interval, not the last price.','The High cannot guarantee the next candle; use only observed prices.'],
+ ['Compare Open $20.40 with Close $19.90. The close is $0.50 lower. A wick does not predict a recovery.','The candle closes below its open. Review which price is first and which is last.'],
+ ['A higher high does not guarantee acceptance or profitability. Inspect the $22.20 high and $20.90 close.','A single OHLC candle cannot establish the moment the high was reached within the interval.']
+ ];const selected=Number(chosen.value);const hint=hints[position][selected===0?0:1];f.textContent='Not quite. '+hint+' '+item.feedback+' Try again; no Lumens are required.';mark('The question remains open. Review Talia’s explanation and try again.');return}
  passed++;f.textContent='Correct. '+item.feedback;
  $('gu-practice-check').hidden=true;
  form.querySelectorAll('input[name="gu-practice-choice"]').forEach(x=>x.disabled=true);
