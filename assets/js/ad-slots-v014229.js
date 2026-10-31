@@ -116,6 +116,27 @@ async function init(){
      }
     }
     if(!delivered||delivered.placeholderAvailable!==true){mount.replaceChildren();currentId=null;return}
+    if(delivered.affiliate){
+     // Affiliate creative is nonbillable and delivered only by a separate
+     // server-approved channel. No paid-sponsor impression or click events.
+     const affiliate=delivered.affiliate,href=safe(affiliate.destinationUrl);
+     const media=String(affiliate.imageUrl||'');
+     if(affiliate.type!=='affiliate'||!href||
+        new URL(href).hostname!=='www.tradingview.com'||
+        !media.startsWith('data:image/webp;base64,')||
+        !/^[A-Za-z0-9+/=]{200,16000}$/.test(media.slice(23)))throw Error('Invalid affiliate creative');
+     currentId=null;
+     const region=make('aside',undefined,'gu-ad-slot gu-affiliate-promo');
+     region.setAttribute('aria-label','TradingView affiliate advertisement');
+     const label=make('span','Affiliate advertisement','gu-affiliate-disclosure');
+     const link=make('a',undefined,'gu-affiliate-link');
+     link.href=href;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';
+     link.setAttribute('aria-label','Explore TradingView charts (external affiliate link)');
+     const img=make('img');img.src=media;img.alt=String(affiliate.altText||'TradingView charting tools').slice(0,150);
+     img.width=728;img.height=90;img.loading='lazy';img.decoding='async';
+     link.append(img);region.append(label,link);mount.replaceChildren(region);
+     return;
+    }
     if(!delivered.ad){currentId=null;available(mount,slot,delivered.ownerPreview===true);return}
     const ad=delivered.ad;
     if(ad.slot!==slot||!Number.isSafeInteger(ad.creativeId)||!Number.isSafeInteger(ad.campaignId))throw Error('Invalid sponsor');
