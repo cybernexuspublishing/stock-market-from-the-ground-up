@@ -6,6 +6,10 @@ on:
     paths:
       - '.github/workflows/knowledge-database-store-v1.yml'
       - 'knowledge-database.html'
+      - 'assets/js/knowledge-database-expanded-v2.js'
+      - 'assets/js/knowledge-database-workshop-v1.js'
+      - 'assets/css/knowledge-database-expanded-v2.css'
+      - 'tests/test_knowledge_database_expansion_v2.mjs'
       - 'bootcamp-academy.html'
       - 'assets/css/bootcamp-academy-icons-v1.css'
       - 'tests/test_academy_catalog_icons_v1.mjs'
@@ -28,6 +32,9 @@ jobs:
       - name: Verify Free knowledge, Store display and Academy scope
         run: |
           node tests/test_free_foundations_knowledge_v1.mjs
+          node tests/test_knowledge_database_expansion_v2.mjs
+          node --check assets/js/knowledge-database-expanded-v2.js
+          node --check assets/js/knowledge-database-workshop-v1.js
           node tests/test_knowledge_database_store_v1.mjs
           node tests/test_academy_catalog_icons_v1.mjs
           node --check assets/js/navigation.js
