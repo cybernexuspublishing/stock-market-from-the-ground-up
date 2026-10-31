@@ -1,0 +1,25 @@
+name: Stripe TEST Hosted Completion + Zero LIVE Checkout QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/commerce-stripe-hosted-qa-20261030.mjs'
+      - '.github/workflows/commerce-stripe-hosted-qa-20261030.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  genuine-hosted:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: false}
+      - uses: actions/setup-node@v4
+        with: {node-version: '22'}
+      - name: Install browser test dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Pay only with official Stripe TEST card and complete zero-dollar LIVE diagnostic
+        run: node tests/commerce-stripe-hosted-qa-20261030.mjs
