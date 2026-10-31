@@ -175,3 +175,16 @@
 
 /* Partner artwork stays within the Owner review panel; no third-party embedding. */
 .gu-ad-creative-preview{display:block;max-width:min(100%,728px);height:auto;aspect-ratio:728/90;object-fit:contain;margin:10px 0;border-radius:4px}
+
+/* Official TradingView affiliate placement: no house card and no billable sponsor claims. */
+.gu-ad-slot.gu-affiliate-promo{display:flex;align-items:center;flex-direction:column;gap:8px;
+ margin:12px auto 20px!important;padding:0!important;max-width:760px;width:100%;box-sizing:border-box;
+ border:0!important;background:transparent!important;box-shadow:none!important}
+.gu-affiliate-promo .gu-affiliate-disclosure{align-self:center;font-size:.7rem;letter-spacing:.055em;
+ font-weight:650;color:#b5cbd8}
+.gu-ad-slot.gu-affiliate-promo>a.gu-affiliate-link{display:block;width:min(100%,728px);padding:0!important;
+ margin:0 auto;background:transparent!important;border:0!important;border-radius:4px;
+ line-height:0;text-decoration:none;box-shadow:none!important}
+.gu-affiliate-promo img{display:block;width:100%;height:auto;max-width:728px;aspect-ratio:728/90;
+ object-fit:contain}
+.gu-ad-slot.gu-affiliate-promo>a.gu-affiliate-link:focus-visible{outline:3px solid #80c9e4;outline-offset:4px}
