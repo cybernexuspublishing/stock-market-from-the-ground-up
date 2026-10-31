@@ -24,14 +24,15 @@ def canonical(url):
 
 def reconcile(output):
     sources = (("source_registry_v1.csv", "id", "review_status"),
-               ("discovered_batch_002.csv", "source_id", "access_status"))
+               ("discovered_batch_002.csv", "source_id", "access_status"),
+               ("discovered_batch_003.csv", "id", "access_evidence"))
     items = {}
     input_counts = Counter()
     for filename, id_field, status_field in sources:
         with (ROOT / filename).open(newline="", encoding="utf-8-sig") as stream:
             for line, row in enumerate(csv.DictReader(stream), 2):
-                kind = "youtube" if row[id_field].startswith(("YT-", "STT-Y")) else "website"
-                url = canonical(row["url"])
+                kind = "youtube" if (row.get("kind") == "youtube" or row[id_field].startswith(("YT-", "STT-Y"))) else "website"
+                url = canonical(row.get("url") or row.get("canonical_url"))
                 expected = "https://www.youtube.com/watch?v=" if kind == "youtube" else "https://stockstotrade.com/"
                 if not url.startswith(expected):
                     raise ValueError(f"Unexpected URL at {filename}:{line}: {url}")
