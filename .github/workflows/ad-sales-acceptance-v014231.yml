@@ -36,6 +36,10 @@ on:
       - 'tests/test_ad_house_preview_render_v1.mjs'
       - 'tests/test_ad_sandbox_signed_stripe_v014244.mjs'
       - 'functions/api/gu39-stripe-webhook.js'
+      - 'functions/api/stripe-test-webhook.js'
+      - 'functions/_lib/ad-sponsor-test-webhook-acceptance-v1.js'
+      - 'tests/test_ad_sponsor_genuine_test_webhook_v1.mjs'
+      - 'supabase/migrations/20261030_ad_sponsor_test_webhook_acceptance_v1.sql'
       - 'functions/api/stripe-live-webhook-v01458.js'
       - 'supabase/migrations/20261030_paid_sponsor_signed_live_lifecycle_v1.sql'
       - 'tests/test_direct_sponsor_signed_live_lifecycle_v1.mjs'
@@ -63,6 +67,9 @@ jobs:
           node --check functions/api/ads.js
           node --check functions/_lib/ad-sandbox-lifecycle-v014242.js
           node --check functions/api/gu39-stripe-webhook.js
+          node --check functions/api/stripe-test-webhook.js
+          node --check functions/_lib/ad-sponsor-test-webhook-acceptance-v1.js
+          node --test tests/test_ad_sponsor_genuine_test_webhook_v1.mjs
           node --check functions/api/stripe-live-webhook-v01458.js
           node --test tests/test_direct_sponsor_signed_live_lifecycle_v1.mjs
           node --check assets/js/ad-inquiry-v014228.js
