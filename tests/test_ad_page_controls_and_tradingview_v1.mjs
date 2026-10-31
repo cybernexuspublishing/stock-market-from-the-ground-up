@@ -95,3 +95,25 @@ test('Knowledge Database banner hides until eligible and preserves owner-request
  assert.match(admin,/Page advertising visibility/);
  assert.match(admin,/Placements &amp; Creatives/);
 });
+
+
+test('Owner verification control is visible above role-gated inventory and remains retryable',()=>{
+ const html=fs.readFileSync('admin-advertising.html','utf8');
+ const js=fs.readFileSync('assets/js/admin-ad-sales-v014228.js','utf8');
+ const button=html.indexOf('id="gu-ad-verify-owner-browser"');
+ const publicPanel=html.indexOf('id="gu-ad-owner-verify-panel"');
+ const protectedPanel=html.indexOf('id="gu-ad-admin-main" hidden');
+ assert(publicPanel>0&&button>publicPanel&&protectedPanel>button,
+  'Owner self-verification must be visible even when private inventory is hidden');
+ assert.equal((html.match(/id="gu-ad-verify-owner-browser"/g)||[]).length,1,
+  'Owner self-verification must appear exactly once');
+ assert(html.indexOf('id="gu-ad-owner-browser-acceptance"')<protectedPanel,
+  'Clear retry guidance must be visible outside protected inventory');
+ const start=js.indexOf('async function start()');
+ const bind=js.indexOf("e('gu-ad-verify-owner-browser')?.addEventListener",start);
+ const initialRefresh=js.indexOf("try{await refresh()}catch(err){",start);
+ assert(start>0&&bind>start&&initialRefresh>bind,
+  'Button must bind before initial authorized data load');
+ assert(js.includes("if(e('gu-ad-admin-main').hidden)await refresh()"),
+  'Later-available Owner session can retry showing the private inventory');
+});
