@@ -1,0 +1,25 @@
+name: GU300 Signed Founder Expiry Reconciliation
+on:
+  push:
+    paths:
+      - 'functions/api/stripe-live-webhook-v01458.js'
+      - 'tests/test_v014300_founder_expired_webhook.mjs'
+      - '.github/workflows/gu300-founder-expiry.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  signed-terminal-reconciliation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Check LIVE handler and isolated regression syntax
+        run: |
+          node --check functions/api/stripe-live-webhook-v01458.js
+          node --check tests/test_v014300_founder_expired_webhook.mjs
+      - name: Execute signed provider expiry, replay and negative tests (fully mocked)
+        run: node tests/test_v014300_founder_expired_webhook.mjs
