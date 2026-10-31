@@ -12,7 +12,8 @@ assert(!js.includes('gu-stat-provenance')&&!js.includes('data-source-info'),'No 
 assert(!js.includes('Sample statistics'),'No sample-statistics caption');
 assert(!js.includes('Example activity')&&!js.includes('Example members'),'No sample member labels');
 assert(!js.includes("'DEMO DATA'"),'No demo badge on homepage');
-assert(js.includes('Activity in the last 60 minutes'),'Activity label remains clear');
+assert(js.includes('>Active members</dt>'),'Public metric label is Active members');
+assert(js.includes('aria-label="Members active within the last 60 minutes"'),'Accessible label preserves the measurement window');
 assert(js.includes('Member accounts'),'Account label remains clear');
 assert(js.includes('last 60 minutes')||js.includes('last hour'),'Activity window must be explicit');
 assert(js.includes('total-active'),'Pie remainder derives solely from aggregate totals');
