@@ -79,10 +79,16 @@ export function labGuidance(context,mode,reflection=''){
   'Record what the available candle/volume evidence supports, what it cannot establish, your invalidation criterion, and a NO TRADE choice when evidence is insufficient. '+
   'Do not inspect future candles, assume historical prints exist, or treat a hypothetical example as an actual trade.';
  const researched=context.claimEvidence;
- const sourceTeaching=researched?'\n\nSource-checked supplementary teaching (UNGraded; NOT whole-Lab approval): '+
-  researched.claim+'\n\nOriginal fictional worked case: '+researched.worked+
-  '\n\nWhat could go wrong: '+researched.counterexample+
-  '\n\nIndependent transfer task: '+researched.transfer+
+ // During an authorized assessment, show definitions and source attribution
+ // only. Never show a worked case, counterexample scaffold or transfer example
+ // that could accidentally resemble a protected, independent question.
+ const assessmentBoundary=stage==='Assess';
+ const sourceTeaching=researched?'\n\nSource-checked supplementary teaching (ungraded; NOT whole-Lab approval): '+
+  researched.claim+(assessmentBoundary?
+   '\nAssessment boundary: consult the Lab and reason independently. Worked examples, counterexample scaffolds and transfer solutions are withheld at this stage.':
+   '\n\nOriginal fictional worked case: '+researched.worked+
+    '\n\nWhat could go wrong: '+researched.counterexample+
+    '\n\nIndependent transfer task: '+researched.transfer)+
   '\n\nTechnical/primary reference: '+researched.sourceId+' — '+researched.sourceUrl+
   '\nThese specific general references do not certify historical price data, protected assessment answers, or unit editorial approval.':'';
  if(mode==='question')return a+sourceTeaching+'\n\nUngraded self-check: Which visible observation supports your interpretation and which would change your decision?';
