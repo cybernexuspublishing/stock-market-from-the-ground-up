@@ -178,11 +178,15 @@ export async function onRequest({request,env}){
    const placementRows=await query(c,'ad_placements?select=metadata&placement_code=eq.'+encodeURIComponent(slot)+'&active=eq.true');
    const carouselEnabled=placementRows?.[0]?.metadata?.carousel_enabled===true;
    const affiliate=await affiliateCreative(c,slot);
-   if(affiliate)return ok({ad:null,affiliate,placeholderAvailable:true,carouselEnabled:false,nonbillable:true});
+   const partnerFallback=()=>affiliate
+    ?ok({ad:null,affiliate,placeholderAvailable:true,carouselEnabled:false,nonbillable:true})
+    :ok({ad:null,placeholderAvailable:true,carouselEnabled});
+   // Paid, independently verified sponsorships receive their contracted slot
+   // before a nonbillable affiliate fallback. No paid gates are relaxed.
    if(!(await eligibility(c,slot,page,request,true))||
-      !(await underFrequencyLimit(c,request,token)))return ok({ad:null,placeholderAvailable:true,carouselEnabled});
+      !(await underFrequencyLimit(c,request,token)))return partnerFallback();
    const options=await eligibleAds(c,slot);
-   if(!options.length)return ok({ad:null,placeholderAvailable:true,carouselEnabled});
+   if(!options.length)return partnerFallback();
    // Each carousel transition is a fresh server-authorized request. Do not cache future creatives.
    const exclude=Number(url.searchParams.get('excludeCreativeId'));
    const alternatives=carouselEnabled&&Number.isSafeInteger(exclude)&&options.length>1
