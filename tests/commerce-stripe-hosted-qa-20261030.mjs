@@ -16,6 +16,18 @@ async function fillFirst(page,selectors,value,required=false){
  if(required)throw Error('required input unavailable: '+selectors.join(','));
  return false
 }
+async function invalidFields(page){
+ const list=[];
+ for(const f of page.frames()){
+  const nodes=f.locator('[aria-invalid="true"]:visible');
+  for(const el of (await nodes.all().catch(()=>[])).slice(0,5)){
+   const attrs={};
+   for(const attr of ['name','id','autocomplete','placeholder','aria-label','type','data-testid'])attrs[attr]=(await el.getAttribute(attr).catch(()=>null))?.slice(0,90)||null;
+   list.push({frameOrigin:((()=>{try{return new URL(f.url()).origin}catch{return 'unknown'}})()),tag:await el.evaluate(x=>x.tagName).catch(()=>'unknown'),attrs});
+  }
+ }
+ return list.slice(0,12);
+}
 async function attempt(s){
  const page=await browser.newPage({serviceWorkers:'block',viewport:{width:1440,height:1100}});
  const issues=[], failed=[];
@@ -65,6 +77,7 @@ async function attempt(s){
   assert(await submit.isVisible().catch(()=>false),'Stripe submit unavailable');
   const label=(await submit.innerText().catch(()=>'')).trim().slice(0,120);
   if(s.livemode&&!/complete|pay|confirm|submit|place order|continue/i.test(label))throw Error('LIVE ZERO SAFETY STOP: unexpected button '+label);
+  console.log('INVALID_BEFORE_SUBMIT '+s.kind+' '+JSON.stringify(await invalidFields(page)));
   console.log('SUBMIT '+s.kind+' '+label);
   await submit.click({timeout:20000});
   await page.waitForTimeout(9000);
@@ -78,7 +91,7 @@ async function attempt(s){
   console.log('NETWORK_HTTP_FAILURES '+s.kind+' '+JSON.stringify(issues.slice(-15)));
   console.log('NETWORK_ABORTS '+s.kind+' '+JSON.stringify(failed.slice(-10)));
   console.log('CAPTCHA_EMBED_COUNT '+s.kind+' '+challenges.length);
-  console.log('FIELD_INVALID_COUNT '+s.kind+' '+await page.locator('[aria-invalid="true"]:visible').count().catch(()=>0));
+  console.log('FIELD_INVALID_SUMMARY '+s.kind+' '+JSON.stringify(await invalidFields(page)));
   // Provider state checked independently after this run; browser success alone never grants acceptance.
   if(after.includes('/c/pay/'))throw Error('Checkout remained hosted after submit; provider reconciliation required');
   if(!page.url().startsWith('https://stock-market-from-the-ground-up-d1r.pages.dev/'))throw Error('No expected site return after submit');
