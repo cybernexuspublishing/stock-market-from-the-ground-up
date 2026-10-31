@@ -768,6 +768,9 @@
  }
  async function init(){
   const url=new URL(location.href),code=url.searchParams.get('program')||'';
+  const requestedSearch=(url.searchParams.get('q')||'').slice(0,100);
+  const searchField=get('academy-program-search');
+  if(searchField&&requestedSearch)searchField.value=requestedSearch;
   activeCode=expected.has(code)?code:'';
   if(activeCode){
    if(activeCode!=='foundations30')enterDirectRoute(activeCode);
