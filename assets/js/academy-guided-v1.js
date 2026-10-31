@@ -45,13 +45,16 @@ function plan(d){
   6:{question:'A new unfamiliar case has incomplete evidence. What should you do?',correct:'Apply the method, record what remains unknown and withhold unsupported claims.'},
   8:{question:'How should you transfer the skill to a different case?',correct:'Recheck the new evidence, its limitations and the NO TRADE conditions before deciding.'}
  };
+ if(kind==='vwap')checks[2]={numeric:true,question:'Calculate fictional traded dollars, shares and VWAP.',labels:['Total traded dollars ($)','Total shares','VWAP ($/share)'],expected:[2600,300,8.67],hints:['Multiply $8 × 200 and $10 × 100, then add dollar totals.','Add 200 and 100 shares.','Divide $2,600 by 300 shares; round to cents.']};
+ if(kind==='candle')checks[2]={numeric:true,question:'Calculate fictional body, range and body percentage.',labels:['Real body ($)','Full range ($)','Body / range (%)'],expected:[1,2,50],hints:['Body = |$32 close − $31 open|.','Range = $32.50 high − $30.50 low.','Divide $1 body by $2 range, then multiply by 100.']};
+ if(kind==='risk')checks[2]={numeric:true,question:'Calculate fictional risk per share and share quantity.',labels:['Risk per share ($)','Whole shares for $40 planned risk'],expected:[.4,100],hints:['Use $20 entry − $19.60 planned stop.','Divide $40 by $0.40/share. Actual loss can exceed planned loss.']};
  return {kind,stages,checks,limitation};
 }
 function mount(host,{day,programCode}={}){
  if(!host||!day||!Number.isSafeInteger(day.day))return null;
  active.get(host)?.dispose();
  const cfg=plan(day);let stage=0,furthest=0,autoplay=false,timer=0,disposed=false,
-   answer=-1,misses=0,selectedOptions=[],chart=null;const completed=new Set();
+   answer=-1,misses=0,selectedOptions=[],numericInputs=[],chart=null;const completed=new Set();
  const shell=el('section',undefined,'academy-guided-ten'),head=el('div',undefined,'academy-guided-head'),
    nav=el('ol',undefined,'academy-guided-nav'),meter=el('progress'),play=el('button','Play guided teaching','btn secondary'),
    status=el('p','Optional automatic narration pauses when a question appears.'),
@@ -102,9 +105,19 @@ function mount(host,{day,programCode}={}){
   const content=el('div',undefined,'academy-guided-content');
   content.append(el('h4',(stage+1)+'. '+cfg.stages[stage][0]));
   for(const text of cfg.stages[stage][1])content.append(el('p',clean(text)));
-  const check=cfg.checks[stage];selectedOptions=[];
+  const check=cfg.checks[stage];selectedOptions=[];numericInputs=[];
   if(check){
    content.append(el('h5',check.question));
+   if(check.numeric){
+    const group=el('div',undefined,'academy-guided-numeric');
+    check.labels.forEach(label=>{
+     const wrap=el('label',label),input=el('input');
+     input.type='number';input.step='any';input.inputMode='decimal';
+     input.setAttribute('aria-label',label);input.oninput=()=>{feedback.textContent=''};
+     wrap.append(input);group.append(wrap);numericInputs.push(input);
+    });
+    content.append(group,el('p','Calculate each quantity separately. Retries are free.'));
+   }else{
    const choices=[{t:check.correct,ok:true},
      {t:'Assume a chart or scanner result proves the outcome without checking evidence.',ok:false},
      {t:'Ignore timestamps, source limitations and the possibility of NO TRADE.',ok:false}];
@@ -117,6 +130,7 @@ function mount(host,{day,programCode}={}){
     label.append(input,document.createTextNode(choice.t));fieldset.append(label);
    });
    content.append(fieldset);
+   }
   }
   if(stage===6)content.append(el('p','First formative selection is preserved until submitted. No official grade, competency or independent mastery is awarded.'));
   if(stage===9)content.append(el('p','Formative stages completed: '+completed.size+' of 9. Save your own notes using the existing course reflection controls. Official competency remains Not Yet Assessed.'));
@@ -127,10 +141,18 @@ function mount(host,{day,programCode}={}){
  next.onclick=()=>{
   const q=cfg.checks[stage];
   if(q&&!completed.has(stage)){
-   if(answer<0){feedback.textContent='Choose an answer before submitting. You can retry for free.';return}
-   if(!selectedOptions[answer].ok){
-    misses++;feedback.textContent=misses===1?'Not yet. Compare the answer with Talia’s source and method notes. Try again.':
-     'Additional instruction: '+clean(q.correct)+' Review the evidence and try again without Lumens.';return;
+   if(q.numeric){
+    const values=numericInputs.map(x=>x.value.trim());
+    const empty=values.findIndex(v=>v===''||!Number.isFinite(Number(v)));
+    if(empty>=0){feedback.textContent='Enter a valid number for '+q.labels[empty]+'.';return}
+    const wrong=values.findIndex((v,i)=>Math.abs(Number(v)-q.expected[i])>(q.labels[i].includes('VWAP')?.0051:.011));
+    if(wrong>=0){misses++;feedback.textContent=(misses===1?'Not yet. ':'Work through the intermediate step. ')+q.hints[wrong]+' Correct the entry and retry for free.';return}
+   }else{
+    if(answer<0){feedback.textContent='Choose an answer before submitting. You can retry for free.';return}
+    if(!selectedOptions[answer].ok){
+     misses++;feedback.textContent=misses===1?'Not yet. Compare the response with Talia’s evidence and method. Try again.':
+      'Additional instruction: '+clean(q.correct)+' Review the evidence and retry without Lumens.';return;
+    }
    }
   }
   advance();
