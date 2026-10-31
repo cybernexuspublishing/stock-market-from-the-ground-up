@@ -12,7 +12,7 @@ const codes=["truth5","watchlist7","scanners10","foundations30","charts45","risk
 const cards=codes.map((name,i)=>'<article class="academy-program academy-program--compact">'+
  '<a class="academy-program-compact-link" href="/bootcamp-academy.html?program='+name+'">'+
  '<span class="academy-program-visual"><img class="academy-program-cover" alt="" src="/assets/images/bootcamp-covers/'+name+'.webp"></span>'+
- '<span class="academy-program-compact-name">Course '+(i+1)+'</span><span class="academy-program-compact-id">course'+(i+1)+'</span>'+
+ '<span class="academy-program-compact-name">Course '+(i+1)+'</span>'+
  '</a></article>').join('');
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+styles+'</style></head>'+
  '<body class="gu-bc-learning" data-gu-workspace="site"><main class="gu-redesign-academy"><div class="gu-learning-ad-core"><div class="wrap">'+
@@ -41,6 +41,7 @@ try{
    const css=getComputedStyle(grid),free=getComputedStyle(intro);
    return {columns:css.gridTemplateColumns.split(' ').filter(Boolean).length,
     count:grid.querySelectorAll('.academy-program').length,
+    visibleIds:grid.querySelectorAll('.academy-program-compact-id').length,
     covers:[...grid.querySelectorAll('.academy-program-cover')].map(i=>({width:i.naturalWidth,height:i.naturalHeight,loaded:i.complete})),
     headingFont:parseFloat(getComputedStyle(document.getElementById('academy-page-title')).fontSize),
     headingLine:getComputedStyle(document.getElementById('academy-page-title')).lineHeight,
@@ -58,6 +59,7 @@ try{
   assert(data.headingFont>=24&&data.headingFont<=34.1,'Heading is too large under production styles: '+data.headingFont+'px');
   assert(data.headingLine!=='normal','Heading line height not constrained');
   assert.equal(data.count,7,'Expected exactly seven released programs');
+  assert.equal(data.visibleIds,0,'Internal Boot Camp IDs must not appear in cards');
   for(const card of data.compact){
    assert(card.height < card.width*.68,'Boot Camp card must be approximately half the former height at '+width+'px');
    assert(card.imageWidth>0&&card.imageHeight>0,'Approved course artwork must remain visible');

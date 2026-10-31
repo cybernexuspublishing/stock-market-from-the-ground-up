@@ -120,11 +120,11 @@ body.gu-bc-learning .academy-catalog-availability{max-width:none!important}
 /* Compact Boot Camp placement: ~half-size with uncropped approved cover. */
 body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-compact-link{
  display:grid!important;grid-template-columns:minmax(0,46%) minmax(0,1fr)!important;
- grid-template-rows:minmax(0,1fr) auto!important;align-items:stretch!important;
+ grid-template-rows:minmax(0,1fr)!important;align-items:center!important;
  min-height:0!important;
 }
 body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-visual{
- grid-column:1!important;grid-row:1 / span 2!important;
+ grid-column:1!important;grid-row:1!important;
  width:100%!important;min-width:0!important;aspect-ratio:4/3!important;
  max-height:none!important;
 }
@@ -132,22 +132,15 @@ body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-
  width:100%!important;height:100%!important;object-fit:contain!important;
 }
 body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-compact-name{
- grid-column:2!important;grid-row:1!important;align-self:end!important;
- padding:10px 9px 4px!important;font-size:clamp(.78rem,.86vw,.96rem)!important;
+ grid-column:2!important;grid-row:1!important;align-self:center!important;
+ padding:10px 12px!important;font-size:clamp(.78rem,.86vw,.96rem)!important;
  line-height:1.28!important;
-}
-body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-compact-id{
- grid-column:2!important;grid-row:2!important;align-self:start!important;
- margin:0 9px 10px!important;padding:3px 6px!important;font-size:.68rem!important;
 }
 @media(max-width:440px){
  body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-compact-link{
   grid-template-columns:minmax(0,40%) minmax(0,1fr)!important;
  }
  body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-compact-name{
-  font-size:.82rem!important;padding:7px 8px 3px!important;
- }
- body.gu-bc-learning main.gu-redesign-academy #academy-programs .academy-program-compact-id{
-  margin:0 8px 8px!important;
+  font-size:.82rem!important;padding:8px!important;
  }
 }

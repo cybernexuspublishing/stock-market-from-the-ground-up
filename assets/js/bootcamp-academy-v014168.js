@@ -95,7 +95,7 @@
   if(note)note.textContent='Showing '+visible+' of '+academyBrowsePrograms.length+
    ' Boot Camps. '+(academyBrowseRights?.training===true?'Your training access is verified.':
    'Courses are shown as locked until training entitlement is verified.')+
-   ' Search by program ID, title, skill, or ticker where public course metadata contains one.';
+   ' Search by title, topic, skill, or ticker. Known program IDs remain searchable.';
  }
  const programCovers=Object.freeze({truth5:'truth5.webp',watchlist7:'watchlist7.webp',scanners10:'scanners10.webp',foundations30:'foundations30.webp',charts45:'charts45.webp',risk60:'risk60.webp',practicum90:'practicum90.webp'});
  function catalog(programs){
@@ -115,8 +115,8 @@
     'store-membership-ondemand-monthly.html';
    const link=node('a');link.className='academy-program-compact-link';
    link.href=destination;
-   link.setAttribute('aria-label',access?'Open '+p.title+', '+p.code:
-    'Locked Boot Camp '+p.title+', '+p.code+'. View training access options.');
+   link.setAttribute('aria-label',access?'Open '+p.title:
+    'Locked Boot Camp '+p.title+'. View training access options.');
    const coverFile=programCovers[p.code];
    if(coverFile){
     const media=node('span');media.className='academy-program-visual';
@@ -127,7 +127,6 @@
     media.append(visual);link.append(media);
    }
    const name=node('span',p.title);name.className='academy-program-compact-name';link.append(name);
-   const id=node('span',p.code);id.className='academy-program-compact-id';link.append(id);
    if(!access){
     const lock=node('span','🔒');lock.className='gu-academy-lock';
     lock.setAttribute('aria-hidden','true');link.append(lock);
