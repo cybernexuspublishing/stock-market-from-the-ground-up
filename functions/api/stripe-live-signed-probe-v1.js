@@ -10,9 +10,12 @@ export async function onRequestPost({request,env}){
  const secret=String(env.GU301_STRIPE_LIVE_SIGNING_SECRET||'').trim();
  const apiKey=String((env.STRIPE_LIVE_SECRET_KEY||env.GU58_STRIPE_LIVE_SECRET_KEY)||'').trim();
  const account=String((env.STRIPE_LIVE_ACCOUNT_ID||env.GU58_STRIPE_LIVE_ACCOUNT_ID)||'').trim();
- if(!/^whsec_[A-Za-z0-9_]+$/.test(secret)||!/^sk_live_[A-Za-z0-9_]+$/.test(apiKey)||
-    !/^acct_[A-Za-z0-9_]{6,}$/.test(account))
-   return result('Probe unavailable',503);
+ if(!/^whsec_[A-Za-z0-9_]+$/.test(secret))
+   return result('Probe signing binding unavailable',503);
+ if(!/^sk_live_[A-Za-z0-9_]+$/.test(apiKey))
+   return result('Probe LIVE API key binding unavailable',503);
+ if(!/^acct_[A-Za-z0-9_]{6,}$/.test(account))
+   return result('Probe LIVE account binding unavailable',503);
  const header=request.headers.get('stripe-signature')||'';
  const parts=header.split(',').map(x=>x.trim().split('='));
  const stamp=parts.find(x=>x[0]==='t')?.[1]||'';
