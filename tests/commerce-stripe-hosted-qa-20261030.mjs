@@ -70,6 +70,9 @@ async function attempt(s){
    await fillFirst(page,['input[name="cardCvc"]','input[autocomplete="cc-csc"]','input[placeholder*="CVC"]'],'123',true);
    await fillFirst(page,['input[name="billingPostalCode"]','input[autocomplete="postal-code"]'],'65810');
    await fillFirst(page,['input[name="billingName"]','input[autocomplete="cc-name"]'],'SMFGU STRIPE TEST');
+   // Stripe-hosted TEST Checkout collects a required phone number. Use a fictional
+   // North American 555-01xx example; do not use a member's real contact details.
+   await fillFirst(page,['input[name="phoneNumber"]','input[autocomplete="tel"]','input[type="tel"]'],'2015550123',true);
   }
   const buttons=await page.locator('button[type="submit"]:visible').all();
   let submit=buttons.at(-1);
