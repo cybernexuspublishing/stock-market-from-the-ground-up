@@ -104,7 +104,7 @@ async function readOwner(c){
  api(c,'gu_ad_packages_v014226?select=*&order=code.asc'),
  api(c,'ad_placements?select=placement_code,name,page_pattern,active,free_only,metadata&order=sort_order.asc'),
  api(c,'gu_ad_inquiries_v014226?select=*&order=created_at.desc&limit=150'),
- api(c,'advertisers?select=id,name,contact_email,website_url,status,created_at&order=created_at.desc&limit=150'),
+ api(c,'advertisers?select=id,name,contact_email,website_url,status,notes,created_at&order=created_at.desc&limit=150'),
  api(c,'ad_campaigns?select=*&order=created_at.desc&limit=150'),
  api(c,'ad_creatives?select=id,campaign_id,placement_code,status,headline,body,image_url,destination_url,alt_text&order=created_at.desc&limit=150'),
  api(c,'gu_ad_order_evidence_v014226?select=campaign_id,invoice_ref,state,payment_mode,paid_amount_cents,verified_at&order=verified_at.desc&limit=100')
