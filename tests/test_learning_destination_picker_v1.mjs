@@ -22,7 +22,7 @@ assert(view.filter(r=>/vwap/i.test(r.title+' '+r.skill)).length>=17,'VWAP search
 assert(picker.includes("read('/data/competency-lab-paths-v01499.json')"),'Canonical catalog must be read before auth');
 assert(picker.includes('goodCanonical')&&picker.includes('goodDetails'),'Public Lab catalog must recover from one failed source');
 assert(!picker.includes('gu-picker-initial-compact'),'Opened Labs must not hide their searchable result list');
-assert(picker.includes('store-book-foundation-2.html')&&picker.includes('store-book-day-trading-1.html'),'Locked book Labs use existing matching product pages');
+assert(!picker.includes('const bookStore=')&&picker.includes("'store.html'"),'Unverified Lab Pack must not route to book purchase pages');
 assert(picker.includes("const browse='lab'"),'Lab picker must never mix Academy rows');
 assert(picker.includes("read('/data/labs.json')"),'Enrich titles, skill and ticker');
 assert(picker.includes("read('/api/lab-release-availability')"),'Release status must be verified');
@@ -32,10 +32,10 @@ assert(picker.includes("rights.bookCodes.includes(bookCodes[row.book])"),'Preser
 assert(picker.includes("book:Number(extra.book||({F1:1,F2:2,F3:3,DT:4,TAPE:5,SITE:6}"),'Map every book family');
 assert(picker.includes("return 'locked'"),'Unverified member access fails closed');
 assert(picker.includes("return 'upcoming'"),'Unreleased content is not labeled open');
-assert(picker.includes('View related product and access options'),'Locked rows must link to product information');
+assert(picker.includes('purchaseExplainer(row)'),'Locked rows explain access without misleading checkout');
 assert(picker.includes('gu-picker-row-link')&&!picker.includes('gu-picker-meta'), 'Lab chooser must display only name, ID, and lock');
 assert(academy.includes('academy-program-compact-link')&&!academy.includes('academy-program-image'), 'Academy chooser must display only name, ID, and lock');
-assert(picker.includes("'store-tool-interactive-learning.html'"),'No invented Lab pack URL');
+assert(picker.includes("'store.html'"),'Unverified Lab Pack routes to Store access information');
 assert(picker.includes("'store-membership-ondemand-monthly.html'"),'Existing Academy product route');
 assert(!picker.includes('/api/checkout'),'Discovery must not start a payment');
 assert(!picker.includes('innerHTML'),'Catalog metadata must be painted using safe textContent');
@@ -58,7 +58,7 @@ assert(picker.includes('setOpen(true)')&&picker.includes("event.key==='Escape'")
 assert(css.includes('#player-catalog-browser[hidden]'),'Dropdown hides only on explicit collapsed state');
 assert(html.includes('learning-destination-picker-v1.js'));
 assert(html.includes('learning-destination-picker-v1.css'));
-assert(player.includes("q('player-title').textContent=bootcampBrowse?'Choose a Boot Camp':'Choose a Lab'"),'No Lab ID should not leave loading message');
+assert(player.includes("location.replace('bootcamp-academy.html'")&&player.includes("q('player-title').textContent='Choose a Lab'"),'Legacy Boot Camp browsing must redirect to separate Academy');
 assert(player.includes("q('player-lab-id').textContent='All 419 Labs'"),'Opening a Lab must not replace the 419-Lab picker label');
 assert(!player.includes('void populateLearningDestinationSelector(lab)'),'Old mixed picker must not override searchable browser');
 assert(!player.includes('async function populateLearningDestinationSelector('),'Retired mixed selector must not remain in Lab runtime');
