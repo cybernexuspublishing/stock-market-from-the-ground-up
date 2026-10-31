@@ -1,0 +1,137 @@
+/* SMFGU-LEARNING-LAYOUT-001 · v1.0 · 2026-10-31
+   One full-width teaching surface for public lessons, member Labs,
+   classic/Academy Boot Camps and Free Foundations instruction.
+   Presentation only: do not modify grading, entitlements or replay logic. */
+body.gu-teaching-wide{--gu-teach-gutter:clamp(12px,1.6vw,32px)}
+body.gu-teaching-wide main,body.gu-teaching-wide main *{box-sizing:border-box}
+body.gu-teaching-wide main :is(.gu-public-classroom,.gu-v33-stage-hero,.gu-v33-stage-primary,
+ .gu-v33-stage-coach,.gu-v33-instructor,.gu-v33-exact-visual,.gu-l33-graphic,
+ .gu-bc-lesson,.gu-bc-shell,.gu-v33,.academy-studio-layout,.academy-studio-evidence,
+ .academy-studio-control){min-width:0}
+/* Public ten-stage lesson: remove the article-width ceiling while preserving
+   the comfortable, narrower reading introduction above the workstation. */
+body.gu-teaching-wide:has(.gu-learning-journey-v3) main.section>.gu-growth-sheet{
+ box-sizing:border-box!important;max-width:none!important;width:100%!important;
+ padding-inline:var(--gu-teach-gutter)!important;margin-inline:auto!important;
+}
+body.gu-teaching-wide .gu-learning-journey-v3{
+ display:block!important;width:100%!important;max-width:none!important;
+ margin:20px 0!important;padding:clamp(14px,1.7vw,30px)!important;
+}
+body.gu-teaching-wide .gu-learning-journey-v3 .gu-public-classroom{
+ display:grid!important;width:100%!important;max-width:none!important;
+ grid-template-columns:minmax(0,1.28fr) minmax(0,.9fr)!important;
+ gap:clamp(13px,1.45vw,26px)!important;align-items:start!important;
+}
+body.gu-teaching-wide .gu-learning-journey-v3 .gu-public-classroom>section{
+ min-width:0!important;width:100%!important;max-width:none!important;
+ padding:clamp(12px,1.25vw,22px)!important;
+}
+body.gu-teaching-wide .gu-learning-journey-v3 #gu-practice-chart{
+ max-width:none!important;width:100%!important;
+ height:clamp(325px,31vw,530px)!important;
+}
+body.gu-teaching-wide .gu-learning-journey-v3 .gu-public-tutor{min-width:0!important}
+/* Authenticated member Lab engine, including embedded and preview Labs. */
+body.gu-lab-member.gu-teaching-wide #app{max-width:none!important;width:100%!important;
+ padding-inline:var(--gu-teach-gutter)!important}
+body.gu-lab-member.gu-teaching-wide #app>.shell,
+body.gu-lab-member.gu-teaching-wide #app>.gu-lab-breadcrumb{
+ width:100%!important;max-width:none!important;margin-inline:auto!important;
+}
+body.gu-lab-member.gu-teaching-wide #app .content,
+body.gu-lab-member.gu-teaching-wide #lab-player-content,
+body.gu-lab-member.gu-teaching-wide #gu-v32-teaching-slot,
+body.gu-lab-member.gu-teaching-wide #gu-v32-teaching-slot .gu-v33{
+ width:100%!important;max-width:none!important;min-width:0!important;
+}
+body.gu-lab-member.gu-teaching-wide #gu-v32-teaching-slot .gu-v33-stage-hero,
+body.gu-bc-learning.gu-teaching-wide :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v33-stage-hero{
+ display:grid!important;grid-template-columns:minmax(0,1.28fr) minmax(0,.9fr)!important;
+ gap:clamp(12px,1.5vw,24px)!important;width:100%!important;max-width:none!important;
+ align-items:start!important;
+}
+body.gu-lab-member.gu-teaching-wide #gu-v32-teaching-slot .gu-v33-stage-hero> *,
+body.gu-bc-learning.gu-teaching-wide :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v33-stage-hero> *{
+ min-width:0!important;max-width:100%!important;
+}
+/* Boot Camp Academy: lesson navigation becomes a full-width horizontal
+   toolbar ABOVE the learning card, rather than a permanent side gutter. */
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .gu-learning-ad-core>.wrap{
+ max-width:none!important;width:calc(100% - 2 * var(--gu-teach-gutter))!important;
+ margin-inline:auto!important;
+}
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid{
+ display:grid!important;width:100%!important;max-width:none!important;
+ grid-template-columns:minmax(0,1fr)!important;gap:12px!important;
+}
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid>.gu-bc-index{
+ position:static!important;inset:auto!important;max-height:none!important;
+ width:100%!important;max-width:none!important;overflow:visible!important;
+ padding:10px!important;
+}
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid #academy-days{
+ display:flex!important;flex-wrap:nowrap!important;gap:8px!important;
+ width:100%!important;max-width:100%!important;overflow-x:auto!important;
+ overflow-y:hidden!important;padding:5px 2px 8px!important;
+ scrollbar-gutter:stable;scroll-snap-type:x proximity;
+}
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid #academy-days>*{
+ flex:0 0 clamp(145px,13vw,190px)!important;min-width:0!important;scroll-snap-align:start;
+}
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid>.gu-bc-lesson,
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active #academy-engine,
+body.gu-bc-learning.gu-teaching-wide.academy-classroom-active #academy-lab-slot{
+ width:100%!important;max-width:none!important;min-width:0!important;
+}
+/* Classic Boot Camp: retain lesson navigation, but put it before
+   the full-width lesson so chart and tutor are never squeezed. */
+body.gu-bc-learning.gu-teaching-wide main.section>.wrap{
+ max-width:none!important;width:calc(100% - 2 * var(--gu-teach-gutter))!important;
+ margin-inline:auto!important;
+}
+body.gu-bc-learning.gu-teaching-wide .gu-bc-shell:not(.academy-study-grid){
+ display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+ gap:12px!important;width:100%!important;max-width:none!important;
+}
+body.gu-bc-learning.gu-teaching-wide .gu-bc-shell:not(.academy-study-grid)>.gu-bc-index{
+ position:static!important;width:100%!important;max-height:none!important;
+}
+body.gu-bc-learning.gu-teaching-wide .gu-bc-shell:not(.academy-study-grid) .gu-bc-days{
+ display:flex!important;flex-wrap:nowrap!important;gap:7px!important;
+ overflow-x:auto!important;max-height:none!important;scroll-snap-type:x proximity;
+}
+body.gu-bc-learning.gu-teaching-wide .gu-bc-shell:not(.academy-study-grid) .gu-bc-days>*{
+ flex:0 0 clamp(140px,13vw,185px)!important;scroll-snap-align:start;
+}
+body.gu-bc-learning.gu-teaching-wide .gu-bc-shell:not(.academy-study-grid)>.gu-bc-lesson{
+ width:100%!important;max-width:none!important;
+}
+/* Free Foundations instructional experiments share full-width two-column teaching. */
+body.gu-bc-learning.gu-teaching-wide .academy-studio-layout{
+ display:grid!important;width:100%!important;max-width:none!important;
+ grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr)!important;
+ gap:clamp(12px,1.4vw,22px)!important;
+}
+body.gu-teaching-wide :is(.gu-v33-stage-hero,.gu-public-classroom,.academy-studio-layout) :is(svg,canvas,img){
+ max-width:100%;height:auto;
+}
+@media(max-width:1050px){
+ body.gu-teaching-wide .gu-learning-journey-v3 .gu-public-classroom,
+ body.gu-lab-member.gu-teaching-wide #gu-v32-teaching-slot .gu-v33-stage-hero,
+ body.gu-bc-learning.gu-teaching-wide :is(#gu-v32-teaching-slot,#academy-lab-slot) .gu-v33-stage-hero,
+ body.gu-bc-learning.gu-teaching-wide .academy-studio-layout{
+  grid-template-columns:minmax(0,1fr)!important;
+ }
+ body.gu-teaching-wide .gu-learning-journey-v3 .gu-public-evidence{position:static!important}
+}
+@media(max-width:640px){
+ body.gu-teaching-wide{--gu-teach-gutter:8px}
+ body.gu-teaching-wide .gu-learning-journey-v3{padding:12px!important}
+ body.gu-lab-member.gu-teaching-wide #app{padding-inline:8px!important}
+ body.gu-bc-learning.gu-teaching-wide.academy-classroom-active .academy-study-grid>.gu-bc-lesson{
+  padding:10px!important;
+ }
+}
+/* Respect hidden screens and protective assessment controls. */
+body.gu-teaching-wide [hidden]{display:none!important}
