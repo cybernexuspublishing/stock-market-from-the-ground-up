@@ -111,7 +111,10 @@ function mount(host,{day,programCode}={}){
   evidence.querySelector('h4').textContent='Evidence & ECharts · '+STEPS[stage];
   if(chart){chart.dispose?.();chart=null}
   visual.replaceChildren();
-  if(cfg.kind==='candle'||cfg.kind==='vwap'){
+  if(day.lesson?.evidenceType==='FICTIONAL_EDUCATIONAL_DATA_NO_HISTORICAL_LICENSE'&&
+      root.GroundUpAcademyEvidenceV1?.mount){
+   chart=root.GroundUpAcademyEvidenceV1.mount(visual,{day,stage});
+  }else if(cfg.kind==='candle'||cfg.kind==='vwap'){
    if(stage>0&&stage<9&&root.CrownlightLearningEChartsV1?.mount)
     chart=root.CrownlightLearningEChartsV1.mount(visual,{kind:cfg.kind==='vwap'?'vwap':'candle',interactive:true});
    else visual.append(el('p','Illustrative chart becomes available during the instructional stages.'));
