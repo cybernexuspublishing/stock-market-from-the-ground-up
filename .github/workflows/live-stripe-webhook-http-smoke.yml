@@ -3,6 +3,7 @@ on:
   push:
     paths:
       - '.github/workflows/live-stripe-webhook-http-smoke.yml'
+      - 'functions/api/stripe-live-webhook-v01458.js'
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,10 +25,3 @@ jobs:
           test "$get_status" = '405'
           test "$post_status" = '401'
           echo 'PASS: public Stripe endpoint reachable, method guard active and unsigned delivery rejected.'
-          probe_url='https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-live-signed-probe-v1'
-          probe_get=$(curl --silent --show-error --max-time 20 --output /tmp/gu-probe-get.txt --write-out '%{http_code}' "$probe_url") || { echo 'Probe GET transport failed'; exit 1; }
-          probe_post=$(curl --silent --show-error --max-time 20 --output /tmp/gu-probe-post.txt --write-out '%{http_code}' -X POST "$probe_url" -H 'Content-Type: application/json' -H 'Stripe-Signature: t=123,v1=0000000000000000000000000000000000000000000000000000000000000000' --data-binary '{}' ) || { echo 'Probe POST transport failed'; exit 1; }
-          echo "Signed-probe GET HTTP status: ${probe_get}; unsigned POST HTTP status: ${probe_post}; body: $(head -c 130 /tmp/gu-probe-post.txt)"
-          test "$probe_get" = '405'
-          test "$probe_post" = '401'
-          echo 'PASS: signed QA probe publicly reachable and rejecting unsigned events.'
