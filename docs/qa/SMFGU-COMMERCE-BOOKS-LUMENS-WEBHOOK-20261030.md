@@ -5,7 +5,7 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.7  
+**Version:** 1.8  
 **Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST purchase/payment/webhook/refund/reversal lifecycles accepted; real LIVE book fulfillment, production purchased-Lumens wallet and LIVE webhook acknowledgment remain OPEN  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
@@ -236,6 +236,24 @@ After signed provider 2xx delivery is verified, re-read both original events and
 
 **Current release decision:** Book I TEST and Crownlight Lumens TEST payment/refund lifecycles **PASS**; original two LIVE delivery acknowledgments **OPEN**; nonzero LIVE book-sale fulfillment and real purchased-Lumens member wallet/refund **OPEN**. No LIVE nonzero charges, secret rotations, unapproved entitlements, or third-party spending were performed.
 
+## Owner-provided Stripe event links and expired Founding 30-Day reservation
+
+Three independent official Stripe LIVE API event/session records were cross-checked against provider account `acct_1OxhOiJL0O4GGVBH` after the owner supplied event URLs and Checkout payloads. The links and Checkout event-object JSON are **not** the Workbench delivery-attempt HTTP responses.
+
+| Event | Checkout state | Amount | Provider object | Pending webhooks |
+|---|---|---:|---|---:|
+| `evt_1UWRaCJL0O4GGVBHK5A1POGx` | `checkout.session.completed`; `paid` | $0.00 | Zero-dollar QA Book I Checkout `cs_live_a1cfvoCm3vgnKzYaqn71dk4eJiyYrrOjNeUPQyS65eqePFK4btQU00Tl1V` | 1 |
+| `evt_1UVaw9JL0O4GGVBHKjQTd21w` | `checkout.session.completed`; `paid` | $0.00 | Zero-dollar QA Founding 14 Checkout `cs_live_a1bbjaB1N0UNjQqTQTM9YTDUuLfHBPF8YFuAHG7ZOirAOa3q9h4eAazJeQ` | 1 |
+| `evt_1UWPc4JL0O4GGVBHDgiuSFrD` | `checkout.session.expired`; `unpaid` | $49.99 stated checkout price, $0 paid | Founding 30 subscription-mode Checkout `cs_live_a1YTjkQjccAoJMq5W2B8hVS8i8n54iDKOhVjwjI7JKZVbrVOGXQHhkYtix` | 1 |
+
+**Confirmed additional operational defect:** Supabase Founder reservation `f03db0bf-da5e-4790-a4ef-54dd86b70fcd` remained `bound` to seat `1` after its Stripe subscription-mode Checkout expired, with no `payment_intent`, no subscription, no paid Founding cycle and no existing Founder membership for that user. The deployed reservation allocator deliberately releases expired **unbound** reservations only; this expired bound seat therefore could block capacity/new reservations indefinitely. This is a distinct risk from the unsigned/unacknowledged webhook delivery problem.
+
+**Corrective action performed:** Following official Stripe confirmation that this exact Checkout was definitively `expired/unpaid` with `subscription=null`, a guarded single-row Supabase update changed **only that reservation** from `bound` to `released` and set `finalized_at=2026-10-31 03:12:30.861642+00`. The update required exact reservation UUID, user, plan, seat, Stripe Checkout Session, expired timestamp, no subscription and no paid cycle or existing founder member. Result returned one released row. No Founder membership was granted/revoked, no payment/refund was initiated, and `terminal_event_id` remained NULL because no signed webhook acknowledgment has been proven.
+
+**LIVE delivery acceptance remains OPEN for all three:** Webhook endpoint `we_1UUZvAJL0O4GGVBH5Tp77DVM` is enabled and subscribed to both `checkout.session.completed` and `checkout.session.expired`; all three events had `pending_webhooks=1` on read. Connected Stripe API does not expose per-attempt HTTP codes/bodies. Stripe Workbench `Event deliveries → Delivery attempts` must supply the status/body before diagnosing credential mismatch or application failure. The code's `checkout.session.expired` generic path currently ignores this untagged Founder Checkout, returning HTTP 200 on valid signed delivery, so the absence of a provider 2xx acknowledgment is not itself proof of a refund or a charge.
+
+**Follow-up design work, not yet performed:** Implement tested, idempotent, Stripe-verified cleanup of definitively expired checkout-bound Founder reservations through an approved server path, rather than relying on manual SQL. Do not indiscriminately release all bound or time-expired reservations because payment could still complete and require a valid Founder seat. Any cleanup must verify the real provider Checkout is terminal (`expired`), `subscription=null`, and no paid cycle/member exists.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -249,3 +267,4 @@ After signed provider 2xx delivery is verified, re-read both original events and
 | 1.5 | 2026-10-30 CDT / 2026-10-31 UTC | Real Stripe TEST Book I charge/refund and signed provider/database events accepted; omitted TEST phone fixed; Lumens blocked by Stripe interactive verification; LIVE event delivery remains pending, encrypted-secret validation bounded; $0 spend. |
 | 1.6 | 2026-10-31 UTC | Real 25-Lumens $5 Stripe TEST payment and signed crediting PASS; $5 TEST refund and signed zero-balance reversal PASS; LIVE signed webhook events still pending; $0 spent. |
 | 1.7 | 2026-10-30 CDT / 2026-10-31 UTC | Consolidated Stripe LIVE webhook, Cloudflare bindings/observability and Supabase LIVE ledger audit; both pending 0-dollar events remain open, one Workbench inspection batch required, protected $0 budget. |
+| 1.8 | 2026-10-30 CDT / 2026-10-31 UTC | Owner's two LIVE event links and three Checkout payloads reconciled. Third LIVE event is an expired/unpaid $49.99 Founding 30 checkout, not a charge; released one verified stale bound Founder seat. All three webhook attempt responses remain unverified. |
