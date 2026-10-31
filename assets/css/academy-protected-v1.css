@@ -27,3 +27,9 @@
  .academy-evidence-event{padding:8px}
 }
 @media(prefers-reduced-motion:reduce){.academy-protected-assessment *, .academy-guided-evidence *{transition:none!important;animation:none!important}}
+
+.academy-evidence-indicator-chart{
+ display:block;width:100%;height:clamp(260px,27vw,410px);min-height:260px;
+ border:1px solid #31536b;border-radius:9px;overflow:hidden;margin-top:14px;
+}
+@media(max-width:750px){.academy-evidence-indicator-chart{height:270px;min-height:270px}}
