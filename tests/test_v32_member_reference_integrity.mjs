@@ -11,12 +11,17 @@ const replacement=`// The exact owner v3.2 engine remains intact; the entry Lab 
 const referenceLabParam=new URLSearchParams(location.search).get('lab');
 let S=fresh(referenceLabParam==='F3-C06-L01'||referenceLabParam==='vwap'?'vwap':'candlestick');`;
 assert.equal(ref.split(source).length-1,1,'Reference must expose precisely one initialization entrypoint');
+// Protect BOTH approved presentation requirements: graphite controls and the
+// later full-width learning layout. Neither changes the frozen engine source.
 const approvedSkin='<link rel="stylesheet" href="assets/css/labs-graphite-skin.css?v=terminal-20261026">'+
  '<link rel="stylesheet" href="assets/css/lab-terminal-displays.css?v=20261026">'+
  '<link rel="stylesheet" href="/assets/css/display-preferences.css?v=20261026">'+
  '<script defer src="/assets/js/display-preferences.js?v=20261026"></script>'+
- '</head><body data-gu-lab-skin="graphite" class="gu-lab-member">';
-assert(member.includes(approvedSkin),'Member demonstration must retain the approved graphite and realistic display styling');
+ '<link rel="stylesheet" href="/assets/css/teaching-full-width-v1.css?v=20261031-1">'+
+ '</head><body data-gu-lab-skin="graphite" class="gu-lab-member gu-teaching-wide">';
+assert(member.includes(approvedSkin),'Member demonstration must retain graphite AND approved full-width teaching styling');
+assert(readFileSync('assets/css/teaching-full-width-v1.css','utf8').includes('body.gu-teaching-wide'),
+ 'Approved responsive teaching stylesheet must exist');
 const engineOnly=member.replace(approvedSkin,'</head><body>');
 assert.equal(engineOnly,ref.replace(source,replacement),
  'Member demonstration must preserve every original v3.2 engine line except the entry Lab selector and approved stylesheet/body wrapper');
