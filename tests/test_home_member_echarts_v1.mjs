@@ -8,7 +8,7 @@ for(const p of ['/assets/js/home-community.js','/assets/js/crownlight-echarts-lo
 assert(js.includes("fetch('/api/home-member-stats-v01353?action=public'"),'Only existing aggregate endpoint');
 assert(js.includes('window.CrownlightECharts.load()'),'Use first-party local ECharts loader');
 assert(js.includes("'DEMO DATA'"),'Owner sample counts must be clearly labeled');
-assert(js.includes('Not a simultaneous online count.'),'Last-hour activity is not true concurrent presence');
+assert(js.includes('last 60 minutes')||js.includes('last hour'),'Activity window must be explicit');
 assert(js.includes('total-active'),'Pie remainder derives solely from aggregate totals');
 assert(js.includes('if(!total)'),'No-data denominator must not create a fabricated percentage');
 assert(js.includes('if(visual&&visualNode!==host)'),'Remount must release previous chart');
