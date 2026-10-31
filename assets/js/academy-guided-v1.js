@@ -75,7 +75,7 @@ function mount(host,{day,programCode}={}){
   if(cfg.checks[stage]&&!completed.has(stage)){status.textContent='Paused at checkpoint: submit an instructional answer to continue.';return}
   if(stage===9){autoplay=false;play.textContent='Replay guided teaching';status.textContent='Learning report reached.';return}
   status.textContent='Talia is presenting stage '+(stage+1)+'.';
-  timer=setTimeout(()=>{timer=0;if(autoplay&&!disposed){stage++;furthest=Math.max(furthest,stage);answer=-1;misses=0;render();narration()}},2400);
+  timer=setTimeout(()=>{timer=0;if(autoplay&&!disposed){completed.add(stage);stage++;furthest=Math.max(furthest,stage);answer=-1;misses=0;render();narration()}},2400);
  }
  function render(){
   if(disposed)return;
