@@ -1,0 +1,28 @@
+name: Stripe LIVE Webhook Non-Entitling Negative Preflight
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/commerce-live-webhook-preflight-20261030.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  live-webhook-preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Verify LIVE webhook route and fail-closed configuration without a valid signature
+        shell: bash
+        run: |
+          node --input-type=module <<'NODE'
+          const url='https://stock-market-from-the-ground-up-d1r.pages.dev/api/stripe-live-webhook';
+          const g=await fetch(url);
+          console.log('GET_POST_ONLY_STATUS='+g.status);
+          const bad=await fetch(url,{method:'POST',headers:{'content-type':'application/json','stripe-signature':'t=1234567890,v1='+('0'.repeat(64))},body:'{}'});
+          const body=(await bad.text()).slice(0,170);
+          console.log('BAD_SIGNATURE_POST_STATUS='+bad.status+' BODY='+body);
+          if(g.status!==405)throw Error('Webhook route not exposing POST_ONLY');
+          if(bad.status!==401)throw Error('Unexpected unsigned response; inspect configuration before attempting provider event');
+          console.log('PASS negative signed LIVE preflight; no charge, no event, no entitlement');
+          NODE
