@@ -83,6 +83,15 @@
  const denied='Selected '+label+': '+item+'. Currently unavailable for purchase. No confirmed eligible checkout for this item is available. Check your existing entitlements or contact support; do not purchase an unrelated book or plan expecting this item to unlock.';
  try{
   if(!window.CommerceTools?.load||!window.CommerceTools?.verifiedCheckout){box.textContent=denied;return}
+  const sb=await window.getSupabaseClient?.();
+  const session=(await sb?.auth?.getSession?.())?.data?.session;
+  if(!session?.access_token){box.textContent='Selected '+label+': '+item+'. Sign in to verify existing access. Currently unavailable for purchase until item-specific product coverage can be confirmed.';return;}
+  const coverageResponse=await fetch('/api/learning-item-access?type='+encodeURIComponent(source)+'&item='+encodeURIComponent(item),{cache:'no-store',headers:{authorization:'Bearer '+session.access_token}});
+  const coverage=await coverageResponse.json().catch(()=>null);
+  if(!coverageResponse.ok||coverage?.ok!==true){box.textContent=denied;return;}
+  if(coverage.access?.entitlementSatisfied===true){box.textContent='Selected '+label+': '+item+'. Matching entitlement found. Open the original learning item to complete server-side release and access verification.';return;}
+  if(coverage.purchase?.available!==true||!Array.isArray(coverage.purchase.products)||!coverage.purchase.products.length){box.textContent=denied;return;}
+  // A checkout route is never recommended without exact item coverage.
   const catalog=await window.CommerceTools.load();
   if(catalog.commerceUnavailable){box.textContent=denied;return}
   const verified=await window.CommerceTools.verifiedCheckout(catalog,{type:kind,code});
