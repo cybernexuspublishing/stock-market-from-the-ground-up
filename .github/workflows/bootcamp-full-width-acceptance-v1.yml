@@ -13,6 +13,7 @@ on:
       - 'functions/api/assessment-v0135.js'
       - 'supabase/migrations/20261031_academy_protected_case_routing_v1.sql'
       - 'tests/test_academy_three_camps_protected_assessment_v1.mjs'
+      - 'tests/test_academy_three_camps_assessment_endpoint_v1.mjs'
       - 'assets/css/bootcamp.css'
       - 'assets/css/bootcamp-academy-compact-v2.css'
       - 'assets/css/learning-workstation-v44.css'
@@ -46,6 +47,7 @@ jobs:
           node --check assets/js/academy-guided-v1.js
           node --check assets/js/bootcamp-academy-v014168.js
           node tests/test_academy_three_camps_protected_assessment_v1.mjs
+          node tests/test_academy_three_camps_assessment_endpoint_v1.mjs
           node tests/test_v135_public_assessment_projection.mjs
           node tests/test_v014168_academy_family.mjs
           node tests/test_v014144_bootcamp.mjs
