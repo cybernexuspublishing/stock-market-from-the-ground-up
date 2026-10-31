@@ -50,7 +50,7 @@ function render(){
   const groups=new Map();
   for(const placement of model.placements||[]){
    const pattern=String(placement.page_pattern||'');
-   if(!/^\\/[a-z0-9*.-]{2,90}$/.test(pattern))continue;
+   if((!pattern.startsWith('/')||!/^[a-z0-9*.-]{2,90}$/.test(pattern.slice(1))))continue;
    if(!groups.has(pattern))groups.set(pattern,[]);
    groups.get(pattern).push(placement);
   }
@@ -177,7 +177,7 @@ function render(){
   const item=line(creatives,'Creative #'+cr.id+' · '+cr.headline,
    'Campaign #'+cr.campaign_id+' · '+cr.placement_code+' · '+cr.status);
   block(item,cr.body||'');
-  if(typeof cr.image_url==='string'&&/^data:image\\/webp;base64,[A-Za-z0-9+/=]{300,120000}$/.test(cr.image_url)){
+  if(typeof cr.image_url==='string'&&(cr.image_url.startsWith('data:image/webp;base64,')&&/^[A-Za-z0-9+/=]{300,120000}$/.test(cr.image_url.slice(23)))){
    const img=n('img');img.src=cr.image_url;img.alt=cr.alt_text||'Approved partner creative';
    img.className='gu-ad-creative-preview';img.loading='lazy';item.append(img);
   }
