@@ -29,7 +29,14 @@ assert(!knowledge.includes('Affiliate disclosure: We may earn a commission if'))
 assert(!knowledge.includes('border:1px solid #456477'));
 assert(knowledge.includes('aff_id=1173728&aff_sub=smfgu_website&source=stock-market-from-the-ground-up-d1r.pages.dev'));
 assert(knowledge.includes('rel="sponsored noopener noreferrer"'));
-assert(knowledge.includes('We may earn a commission from purchases through this link.'));
+assert(!knowledge.includes('We may earn a commission from purchases through this link.'));
+assert(knowledge.includes('Paid referral'));
+assert(knowledge.includes('id="gu-knowledge-partner-banner"'));
+assert(knowledge.includes('assets/js/knowledge-partner-banner-v1.js'));
+const affiliateControl=read('assets/js/knowledge-partner-banner-v1.js');
+assert(affiliateControl.includes("slot:'KNOWLEDGE_TRADINGVIEW'"));
+assert(affiliateControl.includes('placeholderAvailable!==true'));
+assert(affiliateControl.includes('banner.hidden=true'));
 assert(knowledge.includes('src="data:image/webp;base64,UklGR'));
 
 assert(knowledge.includes('assets/js/free-foundations-knowledge-v1.js'));
@@ -52,6 +59,6 @@ assert(storeJs.includes("'for_sale'"),'Canonical sale-state filters must remain 
 assert(css.includes('max-width:790px!important'));
 assert(css.includes('display:grid!important;box-sizing:border-box!important'));
 assert(css.includes('font-size:clamp(1.65rem,2.15vw,2.35rem)'));
-for(const file of ['assets/js/bootcamp-academy-v014168.js','assets/js/free-foundations-knowledge-v1.js','assets/js/navigation.js','assets/js/store.js'])
+for(const file of ['assets/js/bootcamp-academy-v014168.js','assets/js/free-foundations-knowledge-v1.js','assets/js/navigation.js','assets/js/store.js','assets/js/knowledge-partner-banner-v1.js'])
  assert.doesNotThrow(()=>new Script(read(file)),file+' JavaScript syntax');
 console.log('PASS Knowledge Database independent page, 12-topic renderer, Learn navigation, compact Academy layout, and nonmutating Store presentation');
