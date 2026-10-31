@@ -304,7 +304,7 @@
    const a=node('a',reference.authority);
    a.href=reference.url;a.target='_blank';a.rel='noopener noreferrer';
    section.append(node('h4','Independently checked topic-level reference'),a,
-    node('p','Source status: public topical reference only. NOT verification, grading or independent editorial acceptance of this exact Boot Camp day.'),
+    node('p','Source status: public topic-level reference only. NOT verification, grading or independent editorial acceptance of this exact Boot Camp day.'),
     node('p','Source limit: '+reference.limit));
   }
   mount.append(section);
