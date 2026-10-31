@@ -55,7 +55,8 @@ async function loadRegistryRights(userId,epoch){
 
 function labAccessProductPage(lab){
  const trainingOnly=trainingOnlyIds.has(lab.id)||Number(lab.book)===6;
- return trainingOnly?'store-membership-ondemand-monthly.html':'store-tool-interactive-learning.html';
+ const page=trainingOnly?'store-membership-ondemand-monthly.html':'store-tool-interactive-learning.html';
+ return page+'?source=lab&item='+encodeURIComponent(lab.id);
 }
 function norm(s) { return String(s || '').toLowerCase(); }
 
