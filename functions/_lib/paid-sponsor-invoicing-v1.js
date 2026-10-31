@@ -71,6 +71,13 @@ export async function issuePaidSponsorInvoice({stripe,api,campaign,advertiser,ac
   if(sent.id!==invId||!['open','paid'].includes(sent.status)||
      !validStripeInvoiceUrl(sent.hosted_invoice_url))throw error('Stripe invoice email could not be verified.',503);
  }
+ // Restore standard Stripe payment reconciliation only after the Owner-directed
+ // invoice has been explicitly sent. Draft creation never collects money.
+ const reconciled=await stripe('invoices/'+encodeURIComponent(invId),{
+  method:'POST',idempotencyKey:base+'-enable-reconciliation',fields:{auto_advance:'true'}});
+ if(reconciled.id!==invId||reconciled.livemode!==true||
+   !['open','paid'].includes(reconciled.status))
+  throw error('Stripe invoice reconciliation could not be verified.',503);
  const saved=await api('ad_campaigns?id=eq.'+number+'&stripe_invoice_id=eq.'+encodeURIComponent(invId),{
   method:'PATCH',body:{stripe_invoice_url:ready.hosted_invoice_url,stripe_invoice_sent_at:new Date().toISOString(),
    stripe_customer_id:customerId}});
