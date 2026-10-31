@@ -34,7 +34,7 @@ export async function onRequestGet({env}){
   await Promise.all(Object.values(TEST_OFFERS).map(x=>verify(c,x)));
   return reply({ok:true,testOnly:true,shadowOnly:true,checkoutEnabled:true,
    offers:Object.entries(TEST_OFFERS).map(([sku,o])=>({sku,quantity:o.qty,amountCents:o.cents}))});
- }catch{return reply({ok:true,testOnly:true,shadowOnly:true,checkoutEnabled:false,offers:[]})}
+ }catch(e){return reply({ok:true,testOnly:true,shadowOnly:true,checkoutEnabled:false,offers:[],qaDiagnostic:String(e?.message||'TEST_PRECHECK_FAILED').slice(0,120)})}
 }
 export async function onRequestPost({request,env}){
  try{
