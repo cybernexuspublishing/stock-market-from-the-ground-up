@@ -54,10 +54,18 @@ function render(){
    if(!groups.has(pattern))groups.set(pattern,[]);
    groups.get(pattern).push(placement);
   }
+  const titles={
+   '/index.html':'Home','/store.html':'Store','/store-all-products.html':'All Products',
+   '/knowledge-database.html':'SMF Knowledge Database','/bootcamp-academy.html':'Boot Camp Academy',
+   '/market-commons.html':'Market Commons','/dashboard.html':'Member Dashboard',
+   '/lab-samples.html':'Sample Labs','/books.html':'Books','/membership.html':'Membership',
+   '/tools.html':'Tools','/about.html':'About','/skills.html':'Market Skills Record',
+   '/signin*':'Sign In','/create-account*':'Create Account'
+  };
   for(const [pattern,items] of groups){
    const current=items.filter(x=>x.active===true).length;
-   const item=line(perPage,pattern,
-    current+' of '+items.length+' placement'+(items.length===1?'':'s')+' enabled');
+   const item=line(perPage,titles[pattern]||pattern,
+    current+' of '+items.length+' placement'+(items.length===1?'':'s')+' enabled · '+pattern);
    const label=n('label',undefined,'gu-ad-carousel-control');
    const input=n('input');input.type='checkbox';input.checked=current===items.length;
    input.indeterminate=current>0&&current<items.length;
