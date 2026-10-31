@@ -86,6 +86,35 @@ async function eligibility(c,slot,path,request,audienceAlreadyVerified=false){
  if(flags?.[0]?.ad_delivery_enabled!==true||flags?.[0]?.accepting_payments!==true)return false;
  return audienceAlreadyVerified===true||placeholderEligibility(c,slot,path,request);
 }
+/* Nonbillable affiliate delivery is separate from approved, paid sponsorships.
+ * Home slot only, exact authorized TradingView partner and image; no false events.
+ */
+async function affiliateCreative(c,slot){
+ if(slot!=='HOME_INLINE')return null;
+ const placements=await query(c,'ad_placements?select=placement_code,active,metadata&placement_code=eq.HOME_INLINE&limit=1');
+ const placement=placements?.[0],meta=placement?.metadata||{};
+ if(placement?.active!==true||meta.affiliate!==true||meta.provider!=='TradingView')return null;
+ const creativeId=Number(meta.affiliate_creative_id),campaignId=Number(meta.affiliate_campaign_id);
+ if(!Number.isSafeInteger(creativeId)||!Number.isSafeInteger(campaignId)||creativeId<1||campaignId<1)return null;
+ const campaigns=await query(c,'ad_campaigns?select=id,advertiser_id,amount_cents&id=eq.'+campaignId+'&limit=1');
+ const campaign=campaigns?.[0];
+ if(campaign?.id!==campaignId||Number(campaign.amount_cents)!==0)return null;
+ const advertisers=await query(c,'advertisers?select=id,name,status&id=eq.'+campaign.advertiser_id+'&limit=1');
+ if(advertisers?.[0]?.name!=='TradingView'||advertisers[0].status!=='active')return null;
+ const creatives=await query(c,'ad_creatives?select=id,campaign_id,placement_code,status,destination_url,image_url,alt_text&status=eq.approved&id=eq.'+creativeId+'&limit=1');
+ const creative=creatives?.[0];
+ if(creative?.id!==creativeId||creative.campaign_id!==campaignId||
+    creative.placement_code!==slot||creative.status!=='approved')return null;
+ let url;
+ try{url=new URL(creative.destination_url)}catch{return null}
+ if(url.protocol!=='https:'||url.hostname!=='www.tradingview.com'||url.pathname!=='/'||
+    url.searchParams.get('aff_id')!=='1173728'||!validHttps(creative.destination_url))return null;
+ const media=String(creative.image_url||'');
+ if(!media.startsWith('data:image/webp;base64,')||
+    !/^[A-Za-z0-9+/=]{200,16000}$/.test(media.slice(23)))return null;
+ return {type:'affiliate',creativeId,campaignId,
+    destinationUrl:url.href,imageUrl:media,altText:String(creative.alt_text||'TradingView charting platform').slice(0,150)};
+}
 async function underFrequencyLimit(c,request,token){
  if(!/^[a-f0-9-]{36}$/i.test(token||''))return false;
  const code=await planCode(c,request);
@@ -139,13 +168,17 @@ export async function onRequest({request,env}){
     const previewRole=await planCode(c,request);
     if(previewRole==='OWNER'){
      const placement=await query(c,'ad_placements?select=placement_code,active&placement_code=eq.'+encodeURIComponent(slot));
-     return ok({ad:null,placeholderAvailable:placement?.[0]?.active===true,ownerPreview:true});
+     const active=placement?.[0]?.active===true;
+     const affiliate=active?await affiliateCreative(c,slot):null;
+     return ok({ad:null,affiliate,placeholderAvailable:active,ownerPreview:true});
     }
    }
    const placeholderAvailable=await placeholderEligibility(c,slot,page,request);
    if(!placeholderAvailable)return ok({ad:null,placeholderAvailable:false});
    const placementRows=await query(c,'ad_placements?select=metadata&placement_code=eq.'+encodeURIComponent(slot)+'&active=eq.true');
    const carouselEnabled=placementRows?.[0]?.metadata?.carousel_enabled===true;
+   const affiliate=await affiliateCreative(c,slot);
+   if(affiliate)return ok({ad:null,affiliate,placeholderAvailable:true,carouselEnabled:false,nonbillable:true});
    if(!(await eligibility(c,slot,page,request,true))||
       !(await underFrequencyLimit(c,request,token)))return ok({ad:null,placeholderAvailable:true,carouselEnabled});
    const options=await eligibleAds(c,slot);
