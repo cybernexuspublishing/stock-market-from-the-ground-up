@@ -288,9 +288,23 @@ function render(){
  searchBar.append(label,search,categories,summary);
  core.parentNode.insertBefore(searchBar,core);
  const top=n('div',undefined,'kd-expansion-head');
- top.append(n('p','DEEP-DIVE REFERENCE · UNGRADED · INCLUDED','kd-eyebrow'),
-  n('h2','Research, chart interpretation and disciplined decision-making'),
-  n('p','Twenty-six additional original reference lessons connect the Foundations to research watchlists, Chart Studio, Market Tutor, historical replay and trade planning. All examples are fictional; a named trading pattern is not a validated predictive signal.'));
+ const eyebrow=n('p','DEEP-DIVE REFERENCE · UNGRADED · INCLUDED','kd-eyebrow');
+ const heading=n('h2','Research, chart interpretation and disciplined decision-making','kd-title');
+ heading.id='kd-deep-dive-title';
+ // Use title-local declarations to protect size and centering from the
+ // later-loaded sitewide typography rules, without changing lesson headings.
+ heading.style.setProperty('font-size','clamp(1.45rem,1.95vw,2.1rem)','important');
+ heading.style.setProperty('font-weight','760','important');
+ heading.style.setProperty('line-height','1.24','important');
+ heading.style.setProperty('text-align','center','important');
+ heading.style.setProperty('margin','10px auto 0','important');
+ heading.style.setProperty('color','#e5f5fc','important');
+ heading.style.setProperty('-webkit-text-fill-color','#e5f5fc','important');
+ heading.style.setProperty('background','none','important');
+ const accent=n('span',undefined,'kd-title-accent');
+ accent.setAttribute('aria-hidden','true');
+ const intro=n('p','Twenty-six additional original reference lessons connect the Foundations to research watchlists, Chart Studio, Market Tutor, historical replay and trade planning. All examples are fictional; a named trading pattern is not a validated predictive signal.','kd-deep-dive-intro');
+ top.append(eyebrow,heading,accent,intro);
  target.append(top);
  const groups=new Map();
  for(const [key,name] of Object.entries(categoryNames)){
