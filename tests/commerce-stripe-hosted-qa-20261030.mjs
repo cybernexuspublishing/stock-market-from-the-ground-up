@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import {chromium} from 'playwright';
 // Temporary QA fixtures only, exact server-verified Stripe Checkout sessions; no credit card numbers except Stripe TEST 4242.
 // Avoid re-submitting the already-complete LIVE zero-dollar session.
-const sessions=[{"kind":"book","id":"cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg","livemode":false,"cents":1099,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"},{"kind":"lumens","id":"cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB","livemode":false,"cents":500,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"}];
+// Book TEST is already PAID: never submit its Checkout again.
+const sessions=[{"kind":"lumens","id":"cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB","livemode":false,"cents":500,"url":"https://checkout.stripe.com/c/pay/cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB#fidnandhYHdWcXxpYCc%2FJ2FgY2RwaXEnKSdicyc%2FNSknZHVsTmB8Jz8ndW5acWB2cVowNFBXQm5BT1w8Q0wyZ3xNRzdiakhVZG9ga1BwTmRLf2hfb31GVnd2Y2ZWYFBpTTFKXWlsSzZIXDFMXVVmaWxASXBLdzZiNkdObjxxZmhyaVVqSUNvNjBQczU1Sl1TaXdtak4nKSdjd2poVmB3c2B3Jz9xd3BgKSdnZGZuYndqcGthRmppancnPycmY2NjY2NjJyknaWR8anBxUXx1YCc%2FJ3Zsa2JpYFpscWBoJyknYGtkZ2lgVWlkZmBtamlhYHd2Jz9xd3BgeCUl"}];
 
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 const errors=[];
@@ -72,7 +73,7 @@ async function attempt(s){
    await fillFirst(page,['input[name="billingName"]','input[autocomplete="cc-name"]'],'SMFGU STRIPE TEST');
    // Stripe-hosted TEST Checkout collects a required phone number. Use a fictional
    // North American 555-01xx example; do not use a member's real contact details.
-   await fillFirst(page,['input[name="phoneNumber"]','input[autocomplete="tel"]','input[type="tel"]'],'2015550123',true);
+   await fillFirst(page,['input[name="phoneNumber"]','input[autocomplete="tel"]','input[type="tel"]'],'2015550123');
   }
   const buttons=await page.locator('button[type="submit"]:visible').all();
   let submit=buttons.at(-1);
@@ -84,6 +85,20 @@ async function attempt(s){
   console.log('SUBMIT '+s.kind+' '+label);
   await submit.click({timeout:20000});
   await page.waitForTimeout(9000);
+  // In some Stripe TEST Checkout renderings, phone becomes required only after
+  // the first submit. Correct this normal validation once; never bypass CAPTCHA.
+  if(page.url().startsWith('https://checkout.stripe.com/c/pay/')){
+   const phone=await visibleInput(page,['input[name="phoneNumber"]','input[autocomplete="tel"]','input[type="tel"]']);
+   if(phone && (await phone.getAttribute('aria-invalid').catch(()=>null))==='true'){
+    console.log('REQUIRED_PHONE_APPEARED_AFTER_VALIDATION '+s.kind);
+    await phone.fill('2015550123');
+    const payAgain=page.locator('button[type="submit"]:visible').last();
+    if(!(await payAgain.isVisible()))throw Error('Stripe TEST follow-up Pay unavailable');
+    await payAgain.click({timeout:20000});
+    await page.waitForTimeout(9000);
+    console.log('POST_PHONE_VALIDATION_RETRY '+s.kind+' '+originLocation(page.url()));
+   }
+  }
   const alerts=[];
   for(const f of page.frames())for(const sel of ['[role="alert"]','[data-testid*="error"]','[aria-invalid="true"]']){
    const loc=f.locator(sel);for(const node of (await loc.all()).slice(0,4))if(await node.isVisible().catch(()=>false))alerts.push((await node.innerText().catch(()=>'')).slice(0,140));
