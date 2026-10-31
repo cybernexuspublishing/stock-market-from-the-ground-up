@@ -47,14 +47,14 @@ function chartDraw(){
   const showCandle=chartMode!=='Volume Only',showVolume=chartMode!=='Price Only';
   const labels=bars.map((_,i)=>'Bar '+(i+1)),volumeMax=Math.max(...bars.map(b=>b[4]));
   const series=[];
-  if(showCandle)series.push({name:'Fictional OHLC',type:'candlestick',data:bars.map(b=>[b[0],b[3],b[2],b[1]]),itemStyle:{color:'#51d5b0',color0:'#e57f95',borderColor:'#51d5b0',borderColor0:'#e57f95'},barMaxWidth:34});
+  if(showCandle)series.push({name:'Fictional OHLC',type:'candlestick',data:bars.map(b=>[b[0],b[3],b[2],b[1]]),itemStyle:{color:'#51d5b0',color0:'#e57f95',borderColor:'#51d5b0',borderColor0:'#e57f95'},barMaxWidth:34,markLine:{silent:true,symbol:'none',precision:2,label:{position:'end',fontSize:11,fontWeight:'bold',color:'#edf6fc'},lineStyle:{type:'dashed',width:1,color:'#bdd1de'},data:[{name:'H',yAxis:bars.at(-1)[1],label:{formatter:'H $'+bars.at(-1)[1].toFixed(2)}},{name:'C',yAxis:bars.at(-1)[3],label:{formatter:'C $'+bars.at(-1)[3].toFixed(2),color:'#69dfb9'}},{name:'O',yAxis:bars.at(-1)[0],label:{formatter:'O $'+bars.at(-1)[0].toFixed(2),color:'#8acfe2'}},{name:'L',yAxis:bars.at(-1)[2],label:{formatter:'L $'+bars.at(-1)[2].toFixed(2)}}]}});
   if(showVolume)series.push({name:'Fictional volume',type:'bar',xAxisIndex:1,yAxisIndex:1,data:bars.map(b=>({value:b[4],itemStyle:{color:b[3]>=b[0]?'#4cbb9e':'#cc7087'}})),barMaxWidth:32});
   chartInstance.setOption({animation:false,backgroundColor:'#081e2e',
    tooltip:{trigger:'axis',axisPointer:{type:'cross'},backgroundColor:'#153449',borderColor:'#42677b',textStyle:{color:'#fff'},formatter:params=>{
     const i=params?.[0]?.dataIndex??0,b=bars[i];return 'Fictional bar '+(i+1)+'<br>Open $'+b[0].toFixed(2)+' · High $'+b[1].toFixed(2)+'<br>Low $'+b[2].toFixed(2)+' · Close $'+b[3].toFixed(2)+'<br>Volume '+b[4];
    }},
    legend:{top:4,textStyle:{color:'#c5daea'}},
-   grid:[{left:58,right:28,top:40,height:chartMode==='Volume Only'?'42%':'56%'},{left:58,right:28,top:'77%',height:'14%'}],
+   grid:[{left:58,right:110,top:40,height:chartMode==='Volume Only'?'42%':'56%'},{left:58,right:110,top:'77%',height:'14%'}],
    xAxis:[{type:'category',gridIndex:0,data:labels,axisLabel:{color:'#c5d6e3'},axisLine:{lineStyle:{color:'#405b70'}}},{type:'category',gridIndex:1,data:labels,axisLabel:{color:'#bcd0de'},axisLine:{lineStyle:{color:'#405b70'}}}],
    yAxis:[{type:'value',scale:true,gridIndex:0,axisLabel:{color:'#c4d6e6',formatter:v=>'$'+Number(v).toFixed(2)},splitLine:{lineStyle:{color:'#294457'}}},{type:'value',gridIndex:1,min:0,max:volumeMax*1.2,axisLabel:{color:'#9fbacc'},splitLine:{show:false}}],
    series},true);
@@ -114,7 +114,7 @@ $('gu-practice-next-teaching').addEventListener('click',renderPart);
 $('gu-practice-full').addEventListener('click',()=>{stop();while(part<explanations[position].length)renderPart()});
 $('gu-practice-next').addEventListener('click',stepForward);
 $('gu-practice-reset').addEventListener('click',()=>{position=0;passed=0;mistakes=0;show()});
-$('gu-practice-chart-mode').addEventListener('change',e=>{chartMode=e.target.value;chartDraw()});
+$('gu-practice-chart-mode').addEventListener('click',e=>{const button=e.target.closest('button[data-chart-mode]');if(!button)return;chartMode=button.dataset.chartMode;$('gu-practice-chart-mode').querySelectorAll('button').forEach(x=>x.setAttribute('aria-pressed',String(x===button)));chartDraw()});
 window.addEventListener('resize',()=>chartInstance?.resize());
 updateAuto();show();
 })();
