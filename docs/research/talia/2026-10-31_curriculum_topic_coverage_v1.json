@@ -1,0 +1,314 @@
+{
+  "documentId": "SMFGU-TALIA-COVERAGE-022",
+  "version": "1.0",
+  "checkedOn": "2026-10-31",
+  "canonicalCounts": {
+    "labs": 419,
+    "competencies": 30,
+    "academyPositions": 252
+  },
+  "accessPolicy": "Teach equally once a program is authorized, including Free and temporarily hidden plans. No plan entitlements are changed by source research.",
+  "researchClassification": "adequate describes narrow conceptual authority, never automatically accepted individual lessons or historical examples",
+  "topics": [
+    {
+      "topic": "Stocks and ownership",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S01",
+        "S02"
+      ],
+      "teachingTargets": "Free5:1; Foundations Labs",
+      "unresolvedResearch": "Issuer identity and share class still case-specific",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Exchanges and market sessions",
+      "status": "weakly_sourced_for_specific_days",
+      "selectedSourceIds": [
+        "S04",
+        "S05"
+      ],
+      "teachingTargets": "all book Labs; Boot Camps; simulator",
+      "unresolvedResearch": "Trading dates, venue, LULD and hours differ by exchange and future effective dates",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Bid, ask, midpoint, spread",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S01",
+        "S03"
+      ],
+      "teachingTargets": "F2-C04-L01; TAPE-C04-L02; Chart Studio",
+      "unresolvedResearch": "Current size, timestamp and venue not verified",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Order types, routing and fills",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S01",
+        "S03",
+        "S18"
+      ],
+      "teachingTargets": "DT-C41-L01/02; Free5:5; Talia",
+      "unresolvedResearch": "Real fills, partial fills and broker-specific instructions absent",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Liquidity and halts",
+      "status": "weakly_sourced_for_market_instances",
+      "selectedSourceIds": [
+        "S03",
+        "S04"
+      ],
+      "teachingTargets": "DT-C10; scanner; tape; watchlists",
+      "unresolvedResearch": "Historical executable depth and precise event records require primary exchange data",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Clearing and T+1 settlement",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S08",
+        "S02"
+      ],
+      "teachingTargets": "Foundations; Boot Camp Risk; Talia",
+      "unresolvedResearch": "Asset, exchange calendar and historical effective date exceptions",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "SEC Forms 10-K 10-Q 8-K",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S02"
+      ],
+      "teachingTargets": "Truth5; Free5:3; filing Labs",
+      "unresolvedResearch": "Issuer and filing exact period, EDGAR dissemination time require separate verification",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Earnings and valuation",
+      "status": "weakly_sourced_for_individual_issuers",
+      "selectedSourceIds": [
+        "S02",
+        "S17"
+      ],
+      "teachingTargets": "Fundamentals; Boot Camps; journal",
+      "unresolvedResearch": "Claims of revenue causation and earnings outcomes not independently supported",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Dilution, offerings, splits",
+      "status": "weakly_sourced_for_specific_corporate_actions",
+      "selectedSourceIds": [
+        "S02",
+        "S04"
+      ],
+      "teachingTargets": "market structure; event Labs",
+      "unresolvedResearch": "Share terms, share count and action effective dates require filing-level records",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Candles, OHLC and wicks",
+      "status": "adequately_sourced_as_technical_definition",
+      "selectedSourceIds": [
+        "S13"
+      ],
+      "teachingTargets": "Free5:2; chart simulator; Labs",
+      "unresolvedResearch": "Bar data not tape sequencing; visual anecdotes not verified historical tape",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Timeframes and source chronology",
+      "status": "weakly_sourced_for_history",
+      "selectedSourceIds": [
+        "S13",
+        "S04"
+      ],
+      "teachingTargets": "Replay; Chart Studio; Labs",
+      "unresolvedResearch": "No-lookahead and corporate action adjustments need authorized datasets",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Volume and trade-size semantics",
+      "status": "weakly_sourced_for_feeds",
+      "selectedSourceIds": [
+        "S13",
+        "S04",
+        "S03"
+      ],
+      "teachingTargets": "TAPE; Chart Studio; scanners",
+      "unresolvedResearch": "Print size, venue coverage and intrabar order flow not independently observed",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "VWAP",
+      "status": "adequately_sourced_as_technical_definition",
+      "selectedSourceIds": [
+        "S13"
+      ],
+      "teachingTargets": "DT-C11-L01; Chart Studio; labs",
+      "unresolvedResearch": "HLC3-bar approximation ≠ tick VWAP; session reset and missing bars",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "EMA and SMA",
+      "status": "adequately_sourced_as_technical_definition",
+      "selectedSourceIds": [
+        "S14",
+        "S13"
+      ],
+      "teachingTargets": "all indicators; Chart Studio",
+      "unresolvedResearch": "EMA seed, time periods, source inputs and platform offsets vary",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Common oscillators, RSI MACD",
+      "status": "weakly_sourced_for_implementation",
+      "selectedSourceIds": [
+        "S13",
+        "S14"
+      ],
+      "teachingTargets": "Advanced Studio; indicators",
+      "unresolvedResearch": "Implementation-specific seeds and warmup must be calculated individually",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Watchlists and catalyst sourcing",
+      "status": "weakly_sourced_for_issuer_claims",
+      "selectedSourceIds": [
+        "S02",
+        "S01"
+      ],
+      "teachingTargets": "Watchlist V4; Watchlist7; Free5:4",
+      "unresolvedResearch": "Issuer original source, timestamp and false positive not verified per ticker",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Scanner filters and false positives",
+      "status": "weakly_sourced_for_algorithm",
+      "selectedSourceIds": [
+        "S03",
+        "S18"
+      ],
+      "teachingTargets": "Scanners10; Scanner Builder",
+      "unresolvedResearch": "Vendor scanner logic, ranking edge and future outcomes unverified",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Risk budget, sizing, stops, gaps",
+      "status": "adequately_sourced_general_risks",
+      "selectedSourceIds": [
+        "S01",
+        "S03"
+      ],
+      "teachingTargets": "Free5:5; Risk60; advanced trade plan",
+      "unresolvedResearch": "Arithmetic independently recomputed only for 13 original brief cases; fill not guaranteed",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Portfolio correlation and drawdown",
+      "status": "weakly_sourced_for_calculations",
+      "selectedSourceIds": [
+        "S01",
+        "S17"
+      ],
+      "teachingTargets": "Journal; Chart Studio; investing",
+      "unresolvedResearch": "Correlations depend on data window; no personal allocation advice",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Long-term investing, fees, funds",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S01",
+        "S17",
+        "S15"
+      ],
+      "teachingTargets": "Foundations; investment competencies",
+      "unresolvedResearch": "Fund documents, current fees and product fit must be checked",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "General investment taxes",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S19"
+      ],
+      "teachingTargets": "Foundations; Journal",
+      "unresolvedResearch": "Tax year, jurisdiction, basis and circumstances require updated professional verification",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Bond yields, bills and discount",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S20",
+        "S09"
+      ],
+      "teachingTargets": "investing; long-term funds",
+      "unresolvedResearch": "Auction yield, maturity and taxes are time-sensitive",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Inflation and macro releases",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S11",
+        "S12",
+        "S10",
+        "S09"
+      ],
+      "teachingTargets": "market regime; context; catalysts",
+      "unresolvedResearch": "Release vintages, revisions and availability must be time locked",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Futures and options basics",
+      "status": "adequately_sourced_general_only",
+      "selectedSourceIds": [
+        "S06",
+        "S07",
+        "S18"
+      ],
+      "teachingTargets": "options; advanced markets",
+      "unresolvedResearch": "Margin, delivery, assignments and user permissions differ",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Historical chart/market tape cases",
+      "status": "missing_independent_provenance",
+      "selectedSourceIds": [
+        "S04",
+        "S05"
+      ],
+      "teachingTargets": "89 research cases; 419 Labs; replay",
+      "unresolvedResearch": "No licensed complete market tape/Level II from uploaded ZIP titles",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "Trade strategy performance claims",
+      "status": "missing_independent_validation",
+      "selectedSourceIds": [
+        "S03",
+        "S01"
+      ],
+      "teachingTargets": "Boot Camp; scanner; indicator strategies",
+      "unresolvedResearch": "No robust sample, out-of-sample controls and net-of-fees edge verified",
+      "approvedEntireLessons": 0
+    },
+    {
+      "topic": "NO TRADE, failed cases, discipline",
+      "status": "adequately_sourced_as_original_pedagogy",
+      "selectedSourceIds": [
+        "S01",
+        "S03"
+      ],
+      "teachingTargets": "all curricula including Free and currently hidden memberships",
+      "unresolvedResearch": "Not an objectively scored trading skill unless graded rubric applied privately",
+      "approvedEntireLessons": 0
+    }
+  ],
+  "status": "topic_map_completed_individual_claims_ongoing"
+}
