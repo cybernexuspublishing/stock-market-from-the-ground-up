@@ -347,6 +347,42 @@ async function start(){
   sb=await window.getSupabaseClient();
   await refresh();
   e('gu-ad-refresh').addEventListener('click',()=>refresh().catch(err=>e('gu-ad-admin-status').textContent=err.message));
+  e('gu-ad-verify-owner-browser')?.addEventListener('click',async()=>{
+   const btn=e('gu-ad-verify-owner-browser'),note=e('gu-ad-owner-browser-acceptance');
+   btn.disabled=true;note.textContent='Checking the signed-in Owner session and visible Advertising Admin controls…';
+   try{
+    const pathname=location.pathname;
+    if(!['/admin-advertising','/admin-advertising.html'].includes(pathname))
+     throw Error('This acceptance check must run on the Advertising Admin page.');
+    const person=await sb.auth.getUser();
+    if(person.error||!person.data?.user?.id)throw Error('Owner user verification failed.');
+    const summary=await request();
+    if(!summary.settings||!Array.isArray(summary.placements)||!Array.isArray(summary.campaigns))
+     throw Error('Owner-only sponsor inventory is not available.');
+    const visible=id=>{
+     const element=e(id);
+     return Boolean(element&&!element.hidden&&element.getClientRects().length>0);
+    };
+    const checks={
+     page:'/admin-advertising.html',
+     mainVisible:visible('gu-ad-admin-main'),
+     billingControlVisible:visible('gu-ad-toggle-paid-billing'),
+     deliveryControlVisible:visible('gu-ad-toggle-paid-delivery')
+    };
+    if(!Object.values(checks).every(Boolean))throw Error('The required advertising controls are not visible.');
+    const result=await request({action:'record_owner_browser_acceptance',
+     source:'advertising_owner_page_v1',nonce:crypto.randomUUID(),checks});
+    if(result.ownerVerified!==true||result.auditRecorded!==true||
+       result.scope!=='OWNER_SESSION_AND_ADVERTISING_UI_ONLY')
+     throw Error('Owner identity or acceptance audit could not be verified.');
+    note.textContent='PASS — signed-in Owner verified by Supabase and Advertising Admin; '+
+     'server-side acceptance audit recorded at '+new Date(result.checkedAt).toLocaleString()+
+     '. Paid delivery '+(result.paidDeliveryEnabled?'enabled':'disabled')+
+     '; no invoice or charge created. Sponsorship webhook acceptance remains separate.';
+   }catch(error){
+    note.textContent='NOT ACCEPTED — '+(error?.message||'Owner browser verification failed.');
+   }finally{btn.disabled=false}
+  });
   e('gu-ad-sandbox-refresh')?.addEventListener('click',()=>refresh().catch(err=>e('gu-ad-sandbox-feedback').textContent=err.message));
   e('gu-ad-sandbox-toggle')?.addEventListener('click',async()=>{
    const btn=e('gu-ad-sandbox-toggle');btn.disabled=true;
