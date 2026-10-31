@@ -50,6 +50,7 @@ jobs:
           node tests/test_v014149_tutor_editorial_and_gaps.mjs
           node tests/test_tutor_lab_claim_evidence_v1.mjs
           node tests/test_talia_20sources_claim_evaluation_v1.mjs
+          node tests/test_talia_academy_source_checkpoint_v1.mjs
           node tests/test_v014149_tutor_lab_context.mjs
           node tests/test_tutor_six_lab_paths.mjs
           node tests/test_tutor_six_lab_route.mjs
