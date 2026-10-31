@@ -84,6 +84,10 @@ async function attempt(s){
   console.log('INVALID_BEFORE_SUBMIT '+s.kind+' '+JSON.stringify(await invalidFields(page)));
   await page.waitForTimeout(3000);
   console.log('BUTTON_STATE '+s.kind+' '+JSON.stringify({enabled:await submit.isEnabled(),visible:await submit.isVisible(),disabled:await submit.getAttribute('disabled'),ariaDisabled:await submit.getAttribute('aria-disabled')}));
+  const box=await submit.boundingBox().catch(()=>null);
+  const center=box?{x:Math.floor(box.x+box.width/2),y:Math.floor(box.y+box.height/2)}:null;
+  const hit=center?await page.evaluate(p=>{const e=document.elementFromPoint(p.x,p.y);return {tag:e?.tagName||null,testid:e?.getAttribute?.('data-testid')||null,className:String(e?.className||'').slice(0,100)}},center).catch(()=>null):null;
+  console.log('BUTTON_HIT_TEST '+s.kind+' '+JSON.stringify({center,hit}));
   console.log('SUBMIT '+s.kind+' '+label);
   if(!await submit.isEnabled())throw Error('Stripe TEST Pay button disabled by native form validation; no card payment attempted');
   await submit.click({timeout:15000});
@@ -117,7 +121,7 @@ async function attempt(s){
   if(after.includes('/c/pay/'))throw Error('Checkout remained hosted after submit; provider reconciliation required');
   if(!page.url().startsWith('https://stock-market-from-the-ground-up-d1r.pages.dev/'))throw Error('No expected site return after submit');
   console.log('BROWSER_RETURN_PASS '+s.kind);
- }catch(e){errors.push({kind:s.kind,error:String(e).slice(0,350)});console.log('BROWSER_FAIL '+s.kind+' '+String(e).slice(0,380));}
+ }catch(e){errors.push({kind:s.kind,error:String(e).slice(0,350)});console.log('BROWSER_FAIL '+s.kind+' '+String(e).slice(0,2600));}
  finally{await page.close().catch(()=>{})}
 }
 try{for(const s of sessions)await attempt(s);}finally{await browser.close();}
