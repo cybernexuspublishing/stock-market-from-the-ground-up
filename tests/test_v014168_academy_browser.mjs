@@ -20,7 +20,7 @@ const stub=[
 ].join('\n');
 try{
  for(const width of [390,900,1280,1440]){
-  for(const code of [390,900,1440].includes(width)?['truth5','practicum90']:codes){
+  for(const code of codes){
    const context=await browser.newContext({viewport:{width,height:930},
     serviceWorkers:'block',reducedMotion:'reduce'});
    const page=await context.newPage();const progress=new Map();let enrolled=false;
@@ -78,6 +78,33 @@ try{
    assert.equal(await page.locator('#academy-workspace').isVisible(),true);
    assert.equal(await page.locator('#academy-days .gu-bc-day').count(),academyByCode[code].days);
    assert.equal(await page.locator('#academy-course-title').innerText(),academyByCode[code].title);
+   // Eight-program family layout invariant (six Academy routes here).
+   // A permanent left lesson sidebar would steal room from the Chart/Talia pair.
+   const size=await page.evaluate(()=>{
+    const wrap=document.querySelector('.gu-learning-ad-core>.wrap');
+    const grid=document.querySelector('.academy-study-grid');
+    const index=grid?.querySelector(':scope>.gu-bc-index');
+    const lesson=grid?.querySelector(':scope>.gu-bc-lesson');
+    const days=document.getElementById('academy-days');
+    const box=e=>e?.getBoundingClientRect();
+    return {scoped:document.body.classList.contains('gu-teaching-wide'),
+     active:document.body.classList.contains('academy-classroom-active'),
+     sheetWidth:box(wrap)?.width||0,gridWidth:box(grid)?.width||0,
+     columns:getComputedStyle(grid).gridTemplateColumns.split(' ').filter(Boolean).length,
+     indexBottom:box(index)?.bottom||0,lessonTop:box(lesson)?.top||0,
+     indexWidth:box(index)?.width||0,dayScroller:getComputedStyle(days).overflowX,
+     viewport:innerWidth,docWidth:document.documentElement.scrollWidth};
+   });
+   assert(size.scoped&&size.active,'Shared full-width teaching mode must be mounted for '+code);
+   assert(size.sheetWidth>width*.86&&size.gridWidth>width*.82,
+    'Boot Camp lesson is not using the available page width: '+code+' '+JSON.stringify(size));
+   assert.equal(size.columns,1,'Lessons must use a single full-width teaching column: '+code+' '+JSON.stringify(size));
+   assert(size.indexBottom<=size.lessonTop+3,
+    'Study-day navigator must be above the learning surface: '+code+' '+JSON.stringify(size));
+   assert(size.dayScroller==='auto'||size.dayScroller==='scroll',
+    'Study-day selector must scroll horizontally for longer courses: '+code);
+   assert(size.docWidth<=width+4,'Boot Camp must not overflow viewport: '+code+' '+JSON.stringify(size));
+
    if(code==='truth5'){
     const section=page.locator('#academy-original-instruction');
     await section.waitFor({state:'visible'});
@@ -231,6 +258,21 @@ try{
   await page.goto(base+'/bootcamp-academy.html?program=free5',{waitUntil:'domcontentloaded'});
   await page.locator('#academy-workspace:not([hidden])').waitFor({timeout:20000});
   assert.equal(await page.locator('#academy-days .gu-bc-day').count(),5);
+  const freeLayout=await page.evaluate(()=>{
+   const sheet=document.querySelector('.academy-study-grid');
+   const nav=sheet.querySelector(':scope>.gu-bc-index');
+   const lesson=sheet.querySelector(':scope>.gu-bc-lesson');
+   return {scoped:document.body.classList.contains('gu-teaching-wide'),
+    columns:getComputedStyle(sheet).gridTemplateColumns.split(' ').filter(Boolean).length,
+    navBottom:nav.getBoundingClientRect().bottom,
+    lessonTop:lesson.getBoundingClientRect().top,
+    sheetWidth:sheet.getBoundingClientRect().width,viewport:innerWidth};
+  });
+  assert(freeLayout.scoped&&freeLayout.columns===1&&
+   freeLayout.navBottom<=freeLayout.lessonTop+3&&
+   freeLayout.sheetWidth>=freeLayout.viewport*.82,
+   'Free Foundations must share full-width teaching: '+JSON.stringify(freeLayout));
+
   assert.equal(await page.locator('#academy-program-list').isHidden(),true);
   assert.equal(await page.locator('.academy-free-entry').isHidden(),true);
   await page.waitForFunction(()=>document.activeElement?.id==='academy-course-title');
