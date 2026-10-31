@@ -6,6 +6,7 @@
  */
 import {onRequestPost as membershipWebhook} from './gu39-stripe-webhook.js';
 import {onRequestPost as bookWebhook} from './book-stripe-test-webhook-v1.js';
+import {onRequestPost as lumenBundleWebhook} from './lumen-bundle-test-webhook.js';
 
 const respond=(message,status)=>new Response(message,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 const TEST_ACCOUNT='acct_1URGkDJY9FI7byHB';
@@ -52,6 +53,25 @@ async function isBookEvent(event,env){
  }
  return false;
 }
+
+async function isLumenBundleEvent(event,env){
+ if(bookSessionTypes.has(event.type)){
+  const idValue=event.data?.object?.id;
+  if(!id(idValue,'cs_test'))return false;
+  const s=await provider(env,'checkout/sessions/'+encodeURIComponent(idValue));
+  return !!s.metadata?.gu_lumen_bundle_qa_id;
+ }
+ if(chargeTypes.has(event.type)){
+  const chargeId=event.type==='charge.refunded'?event.data?.object?.id:event.data?.object?.charge;
+  if(!id(chargeId,'ch'))return false;
+  const charge=await provider(env,'charges/'+encodeURIComponent(chargeId));
+  if(!id(charge.payment_intent,'pi'))return false;
+  const pi=await provider(env,'payment_intents/'+encodeURIComponent(charge.payment_intent));
+  return !!pi.metadata?.gu_lumen_bundle_qa_id;
+ }
+ return false;
+}
+
 export async function onRequestPost({request,env,...context}){
  const secret=String(env.STRIPE_TEST_WEBHOOK_SECRET||'');
  if(!secret.startsWith('whsec_'))return respond('UNIFIED_TEST_WEBHOOK_NOT_CONFIGURED',503);
@@ -64,12 +84,14 @@ export async function onRequestPost({request,env,...context}){
     event.account!==undefined&&event.account!==TEST_ACCOUNT)return respond('WRONG_TEST_EVENT',400);
  if(!acceptedTypes.has(event.type))return respond('IGNORED',200);
  try{
-  const book=await isBookEvent(event,env);
+  // Classify provider-verified TEST purchases without trusting payload metadata.
+  const lumenBundle=await isLumenBundleEvent(event,env);
+  const book=lumenBundle?false:await isBookEvent(event,env);
   // Reconstruct the original request because the existing handlers consume its body.
   // Both handlers reverify the same unified endpoint signature before processing.
   const forwarded=new Request(request.url,{method:'POST',headers:request.headers,body:raw});
   const e={...env,STRIPE_BOOK_TEST_WEBHOOK_SECRET:secret,STRIPE_TEST_WEBHOOK_SECRET:secret};
-  return await (book?bookWebhook:membershipWebhook)({request:forwarded,env:e,...context});
+  return await (lumenBundle?lumenBundleWebhook:book?bookWebhook:membershipWebhook)({request:forwarded,env:e,...context});
  }catch{return respond('TEST_PROVIDER_RETRY',503)}
 }
 export function onRequestGet(){return respond('POST_ONLY',405)}
