@@ -257,6 +257,40 @@ export async function onRequest({request,env}){
    return respond({ok:true,reference:rows[0].id,notice:'Request received for manual review. No payment has been taken.'},201);
   }
   const who=await owner(c,request),actor=who.id;
+  if(action==='record_owner_browser_acceptance'){
+   // This records a genuine Owner-authenticated browser request. It does NOT
+   // claim independent automated Owner testing or any verified sponsor payment.
+   const checks=body.checks;
+   const nonce=str(body.nonce);
+   if(str(body.source)!=='advertising_owner_page_v1'||
+      !checks||typeof checks!=='object'||Array.isArray(checks)||
+      checks.page!=='/admin-advertising.html'||
+      checks.mainVisible!==true||checks.billingControlVisible!==true||
+      checks.deliveryControlVisible!==true||
+      !/^[a-f0-9-]{36}$/i.test(nonce))
+    throw bad('Browser acceptance evidence is incomplete.',409);
+   const current=(await api(c,'gu_ad_sales_settings_v014226?select=accepting_inquiries,accepting_payments,ad_delivery_enabled&singleton=eq.true'))?.[0];
+   if(!current)throw bad('Sponsorship release settings could not be verified.',503);
+   const evidence={
+    version:1,
+    source:'advertising_owner_page_v1',
+    ownerIdentityVerified:true,
+    uiChecksReported:true,
+    billingEnabled:current.accepting_payments===true,
+    paidDeliveryEnabled:current.ad_delivery_enabled===true,
+    readonly:true,
+    nonce,
+    origin:new URL(request.url).origin
+   };
+   await audit(c,actor,'owner_browser_acceptance','advertising','read_only',evidence);
+   return respond({ok:true,ownerVerified:true,auditRecorded:true,
+    paidDeliveryEnabled:evidence.paidDeliveryEnabled,
+    billingEnabled:evidence.billingEnabled,
+    checkedAt:new Date().toISOString(),
+    scope:'OWNER_SESSION_AND_ADVERTISING_UI_ONLY',
+    sponsorPaymentVerified:false,
+    signedSponsorWebhookVerified:false});
+  }
   if(action==='set_paid_sponsorship_billing'){
    if(typeof body.enabled!=='boolean')throw bad('Select whether direct sponsorship billing is enabled.');
    const sandbox=await api(c,'gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true');
