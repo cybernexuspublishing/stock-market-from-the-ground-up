@@ -9,7 +9,7 @@ const codes=['tape10','indicators10','filings7'];
 const token='fixture-token',uid='aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const identityScript=`window.getSupabaseClient=async()=>({auth:{
  getUser:async()=>({data:{user:{id:'${uid}'}}}),
- getSession:async()=>({data:{session:{user:{id:'${uid}',access_token:'${token}'}}}),
+ getSession:async()=>({data:{session:{user:{id:'${uid}'},access_token:'${token}'}}}),
  onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
  }});`;
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
