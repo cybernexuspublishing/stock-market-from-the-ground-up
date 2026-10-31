@@ -17,7 +17,7 @@ assert.equal(test(1000).appliedLumens,286,'Cannot apply more Lumens than price')
 assert.match(src,/EXCEEDS_PRODUCT_PRICE/);
 assert.match(src,/BELOW_CARD_MINIMUM/);
 assert.match(src,/ALREADY_INCLUDED/);
-assert.match(src,/checkoutActive:false/,'No unaccepted mixed checkout may be advertised');
+assert.match(src,/verifyChartMixedQa/,'Only server-authorized TEST identities may be offered mixed checkout');
 assert.match(src,/SETTLEMENT_NOT_ENABLED/,'POST remains fail-closed');
 assert.match(cash,/CHART_STUDIO_TEST_CHECKOUT_ENABLED/);
 assert.match(webhook,/amount_subtotal!==offer\.amountCents/,'Undiscounted webhook must not accept discounted payment');
