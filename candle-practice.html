@@ -20,11 +20,10 @@
 <div class="gu-public-classroom">
 <section class="gu-public-evidence" aria-label="Chart and exact candle evidence">
  <h3>Interactive candlestick evidence</h3>
- <label class="gu-public-control">Chart display
- <select id="gu-practice-chart-mode"><option>Price + Volume</option><option>Price Only</option><option>Volume Only</option></select></label>
+ <div class="gu-public-control"><span id="gu-practice-chart-mode-label">Chart display</span><div id="gu-practice-chart-mode" class="gu-public-chart-tabs" role="group" aria-labelledby="gu-practice-chart-mode-label"><button type="button" data-chart-mode="Price + Volume" aria-pressed="true">Price + Volume</button><button type="button" data-chart-mode="Price Only" aria-pressed="false">Price</button><button type="button" data-chart-mode="Volume Only" aria-pressed="false">Volume</button></div></div>
  <div id="gu-practice-chart" class="gu-growth-chart gu-public-chart" role="img" aria-label="Fictional ECharts candlesticks and volume. Exact values also appear in the table below."></div>
  <p class="gu-growth-chart-note" id="gu-practice-caption">All bars are fictional, not live or historical market data.</p>
- <div id="gu-practice-facts" class="gu-public-facts" aria-label="Most recent candle OHLC and volume"></div>
+ <div class="gu-public-price-card"><h4>Price Measurements <small>· Current fictional candle</small></h4><div id="gu-practice-facts" class="gu-public-facts" aria-label="Most recent candle OHLC and volume"></div></div>
  <details class="gu-public-details" open><summary>Accessible five-bar OHLC and volume table</summary>
  <div class="gu-public-scroll"><table class="lab-table" aria-label="Fictional candles in chart"><thead><tr><th>Bar</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody id="gu-practice-ohlc"></tbody></table></div></details>
 </section>
