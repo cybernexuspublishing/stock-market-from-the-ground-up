@@ -12,6 +12,7 @@ const identityScript=`window.getSupabaseClient=async()=>({auth:{
  getSession:async()=>({data:{session:{user:{id:'${uid}'},access_token:'${token}'}}}),
  onAuthStateChange:()=>({data:{subscription:{unsubscribe(){}}}})
  }});`;
+new Function(identityScript); // Fail immediately if the synthetic identity fixture is malformed.
 const browser=await chromium.launch({headless:true,args:['--no-sandbox','--disable-dev-shm-usage']});
 try{
  for(const width of [390,1440]){
