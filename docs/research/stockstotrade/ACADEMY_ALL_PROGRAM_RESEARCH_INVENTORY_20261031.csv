@@ -1,0 +1,11 @@
+program_id,days,status,focus,research_mapping,required_next_deliverable
+"truth5","5","active_beta_scope","Evidence verification; 5 day curriculum frozen","SEC 8-K timing; publisher performance claims; circular citations; VWAP profitability fallacy","No additional expansion except factual/safety corrections"
+"watchlist7","7","active_development","Candidate research and systematic exclusion","Issuer identity; float vs liquidity; real catalyst; relative volume; as-of data","7 distinct worked fictional cases and independent watchlists"
+"scanners10","10","active_development","Repeatable scanning decisions","filter units; timing and data latency; RVOL; missing data; false positives","10 filter-reasoning cases; no implied profitable signal"
+"foundations30","30","active_development","Foundation mechanics, indicators and market structure","OHLC and sequence uncertainty; T+1; ETF index; market cap; diluted shares","30 day-by-day worked cases; source checks"
+"charts45","45","active_development","Observable chart structures and failed setups","VWAP/EMA; HOD/LOD; support/resistance; breakout failure; bias controls","45 day-specific examples and transfer cases"
+"risk60","60","active_development","Execution and process risk","spreads; slippage; stops; halts; account margin transition; journaling","60 day-specific risk and no-trade exercises"
+"practicum90","90","active_development","Independent chronological simulation","time-locked evidence; plan, size, invalidation; MFE/MAE; post-trade controls","90 day-specific dossiers with private decision cutoff"
+"tape_microstructure","","planned_not_in_live_catalog","Reading the Tape & Market Microstructure","time and sales; Level II; spread; NBBO/SIP; ATS/internalization; halts","Draft day-by-day syllabus; do not advertise beta-ready"
+"vwap_ema_indicators","","planned_not_in_live_catalog","VWAP, EMA & Technical Indicator Mastery","calculation units; initialization; lag; reclaims; multi-timeframe conflicts","Draft original numerical experiments and technical cases"
+"sec_filings_catalysts","","planned_not_in_live_catalog","SEC Filings, Catalysts & Corporate Actions","8-K timing; 10-K/10-Q; offering conditions; splits; dilution; EDGAR chain","Draft filing-source exercises; regulatory-date verification"
