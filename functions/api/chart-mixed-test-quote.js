@@ -29,19 +29,23 @@ export async function onRequestGet({request,env}){
   const pendingRows=await db(c,'crownlight_chart_cash_upgrades_v1?select=id,stripe_session_id'+
    '&user_id=eq.'+uid+'&sku=eq.'+encodeURIComponent(sku)+'&state=eq.pending&limit=2');
   const pending=pendingRows?.length===1?pendingRows[0]:null;
-  const pendingMixed=pending?await db(c,'crownlight_chart_mixed_test_v1?select=upgrade_id'+
+  const pendingMixed=pending?await db(c,'crownlight_chart_mixed_test_v1?select=upgrade_id,status'+
    '&upgrade_id=eq.'+encodeURIComponent(pending.id)+'&limit=1'):[];
   const pendingCardCheckout=!!pending&&!pendingMixed?.length;
   const pendingMixedCheckout=!!pending&&!!pendingMixed?.length;
   const pendingCardSessionBound=pendingCardCheckout&&typeof pending.stripe_session_id==='string'&&
    pending.stripe_session_id.startsWith('cs_test_');
+  const pendingMixedSessionBound=pendingMixedCheckout&&pendingMixed[0]?.status==='bound'&&
+   typeof pending.stripe_session_id==='string'&&pending.stripe_session_id.startsWith('cs_test_');
   // Genuine mixed settlement is available only for server-approved noncommercial QA.
   // A pending charge, even if unpaid, must be expired by Stripe before a new purchase.
   const qaEligible=selected>0&&await verifyChartMixedQa(env,identity.userId);
   const checkoutActive=qaEligible&&!pending;
   const cancelPendingCardAvailable=qaEligible&&pendingCardSessionBound;
+  const cancelPendingMixedAvailable=qaEligible&&pendingMixedSessionBound;
   return respond({ok:true,testOnly:true,checkoutActive,settlementEnabled:checkoutActive,qaEligible,
-   pendingCardCheckout,pendingMixedCheckout,cancelPendingCardAvailable,sku,originalCents:offer.amountCents,
+   pendingCardCheckout,pendingMixedCheckout,cancelPendingCardAvailable,cancelPendingMixedAvailable,
+   pendingMixedUpgradeId:cancelPendingMixedAvailable?pending.id:null,sku,originalCents:offer.amountCents,
    lumenUnitCents:7,availableLumens:balance,selectedLumens:selected,discountCents:applied,
    remainingLumens:balance-selected,maxLumensUsable:Math.min(balance,Math.ceil(offer.amountCents/7)),cashDueCents:cashDue,fullyCovered:cashDue===0,
    note:checkoutActive?'Authorized TEST checkout available. Credits are reserved only when you submit.':'Preview only. TEST mixed checkout is not available for this account.'});
