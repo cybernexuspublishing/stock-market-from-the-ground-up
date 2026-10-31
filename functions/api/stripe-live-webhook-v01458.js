@@ -4,6 +4,10 @@
  * IMPORTANT: webhook processing continues for existing paid subscriptions even if
  * new LIVE checkouts are later disabled by the Owner.
  */
+/* GU301: provider-verified LIVE signing secret prioritised for the replacement
+ * event destination. Keep historical fallback for existing signed mock suites.
+ * Never disclose credentials or bypass event signature, account, or grant checks.
+ */
 const resp=(text,status=200)=>new Response(text,{status,headers:{'cache-control':'no-store','x-content-type-options':'nosniff'}});
 const v=x=>String(x??'').trim();
 function cfg(e){
@@ -11,10 +15,10 @@ function cfg(e){
  if(e.GU58_LIVE_WEBHOOK_ENABLED!=='true'||e.GU58_LIVE_FULFILLMENT_APPROVED!=='true'||
     e.GU58_LIVE_DB_CONTRACT_APPROVED!=='true'||!/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(base)||
     !v(e.SUPABASE_SECRET_KEY)||!/^sk_live_[A-Za-z0-9_]+$/.test(v((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)))||
-    !/^whsec_[A-Za-z0-9_]+$/.test(v((e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)))||
+    !/^whsec_[A-Za-z0-9_]+$/.test(v((e.GU301_STRIPE_LIVE_SIGNING_SECRET || e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)))||
     !/^acct_[A-Za-z0-9_]{6,}$/.test(v((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID))))return null;
  return {base,key:v(e.SUPABASE_SECRET_KEY),stripe:v((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)),
-   secret:v((e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)),account:v((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID))};
+   secret:v((e.GU301_STRIPE_LIVE_SIGNING_SECRET || e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)),account:v((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID))};
 }
 /* D15: bound actual Stripe webhook bytes BEFORE any zero-dollar QA or
  * paid event parser, HMAC check, provider request or database operation. */
@@ -257,7 +261,7 @@ async function reconcileExpiredFounderCheckout(c,event){
 // secret and production destination, but never calls any Supabase grant RPC.
 async function verifyOwnerZeroQA(request,e,raw){
  if(e.GU71_ZERO_LIVE_QA_ENABLED!=='true')return null;
- const secret=v((e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)),key=v((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)),
+ const secret=v((e.GU301_STRIPE_LIVE_SIGNING_SECRET || e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)),key=v((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)),
   accountId=v((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID)),priceId=v(e.GU71_ZERO_LIVE_PRICE_ID);
  if(!/^whsec_[A-Za-z0-9_]+$/.test(secret)||!/^sk_live_[A-Za-z0-9_]+$/.test(key)||
     !ident(accountId,'acct')||!ident(priceId,'price'))return null;
@@ -317,7 +321,7 @@ async function storeZeroMonthlyQA(request,e,raw){
     event.data?.object?.metadata?.gu72_zero_monthly_qa!=='true')return null;
  if(e.GU72_ZERO_MONTHLY_FULFILLMENT_ENABLED!=='true')
    return resp('Zero monthly QA fulfillment not enabled; retry',503);
- const secret=v((e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)),key=v((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)),
+ const secret=v((e.GU301_STRIPE_LIVE_SIGNING_SECRET || e.STRIPE_LIVE_WEBHOOK_SECRET || e.GU58_STRIPE_LIVE_WEBHOOK_SECRET)),key=v((e.STRIPE_LIVE_SECRET_KEY || e.GU58_STRIPE_LIVE_SECRET_KEY)),
        account=v((e.STRIPE_LIVE_ACCOUNT_ID || e.GU58_STRIPE_LIVE_ACCOUNT_ID)),priceId=v(e.GU71_ZERO_LIVE_PRICE_ID),
        productId=v(e.GU71_ZERO_LIVE_PRODUCT_ID),allowed=v(e.GU72_QA_ALLOWED_USER_ID),
        base=v(e.SUPABASE_URL).replace(/\/$/,''),
