@@ -375,7 +375,7 @@ async function verifiedSponsorEvent(c,event){
   throw Error('Sponsor LIVE invoice not bound to approved campaign');
  const paid=Number(invoice.amount_paid);
  if(kind==='invoice.paid'){
-  if(invoice.status!=='paid'||invoice.paid!==true||paid<Number(camp.amount_cents))
+  if(invoice.status!=='paid'||Number(invoice.amount_remaining)!==0||paid<Number(camp.amount_cents))
    throw Error('Sponsor invoice not settled');
   const payments=await getStripe(c,'invoice_payments?invoice='+encodeURIComponent(invId)+'&limit=10');
   if(payments.has_more===true||!Array.isArray(payments.data))
