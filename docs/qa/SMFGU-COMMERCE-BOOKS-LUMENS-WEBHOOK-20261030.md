@@ -5,8 +5,8 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 2.1  
-**Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST lifecycles PASS; genuine signed LIVE webhook transport PASS on replacement endpoint; real nonzero LIVE book fulfillment and production purchased-Lumens wallet acceptance remain OPEN; legacy events remain historical delivery failures  
+**Version:** 2.2  
+**Status:** PARTIAL ACCEPTANCE; genuine Stripe TEST 25-Lumens paid/refund lifecycle PASS; signed LIVE transport PASS; production purchased-Lumens wallet and signed-provider handlers PASS simulated/noncharging acceptance; actual nonzero LIVE purchase fulfillment and refund remain UNVERIFIED; no customer LIVE charges authorized  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
 **Purpose:** Record precise verified controls, changes, gaps, and cleanup.
@@ -317,6 +317,42 @@ After the isolated GU300 test passed, the preexisting broad LIVE-commerce workfl
 - **CREDENTIAL CONTROL:** `GU301_STRIPE_LIVE_SIGNING_SECRET` is now the controlling production Stripe webhook signing variable. Do not remove or overwrite it with the retired endpoint's `whsec`. `GU58_STRIPE_LIVE_WEBHOOK_SECRET` remains an encrypted legacy fallback. The Stripe endpoint secret cannot be recovered from Stripe API after initial creation; future maintenance must preserve the verified Cloudflare binding.
 - **$0 budget / safety:** No real LIVE card payments, subscriptions, refunds, credits, or charges; no additional paid service. The QA customer metadata was restored to an empty object.
 
+## LU301 — Purchased Crownlight Lumens production-accounting acceptance (October 31, 2026 UTC)
+
+**Owner request:** Complete the purchased-Lumens accounting implementation and available end-to-end verification using only connected plugins and free tests. Preserve the approved single Crownlight Lumens wallet, non-expiring credits, idempotent money safeguards, frozen membership policies and prohibition on unauthorized nonzero LIVE charges.
+
+### Verified baseline
+
+- Stripe genuine TEST 25-Lumen checkout had previously succeeded, credited 25 TEST-only shadow Lumens, and processed the full $5 TEST refund with the isolated QA balance reversed to 0, with genuine signed Stripe TEST events and zero pending webhooks. This **did not** credit the real member wallet.
+- The actual member wallet is `public.groundup_question_pass_buckets`, displayed through `public.groundup_question_pass_summary` and the authenticated `/api/member-sparks-balance` endpoint. It explicitly supports `source='purchased'`, and keeps `purchased`, `included` and `manual` portions distinct in its one balance.
+- Prior to implementation, the primary database had zero `source='purchased'` buckets and no LIVE purchased-Lumen order/fulfillment ledger. Existing LIVE Stripe `SPARKS_10/30/75` products are not site checkout enabled, and the distinct TEST `SPARKS_25/55/90/125/275` catalog is a shadow ledger. No LIVE bundle price/quantity assumption was silently imported into a customer-sale catalog.
+
+### Production accounting contract installed
+
+- **New, required and source-controlled migration:** `supabase/migrations/20261031_lumen_live_purchase_ledger_v1.sql`, applied to existing Supabase Primary.
+- **Service-only tables:** `gu_lumen_live_orders_v1` (unique member request, Stripe session and PaymentIntent), `gu_lumen_live_events_v1` (unique signed provider events), `gu_lumen_live_reversals_v1` (per-order refund/dispute audit, unspent reversal and already-consumed review).
+- **Restricted functions:** `gu_lumen_live_bind_v1` and `gu_lumen_live_apply_v1`. `SECURITY INVOKER`; `current_user='service_role'` required, function `EXECUTE` revoked from `PUBLIC`, `anon` and `authenticated`. Exact event/order binding is required and the canonical wallet per-user advisory lock is shared with current spend/admin flows.
+- **On verified paid:** Add *one* non-expiring canonical wallet bucket (`source='purchased'`, `origin_key='lumen-live-order:<order UUID>'`), enforce unique source and Stripe IDs, audited event and replay resistance, wallet maximum 1,000,000,000. No second wallet or currency conversion.
+- **On fully verified refund/dispute:** Remove only the unused remainder of that specific purchased bucket; do **not** remove included, manual or unrelated purchased credits; record any previously consumed amount in a service-only review ledger without creating a negative balance or pretending consumed benefits can be undone. Repeated event IDs cannot double refund.
+- **On failed/expired checkout:** No wallet credit or negative balance; events cannot override a paid order.
+- **Signed LIVE integration:** `functions/api/stripe-live-webhook-v01458.js` calls `lumenLiveVerifiedEvent` only for distinct `gu_lumen_live_*` tagged events after raw Stripe HMAC verification and LIVE account verification. Rechecks actual Checkout Session, member, SKU, line item, exact Stripe Price/Product, amount, PaymentIntent and full charge refund/dispute *before* calling the restricted RPC. For partial refunds, fails closed for explicit review (no premature full reversal). Foreign/untagged book/member events do not enter this Lumen ledger.
+- **Checkout launch posture:** Customer-facing LIVE paid-Lumen bundle Checkout remains DISABLED, pending a separately approved product/pricing release and an authorized nonzero provider transaction. This is an accounting implementation, **not** evidence that a real customer purchased Lumens.
+
+### Executed acceptance evidence
+
+1. **True Stripe TEST provider payment + refund:** 25 Lumens/$5 provider lifecycle was independently accepted earlier (shadow ledger only); signed payment and refund events `evt_1UWSAMJY9FI7byHBS6n0kjZW` and `evt_3UWSALJY9FI7byHB1BniLF86`, each acknowledged.
+2. **Real Supabase transaction-rolled-back acceptance:** On the service role, a synthetic prebound 25-Lumen order was added inside a single `BEGIN`/`ROLLBACK` transaction. Tested wrong $10 proof against $5 order REJECTED; valid $5 proof credited exactly 25 canonical `purchased` Lumens, identical signed event replay idempotent, 10 consumed/15 unspent full refund returned `unspentReversed=15, alreadyConsumed=10, reviewRequired=true`, refund replay idempotent, late paid event blocked, unrelated member wallet balance restored. A second rollback-only test verified the *actual member-facing* `groundup_question_pass_summary` before/after purchase and refund: `purchased +25`, `available +25`, both restored after refund; `manual` and `included` unchanged. **All SQL execution completed without exception; all changes rolled back.**
+3. **Reproducible QA:** `supabase/qa/20261031_lu301_nocharge_rollback_acceptance.sql`, stored on main and re-executed without exception. Never commits fixture credits to the production wallet.
+4. **Signed provider mock integration:** `tests/test_lu301_live_lumen_webhook.mjs` validates cryptographic signed event, provider account, bound Checkout, product/Price, paid PaymentIntent, full refund, forged signature 401, mismatched price 503, partial refund 503, and ignores unrelated events. All network calls (Stripe and Supabase) are intercepted. Free Actions `LU301 Purchased Lumens LIVE Accounting (noncharging)` run `41168681882`: **SUCCESS** on commit `75008fc434ba1a9b267057bb7e69236f7dbd82b6`.
+5. **LIVE commerce regression:** Existing `Locked LIVE Membership Fulfillment v0.14.0.59` run `41168681992`: **SUCCESS** on the same code commit; `Deployment 08 Source Release Gate` run `41168681945`: **SUCCESS**. On later reproducible QA file commit `9ef2892417f326923863b71a1b573fd49cc1af9e`, the deployment gate passed again and Cloudflare production Pages reported **active**, exact main commit.
+6. **Security and no-charge reconciliation:** `gu_lumen_live_apply_v1` privileges: `anon=false`, `authenticated=false`, `service_role=true`. All three new tables RLS enabled, with no anonymous/member SELECT privileges. Security advisor notes RLS-with-no-policy as INFO on deliberately service-only tables, not a public exposure. Final independent database counts: **0 real LIVE orders, 0 LIVE events, 0 LIVE reversals, 0 purchased wallet buckets**; fake test credits did not persist.
+
+### Release decision and remaining genuine financial acceptance
+
+- **PASS — source, ledger, noncharging simulations and read-only production deployment.** No actual money was charged and no fake credits were left in the real wallet. Member-facing balance uses the existing single wallet.
+- **NOT YET ACCEPTED — a real nonzero LIVE purchased-Lumen transaction and its actual subsequent Stripe refund/dispute.** Real provider-signed LIVE transport is already confirmed from GU301, but a real paid Lumen order cannot be certified by a mocked PaymentIntent or TEST charge. The separate customer-sale gate must remain OFF. When a future authorized real paid transaction exists, accept it only after verifying real account/member identity, exact cents, order/Price/PaymentIntent, single bucket issuance, visibility through the authenticated balance, refund/dispute reversal, retries, and consumed-credit handling. This is not a request to charge a customer now.
+- **Operationally unresolved:** partial refund consumer handling requires an explicit business/refund policy and exception review; the implementation refuses to misclassify a partial refund as a full reversal. Public sale pricing/product catalog is intentionally not activated.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -334,3 +370,4 @@ After the isolated GU300 test passed, the preexisting broad LIVE-commerce workfl
 | 1.9 | 2026-10-31 UTC | Implemented service-only Stripe-verified Founding expiry release; guarded SQL replay/permissions verified; isolated GitHub Actions PASS and matching Cloudflare production deployment confirmed; broad legacy fixture failed refund test; three signed LIVE event acknowledgments still pending. |
 | 2.0 | 2026-10-31 UTC | Legacy mock Stripe PaymentIntent corrected; broad LIVE commerce CI run 41164179095 PASS, isolated GU300 CI PASS, Cloudflare exact main commit active; three provider LIVE webhook events remain pending. |
 | 2.1 | 2026-10-31 UTC | Real LIVE signed Stripe webhook transport confirmed on replacement endpoint; old destination disabled, original ten events preserved, isolated diagnostic removed; full commerce and deployment CI PASS; paid entitlement acceptance OPEN. |
+| 2.2 | 2026-10-31 UTC | Installed and tested service-only LIVE purchased-Lumen accounting into the single canonical wallet, signed webhook verification, idempotent paid/refund/dispute reversal and consumed-credit review; SQL rolled-back production tests and isolated/full CI PASS; real nonzero LIVE transaction remains not accepted. |
