@@ -33,12 +33,13 @@ export async function onRequestGet({request,env}){
    '&upgrade_id=eq.'+encodeURIComponent(pending.id)+'&limit=1'):[];
   const pendingCardCheckout=!!pending&&!pendingMixed?.length;
   const pendingMixedCheckout=!!pending&&!!pendingMixed?.length;
-  const cancelPendingCardAvailable=pendingCardCheckout&&typeof pending.stripe_session_id==='string'&&
+  const pendingCardSessionBound=pendingCardCheckout&&typeof pending.stripe_session_id==='string'&&
    pending.stripe_session_id.startsWith('cs_test_');
   // Genuine mixed settlement is available only for server-approved noncommercial QA.
   // A pending charge, even if unpaid, must be expired by Stripe before a new purchase.
   const qaEligible=selected>0&&await verifyChartMixedQa(env,identity.userId);
   const checkoutActive=qaEligible&&!pending;
+  const cancelPendingCardAvailable=qaEligible&&pendingCardSessionBound;
   return respond({ok:true,testOnly:true,checkoutActive,settlementEnabled:checkoutActive,qaEligible,
    pendingCardCheckout,pendingMixedCheckout,cancelPendingCardAvailable,sku,originalCents:offer.amountCents,
    lumenUnitCents:7,availableLumens:balance,selectedLumens:selected,discountCents:applied,
