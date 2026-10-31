@@ -44,3 +44,48 @@
 .gu-public-price-card .gu-public-fact{background:transparent;border:0;border-right:1px solid #3b586d;border-radius:0;padding:12px 8px}
 .gu-public-price-card .gu-public-fact:last-child{border-right:0}
 @media(max-width:640px){.gu-public-price-card .gu-public-facts{grid-template-columns:repeat(2,minmax(0,1fr))}.gu-public-price-card .gu-public-fact{border-right:0;border-bottom:1px solid #3b586d}}
+
+/* V3 ten-stage Candlestick Learning Journey; shared ECharts evidence / Talia layout. */
+.gu-learning-journey-v3{width:100%;max-width:none}
+.gu-learning-journey-v3 .gu-journey-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;color:#e6f3fb;padding:12px 0 9px}
+.gu-learning-journey-v3 .gu-journey-head>span{color:#acc7d8;font-size:.79rem}
+.gu-learning-journey-v3 #gu-practice-progressbar{display:block;appearance:none;width:100%;height:7px;border:0;border-radius:999px;background:#28445b;overflow:hidden}
+.gu-learning-journey-v3 #gu-practice-progressbar::-webkit-progress-bar{background:#28445b}
+.gu-learning-journey-v3 #gu-practice-progressbar::-webkit-progress-value{background:#5bd8b5}
+.gu-learning-journey-v3 #gu-practice-progressbar::-moz-progress-bar{background:#5bd8b5}
+.gu-learning-journey-v3 .gu-journey-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:13px 0 17px}
+.gu-learning-journey-v3 .gu-journey-item{display:flex;align-items:center;gap:10px;min-width:0;border-radius:8px;background:#132c40;border:1px solid #365a72;color:#a8c6d8;padding:10px 12px;font-size:.86rem;font-weight:650}
+.gu-learning-journey-v3 .gu-journey-item.is-current{color:#fff;background:#164d44;border-color:#72d7b7}
+.gu-learning-journey-v3 .gu-journey-item.is-done{color:#a8efda;border-color:#397a69}
+.gu-learning-journey-v3 .gu-journey-number{width:28px;height:28px;display:grid;place-items:center;border-radius:50%;border:1px solid #51748c;flex:none;font-variant-numeric:tabular-nums}
+.gu-learning-journey-v3 .is-current .gu-journey-number,.gu-learning-journey-v3 .is-done .gu-journey-number{border-color:#7de2c6}
+.gu-learning-journey-v3 .gu-public-classroom{grid-template-columns:minmax(0,1.23fr) minmax(0,.91fr);align-items:start;gap:18px}
+.gu-learning-journey-v3 .gu-public-evidence{position:sticky;top:14px}
+.gu-learning-journey-v3 .gu-public-tutor{min-height:470px}
+.gu-learning-journey-v3 .gu-public-tutor h3#gu-practice-title{font-size:1.24rem;line-height:1.3;margin:8px 0 14px}
+.gu-learning-journey-v3 .gu-public-narration{max-height:none;min-height:110px}
+.gu-learning-journey-v3 .gu-learning-answer{display:flex;align-items:flex-start;gap:10px;padding:12px;border-radius:7px;border:1px solid #476980;margin:7px 0;background:#102c40;cursor:pointer;line-height:1.4}
+.gu-learning-journey-v3 .gu-learning-answer:has(input:checked){border-color:#64d6b8;background:#17493e}
+.gu-learning-journey-v3 .gu-learning-answer input{margin-top:3px;accent-color:#51d8b6;flex:none}
+.gu-learning-journey-v3 .gu-learning-inputs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:12px 0}
+.gu-learning-journey-v3 .gu-learning-numeric{display:grid;gap:6px;color:#dcebf4;font-size:.82rem;min-width:0}
+.gu-learning-journey-v3 .gu-learning-numeric input,.gu-learning-journey-v3 .gu-learning-numeric select{min-width:0;width:100%;background:#0b1f30;border:1px solid #57788d;color:#fff;border-radius:7px;padding:11px}
+.gu-learning-journey-v3 #gu-practice-submit{margin:14px 0 3px;width:100%;white-space:normal}
+.gu-learning-journey-v3 #gu-practice-feedback[data-state=try-again]{border-left:3px solid #e7c17a}
+.gu-learning-journey-v3 .gu-learning-experiment,.gu-learning-journey-v3 .gu-learning-replay{margin-top:12px;padding:15px;border-radius:9px;border:1px solid #436c81;background:#102c42}
+.gu-learning-journey-v3 .gu-learning-experiment h4,.gu-learning-journey-v3 .gu-learning-replay strong{margin:0 0 9px;display:block;color:#f3f8fb}
+.gu-learning-journey-v3 .gu-learning-experiment label{display:flex;justify-content:space-between;gap:12px;align-items:center;font-size:.86rem}
+.gu-learning-journey-v3 .gu-learning-experiment input{display:block;width:100%;margin:16px 0;accent-color:#5cd7b5}
+.gu-learning-journey-v3 .gu-learning-experiment output{display:block;color:#9de8ce;font-weight:700;font-size:.8rem}
+.gu-learning-journey-v3 .gu-learning-experiment p,.gu-learning-journey-v3 .gu-learning-replay p{font-size:.79rem;color:#c0d6e2;line-height:1.55;margin:9px 0 0}
+.gu-learning-journey-v3 .gu-learning-results .gu-learning-report{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:14px 0}
+.gu-learning-journey-v3 .gu-learning-report>div{background:#12374b;border:1px solid #40657c;padding:11px;border-radius:8px;display:grid;gap:7px}
+.gu-learning-journey-v3 .gu-learning-report small{color:#afc8d7;font-size:.72rem}
+.gu-learning-journey-v3 .gu-learning-report strong{color:#f2f9ff;font-size:1.1rem}
+.gu-learning-journey-v3 .gu-learning-results .btn{margin:7px 8px 0 0}
+.gu-learning-journey-v3 #gu-practice-questionbox[hidden],.gu-learning-journey-v3 #gu-practice-experiment[hidden],.gu-learning-journey-v3 #gu-practice-replay[hidden],.gu-learning-journey-v3 #gu-practice-results[hidden]{display:none!important}
+.gu-learning-journey-v3 #gu-practice-questionbox h4{color:#fff;margin:0 0 12px}
+.gu-learning-journey-v3 #gu-practice-feedback{padding:12px;border-radius:7px;background:#11364a}
+@media(max-width:1060px){.gu-learning-journey-v3 .gu-public-classroom{grid-template-columns:minmax(0,1fr)}.gu-learning-journey-v3 .gu-public-evidence{position:static}}
+@media(max-width:600px){.gu-learning-journey-v3 .gu-journey-grid{gap:5px}.gu-learning-journey-v3 .gu-journey-item{padding:7px 5px;gap:5px;font-size:.68rem}.gu-learning-journey-v3 .gu-journey-number{width:21px;height:21px}.gu-learning-journey-v3 .gu-learning-inputs{grid-template-columns:minmax(0,1fr)}}
+@media(prefers-reduced-motion:reduce){.gu-learning-journey-v3 *{transition:none!important;animation:none!important}}
