@@ -37,9 +37,9 @@ export async function onRequest({request,env}){
   const authorized=training?trainingRight.authorized===true:
    interactive.authorized===true||trainingRight.authorized===true||ownedBook===true||SAMPLES.has(item);
   return send({ok:true,type,item,requiredEntitlements:qualified,
-   access:{authorized,verified:true},
+   access:{entitlementSatisfied:authorized,contentLaunchVerified:false},
    purchase:notForSale,
-   notice:authorized?'Open this item; its content endpoint revalidates access.':
+   notice:authorized?'Matching entitlement found. Opening the lesson still requires independent release and content authorization.':
     'Currently unavailable for purchase. No product-to-item coverage and sale availability have been verified.',
    returnPath:type==='lab'?'lab-player.html?lab='+encodeURIComponent(item):
     'bootcamp-academy.html?program='+encodeURIComponent(item)});
