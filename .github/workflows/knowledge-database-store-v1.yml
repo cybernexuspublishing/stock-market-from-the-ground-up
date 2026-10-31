@@ -10,6 +10,8 @@ on:
       - 'assets/js/knowledge-database-workshop-v1.js'
       - 'assets/css/knowledge-database-expanded-v2.css'
       - 'tests/test_knowledge_database_expansion_v2.mjs'
+      - 'tests/test_knowledge_database_browser_v2.mjs'
+      - 'docs/releases/2026-10-30_KNOWLEDGE_DATABASE_EXPANSION_v2.md'
       - 'bootcamp-academy.html'
       - 'assets/css/bootcamp-academy-icons-v1.css'
       - 'tests/test_academy_catalog_icons_v1.mjs'
@@ -40,3 +42,21 @@ jobs:
           node --check assets/js/navigation.js
           node --check assets/js/store.js
           node --check assets/js/bootcamp-academy-v014168.js
+
+  browser-study-acceptance:
+    needs: content-and-scope
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install pinned no-charge Chromium test dependencies
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Verify independent knowledge search and fictional study workflow
+        run: node tests/test_knowledge_database_browser_v2.mjs
