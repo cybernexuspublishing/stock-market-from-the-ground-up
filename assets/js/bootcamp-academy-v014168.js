@@ -11,7 +11,7 @@
  const expected=new Map([['free5',5],['truth5',5],['watchlist7',7],['scanners10',10],
   ['foundations30',30],['charts45',45],['risk60',60],['practicum90',90],
   ['tape10',10],['indicators10',10],['filings7',7]]);
- let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0,guidedSession=null;
+ let academyBrowsePrograms=[],academyBrowseRights=null,academyBrowseEpoch=0,guidedSession=null,protectedAssessmentSession=null;
  // Enrich course search using ONLY public, already published Lab metadata.
  // Private course material and member entitlements never enter the index.
  async function loadAcademySearchMetadata(){
@@ -95,6 +95,8 @@
   return element;
  }
  function clean(){
+  protectedAssessmentSession?.dispose?.();protectedAssessmentSession=null;
+  const assessmentNode=get('academy-official-assessment');if(assessmentNode){assessmentNode.replaceChildren();assessmentNode.hidden=true;}
   guidedSession?.dispose?.();guidedSession=null;
   get('academy-guided-host')?.remove();
   program=null;days=[];enrolled=false;progress.clear();drafts.clear();selfCheckDrafts.clear();progressAvailable=false;dayIndex=1;
@@ -621,6 +623,15 @@
   activate(0);
  }
 
+ function mountOfficialAssessment(){
+  protectedAssessmentSession?.dispose?.();protectedAssessmentSession=null;
+  const host=get('academy-official-assessment');
+  if(!host)return;
+  host.replaceChildren();host.hidden=true;
+  if(!enrolled||!progressAvailable||!['tape10','indicators10','filings7'].includes(activeCode))return;
+  protectedAssessmentSession=globalThis.GroundUpAcademyProtectedAssessmentV1?.mount?.(
+   host,{programCode:activeCode,day:dayIndex})||null;
+ }
  function renderDay(){
   const d=days[dayIndex-1];if(!d)return;
   globalThis.CrownlightLearningProgress?.reset?.('academy-learning-progress');
@@ -673,6 +684,7 @@
   get('academy-start').disabled=!enrolled||!progressAvailable||busy;
   get('academy-save').disabled=!enrolled||!progressAvailable||busy;
   showRelated(d);updateDays();
+  mountOfficialAssessment();
   const slot=get('academy-lab-slot');
   slot.replaceChildren();
   const target=node('div');slot.append(target);
@@ -869,7 +881,7 @@
    // account switch or a different program opening during enrollment.
    if(actor!==userId||serial!==sessionSerial||code!==activeCode)return;
    if(result.enrolled!==true||result.program!==code)throw Error('Enrollment was not confirmed.');
-   enrolled=true;get('academy-save-status').textContent=code==='free5'?'Your free learning journey is ready. Choose any lesson and use Save Reflection when ready.':'You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
+   enrolled=true;mountOfficialAssessment();get('academy-save-status').textContent=code==='free5'?'Your free learning journey is ready. Choose any lesson and use Save Reflection when ready.':'You’re enrolled. No study reflection has been saved yet; select a day and use Save Reflection when ready.';
   }catch(error){
    if(actor===userId&&serial===sessionSerial&&code===activeCode)
     get('academy-save-status').textContent=String(error.message||'Enrollment unavailable.');
