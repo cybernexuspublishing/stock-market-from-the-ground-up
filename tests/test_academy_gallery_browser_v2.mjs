@@ -6,7 +6,8 @@ import {chromium} from 'playwright';
 const load=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const styles=['assets/css/free-foundations-v1.css','assets/css/bootcamp-academy-v014168.css',
  'assets/css/bootcamp-academy-compact-v2.css','assets/css/learning-destination-picker-v1.css',
- 'assets/css/bootcamp-academy-icons-v1.css','assets/css/bootcamp-academy-gallery-v2.css'].map(load).join('\n');
+ 'assets/css/bootcamp-academy-icons-v1.css','assets/css/bootcamp-academy-gallery-v2.css',
+ 'assets/css/premium-design-v014168.css','assets/css/sitewide-composition-v014234.css'].map(load).join('\n');
 const codes=['truth-and-sources','research-watchlist','market-scanners','trading-foundations',
  'chart-reading-setups','risk-execution','simulated-practicum'];
 const cards=codes.map((name,i)=>'<article class="academy-program academy-program--compact">'+
@@ -15,7 +16,8 @@ const cards=codes.map((name,i)=>'<article class="academy-program academy-program
  '<span class="academy-program-compact-name">Course '+(i+1)+'</span><span class="academy-program-compact-id">course'+(i+1)+'</span>'+
  '</a></article>').join('');
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+styles+'</style></head>'+
- '<body class="gu-bc-learning"><main class="gu-redesign-academy"><div class="gu-learning-ad-core"><div class="wrap">'+
+ '<body class="gu-bc-learning" data-gu-workspace="site"><main class="gu-redesign-academy"><div class="gu-learning-ad-core"><div class="wrap">'+
+ '<h1 id="academy-page-title" style="font-size:clamp(24px,1.85vw,34px)!important;line-height:1.17!important;max-width:none!important;letter-spacing:-.025em!important;margin:8px 0 14px!important">Practice deliberately. Progress confidently.</h1>'+
  '<section class="academy-free-entry academy-free-feature">'+
  '<img class="gu-academy-free-art" alt="" width="144" height="132" src="/assets/images/bootcamp-covers/trading-foundations.svg">'+
  '<div><h2>Start with Talia</h2><p>Free Foundations teaching</p></div>'+
@@ -41,11 +43,15 @@ try{
    return {columns:css.gridTemplateColumns.split(' ').filter(Boolean).length,
     count:grid.querySelectorAll('.academy-program').length,
     covers:[...grid.querySelectorAll('.academy-program-cover')].map(i=>({width:i.naturalWidth,height:i.naturalHeight,loaded:i.complete})),
+    headingFont:parseFloat(getComputedStyle(document.getElementById('academy-page-title')).fontSize),
+    headingLine:getComputedStyle(document.getElementById('academy-page-title')).lineHeight,
     freeBorder:free.borderTopWidth,freeBackground:free.backgroundImage,
     freeWidth:intro.getBoundingClientRect().width,
     containerWidth:intro.parentElement.getBoundingClientRect().width};
   });
   assert.equal(data.columns,expected,'Wrong grid columns at '+width+'px');
+  assert(data.headingFont>=24&&data.headingFont<=34.1,'Heading is too large under production styles: '+data.headingFont+'px');
+  assert(data.headingLine!=='normal','Heading line height not constrained');
   assert.equal(data.count,7,'Expected exactly seven released programs');
   for(const cover of data.covers)assert(cover.loaded&&cover.width===480&&cover.height===270,'SVG failed at '+width+'px');
   assert.equal(data.freeBorder,'0px','Free Foundations still has an enclosing border');
