@@ -31,7 +31,7 @@
 - Individual placement toggles and carousel preferences are preserved as secondary controls.
 - A page toggle changes `ad_placements.active` only. No campaign approval, payment flags, Stripe state, invoice evidence, or global release gate is modified.
 - Existing paid/house placements are hidden by the server when inactive; the Knowledge Database direct banner is initially hidden and becomes visible only after server eligibility. Owner preview remains layout-only.
-- An unavailable visibility endpoint fails closed rather than showing the banner. The former sentence-length commission notice has been removed. A concise visible `Paid referral` label identifies the financial relationship.
+- An unavailable visibility endpoint fails closed rather than showing the banner. The former sentence-length commission notice has been removed. A concise visible `Paid link` label identifies the financial relationship (FTC guidance recognizes this wording near affiliate links).
 
 ## Security and testing
 
