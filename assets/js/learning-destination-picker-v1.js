@@ -30,18 +30,17 @@
   if(className)el.className=className;return el;
  };
  const normalize=x=>String(x||'').normalize('NFKD').toLowerCase().replace(/[_-]/g,' ');
- // Existing, reviewed product pages only. Book-linked Labs point to their
- // corresponding title; site-exclusive training and standalone Lab access
- // point to the already established products. No checkout is created here.
- const bookStore=Object.freeze({1:'store-book-foundation-1.html',2:'store-book-foundation-2.html',
-  3:'store-book-foundation-3.html',4:'store-book-day-trading-1.html',
-  5:'store-book-reading-the-tape.html'});
+ // Do not advertise a book as the purchase path for a Lab entitlement.
+ // A standalone Lab Pack-to-product mapping has not been verified. In that
+ // case, link to the Store's published access information, never invent a
+ // checkout or imply that buying a book unlocks the interactive Lab.
  const productPage=row=>release?.trainingOnly.has(row.id)||Number(row.book)===6?
-  'store-membership-ondemand-monthly.html':
-  bookStore[row.book]||'store-tool-interactive-learning.html';
- const academySale='store-membership-ondemand-monthly.html';
+  'store-membership-ondemand-monthly.html':'store.html';
+ const purchaseExplainer=row=>release?.trainingOnly.has(row.id)||Number(row.book)===6?
+  'View the published training membership and verify access before purchasing.':
+  'Review available learning access. A dedicated Lab Pack purchase has not been verified for this Lab.';
  const errorMsg=message=>{
-  status.textContent=message;retry.hidden=false;setOpen(true);
+  status.textContent=message;if(retry)retry.hidden=false;setOpen(true);
  };
  const read=async endpoint=>{
   const controller=new AbortController(),time=setTimeout(()=>controller.abort(),8500);
@@ -107,9 +106,9 @@
    const link=text('a','', 'gu-picker-action gu-picker-row-link');
    link.href=destination;
    link.setAttribute('aria-label',locked?
-    'Locked '+row.title+', '+row.id+'. View related product and access options.':
+    'Locked '+row.title+', '+row.id+'. '+purchaseExplainer(row):
     'Open '+row.title+', '+row.id);
-   if(state==='upcoming')link.title='Unreleased Lab. Product access and availability must be verified independently.';
+   if(locked)link.title=state==='upcoming'? 'Unreleased Lab. No checkout or availability is implied.':purchaseExplainer(row);
    link.append(text('span',row.title,'gu-picker-name'),text('span',row.id,'gu-picker-id'));
    if(locked){
     const lock=text('span','🔒','gu-picker-lock');lock.setAttribute('aria-hidden','true');link.append(lock);
@@ -121,7 +120,7 @@
   host.append(list);
  }
  async function load(){
-  retry.hidden=true;loaded=false;status.textContent='Loading public '+(browse==='lab'?'Lab':'Boot Camp')+' titles…';
+  if(retry)retry.hidden=true;loaded=false;status.textContent='Loading public '+(browse==='lab'?'Lab':'Boot Camp')+' titles…';
   // Public canonical metadata and the independent release service are read
   // separately. Failure of either service cannot strand the chooser on Loading.
   const requests=[read('/data/competency-lab-paths-v01499.json'),
