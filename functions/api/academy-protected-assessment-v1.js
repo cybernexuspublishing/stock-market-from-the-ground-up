@@ -63,6 +63,7 @@ async function nextCase(env,userId,program,day){
  const mapped=await read(env,'gu_academy_protected_cases_v1?select=case_code,variant,source_status&program_code=eq.'+
   enc(program)+'&day_number=eq.'+day+'&order=variant.asc&limit=5');
  if(!Array.isArray(mapped)||mapped.length>5)throw reject('Assessment mapping could not be verified.',503);
+ if(mapped.length===0)return{reason:'assessment_not_authored',attempts:0};
  const attempts=await read(env,'competency_attempts_v135?select=case_code,submitted_at,final_score&user_id=eq.'+
   enc(userId)+'&case_code=in.('+mapped.map(m=>enc(m.case_code)).join(',')+')&limit=5');
  if(!Array.isArray(attempts)||attempts.length>5)throw reject('Assessment attempt history unavailable.',503);
