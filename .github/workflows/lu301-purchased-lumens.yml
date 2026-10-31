@@ -1,0 +1,25 @@
+name: LU301 Purchased Lumens LIVE Accounting (noncharging)
+on:
+  push:
+    paths:
+      - 'functions/api/stripe-live-webhook-v01458.js'
+      - 'tests/test_lu301_live_lumen_webhook.mjs'
+      - '.github/workflows/lu301-purchased-lumens.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  provider-and-ledger-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax checks
+        run: |
+          node --check functions/api/stripe-live-webhook-v01458.js
+          node --check tests/test_lu301_live_lumen_webhook.mjs
+      - name: Genuine signed-body simulation, no Stripe or wallet writes
+        run: node tests/test_lu301_live_lumen_webhook.mjs
