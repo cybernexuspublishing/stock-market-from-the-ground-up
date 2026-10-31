@@ -53,7 +53,69 @@
      window.location.assign(destination.href);
     }catch(e){state.textContent=String(e.message||e);button.disabled=false}
    });
-   card.append(el('h3',product.title),price,el('p',product.detail),note,state,button);
+   const creditBox=el('section','');creditBox.style.marginTop='1rem';creditBox.setAttribute('aria-label','TEST mixed payment');
+   const creditTitle=el('h4','Lumens + card — TEST checkout');
+   const creditLabel=el('label','Apply Lumens (whole credits)');
+   const creditInput=document.createElement('input');creditInput.type='number';creditInput.min='0';creditInput.step='1';creditInput.value='0';creditInput.style.maxWidth='9rem';
+   creditLabel.append(creditInput);
+   const creditSummary=el('p',included?'This product is already included.':'Sign in to preview your Lumen discount.');
+   creditSummary.setAttribute('role','status');
+   const mixedButton=el('button','Purchase with Lumens + card (TEST)');mixedButton.className='btn secondary';mixedButton.type='button';mixedButton.disabled=true;
+   let current=null,requestId=null;
+   async function updateMixed(){
+    mixedButton.disabled=true;current=null;requestId=null;
+    if(!token||included||!offer){creditInput.disabled=true;return}
+    const requested=Number(creditInput.value);
+    if(!Number.isSafeInteger(requested)||requested<0){creditSummary.textContent='Enter a nonnegative whole number of Lumens.';return}
+    try{
+     const response=await fetch('/api/chart-mixed-test-quote?sku='+encodeURIComponent(product.sku)+'&lumens='+requested,
+      {headers:{authorization:'Bearer '+token},cache:'no-store'});
+     const quote=await response.json();
+     if(!response.ok||quote.ok!==true){creditSummary.textContent=quote.error||'Quote unavailable';return}
+     current=quote;creditInput.max=String(quote.maxLumensUsable);
+     const dollars=v=>'
+   host.append(card);
+  }
+ }
+ void render();
+ // The member may cancel an unpaid Stripe TEST session; expire it through Stripe before returning Lumens.
+ const cancellation=new URLSearchParams(location.search).get('chart_mixed_cancel');
+ if(/^[0-9a-f-]{36}$/i.test(cancellation||'')){
+  (async()=>{try{const client=await window.getSupabaseClient();const token=(await client.auth.getSession()).data?.session?.access_token;if(!token)return;
+   await fetch('/api/chart-mixed-test-checkout',{method:'POST',headers:{authorization:'Bearer '+token,'content-type':'application/json'},
+    body:JSON.stringify({action:'cancel',upgradeId:cancellation})});}catch{/* Signed expiry webhook reconciles outstanding credits. */}})();
+ }
+
+})();
++(v/100).toFixed(2);
+     creditSummary.textContent='Available: '+quote.availableLumens+' Lumens · Use: '+quote.selectedLumens+
+      ' · Discount: '+dollars(quote.discountCents)+' · Card due: '+dollars(quote.cashDueCents)+
+      ' · Balance after: '+quote.remainingLumens+'.';
+     if(requested===0){creditSummary.textContent+=' To pay entirely by card, use the standard checkout button above.';return}
+     if(!quote.checkoutActive){creditSummary.textContent+=' Mixed TEST checkout is not enabled for this account.';return}
+     mixedButton.disabled=false;
+     mixedButton.textContent=quote.fullyCovered?'Redeem Lumens for access (TEST)':'Pay '+dollars(quote.cashDueCents)+' with Stripe TEST';
+    }catch{creditSummary.textContent='Could not verify wallet and price.'}
+   }
+   creditInput.addEventListener('change',()=>void updateMixed());
+   mixedButton.addEventListener('click',async()=>{
+    if(!current?.checkoutActive||current.selectedLumens<=0)return;
+    mixedButton.disabled=true;creditSummary.textContent='Reserving Lumens and verifying TEST checkout…';
+    try{
+     if(!requestId)requestId=crypto.randomUUID();
+     const r=await fetch('/api/chart-mixed-test-checkout',{method:'POST',headers:{
+      authorization:'Bearer '+token,'content-type':'application/json'},
+      body:JSON.stringify({action:'start',sku:product.sku,lumens:current.selectedLumens,requestId})});
+     const d=await r.json();
+     if(!r.ok||d.ok!==true||d.testOnly!==true)throw Error(d.error||'TEST checkout unavailable');
+     if(d.fullyLumens===true&&d.cashDueCents===0){location.assign(d.redirect);return}
+     const destination=new URL(d.url);
+     if(destination.protocol!=='https:'||destination.hostname!=='checkout.stripe.com')throw Error('Unexpected checkout destination');
+     location.assign(destination.href);
+    }catch(e){creditSummary.textContent=String(e.message||e);mixedButton.disabled=false}
+   });
+   creditBox.append(creditTitle,creditLabel,creditSummary,mixedButton);
+   card.append(el('h3',product.title),price,el('p',product.detail),note,state,button,creditBox);\n   if(token&&!included&&offer)void updateMixed();
    host.append(card);
   }
  }
