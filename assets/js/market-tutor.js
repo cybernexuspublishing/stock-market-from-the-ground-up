@@ -20,6 +20,28 @@ function sourceTitles(sources){
  return (Array.isArray(sources)?sources:[]).slice(0,3)
  .map(x=>String(x?.title||x?.sourceLabel||'').trim().slice(0,120)).filter(Boolean);
 }
+function trustedTutorReference(value){
+ try{
+  const url=new URL(String(value||''));
+  if(url.protocol!=='https:'||url.username||url.password||url.port)return null;
+  const hosts=new Set(['www.investor.gov','investor.gov','www.sec.gov','sec.gov',
+   'syndication.finra.org','www.finra.org','finra.org','chartschool.stockcharts.com']);
+  return hosts.has(url.hostname.toLowerCase())?url.href:null;
+ }catch{return null}
+}
+function publicTutorReferences(sources){
+ const found=new Map();
+ for(const item of (Array.isArray(sources)?sources:[]).slice(0,3)){
+  const urls=Array.isArray(item?.referenceUrls)?item.referenceUrls:[];
+  for(const url of urls.slice(0,2)){
+   const safe=trustedTutorReference(url);
+   if(safe&&!found.has(safe))
+    found.set(safe,String(item?.title||item?.sourceLabel||'Public research source').slice(0,100));
+   if(found.size>=3)break;
+  }
+ }
+ return [...found].map(([url,label])=>({url,label}));
+}
 function guidedLessonFor(record){
  const api=window.TaliaGuidedPracticeV1;
  return api?.findLesson?.([...(Array.isArray(record.sourceCodes)?record.sourceCodes:[]),
@@ -120,6 +142,17 @@ function detailsOf(record){
  if(record.sourceTitles?.length){
   const label=make('p','Relevant original study topics: ','small');
   label.append(make('strong',record.sourceTitles.join(' · ')));reply.append(label);
+ }
+ if(record.sourceReferences?.length){
+  const list=make('ul',undefined,'tutor-reference-list');
+  for(const source of record.sourceReferences.slice(0,3)){
+   const safe=trustedTutorReference(source?.url);
+   if(!safe)continue;
+   const row=make('li'),link=make('a',source.label||'Reviewed public reference');
+   link.href=safe;link.target='_blank';link.rel='noopener noreferrer';
+   row.append(link);list.append(row);
+  }
+  if(list.childElementCount)reply.append(make('h4','Reviewed source links (scope-limited)'),list);
  }
  // Topic-to-Lab suggestions remain ungraded and are drawn only from the
  // original 30-skill crosswalk; they are NOT assessment evidence.
@@ -529,6 +562,7 @@ async function ask(){
    throw Error('Your signed-in session changed; the prior response was discarded to protect privacy.');
   const rec={requestId:TUTOR.activeRequestId,question:q,learnerAnswer,mode,
    answer:data.answer,generation:data.generation,sourceTitles:sourceTitles(data.sources),
+   sourceReferences:publicTutorReferences(data.sources),
    sourceCodes:(Array.isArray(data.sources)?data.sources:[]).slice(0,3)
     .map(x=>String(x?.id||'')).filter(x=>/^(STUDY_[A-Z0-9_]{3,80}|REPLAY_EVENT_CREX_2020_04_28)$/.test(x)),
    createdAt:new Date().toISOString(),id:data.historySaved?data.historyId:null,
