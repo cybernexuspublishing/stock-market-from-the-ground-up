@@ -53,12 +53,17 @@ export async function onRequestPost({request,env}){
   // Authorization is read from server-controlled Auth Admin app_metadata only.
   const legacyQa=meta.smfgu_qa_only===true&&meta.noncommercial===true&&
     meta.qa_chart_batch==='SMFGU-CHART-3-20261028';
+  // Narrow service-role-only permission is linked to this verified existing account.
+  // No changes to its Free membership, Auth metadata, or user-controlled profile.
+  const qaRows=identity.userId==='f42f9301-18e6-43a3-8531-32d371fd22c1'?
+    await db(c,'crownlight_chart_cash_qa_allow_v1?select=purpose,expires_at,revoked_at&user_id=eq.'+
+      encodeURIComponent(identity.userId)+'&limit=1'):[];
+  const grant=qaRows?.[0];
   const jamesQa=identity.userId==='f42f9301-18e6-43a3-8531-32d371fd22c1'&&
-    meta.chart_cash_qa_user==='James_Test'&&meta.chart_cash_qa_only===true&&
-    typeof meta.chart_cash_qa_expires_at==='string'&&
-    Number.isFinite(Date.parse(meta.chart_cash_qa_expires_at))&&
-    Date.parse(meta.chart_cash_qa_expires_at)>Date.now()&&
-    Date.parse(meta.chart_cash_qa_expires_at)<=Date.parse('2026-11-02T00:00:00Z');
+    qaUser.email==='adissel89@gmail.com'&&grant?.purpose==='CHART_CASH_TEST_ONLY'&&
+    !grant.revoked_at&&Number.isFinite(Date.parse(grant.expires_at))&&
+    Date.parse(grant.expires_at)>Date.now()&&
+    Date.parse(grant.expires_at)<=Date.parse('2026-11-02T00:00:00Z');
   if(qaUser.id!==identity.userId||!qaUser.email_confirmed_at||qaUser.deleted_at||
     !(legacyQa||jamesQa))return fail('NONCOMMERCIAL_QA_ONLY',403);
   if(rank[entitlement.tier]>=rank[offer.tier])return fail('TIER_ALREADY_INCLUDED',409);
