@@ -19,7 +19,7 @@ assert.match(src,/BELOW_CARD_MINIMUM/);
 assert.match(src,/ALREADY_INCLUDED/);
 assert.match(src,/verifyChartMixedQa/,'Only server-authorized TEST identities may be offered mixed checkout');
 assert.match(src,/SETTLEMENT_NOT_ENABLED/,'POST remains fail-closed');
-assert.match(src,/const checkoutActive=qaEligible;/,'TEST checkout must require verified QA eligibility');
+assert.match(src,/const checkoutActive=qaEligible&&!pending;/,'TEST checkout must require verified QA eligibility');
 assert.match(src,/settlementEnabled:checkoutActive,qaEligible/,'TEST readiness must match verified QA authorization');
 assert.match(cash,/CHART_STUDIO_TEST_CHECKOUT_ENABLED/);
 assert.match(webhook,/amount_subtotal!==offer\.amountCents/,'Undiscounted webhook must not accept discounted payment');
