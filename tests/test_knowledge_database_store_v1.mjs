@@ -13,6 +13,12 @@ const storeJs=read('assets/js/store.js');
 const css=read('assets/css/bootcamp-academy-compact-v2.css');
 assert(knowledge.includes('<h1>Stock Market Foundations Knowledge Database</h1>'));
 assert(knowledge.includes('id="academy-free-knowledge"'));
+assert(knowledge.includes('aria-label="TradingView affiliate advertisement"'));
+assert(knowledge.includes('aff_id=1173728&aff_sub=smfgu_website&source=stock-market-from-the-ground-up-d1r.pages.dev'));
+assert(knowledge.includes('rel="sponsored noopener noreferrer"'));
+assert(knowledge.includes('Affiliate disclosure: We may earn a commission'));
+assert(knowledge.includes('src="data:image/webp;base64,UklGR'));
+
 assert(knowledge.includes('assets/js/free-foundations-knowledge-v1.js'));
 assert(knowledge.includes('bootcamp-academy.html?program=free5'));
 assert(!academy.includes('id="academy-free-knowledge"'));
