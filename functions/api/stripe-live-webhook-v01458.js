@@ -210,6 +210,48 @@ async function processEvent(c,event){const e=event,obj=e.data?.object||{},x=acti
  }
  return null;
 }
+/* GU300: Release a definitively expired Founding Checkout reservation.
+ * Only after raw Stripe HMAC verification and LIVE merchant verification.
+ * No subscription, credit, paid cycle, or entitlement is granted or revoked.
+ */
+async function reconcileExpiredFounderCheckout(c,event){
+ if(event.type!=='checkout.session.expired')return false;
+ const obj=event.data?.object||{},meta=obj.metadata||{};
+ if(!Object.keys(meta).some(k=>k.startsWith('f600_')))return false;
+ if(!uuid(meta.f600_reservation)||!uuid(meta.f600_user)||
+    !['FOUNDING_14','FOUNDING_30','FOUNDING_60'].includes(meta.f600_plan)||
+    !ident(obj.id,'cs_live'))throw Error('founder:expired_metadata_invalid');
+ const s=await getStripe(c,'checkout/sessions/'+encodeURIComponent(obj.id));
+ if(s.id!==obj.id||s.livemode!==true||s.status!=='expired'||
+    s.payment_status!=='unpaid'||s.mode!=='subscription'||
+    s.subscription!=null||s.payment_intent!=null||
+    s.client_reference_id!==meta.f600_reservation||
+    s.metadata?.f600_reservation!==meta.f600_reservation||
+    s.metadata?.f600_user!==meta.f600_user||
+    s.metadata?.f600_plan!==meta.f600_plan||
+    s.currency!=='usd'||!Number.isSafeInteger(s.amount_total)||s.amount_total<=0)
+   throw Error('founder:expired_provider_mismatch');
+ const lines=await getStripe(c,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2');
+ if(lines.has_more===true||lines.data?.length!==1||
+    !ident(lines.data[0].price?.id,'price')||lines.data[0].quantity!==1||
+    lines.data[0].amount_total!==s.amount_total)
+   throw Error('founder:expired_line_items_mismatch');
+ const amount={FOUNDING_14:2299,FOUNDING_30:4999,FOUNDING_60:5999}[meta.f600_plan];
+ if(s.amount_total!==amount)throw Error('founder:expired_amount_mismatch');
+ const response=await fetch(c.base+'/rest/v1/rpc/gu_founder_release_expired_checkout_v014300',{
+  method:'POST',headers:{apikey:c.key,
+   ...(c.key.startsWith('sb_secret_')?{}:{authorization:'Bearer '+c.key}),
+   'content-type':'application/json'},cache:'no-store',
+  body:JSON.stringify({p_reservation:meta.f600_reservation,
+   p_user:meta.f600_user,p_session:s.id,p_event:event.id,
+   p_plan:meta.f600_plan,p_price:lines.data[0].price.id,p_amount:s.amount_total})
+ });
+ if(!response.ok)throw Error('founder:expired_db_unavailable');
+ const applied=await response.json().catch(()=>null);
+ if(applied?.ok!==true)throw Error('founder:expired_release_conflict');
+ return true;
+}
+
 // Independent, deliberately non-entitling signed QA event, accepted while the
 // GU58 customer fulfillment switches remain OFF. It uses the same LIVE signing
 // secret and production destination, but never calls any Supabase grant RPC.
@@ -521,6 +563,8 @@ export async function onRequestPost({request,env}){
   if(sponsorApplied===true)return resp('sponsor-live-verified',200);
   const bookApplied=await bookVerifiedEvent(c,event);
   if(bookApplied===true)return resp('book-live-verified',200);
+  const founderExpired=await reconcileExpiredFounderCheckout(c,event);
+  if(founderExpired===true)return resp('founder-expired-reconciled',200);
     const action=await processEvent(c,event);if(!action)return resp('ignored',200);
   const result=await apply(c,action);if(!result?.ok)throw Error('No verified result');return resp('verified',200);
  }catch{ // Retry on out-of-order events; no silent acknowledgement of failed fulfillment.
