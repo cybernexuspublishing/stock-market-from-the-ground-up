@@ -49,9 +49,18 @@ export async function onRequestPost({request,env}){
    {headers:authHeaders,cache:'no-store'});
   if(!qaResponse.ok)throw Error('CHART_QA_IDENTITY_UNAVAILABLE');
   const qaPayload=await qaResponse.json(),qaUser=qaPayload.user||qaPayload,meta=qaUser.app_metadata||{};
+  // Existing QA batch or explicitly authorized James_Test, expiring automatically.
+  // Authorization is read from server-controlled Auth Admin app_metadata only.
+  const legacyQa=meta.smfgu_qa_only===true&&meta.noncommercial===true&&
+    meta.qa_chart_batch==='SMFGU-CHART-3-20261028';
+  const jamesQa=identity.userId==='f42f9301-18e6-43a3-8531-32d371fd22c1'&&
+    meta.chart_cash_qa_user==='James_Test'&&meta.chart_cash_qa_only===true&&
+    typeof meta.chart_cash_qa_expires_at==='string'&&
+    Number.isFinite(Date.parse(meta.chart_cash_qa_expires_at))&&
+    Date.parse(meta.chart_cash_qa_expires_at)>Date.now()&&
+    Date.parse(meta.chart_cash_qa_expires_at)<=Date.parse('2026-11-02T00:00:00Z');
   if(qaUser.id!==identity.userId||!qaUser.email_confirmed_at||qaUser.deleted_at||
-     meta.smfgu_qa_only!==true||meta.noncommercial!==true||
-     meta.qa_chart_batch!=='SMFGU-CHART-3-20261028')return fail('NONCOMMERCIAL_QA_ONLY',403);
+    !(legacyQa||jamesQa))return fail('NONCOMMERCIAL_QA_ONLY',403);
   if(rank[entitlement.tier]>=rank[offer.tier])return fail('TIER_ALREADY_INCLUDED',409);
   const existing=await rows(c,identity.userId);
   if(existing.some(x=>active(x)&&rank[x.tier]>=rank[offer.tier]))return fail('TIER_ALREADY_INCLUDED',409);
