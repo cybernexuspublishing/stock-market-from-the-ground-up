@@ -1,4 +1,5 @@
 import {checkMutationOrigin,boundedForumJson} from '../_lib/forum-request-guards-v014105.js';
+import {issuePaidSponsorInvoice} from '../_lib/paid-sponsor-invoicing-v1.js';
 /* Owner-owned advertising sales + public, Turnstile-verified quote inquiries.
  * No checkout, billing mutation, automatic ad publication or guessed prices.
  */
@@ -133,6 +134,17 @@ async function stripeTest(c,path,init={}){
  if(!r.ok)throw bad('Stripe TEST request was not accepted.',503);
  return r.json();
 }
+async function stripeLive(c,path,{method='GET',idempotencyKey,fields}={}){
+ const key=str(c.env.STRIPE_LIVE_SECRET_KEY||c.env.GU58_STRIPE_LIVE_SECRET_KEY);
+ if(!/^sk_live_[A-Za-z0-9_]+$/.test(key))throw bad('LIVE sponsorship invoicing has not been configured.',503);
+ const options={method,headers:{authorization:'Bearer '+key},cache:'no-store'};
+ if(idempotencyKey)options.headers['idempotency-key']=idempotencyKey;
+ if(fields){options.headers['content-type']='application/x-www-form-urlencoded';
+  options.body=new URLSearchParams(fields).toString()}
+ const response=await fetch('https://api.stripe.com/v1/'+path,options);
+ if(!response.ok)throw bad('Stripe LIVE billing operation failed; review invoice status before retrying.',503);
+ return response.json();
+}
 async function adSandboxCheckout(c,actor,packageCode,request){
  const origin=new URL(request.url).origin;
  // Match the configured canonical origin across account migrations.
@@ -245,6 +257,65 @@ export async function onRequest({request,env}){
    return respond({ok:true,reference:rows[0].id,notice:'Request received for manual review. No payment has been taken.'},201);
   }
   const who=await owner(c,request),actor=who.id;
+  if(action==='set_paid_sponsorship_billing'){
+   if(typeof body.enabled!=='boolean')throw bad('Select whether direct sponsorship billing is enabled.');
+   const sandbox=await api(c,'gu_ad_sandbox_settings_v014240?select=testing_enabled&singleton=eq.true');
+   if(body.enabled&&sandbox?.[0]?.testing_enabled===true)throw bad('Turn off advertising TEST mode before enabling LIVE billing.',409);
+   const rows=await api(c,'gu_ad_sales_settings_v014226?singleton=eq.true',{
+    method:'PATCH',body:{accepting_payments:body.enabled,updated_at:new Date().toISOString()}});
+   if(rows?.length!==1)throw bad('LIVE billing preference could not be saved.',503);
+   await audit(c,actor,'set_paid_sponsorship_billing','settings','singleton',{enabled:body.enabled});
+   return respond({ok:true,acceptingPayments:body.enabled,
+    adDeliveryEnabled:rows[0].ad_delivery_enabled===true});
+  }
+  if(action==='set_paid_sponsorship_delivery'){
+   if(typeof body.enabled!=='boolean')throw bad('Select whether verified paid campaigns may appear.');
+   if(body.enabled){
+    const [settings,paid]=await Promise.all([
+      api(c,'gu_ad_sales_settings_v014226?select=accepting_payments&singleton=eq.true'),
+      api(c,'ad_campaigns?select=id,status,payment_state,approval_state,last_verified_invoice&payment_state=eq.verified_paid&approval_state=eq.approved&limit=20')
+    ]);
+    if(settings?.[0]?.accepting_payments!==true||
+      !(paid||[]).some(p=>p.last_verified_invoice&&['draft','scheduled','active'].includes(p.status)))
+      throw bad('First verify a LIVE paid invoice and approved campaign before releasing paid advertising.',409);
+   }
+   const rows=await api(c,'gu_ad_sales_settings_v014226?singleton=eq.true',{
+    method:'PATCH',body:{ad_delivery_enabled:body.enabled,updated_at:new Date().toISOString()}});
+   if(rows?.length!==1)throw bad('Paid advertising display could not be updated.',503);
+   await audit(c,actor,'set_paid_sponsorship_delivery','settings','singleton',{enabled:body.enabled});
+   return respond({ok:true,adDeliveryEnabled:body.enabled});
+  }
+  if(action==='review_advertiser'){
+   const id=Number(body.id),status=str(body.status);
+   if(!Number.isSafeInteger(id)||id<=0||!['active','paused','rejected'].includes(status))
+    throw bad('Valid advertiser review is required.');
+   const rows=await api(c,'advertisers?id=eq.'+id,{method:'PATCH',
+    body:{status,updated_at:new Date().toISOString()}});
+   if(rows?.length!==1)throw bad('Advertiser could not be verified.',404);
+   await audit(c,actor,'review_advertiser','advertiser',id,{status});
+   return respond({ok:true,id,status});
+  }
+  if(action==='issue_sponsorship_invoice'){
+   if(body.confirmedWrittenQuote!==true||body.confirmedAdvertiserEmail!==true)
+    throw bad('Confirm the agreed written quote and permission to email a LIVE invoice.',409);
+   const id=Number(body.campaignId);
+   if(!Number.isSafeInteger(id)||id<=0)throw bad('Select a qualified sponsorship campaign.');
+   const enabled=(await api(c,'gu_ad_sales_settings_v014226?select=accepting_payments&singleton=eq.true'))?.[0];
+   if(enabled?.accepting_payments!==true)throw bad('First enable LIVE paid sponsorship billing in Admin.',409);
+   const campaign=(await api(c,'ad_campaigns?select=*&id=eq.'+id+'&limit=1'))?.[0];
+   if(!campaign)throw bad('Campaign not found.',404);
+   const advertiser=(await api(c,'advertisers?select=*&id=eq.'+campaign.advertiser_id+'&limit=1'))?.[0];
+   if(!advertiser)throw bad('Advertiser not found.',404);
+   const accountId=str(c.env.STRIPE_LIVE_ACCOUNT_ID||c.env.GU58_STRIPE_LIVE_ACCOUNT_ID);
+   if(!/^acct_[A-Za-z0-9_]{6,}$/.test(accountId))throw bad('LIVE Stripe merchant ID is not configured.',503);
+   const issued=await issuePaidSponsorInvoice({
+    stripe:(p,opts)=>stripeLive(c,p,opts),
+    api:(p,opts)=>api(c,p,opts),campaign,advertiser,accountId
+   });
+   await audit(c,actor,'issue_paid_sponsorship_invoice','ad_campaign',id,{
+    invoiceId:issued.invoiceId,amountCents:issued.amountCents,advertiserId:issued.advertiserId});
+   return respond({ok:true,...issued,notice:'Invoice emailed through Stripe LIVE. Campaign remains unpublished.'});
+  }
   if(action==='set_page_placements_active'){
    const pattern=str(body.pagePattern),enabled=body.enabled;
    if(typeof enabled!=='boolean'||(!pattern.startsWith('/')||!/^[a-z0-9*.-]{2,90}$/.test(pattern.slice(1))))
@@ -392,8 +463,9 @@ export async function onRequest({request,env}){
   if(action==='verify_invoice'){
    const id=Number(body.id),ref=str(body.invoice);
    if(!Number.isSafeInteger(id)||id<=0)throw bad('Invalid campaign.');
-   const campaigns=await api(c,'ad_campaigns?select=id,advertiser_id,amount_cents,status,payment_state&id=eq.'+id);
+   const campaigns=await api(c,'ad_campaigns?select=id,advertiser_id,amount_cents,status,payment_state,stripe_invoice_id&id=eq.'+id);
    const camp=campaigns?.[0];
+   if(camp?.stripe_invoice_id&&camp.stripe_invoice_id!==ref)throw bad('Verify only the invoice issued for this campaign.',409);
    if(!camp||camp.status!=='draft'||camp.payment_state!=='unpaid'||camp.amount_cents<=0)
      throw bad('Campaign is not payable.',409);
    const advertisers=await api(c,'advertisers?select=id&id=eq.'+camp.advertiser_id);
