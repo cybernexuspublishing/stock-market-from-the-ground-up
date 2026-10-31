@@ -32,6 +32,8 @@ const domains={
   explanation:[
    'A catalyst is an identifiable event, such as an issuer announcement, earnings report, regulatory disclosure or independently dated market development. It creates a research question; it does not guarantee a stock will rise.',
    'Record issuer identity, instrument class, original source URL, first-publication timestamp, announced facts, limitations and the market-data observation time. Distinguish issuer statements, independent corroboration and later price reaction.',
+   'An SEC Form 8-K generally has a deadline after a reportable event; a news release need not always wait for a Form 8-K. Confirm the reportable event, applicable filing item, exceptions and date against current SEC instructions before declaring a disclosure violation.',
+   'When several articles repeat one issuer statement, trace the citations back to their originator. Multiple reposts do not create multiple independent confirmations. A financing facility or shelf capacity does not mean its maximum proceeds have already been received.',
    'A hot sector or sympathy candidate is an observed relationship among securities, not proof they will move together. If the catalyst, source timing or security identity is uncertain, choose VERIFY or NO TRADE.'
   ],
   example:[
