@@ -13,12 +13,13 @@
   nextCopy:byId('purchase-next-copy'),primary:byId('purchase-primary'),
   testNote:byId('purchase-test-note')};
  const usd=cents=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD'}).format(cents/100);
- const nameOf=user=>{
-  const meta=user?.user_metadata||{};
-  const raw=[meta.first_name,meta.full_name,meta.display_name,meta.name].find(v=>
-   typeof v==='string'&&v.trim()&&!v.includes('@'))||'';
-  const first=raw.trim().split(/[\s_]+/)[0].replace(/[\r\n\t]/g,'').slice(0,32);
-  return first&&/[\p{L}]/u.test(first)?first:'';
+ // Use the member profile's explicit first_name, never a username,
+ // display name, email address, or speculative first word of a full name.
+ const nameOf=value=>{
+  if(typeof value!=='string')return '';
+  const clean=value.trim().replace(/\s+/g,' ');
+  if(!clean||clean.length>50||/[<>@\u0000-\u001f\u007f]/u.test(clean))return '';
+  return /[\p{L}]/u.test(clean)?clean:'';
  };
  const withName=(plain,name)=>name?plain+', '+name:plain;
  const put=(id,value)=>{node[id].textContent=value};
@@ -39,7 +40,11 @@
    return;
   }
   let first='';
-  try{const {data}=await client.auth.getUser();first=nameOf(data?.user)}catch{/* Greeting is optional. */}
+  try{
+   const {data,error}=await client.from('profiles').select('first_name')
+    .eq('id',session.user.id).maybeSingle();
+   if(!error)first=nameOf(data?.first_name);
+  }catch{/* If the owned profile is unavailable, do not guess a name. */}
   put('greeting',withName('Thank you for being here',first)+'.');
   put('intro','We appreciate the time you invest in learning. Every new concept you understand and every decision you practice is progress worth building on.');
   if(!sessionId&&!orderId){
