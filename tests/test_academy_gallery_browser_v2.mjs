@@ -44,6 +44,12 @@ try{
     covers:[...grid.querySelectorAll('.academy-program-cover')].map(i=>({width:i.naturalWidth,height:i.naturalHeight,loaded:i.complete})),
     headingFont:parseFloat(getComputedStyle(document.getElementById('academy-page-title')).fontSize),
     headingLine:getComputedStyle(document.getElementById('academy-page-title')).lineHeight,
+    compact:[...grid.querySelectorAll('.academy-program-compact-link')].map(link=>{
+     const media=link.querySelector('.academy-program-visual').getBoundingClientRect();
+     const title=link.querySelector('.academy-program-compact-name').getBoundingClientRect();
+     const card=link.getBoundingClientRect();
+     return {width:card.width,height:card.height,imageWidth:media.width,imageHeight:media.height,imageRight:media.right,titleLeft:title.left};
+    }),
     freeBorder:free.borderTopWidth,freeBackground:free.backgroundImage,
     freeWidth:intro.getBoundingClientRect().width,
     containerWidth:intro.parentElement.getBoundingClientRect().width};
@@ -52,6 +58,11 @@ try{
   assert(data.headingFont>=24&&data.headingFont<=34.1,'Heading is too large under production styles: '+data.headingFont+'px');
   assert(data.headingLine!=='normal','Heading line height not constrained');
   assert.equal(data.count,7,'Expected exactly seven released programs');
+  for(const card of data.compact){
+   assert(card.height < card.width*.68,'Boot Camp card must be approximately half the former height at '+width+'px');
+   assert(card.imageWidth>0&&card.imageHeight>0,'Approved course artwork must remain visible');
+   assert(card.imageRight<=card.titleLeft+2,'Title must appear alongside the image, not underneath');
+  }
   for(const cover of data.covers)assert(cover.loaded&&cover.width===640&&cover.height===480,'SVG failed at '+width+'px');
   assert.equal(data.freeBorder,'0px','Free Foundations still has an enclosing border');
   assert.equal(data.freeBackground,'none','Free Foundations still has an enclosing background');
