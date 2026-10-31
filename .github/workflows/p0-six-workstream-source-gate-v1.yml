@@ -1,0 +1,48 @@
+name: P0 Six-Workstream Noncharging Source Gate
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'tests/test_p0_chart_quote_truth_v1.mjs'
+      - 'tests/test_chart_mixed_test_boundary_v1.mjs'
+      - 'functions/api/chart-mixed-test-quote.js'
+      - '.github/workflows/p0-six-workstream-source-gate-v1.yml'
+permissions:
+  contents: read
+jobs:
+  source-only-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: P0-01 and P0-05 instruction source inventory
+        run: |
+          node scripts/learning-echarts-beta-audit-v1.mjs
+          node tests/test_teaching_full_width_v1.mjs
+      - name: P0-02 Chart Studio source contracts
+        run: |
+          node tests/test_crownlight_chart_studio_v3_integrity.mjs
+          node tests/test_crownlight_chart_workspace_v2.mjs
+      - name: P0-03 replay importer syntax and provenance gate
+        run: |
+          python3 -m py_compile scripts/market-data/prepare_replay_import.py
+          test -f docs/releases/HISTORICAL_REPLAY_ACADEMY_ALL89_STAGED_ACCEPTANCE_20261028.md
+      - name: P0-04 noncharging mixed checkout contracts
+        run: |
+          node tests/test_p0_chart_quote_truth_v1.mjs
+          node tests/test_chart_mixed_test_boundary_v1.mjs
+          node tests/test_lumen_mixed_stripe_test_end_to_end_v1.mjs
+      - name: P0-06 public build secrets boundary
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/lab-player.html
+          test ! -d public/functions
+          test ! -d public/supabase
+      - name: Scope warning
+        run: echo 'SOURCE PASS IS NOT LIVE ACCEPTANCE; data rights, real member, Stripe TEST delivery and deployed SHA remain separate.'
