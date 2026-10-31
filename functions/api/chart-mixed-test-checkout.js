@@ -19,6 +19,16 @@ export async function onRequestPost({request,env}){
   if(!input||typeof input!=='object'||Array.isArray(input))return respond({ok:false,error:'INVALID_REQUEST'},400);
   const identity=await memberIdentity(env,request),c=config(env);
   if(!await verifyChartMixedQa(env,identity.userId))return respond({ok:false,error:'NONCOMMERCIAL_QA_ONLY'},403);
+  if(input.action==='refund_zero'){
+   if(!UUID.test(input.upgradeId))return respond({ok:false,error:'INVALID_ORDER'},400);
+   const orderRows=await db(c,'crownlight_chart_mixed_test_v1?select=*&upgrade_id=eq.'+
+    encodeURIComponent(input.upgradeId)+'&user_id=eq.'+encodeURIComponent(identity.userId)+'&limit=1');
+   const order=orderRows?.[0];
+   if(!order||order.cash_cents!==0||order.status!=='active')return respond({ok:false,error:'ZERO_REFUND_NOT_AVAILABLE'},409);
+   const result=await rpc(c,'chart_mixed_test_refund_zero_v1',{p_upgrade:order.upgrade_id,p_user:identity.userId});
+   if(result?.ok!==true)return respond({ok:false,error:'ZERO_REFUND_FAILED'},503);
+   return respond({ok:true,refundedLumens:result.refundedLumens||0,revoked:true});
+  }
   if(input.action==='cancel'){
    if(!UUID.test(input.upgradeId))return respond({ok:false,error:'INVALID_ORDER'},400);
    const orders=await db(c,'crownlight_chart_mixed_test_v1?select=*&upgrade_id=eq.'+encodeURIComponent(input.upgradeId)+'&user_id=eq.'+encodeURIComponent(identity.userId)+'&limit=1');
