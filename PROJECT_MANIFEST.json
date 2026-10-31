@@ -14,7 +14,7 @@
     "book2": false,
     "book3": false
   },
-  "kdp_select_exclusive_switch": true,
+  "kdp_select_exclusive_switch": false,
   "auth_backend": "Supabase Auth - email plus server-side username login",
   "profile_backend": "Supabase profiles - permanent username/display identity and inactivity timeout (30-minute default)",
   "progress_backend": "Supabase lab_progress plus immutable lab_attempts practice history with RLS",
