@@ -503,3 +503,56 @@ html[data-gu-design="premium-light"] .gu-member-dashboard-shell :is(.card,.v13-c
 @media(max-width:520px){.gu-member-dashboard-shell #v135-overview-strip{grid-template-columns:1fr}.gu-member-dashboard-shell .gu-member-start{padding:17px}.gu-member-dashboard-shell .gu-member-start-actions .btn{flex:1 1 160px;text-align:center}}
 html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-start{background:linear-gradient(120deg,#f2f4ff,#fff);color:#203453}
 html[data-gu-design="premium-light"] .gu-member-dashboard-shell .gu-member-start h2{color:#1a2e47}
+
+
+/* SMF page heading system v1 — compact titles; scope excludes Labs and dashboard interiors. */
+body main.section > .wrap > h1,
+body main.gu-knowledge-page > .wrap > h1,
+body main.gu-redesign-store .gu-store-ad-core .wrap > h1,
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1,
+body main.gu-redesign-labs #gu-lab-registry-view > h1 {
+ font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif!important;
+ font-size:clamp(1.75rem,2.55vw,2.8rem)!important;
+ font-weight:750!important;
+ line-height:1.17!important;
+ letter-spacing:-.035em!important;
+ margin:9px 0 15px!important;
+ text-wrap:balance;
+}
+body main.section > .wrap > h1::after,
+body main.gu-knowledge-page > .wrap > h1::after,
+body main.gu-redesign-store .gu-store-ad-core .wrap > h1::after,
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1::after,
+body main.gu-redesign-labs #gu-lab-registry-view > h1::after {
+ content:"";display:block;width:64px;max-width:24%;height:2px;margin-top:12px;
+ background:linear-gradient(90deg,var(--gold2,#c8b5fc),#65bac6);
+ border-radius:2px;
+}
+body main.gu-knowledge-page > .wrap > h1 {
+ font-size:clamp(1.65rem,2.1vw,2.2rem)!important;
+}
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1 {
+ font-size:clamp(1.6rem,2vw,2.15rem)!important;
+ max-width:32ch!important;
+}
+body main.gu-redesign-store .gu-store-ad-core .wrap > h1 {
+ font-size:clamp(1.85rem,2.8vw,3rem)!important;
+ max-width:30ch!important;
+}
+body main.gu-premium-home .gu-home-message > h1 {
+ font-size:clamp(2.2rem,3.4vw,3.85rem)!important;
+ line-height:1.12!important;
+ letter-spacing:-.045em!important;
+}
+@media(max-width:650px) {
+ body main.section > .wrap > h1,
+ body main.gu-knowledge-page > .wrap > h1,
+ body main.gu-redesign-store .gu-store-ad-core .wrap > h1,
+ body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1,
+ body main.gu-redesign-labs #gu-lab-registry-view > h1 {
+  line-height:1.19!important;overflow-wrap:break-word;
+ }
+ body main.gu-premium-home .gu-home-message > h1 {
+  font-size:clamp(2.1rem,7vw,3rem)!important;
+ }
+}
