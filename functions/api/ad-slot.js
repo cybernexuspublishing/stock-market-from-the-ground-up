@@ -5,6 +5,7 @@
  */
 const slots=Object.freeze({
  HOME_INLINE:['/','/index.html'],STORE_INLINE:['/store.html'],
+ KNOWLEDGE_TRADINGVIEW:['/knowledge-database.html'],
  BOOTCAMP_LEFT:['/bootcamp-academy.html'],BOOTCAMP_RIGHT:['/bootcamp-academy.html'],SKILLS_LEFT:['/skills.html'],SKILLS_RIGHT:['/skills.html'],
  STORE_LEFT:['/store.html'],STORE_RIGHT:['/store.html'],
  ALL_PRODUCTS_LEFT:['/store-all-products.html'],ALL_PRODUCTS_RIGHT:['/store-all-products.html'],ALL_PRODUCTS_BOTTOM:['/store-all-products.html'],
