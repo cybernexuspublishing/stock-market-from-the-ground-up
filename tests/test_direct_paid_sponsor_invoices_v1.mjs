@@ -25,6 +25,9 @@ function mock({paid=false,wrongTotal=false}={}){
    return {...invoice};
   }
   if(path==='invoices/'+invoice.id+'/send')return {...invoice};
+  if(path==='invoices/'+invoice.id&&opts.method==='POST'){
+   assert.equal(opts.fields.auto_advance,'true');return {...invoice};
+  }
   if(path==='invoices/'+invoice.id)return {...invoice};
   throw Error('Unexpected Stripe request '+path);
  }
@@ -41,6 +44,7 @@ test('Owner-issued sponsorship creates and emails one exact-amount LIVE invoice,
  assert.equal(r.amountCents,25000);assert.equal(r.deliveryEnabled,false);
  assert.equal(m.calls.filter(c=>c.path==='invoices'&&c.method==='POST').length,1);
  assert.equal(m.calls.filter(c=>c.path.endsWith('/send')).length,1);
+ assert.equal(m.calls.filter(c=>c.path==='invoices/in_AbCdEf123456'&&c.method==='POST').length,1);
  assert.equal(m.calls.filter(c=>c.path==='invoiceitems').length,1);
  assert.equal(m.updates.length,2);
  assert.equal(m.updates[0].stripe_invoice_id,r.invoiceId);
