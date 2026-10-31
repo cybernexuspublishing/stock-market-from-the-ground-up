@@ -26,7 +26,8 @@ def reconcile(output):
     sources = (("source_registry_v1.csv", "id", "review_status"),
                ("discovered_batch_002.csv", "source_id", "access_status"),
                ("discovered_batch_003.csv", "id", "access_evidence"),
-               ("discovered_batch_004.csv", "source_id", "discovery_status"))
+               ("discovered_batch_004.csv", "source_id", "discovery_status"),
+               ("discovered_batch_005.csv", "id", "review_status"))
     items = {}
     input_counts = Counter()
     for filename, id_field, status_field in sources:
