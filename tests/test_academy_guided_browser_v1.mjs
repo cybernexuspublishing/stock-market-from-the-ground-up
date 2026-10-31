@@ -17,7 +17,7 @@ try{
    const host=document.getElementById('host');
    window.__guided?.dispose?.();
    window.__guided=window.GroundUpAcademyGuidedV1.mount(host,{day:{
-    day:1,programCode:code,title:'Chart and Evidence Research',
+    day:1,programCode:code,title:'Research and Source Verification',
     objective:'Identify the source, interval, and relevant chart facts.',
     observe:'Record the dated source and OHLC values from the available record.',
     practice:'Compare two observations without predicting the next candle.',
@@ -48,5 +48,24 @@ try{
  await page.setViewportSize({width:540,height:900});
  const cols=await page.locator('.academy-guided-grid').evaluate(e=>getComputedStyle(e).gridTemplateColumns.split(' ').filter(Boolean).length);
  assert.equal(cols,1,'Mobile stacks chart and Talia');
+ await page.evaluate(()=>{
+  window.__guided?.dispose?.();
+  window.__guided=window.GroundUpAcademyGuidedV1.mount(document.getElementById('host'),{
+   day:{day:1,programCode:'charts45',title:'Candlestick and Chart Structure',
+    objective:'Calculate body, range and percentage.',observe:'Review OHLC prices.',
+    practice:'Determine body and range.',method:['Review all four prices'],
+    limitation:'No future candle information.'},programCode:'charts45'});
+ });
+ await page.getByRole('button',{name:'Next lesson step'}).click();
+ await page.getByRole('button',{name:'Next lesson step'}).click();
+ const nums=page.locator('.academy-guided-numeric input');
+ assert.equal(await nums.count(),3,'Three numerical calculation fields');
+ await nums.nth(0).fill('2');await nums.nth(1).fill('2');await nums.nth(2).fill('50');
+ await page.getByRole('button',{name:'Close & Next — Submit answer'}).click();
+ assert.match(await page.locator('.academy-guided-ten [role=status]').last().innerText(),/Body =/);
+ await nums.nth(0).fill('1');
+ await page.getByRole('button',{name:'Close & Next — Submit answer'}).click();
+ assert.match(await page.locator('.academy-guided-content h4').innerText(),/4\. Experiment/);
+ await page.evaluate(()=>window.__guided?.dispose?.());
  console.log('PASS interactive ten-stage guided checkpoints, wrong-answer retries and mobile layout across all seven Boot Camps');
 }finally{await browser.close()}
