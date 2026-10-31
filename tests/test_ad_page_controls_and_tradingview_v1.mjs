@@ -117,3 +117,29 @@ test('Owner verification control is visible above role-gated inventory and remai
  assert(js.includes("if(e('gu-ad-admin-main').hidden)await refresh()"),
   'Later-available Owner session can retry showing the private inventory');
 });
+
+test('Owner verification opens the tabbed Marketing Inventory pane before checking billing controls',()=>{
+ const controller=fs.readFileSync('assets/js/admin-ad-sales-v014228.js','utf8');
+ const layout=fs.readFileSync('assets/js/admin-marketing-workspace.js','utf8');
+ assert(layout.includes("inventory:['gu-ad-placements'"),
+  'Marketing workspace must place release controls inside the Inventory pane');
+ const entry=controller.indexOf("e('gu-ad-verify-owner-browser')?.addEventListener");
+ const end=controller.indexOf("e('gu-ad-sandbox-refresh')",entry);
+ const handler=controller.slice(entry,end);
+ const ownerFetch=handler.indexOf('const summary=await request()');
+ const inventorySelect=handler.indexOf("document.querySelector('[data-marketing-view=\"inventory\"]')");
+ const click=handler.indexOf('inventoryTab.click()');
+ const checks=handler.indexOf('const checks=');
+ const audited=handler.indexOf("action:'record_owner_browser_acceptance'");
+ assert(entry>0&&ownerFetch>0&&ownerFetch<inventorySelect&&
+   inventorySelect<click&&click<checks&&checks<audited,
+   'Verify Owner authorization, open Inventory pane, verify visible controls, then audit');
+ assert(handler.includes("inventoryArea.hidden"),
+   'Inventory tab visibility must be confirmed, not assumed');
+ assert(handler.includes("visible('gu-ad-toggle-paid-billing')")&&
+   handler.includes("visible('gu-ad-toggle-paid-delivery')"),
+   'LIVE payment controls must remain actual visible DOM assertions');
+ assert(!handler.includes("action:'set_paid_sponsorship_delivery'")&&
+   !handler.includes("action:'issue_sponsorship_invoice'"),
+   'Owner verification must not publish an ad or issue an invoice');
+});
