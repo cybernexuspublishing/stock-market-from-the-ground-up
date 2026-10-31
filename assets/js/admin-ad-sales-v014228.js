@@ -358,6 +358,15 @@ async function start(){
     if(e('gu-ad-admin-main').hidden)await refresh();
     if(!summary.settings||!Array.isArray(summary.placements)||!Array.isArray(summary.campaigns))
      throw Error('Owner-only sponsor inventory is not available.');
+    // The Marketing workspace moves payment controls into its Inventory tab.
+    // Open that tab before the Owner acceptance visibility assertion.
+    const inventoryTab=document.querySelector('[data-marketing-view="inventory"]');
+    if(inventoryTab){
+     inventoryTab.click();
+     const inventoryArea=document.querySelector('[data-marketing-area="inventory"]');
+     if(!inventoryArea||inventoryArea.hidden)
+      throw Error('The Ad inventory & placements tab could not be opened.');
+    }
     const visible=id=>{
      const element=e(id);
      return Boolean(element&&!element.hidden&&element.getClientRects().length>0);
@@ -368,7 +377,11 @@ async function start(){
      billingControlVisible:visible('gu-ad-toggle-paid-billing'),
      deliveryControlVisible:visible('gu-ad-toggle-paid-delivery')
     };
-    if(!Object.values(checks).every(Boolean))throw Error('The required advertising controls are not visible.');
+    if(!Object.values(checks).every(Boolean)){
+     const failures=Object.entries(checks).filter(([key,value])=>key!=='page'&&!value).map(([key])=>key);
+     throw Error('The controls remain hidden after opening Ad inventory & placements ('+
+      failures.join(', ')+'). Check the Advertising Admin authorization message above.');
+    }
     const result=await request({action:'record_owner_browser_acceptance',
      source:'advertising_owner_page_v1',nonce:crypto.randomUUID(),checks});
     if(result.ownerVerified!==true||result.auditRecorded!==true||
