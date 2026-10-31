@@ -247,7 +247,7 @@ export async function onRequest({request,env}){
   const who=await owner(c,request),actor=who.id;
   if(action==='set_page_placements_active'){
    const pattern=str(body.pagePattern),enabled=body.enabled;
-   if(typeof enabled!=='boolean'||!/^\\/[a-z0-9*.-]{2,90}$/.test(pattern))
+   if(typeof enabled!=='boolean'||(!pattern.startsWith('/')||!/^[a-z0-9*.-]{2,90}$/.test(pattern.slice(1))))
     throw bad('Specify an existing advertising page and an enabled state.');
    // A page-level switch is one server-side, Owner-authorized database operation.
    // It disables both paid creatives and house cards without affecting any other page,
