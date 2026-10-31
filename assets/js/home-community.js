@@ -35,8 +35,8 @@
     aria:{enabled:true,description:host.getAttribute('aria-label')},
     tooltip:{show:false},
     title:{text:share+'%',subtext:'LAST 60 MIN',left:'center',top:'34%',
-     textStyle:{fontSize:36,fontWeight:800,color:'#f6fbff',textShadowBlur:17,textShadowColor:'#4cd9c866'},
-     subtextStyle:{fontSize:11,fontWeight:700,color:'#9ec7da'}},
+     textStyle:{fontSize:21,fontWeight:800,color:'#f6fbff',textShadowBlur:10,textShadowColor:'#4cd9c866'},
+     subtextStyle:{fontSize:8,fontWeight:700,color:'#9ec7da'}},
     series:[
      {type:'pie',silent:true,z:1,radius:['74%','89%'],center:['50%','51%'],
       label:{show:false},itemStyle:{borderWidth:0},data:[{value:1,itemStyle:{color:'#40617a55'}}]},
