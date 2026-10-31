@@ -46,7 +46,7 @@ export async function acceptChartMixedTestEvent(event,env){
    stripe(env,'checkout/sessions/'+encodeURIComponent(s.id)+'/line_items?limit=2'),
    stripe(env,'payment_intents/'+encodeURIComponent(s.payment_intent)),
    verifyPrice(env,o.sku),
-   db(c,'crownlight_chart_cash_upgrades_v1?select=id,user_id,sku,state,stripe_price_id,amount_cents& id=eq.'+encodeURIComponent(o.upgrade_id)+'&limit=1'.replace('& id','&id'))
+   db(c,'crownlight_chart_cash_upgrades_v1?select=id,user_id,sku,state,stripe_price_id,amount_cents&id=eq.'+encodeURIComponent(o.upgrade_id)+'&limit=1')
   ]);
   const line=lines.data?.[0],upgrade=upgradeRows?.[0];
   if(lines.data?.length!==1||lines.has_more||line.quantity!==1||
@@ -59,6 +59,7 @@ export async function acceptChartMixedTestEvent(event,env){
    pi.metadata?.chart_mixed_test_id!==o.upgrade_id||
    pi.metadata?.chart_mixed_test_user!==o.user_id||
    pi.metadata?.chart_mixed_test_sku!==o.sku)fail();
+  if(['active','refunded','disputed'].includes(o.status)&&o.stripe_payment_intent_id===pi.id)return true;
   return apply(c,o,event,'paid',s.id,pi.id);
  }
  if(event.type!=='charge.refunded'&&event.type!=='charge.dispute.created')return false;
