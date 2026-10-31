@@ -1,0 +1,5 @@
+source_id,url,authority,scope,status
+SEC-LEARN-001,https://www.investor.gov/introduction-investing,SEC Investor.gov,learning_process,source_page_inspected_general_claim_only
+SEC-BEHAVIOR-001,https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-72,SEC Investor.gov,measure_learning,source_page_inspected_general_claim_only
+SEC-EXEC-001,https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/executing-order,SEC Investor.gov,paper_execution,source_page_inspected_general_claim_only
+SEC-FOMO-001,https://www.investor.gov/additional-resources/spotlight/formerdirectorlorischock-directors-take/say-no-go-fomo,SEC Investor.gov,fomo,source_page_inspected_general_claim_only
