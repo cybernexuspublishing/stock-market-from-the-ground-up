@@ -1,15 +1,84 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow"><title>Purchase Confirmation | The Stock Market: From the Ground Up</title>
-<link rel="stylesheet" href="/assets/css/styles.css">
-<style>main{max-width:820px;margin:clamp(2rem,7vw,6rem) auto;padding:1.5rem}.purchase-panel{border:1px solid #64748b;border-radius:18px;padding:clamp(1.5rem,4vw,3rem)}.purchase-actions{display:flex;gap:1rem;flex-wrap:wrap;margin-top:2rem}.purchase-actions a{display:inline-block;padding:.8rem 1.2rem;border-radius:8px;border:1px solid currentColor}.purchase-muted{opacity:.8}</style></head>
-<body><main><section class="purchase-panel" aria-labelledby="confirmation-title">
-<p class="purchase-muted">THE STOCK MARKET: FROM THE GROUND UP</p>
-<h1 id="confirmation-title">Thank you for your order</h1>
-<p id="purchase-status" role="status" aria-live="polite">Checking your purchase and access status…</p>
-<p id="purchase-detail" class="purchase-muted">Your payment must be verified before paid access is activated. A Stripe checkout return alone does not confirm payment.</p>
-<div class="purchase-actions"><a href="/store.html">Return to Store</a><a href="/dashboard.html">Member Dashboard</a><a href="/store.html">Chart Studio</a></div>
-</section></main>
-<script src="/config.js"></script>
-<script src="/assets/js/supabase-client.js" defer></script>
-<script defer src="/assets/js/chart-purchase-confirmation-v1.js?v=1"></script></body></html>
+<html lang="en">
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1">
+ <meta name="robots" content="noindex,nofollow">
+ <meta name="description" content="Review your purchase and the next step in your learning journey.">
+ <title>Your Next Step | The Stock Market: From the Ground Up</title>
+ <link rel="stylesheet" href="/assets/css/styles.css">
+ <style>
+  .thankyou-shell{max-width:930px;margin:clamp(2rem,6vw,5.5rem) auto;padding:0 22px 5rem}
+  .thankyou-hero{position:relative;overflow:hidden;padding:clamp(2rem,5vw,3.6rem);border:1px solid #45617a;border-radius:23px 23px 0 0;background:radial-gradient(ellipse at 90% 10%,rgba(227,182,75,.14),transparent 42%),linear-gradient(135deg,#0f2c46,#081b2e)}
+  .thankyou-hero:before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,#e3b64b,transparent)}
+  .thankyou-mark{display:grid;place-items:center;width:58px;height:58px;border:1px solid #8b713c;border-radius:18px;background:rgba(227,182,75,.11);font-family:Georgia,serif;font-size:2.1rem;color:#f4d67d;margin-bottom:1.4rem}
+  .thankyou-eyebrow{margin:0 0 8px;color:#f4d67d;text-transform:uppercase;letter-spacing:.17em;font-size:.77rem;font-weight:800}
+  .thankyou-hero h1{font-family:Georgia,serif;color:#fff;line-height:1.17;font-size:clamp(2rem,5vw,3.4rem);margin:.25rem 0 1rem;max-width:740px}
+  .thankyou-hero p:last-child{font-size:1.08rem;color:#ccdae6;max-width:680px;margin:0;line-height:1.7}
+  .thankyou-main{border:1px solid #31506c;border-top:0;border-radius:0 0 23px 23px;background:#0a2136;padding:clamp(1.5rem,4vw,2.7rem)}
+  .thankyou-status{display:flex;gap:14px;align-items:flex-start}
+  .thankyou-indicator{flex:0 0 14px;width:14px;height:14px;margin-top:8px;border-radius:50%;background:#e3b64b;box-shadow:0 0 0 6px rgba(227,182,75,.12)}
+  .thankyou-main[data-state="confirmed"] .thankyou-indicator{background:#83c59b;box-shadow:0 0 0 6px rgba(131,197,155,.12)}
+  .thankyou-main[data-state="refunded"] .thankyou-indicator,.thankyou-main[data-state="expired"] .thankyou-indicator{background:#98a9b9;box-shadow:0 0 0 6px rgba(152,169,185,.12)}
+  .thankyou-status h2{font-size:clamp(1.2rem,3vw,1.65rem);margin:0 0 .3rem;font-family:Georgia,serif;color:#fff}
+  .thankyou-detail{color:#b9cad8;margin:.8rem 0 1.4rem;line-height:1.7}
+  .thankyou-summary{padding:1.25rem;margin-top:1.4rem;border:1px solid #33516b;border-radius:14px;background:rgba(5,17,30,.42)}
+  .thankyou-summary h3{font-size:1rem;letter-spacing:.04em;margin:0 0 1rem;color:#f4d67d}
+  .thankyou-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.9rem 1.5rem;margin:0}
+  .thankyou-facts>div{border-bottom:1px solid #264760;padding-bottom:.8rem;min-width:0}
+  .thankyou-facts dt{font-size:.78rem;color:#a8bbcc;letter-spacing:.04em}
+  .thankyou-facts dd{margin:.24rem 0 0;overflow-wrap:anywhere;color:#f2f6fb;font-weight:650}
+  .thankyou-next{margin-top:1.7rem;padding-top:1.6rem;border-top:1px solid #264760}
+  .thankyou-next h2{font-size:1.35rem;color:#fff;font-family:Georgia,serif;margin:0 0 .5rem}
+  .thankyou-next p{color:#c3d2df;margin:0;line-height:1.7}
+  .thankyou-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:1.35rem}
+  .thankyou-actions a{padding:.85rem 1.1rem;border:1px solid #e3b64b;border-radius:10px;color:#101c2a;background:#e3b64b;text-decoration:none;font-weight:750}
+  .thankyou-actions a.secondary{color:#f4d67d;background:transparent}
+  .thankyou-disclaimer{font-size:.86rem;color:#aebdcc;margin:1.4rem 0 0}
+  .thankyou-footer{margin:2.3rem auto 0;text-align:center;color:#aebdcc;font-size:.9rem}
+  .thankyou-footer a{color:#f4d67d}
+  [hidden]{display:none!important}
+  @media(max-width:590px){.thankyou-shell{padding:0 14px}.thankyou-facts{grid-template-columns:1fr}.thankyou-actions a{flex:1 1 100%;text-align:center}}
+ </style>
+</head>
+<body>
+ <main class="thankyou-shell">
+  <section class="thankyou-hero" aria-labelledby="purchase-greeting">
+   <div class="thankyou-mark" aria-hidden="true">✦</div>
+   <p class="thankyou-eyebrow" id="purchase-eyebrow">A place to learn, practice and grow</p>
+   <h1 id="purchase-greeting">We're glad you're here.</h1>
+   <p id="purchase-intro">Thank you for being part of The Stock Market: From the Ground Up. Your time, curiosity and commitment to learning matter to us.</p>
+  </section>
+  <section class="thankyou-main" id="purchase-panel" data-state="pending" aria-labelledby="purchase-status">
+   <div class="thankyou-status">
+    <span class="thankyou-indicator" aria-hidden="true"></span>
+    <div><h2 id="purchase-status" role="status" aria-live="polite">Checking your checkout status…</h2></div>
+   </div>
+   <p id="purchase-detail" class="thankyou-detail">We verify the actual order before confirming payment or activating access. Returning from checkout does not itself complete a purchase.</p>
+   <section id="purchase-summary" class="thankyou-summary" aria-label="Verified order details" hidden>
+    <h3>YOUR ORDER AT A GLANCE</h3>
+    <dl class="thankyou-facts">
+     <div><dt>Learning tool</dt><dd id="purchase-product">—</dd></div>
+     <div><dt>Access through</dt><dd id="purchase-access">—</dd></div>
+     <div><dt>Crownlight Lumens used</dt><dd id="purchase-lumens">—</dd></div>
+     <div><dt>TEST card payment</dt><dd id="purchase-card">—</dd></div>
+    </dl>
+   </section>
+   <section class="thankyou-next" aria-labelledby="purchase-next-title">
+    <h2 id="purchase-next-title">Your next step</h2>
+    <p id="purchase-next-copy">Your dashboard is the best place to review your current access and choose what to explore next. Your saved work stays connected to your account.</p>
+    <div class="thankyou-actions">
+     <a id="purchase-primary" href="/dashboard.html">Go to My Dashboard</a>
+     <a id="purchase-secondary" class="secondary" href="/my-purchases.html">Review My Purchases</a>
+     <a class="secondary" href="/store.html">Continue Browsing</a>
+    </div>
+   </section>
+   <p id="purchase-test-note" class="thankyou-disclaimer" hidden>TEST transaction only. No LIVE payment is processed through this Chart Studio testing flow.</p>
+  </section>
+  <footer class="thankyou-footer"><p><strong>Learn It. Understand It. Practice It. Trade It.</strong></p>
+  <p>The Stock Market: From the Ground Up — <a href="/index.html">Return to Home</a></p></footer>
+ </main>
+ <script src="/config.js"></script>
+ <script src="/assets/js/supabase-client.js" defer></script>
+ <script defer src="/assets/js/chart-purchase-confirmation-v1.js?v=2"></script>
+</body></html>
