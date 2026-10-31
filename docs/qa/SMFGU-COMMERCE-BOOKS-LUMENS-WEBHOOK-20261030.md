@@ -5,8 +5,8 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.5  
-**Status:** PARTIAL ACCEPTANCE; Book I TEST payment, signed webhook, refund and reversal accepted; LIVE paid-book entitlement and signed LIVE webhook delivery not yet accepted; Lumens TEST Checkout human verification outstanding  
+**Version:** 1.6  
+**Status:** PARTIAL ACCEPTANCE; Book I and 25-Lumens TEST purchase/payment/webhook/refund/reversal lifecycles accepted; real LIVE book fulfillment, production purchased-Lumens wallet and LIVE webhook acknowledgment remain OPEN  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
 **Purpose:** Record precise verified controls, changes, gaps, and cleanup.
@@ -188,6 +188,31 @@ Cloudflare production confirms the bound `GU58_STRIPE_LIVE_SECRET_KEY` and `GU58
 | Both LIVE signed webhook acknowledgments | OPEN; pending=1 for each |
 | Additional third-party spending or LIVE nonzero charges | NONE |
 
+
+## October 31 supplemental acceptance — genuine 25-Lumens TEST payment and refund
+
+The owner completed the original $5.00 Stripe TEST Checkout manually. Connected Stripe and Supabase records were independently reconciled; no new Checkout was created, no paid browser automation was used, and the production member wallet was never changed.
+
+**Exact TEST provider evidence:**
+
+| Element | Verified |
+|---|---|
+| Stripe account | `acct_1URGkDJY9FI7byHB`; `livemode=false` |
+| Checkout Session | `cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB`; `complete/paid`; USD 500 cents |
+| TEST order | `ec009f39-22b2-47e8-82d7-b66a4539d944`; legacy internal SKU `SPARKS_25` (customer-facing label is Crownlight Lumens) |
+| PaymentIntent | `pi_3UWSALJY9FI7byHB1jgQrwwP`; `succeeded`; `amount_received=500` cents |
+| Stripe payment event | `evt_1UWSAMJY9FI7byHBS6n0kjZW`; `checkout.session.completed`; `pending_webhooks=0` |
+| TEST crediting | `gu_lumen_bundle_test_orders_v1` status `paid`, `gu_lumen_bundle_test_events_v1` exact `paid` event, `gu_lumen_bundle_test_shadow_credits_v1.initial_lumens=25`, `remaining_lumens=25`, `expires_at=null` |
+| TEST full refund | `re_3UWSALJY9FI7byHB1sTDnqmv`; 500 cents USD, `succeeded`; tied to same TEST PaymentIntent and charge `ch_3UWSALJY9FI7byHB1StW4sAI` |
+| Genuine refund event | `evt_3UWSALJY9FI7byHB1BniLF86`; `charge.refunded`; `pending_webhooks=0` |
+| TEST reversal | `gu_lumen_bundle_test_orders_v1.status=refunded`; `gu_lumen_bundle_test_events_v1` contains `refunded` event; TEST shadow `remaining_lumens=0`, `reversed_at=2026-10-31 02:38:27 UTC` |
+
+**Acceptance decision:** The 25-Lumens original TEST Checkout, authenticated Stripe provider payment, signed webhook delivery, isolated 25-Lumens credit, complete Stripe TEST refund, and automatic database reversal **PASS**. This completes the TEST purchase/refund acceptance, in addition to the prior Book I TEST lifecycle acceptance. No real charge was made; TEST credits have been reversed.
+
+**Limitations:** Isolated TEST shadow credits are not production purchased-Crownlight-Lumens wallet funding. Customer-facing paid bundle activation, full live wallet credit/reversal controls, and the real LIVE paid-book My Books entitlement flow require separate acceptance. The LIVE zero-dollar diagnostic does not satisfy a nonzero LIVE customer transaction.
+
+**LIVE webhook final recheck at report revision:** `evt_1UVaw9JL0O4GGVBHKjQTd21w` and `evt_1UWRaCJL0O4GGVBHK5A1POGx` both remain at `pending_webhooks=1`. Genuine 2xx signed delivery cannot be claimed. The authorized Stripe Workbench user must inspect endpoint-specific HTTP delivery attempts, correct the verified failure, resend both events, and have the result re-read via the Stripe plugin. Secrets must not be printed, guessed, or rotated without diagnosing which endpoint secret is actually bound.
+
 ## Revision history
 
 | Version | Date | Change |
@@ -199,3 +224,4 @@ Cloudflare production confirms the bound `GU58_STRIPE_LIVE_SECRET_KEY` and `GU58
 | 1.3 | 2026-10-30 | Independently reverified Stripe sessions, TEST/LIVE endpoint routing, Cloudflare LIVE switches, deployment, Supabase payment ledgers, QA shadow-only boundary and original pending LIVE event. No false acceptance of paid fulfillment. |
 | 1.4 | 2026-10-30 | Executed live Stripe-hosted QA; genuine $0 LIVE Checkout completion, both LIVE events still pending, unsigned route preflight 405/401, no available CI LIVE resend key, two TEST sessions unpaid, no phantom grants/refunds. |
 | 1.5 | 2026-10-30 CDT / 2026-10-31 UTC | Real Stripe TEST Book I charge/refund and signed provider/database events accepted; omitted TEST phone fixed; Lumens blocked by Stripe interactive verification; LIVE event delivery remains pending, encrypted-secret validation bounded; $0 spend. |
+| 1.6 | 2026-10-31 UTC | Real 25-Lumens $5 Stripe TEST payment and signed crediting PASS; $5 TEST refund and signed zero-balance reversal PASS; LIVE signed webhook events still pending; $0 spent. |
