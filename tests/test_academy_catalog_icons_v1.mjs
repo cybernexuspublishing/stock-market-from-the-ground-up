@@ -23,7 +23,7 @@ assert(js.includes("p.code,p.title"),'Internal IDs must remain searchable');
 assert(!html.includes('Examples: truth5'));
 assert(html.includes('Search Boot Camps by title, topic, skill or ticker'));
 assert(js.includes("academy-program--locked"));
-assert(js.includes("'store-membership-ondemand-monthly.html'"));
+assert(js.includes("'store-membership-ondemand-monthly.html?source=bootcamp&item='"));
 assert(html.includes('assets/css/bootcamp-academy-gallery-v2.css'));
 assert(html.includes('class="academy-free-entry academy-free-feature"'));
 assert(nav.includes('href="/bootcamp-academy.html">Boot Camps</a>'));
