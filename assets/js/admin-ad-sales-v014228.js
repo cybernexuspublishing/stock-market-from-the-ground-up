@@ -361,6 +361,23 @@ async function start(){
    }catch(err){e('gu-ad-sandbox-feedback').textContent=err.message}
    finally{btn.disabled=false}
   });
+  e('gu-ad-toggle-paid-billing').addEventListener('click',async()=>{
+   const enabled=model.settings?.accepting_payments!==true,btn=e('gu-ad-toggle-paid-billing');
+   btn.disabled=true;
+   try{await act({action:'set_paid_sponsorship_billing',enabled},
+    enabled?'LIVE sponsorship invoicing enabled. No invoice created.':'New sponsorship invoicing disabled.');
+   }catch(err){e('gu-ad-payment-control-feedback').textContent=err.message}
+   finally{btn.disabled=false}
+  });
+  e('gu-ad-toggle-paid-delivery').addEventListener('click',async()=>{
+   const enabled=model.settings?.ad_delivery_enabled!==true,btn=e('gu-ad-toggle-paid-delivery');
+   btn.disabled=true;
+   try{await act({action:'set_paid_sponsorship_delivery',enabled},
+    enabled?'Verified paid advertising delivery enabled; campaign publication remains separate.':
+     'Verified paid advertising delivery disabled.');
+   }catch(err){e('gu-ad-payment-control-feedback').textContent=err.message}
+   finally{btn.disabled=false}
+  });
   e('gu-ad-toggle-inquiries').addEventListener('click',()=>act({action:'set_inquiries',enabled:!model.settings?.accepting_inquiries},
    'Advertising inquiry acceptance updated; payment and delivery switches unchanged.')
    .catch(err=>e('gu-ad-admin-status').textContent=err.message));
