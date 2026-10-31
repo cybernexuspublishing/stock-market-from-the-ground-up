@@ -1,51 +1,70 @@
-# Chart Studio Mixed TEST Checkout — Implementation & Acceptance Ledger
+# Chart Studio Mixed TEST Checkout — Acceptance Register
 
 **Project:** The Stock Market: From the Ground Up  
 **Document ID:** SMFGU-COMMERCE-CHART-MIXED-TEST-001  
-**File:** docs/releases/2026-10-31_CHART_MIXED_TEST_SETTLEMENT_ACCEPTANCE.md  
-**Type:** Markdown release/acceptance record  
-**Version:** 1.0  
-**Date:** 2026-10-31  
-**Status:** TEST IMPLEMENTED; GENUINE DISCOUNTED STRIPE ACCEPTANCE PENDING  
-**Repository location:** main / docs/releases  
-**Owner approval:** TEST-only, $0 additional services; no LIVE commerce activation.
+**Filename / type:** `2026-10-31_CHART_MIXED_TEST_SETTLEMENT_ACCEPTANCE.md` / Markdown  
+**Repository:** `cybernexuspublishing/stock-market-from-the-ground-up` — `main/docs/releases/`  
+**Google Drive location:** Not established  
+**Version:** 1.1  
+**Review date:** October 31, 2026  
+**Status:** **TEST purchase/refund lifecycle ACCEPTED; full commercial acceptance OPEN**  
+**Dependencies:** Stripe TEST, Supabase private settlement ledger, signed Stripe webhook, Cloudflare Pages, Chart Studio effective-tier resolver  
+**Purpose:** Preserve actual accepted evidence and untested risks without conflating simulated tests with genuine Stripe provider events.
 
-## Boundary and scope
+## Scope and controlling rules
 
-Two existing one-time nonrenewing Chart Studio products only: CHART_ADVANCED_30D at $9.99 and CHART_PROFESSIONAL_30D at $19.99. Existing Stripe TEST product IDs and prices are validated before dynamic discounted sessions. No second Lumen currency; the existing non-expiring credit buckets are the settlement source. Normal membership/temporary access takes priority over any duplicate purchase.
+One-time, nonrenewing Chart Studio Advanced ($9.99/30 days) and Professional ($19.99/30 days). Mixed payments draw from the **single existing Crownlight Lumens wallet** at the approved test discount rate of $0.07/Lumen. Current member entitlement is checked before checkout. Server-side reservations, provider-verified payment, refund/dispute reversal, and $0 zero-cash fulfillment are required; no LIVE charge or commercial sale activation is authorized.
 
-**Controls:** CHART_STUDIO_TEST_CHECKOUT_ENABLED and separately gated CHART_MIXED_TEST_ENABLED; server-controlled, expiring noncommercial QA Auth metadata; Stripe sk_test credentials and exact TEST account ID; existing signed unified TEST webhook. Production storefront sale_ready remains false; no LIVE charges authorized.
+## Genuine provider-backed tests — accepted
 
-## Implemented components
+**Professional mixed TEST order, October 31, 2026**
 
-- Additive private order, debit, and signed-event tables in supabase/migrations/20261031_chart_mixed_test_settlement_v1.sql
-- Atomic per-user wallet reservations, order idempotency and duplicate outstanding-order rejection using existing wallet advisory lock.
-- Server-created Stripe TEST Checkout Sessions for original verified product with dynamically priced reduced cash amount. Session identity and payment intent metadata bind order/user/SKU; Stripe session is bound in the private database.
-- Signed provider webhook processor functions/_lib/chart-mixed-test-webhook-v1.js, routed from functions/api/stripe-test-webhook.js; canonical Stripe session/line item/payment intent/charge reconciliation and idempotent revocation.
-- Full-Lumen $0 fulfillment without Stripe payment; server-controlled zero-refund credit restoration in supabase/migrations/20261031_chart_mixed_test_zero_refunds_v1.sql.
-- TEST-only customer selection and breakdown in assets/js/store-chart-cash-upgrades-v1.js.
-- Server-side quote and checkout endpoints, no untrusted client price values.
-- Expired/failed TEST Stripe sessions release reserved credits; explicit cancellation expires the Stripe session and relies on signed expiration event before release.
-- Separate CI source gate .github/workflows/chart-mixed-test-v1.yml.
+| Evidence | Verified value |
+| --- | --- |
+| Original Professional price | $19.99 |
+| Lumens redeemed | 10 |
+| Credit discount | $0.70 |
+| Stripe TEST card payment | $19.29 |
+| Stripe Checkout Session | `cs_test_a1YEVUmx0roii7uDDDSb1e0Awz0zGusLh5adHOHmGIw7ZNW70Hh85qQwIF` |
+| Stripe PaymentIntent | `pi_3UWXxLJY9FI7byHB06FIrFOv` |
+| Signed paid event in private settlement ledger | `evt_1UWXxOJY9FI7byHBpLOVg9dv` |
+| Signed refund event in private settlement ledger | `evt_3UWXxLJY9FI7byHB018v5GHY` |
+| Stripe TEST refund | `re_3UWXxLJY9FI7byHB0J0a5Y0N` |
+| Final order and cash entitlement | Refunded; premium cash access revoked |
+| Final existing Lumen balance | 29; all 10 applied Lumens returned |
+| Saved Chart Studio workspace | 1 retained |
 
-## Database acceptance evidence — rolled back
+Signed paid and refunded events were independently present in the private event ledger. This is **genuine TEST purchase → fulfillment → refund → Lumen restoration → revocation acceptance** for Professional, not merely mock SQL.
 
-1. One-Lumen reservation on Professional: original 1,999 cents, 7-cent discount, 1,992-cent cash due, wallet reduced 29 to 28 inside transaction; rolled back.
-2. Simulated provider-backed order: four Lumens, 28-cent reduction, 1,971-cent cash due; SQL bind + grant + full refund returned credits, revoked entitlement, wallet restored to 29; rolled back. This did **not** validate a signed Stripe webhook.
-3. 286-Lumen fully covered Professional order with temporary QA credit bucket: zero cash due and active 30-day entitlement; rolled back.
-4. Fully covered order refunded once; duplicate refund did not double-return credits; rolled back.
-5. Same request ID gave the original reservation; another unresolved order was rejected; expiry returned credits; rolled back.
-6. Anonymous and ordinary authenticated roles lacked private order-read and SQL settlement execution permissions.
-7. After tests, James_Test balance was 29 non-expiring Lumens, zero retained mixed orders/events, zero active cash purchases and one saved Chart Studio workspace.
+**Separate full-price (nonmixed) checkout expiration:** The abandoned $19.99 Professional TEST session `cs_test_a11DxLJD9zfvIfrjdmNKsaQeMJ4jDWhx8IEw7V7pG3Sy7YD2dPHqsOYF04` is recorded as expired. Signed expiration event `evt_1UWXwvJY9FI7byHB004XzX7g` is recorded in the **cash-only** event ledger. This does not satisfy mixed-credit cancellation acceptance.
 
-## Outstanding acceptance
+## Database rollback tests — verified, not genuine provider acceptance
 
-- Source CI job results and exact-commit deployment confirmation after activation.
-- Authenticated James_Test browser quote/checkout in actual TEST session and Stripe-signed payment event.
-- Verified discounted Stripe TEST amount, committed Lumen debit and active 30-day entitlement.
-- Real provider refund and dispute reconciliation with exact Lumen restoration and revocation.
-- Real session cancellation and expiration webhook release.
-- Browser cross-account rejection, workspace continuity and expected downgrade.
-- Any other eligible product class, LIVE checkout, general-purpose subscriptions, and recurring credit policy are excluded from this release.
+- Atomic mixed reservation and debit calculated the correct reduced cash amount, without permanently consuming credits.
+- A zero-cash Professional purchase granted a 30-day entitlement with no Stripe charge; a zero-cash refund restored credits once.
+- Duplicate requests reused their original order; another unresolved reservation was blocked.
+- Cancellation/expiration returned credits in a rolled-back transaction.
+- A simulated disputed $19.85 Professional purchase using two Lumens revoked access and returned the two credits. A subsequent simulated refund did not restore credits twice. Entire test rolled back; final wallet remained at 29. **No genuine Stripe dispute event was produced.**
+- Anonymous/authenticated clients cannot read or mutate private settlement tables or execute service-role settlement functions directly.
 
-**Final classification:** IMPLEMENTED IN TEST / GENUINE SIGNED MIXED-PAYMENT ACCEPTANCE NOT YET VERIFIED. Do not mark public sale ready.
+## Current effective access (data-layer verification)
+
+The Professional cash entitlement is revoked. The temporary Advanced Lumen pass remains active through November 7, 2026 (UTC expiry: `2026-11-07T07:35:05.638093Z`). A previous Professional Lumen pass is expired. One saved workspace remains.
+
+The expected effective tier is **Advanced**, but authenticated member-browser downgrade and workspace reopening have **not** been independently accepted.
+
+## Open acceptance gates
+
+1. **Mixed-payment cancellation/expiration:** Create an authenticated QA mixed session without paying, cancel it through the member-facing control, verify Stripe's actual expired session and the signed `checkout.session.expired` event, and confirm the Lumen reservation is returned exactly once.
+2. **Actual dispute:** Use a genuine supported Stripe TEST dispute scenario on an eligible QA payment, verify signed `charge.dispute.created`, immediate entitlement protection, correct Lumen restoration, and subsequent event idempotency. SQL simulation is not acceptance.
+3. **Authenticated downgrade/workspace:** Sign into James_Test, verify its actual effective Advanced tier, confirm Professional-only controls are inaccessible, and reopen the existing private saved workspace. Cross-account workspace isolation must remain enforced.
+4. **Final release gate:** Review exact-commit CI and Cloudflare deployment for changes made during acceptance. LIVE checkout and unrelated product classes stay disabled.
+
+## Revision history
+
+| Version | Date | Summary | Status |
+| --- | --- | --- | --- |
+| 1.0 | 2026-10-31 | Initial implementation and database simulation evidence | Superseded |
+| 1.1 | 2026-10-31 | Recorded genuine discounted TEST purchase/refund, signed events, wallet reconciliation, and separate dispute simulation | Controlling register |
+
+**Decision:** Accept the Professional mixed TEST purchase/refund lifecycle. Do **not** classify disputes, mixed cancellation/expiration, authenticated downgrade, or public LIVE sale as accepted.
