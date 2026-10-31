@@ -1,0 +1,43 @@
+/* Boot Camp Academy — small heading and original subject illustrations. */
+body.gu-bc-learning main.gu-redesign-academy .gu-learning-ad-core .wrap > h1{
+ font-size:clamp(1.4rem,1.65vw,1.75rem)!important;line-height:1.17!important;
+ letter-spacing:-.015em!important;font-weight:730!important;
+ max-width:none!important;margin:5px 0 10px!important;
+}
+body.gu-bc-learning .academy-catalog-availability{
+ font-size:.84rem;line-height:1.48;color:#c3d8e6;max-width:85ch;margin:4px 0 13px;
+}
+body.gu-bc-learning #academy-programs .academy-program-compact-link{
+ display:flex!important;align-items:center!important;column-gap:11px!important;
+ padding:6px 13px!important;min-height:56px!important;
+}
+body.gu-bc-learning #academy-programs .academy-program-compact-icon{
+ display:block;flex:none;width:42px;height:40px;object-fit:contain;
+ border-radius:6px;background:#0b2334;
+}
+body.gu-bc-learning #academy-programs .academy-program-compact-name{
+ flex:1 1 auto;min-width:0;overflow-wrap:break-word;
+ font-weight:700;color:inherit;font-size:.9rem;line-height:1.3;
+}
+body.gu-bc-learning #academy-programs .academy-program-compact-id{
+ margin-inline-start:auto;flex:none;font-size:.78rem;
+ font-variant-numeric:tabular-nums;color:#c2dbef!important;
+}
+body.gu-bc-learning #academy-programs .academy-program--locked .academy-program-compact-name,
+body.gu-bc-learning #academy-programs .academy-program--locked .academy-program-compact-id{
+ color:#acbdc9!important;
+}
+body.gu-bc-learning #academy-programs .academy-program--locked .academy-program-compact-icon{
+ opacity:.52;filter:grayscale(1);
+}
+body.gu-bc-learning #academy-programs .academy-program-compact-link:focus-visible{
+ outline:3px solid #92e6dc!important;outline-offset:3px!important;
+}
+@media(max-width:570px){
+ body.gu-bc-learning #academy-programs .academy-program-compact-link{
+  min-height:54px!important;gap:8px!important;padding:7px 9px!important;
+ }
+ body.gu-bc-learning #academy-programs .academy-program-compact-icon{width:36px;height:36px}
+ body.gu-bc-learning #academy-programs .academy-program-compact-name{font-size:.84rem}
+ body.gu-bc-learning #academy-programs .academy-program-compact-id{font-size:.7rem}
+}

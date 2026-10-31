@@ -97,6 +97,7 @@
    'Courses are shown as locked until training entitlement is verified.')+
    ' Search by program ID, title, skill, or ticker where public course metadata contains one.';
  }
+ const programIcons=Object.freeze({truth5:'catalyst-analysis.svg',watchlist7:'candidate-quality.svg',scanners10:'volume-analysis.svg',foundations30:'candle-reading.svg',charts45:'chart-structure.svg',risk60:'position-sizing.svg',practicum90:'mfe-mae-review.svg'});
  function catalog(programs){
   const root=get('academy-programs');root.replaceChildren();
   if(!Array.isArray(programs)||programs.length!==7||
@@ -116,7 +117,15 @@
    link.href=destination;
    link.setAttribute('aria-label',access?'Open '+p.title+', '+p.code:
     'Locked Boot Camp '+p.title+', '+p.code+'. View training access options.');
-   link.append(node('span',p.title));
+   const iconFile=programIcons[p.code];
+   if(iconFile){
+    const icon=node('img');icon.className='academy-program-compact-icon';
+    icon.src='assets/images/skill-illustrations/'+iconFile;
+    icon.width=42;icon.height=40;icon.alt='';
+    icon.loading='lazy';icon.setAttribute('aria-hidden','true');
+    link.append(icon);
+   }
+   const name=node('span',p.title);name.className='academy-program-compact-name';link.append(name);
    const id=node('span',p.code);id.className='academy-program-compact-id';link.append(id);
    if(!access){
     const lock=node('span','🔒');lock.className='gu-academy-lock';
