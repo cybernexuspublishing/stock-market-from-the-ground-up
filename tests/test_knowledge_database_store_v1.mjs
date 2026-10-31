@@ -30,7 +30,7 @@ assert(!knowledge.includes('border:1px solid #456477'));
 assert(knowledge.includes('aff_id=1173728&aff_sub=smfgu_website&source=stock-market-from-the-ground-up-d1r.pages.dev'));
 assert(knowledge.includes('rel="sponsored noopener noreferrer"'));
 assert(!knowledge.includes('We may earn a commission from purchases through this link.'));
-assert(knowledge.includes('Paid referral'));
+assert(knowledge.includes('Paid link'));
 assert(knowledge.includes('id="gu-knowledge-partner-banner"'));
 assert(knowledge.includes('assets/js/knowledge-partner-banner-v1.js'));
 const affiliateControl=read('assets/js/knowledge-partner-banner-v1.js');
