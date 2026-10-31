@@ -55,6 +55,16 @@ test('TradingView affiliate renders independently of disabled paid ad and checko
   assert.equal(m.calls.some(x=>x.path.endsWith('/rpc/gu_ad_campaign_counts_v014233')),false);
  }finally{m.restore()}
 });
+test('Verified paid sponsor takes priority if the Owner later activates paid advertising',async()=>{
+ const m=server({affiliate:true,delivery:true});
+ try{
+  const r=await adSlot({request:new Request(root+url),env});
+  const data=await r.json();
+  assert.equal(data.ad?.creativeId,9);
+  assert.equal(data.affiliate,undefined);
+  assert.equal(data.nonbillable,undefined);
+ }finally{m.restore()}
+});
 test('Owner sees TradingView affiliate preview but no paid sponsor',async()=>{
  const m=server({affiliate:true,owner:true,delivery:false});
  try{
