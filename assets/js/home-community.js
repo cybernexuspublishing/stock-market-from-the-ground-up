@@ -78,18 +78,32 @@
  function mount(){
   const modern=$('#v132-home .v132-home-hero-grid'),premium=$('.gu-premium-home .gu-home-stage-grid'),legacy=$('main .hero > .wrap');
   const hero=premium||modern||legacy;if(!hero)return null;
-  const existing=$('#v1353-member-stats');if(existing&&existing.parentElement===hero)return existing;
+  const existing=$('#v1353-member-stats');if(existing&&(premium?existing.closest('.gu-home-stage-grid')===hero:existing.parentElement===hero))return existing;
   if(existing)existing.remove();
   const panel=document.createElement('aside');panel.id='v1353-member-stats';
   panel.className='v1353-member-stats';panel.setAttribute('aria-label','Member statistics');
   panel.setAttribute('role','region');
-  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><div class="gu-stat-status"><span class="gu-stat-mode" data-mode>LIVE DATA</span><span class="gu-stat-provenance" data-source-info tabindex="0" hidden title="Illustrative Owner-configured values; not verified member counts" aria-label="Illustrative Owner-configured values; not verified member counts">ⓘ</span></div></div>'+
+  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><div class="gu-stat-status"><span class="gu-stat-mode" data-mode>LIVE DATA</span></div></div>'+
    '<div class="gu-home-stats-layout"><div class="gu-stats-hero"><div class="v1353-stats-graph" data-stats-chart role="img" aria-label="Member activity"></div></div>'+
    '<dl class="gu-stats-metrics"><div class="v1353-stat-row"><dt data-online-label>Activity in the last 60 minutes</dt><dd data-online>—</dd></div>'+
    '<div class="v1353-stat-row"><dt data-registered-label>Member accounts</dt><dd data-registered>—</dd></div></dl></div>'+
    '<div class="gu-home-future-modules" data-future-modules hidden></div>'+
    '<p data-caption class="small" hidden></p>';
-  if(premium){hero.append(panel);hero.classList.add('gu-home-member-stats-visible')}
+  if(premium){
+   // Keep the homepage headline on the left; place the compact statistical
+   // header immediately above the linked learning workstation on the right.
+   const terminal=hero.querySelector('.gu-home-terminal');
+   let rail=hero.querySelector('.gu-home-right-rail');
+   if(!rail&&terminal){
+    rail=document.createElement('div');
+    rail.className='gu-home-right-rail';
+    hero.insertBefore(rail,terminal);
+    rail.append(terminal);
+   }
+   if(rail)rail.insertBefore(panel,rail.firstChild);
+   else hero.append(panel);
+   hero.classList.add('gu-home-member-stats-visible');
+  }
   else if(modern){hero.insertBefore(panel,hero.firstElementChild);hero.classList.add('v1358-stats-grid')}
   else {const content=document.createElement('div');content.className='v1353-hero-body';
    while(hero.firstChild)content.append(hero.firstChild);hero.classList.add('v1353-hero-columns');hero.append(panel,content)}
@@ -105,11 +119,10 @@
    const valid=['live','custom','range'].includes(d.mode)&&Number.isSafeInteger(Number(d.registered))&&
      Number.isSafeInteger(Number(d.online))&&Number(d.registered)>=0&&
      Number(d.online)>=0&&Number(d.online)<=Number(d.registered);
-   const badge=panel.querySelector('[data-mode]'),disclosure=panel.querySelector('[data-source-info]');
+   const badge=panel.querySelector('[data-mode]');
    const example=d.mode==='custom'||d.mode==='range';
    badge.textContent=valid?'LIVE DATA':'UNAVAILABLE';
    badge.setAttribute('aria-label',valid?(example?'LIVE DATA display; illustrative Owner-configured counts':'LIVE DATA; verified membership aggregates'):'Member statistics unavailable');
-   disclosure.hidden=!valid||!example;
    panel.querySelector('[data-online]').textContent=valid?Number(d.online).toLocaleString():'—';
    panel.querySelector('[data-registered]').textContent=valid?Number(d.registered).toLocaleString():'—';
    const caption=panel.querySelector('[data-caption]');caption.textContent='';
@@ -138,7 +151,7 @@
   const main=$('main');if(main){observer=new MutationObserver(()=>{
     const modern=$('#v132-home .v132-home-hero-grid'),premium=$('.gu-premium-home .gu-home-stage-grid'),legacy=$('main .hero > .wrap');
     const target=premium||modern||legacy;const panel=$('#v1353-member-stats');
-    if(target&&(!panel||panel.parentElement!==target))sync();
+    if(target&&(!panel||(premium?panel.closest('.gu-home-stage-grid')!==target:panel.parentElement!==target)))sync();
   });observer.observe(main,{childList:true,subtree:true})}
   sync();
   let attempts=0;const bootstrap=setInterval(()=>{if(mount()||++attempts>=50){clearInterval(bootstrap);if(!snapshot&&!inflight)update()}},200);
