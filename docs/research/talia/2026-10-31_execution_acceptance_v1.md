@@ -2,7 +2,7 @@
 
 **Document ID:** SMFGU-TALIA-EXEC-023
 **Project:** The Stock Market: From the Ground Up
-**Version:** 1.0
+**Version:** 1.1
 **Date:** 2026-10-31
 **Status:** PARTIALLY IMPLEMENTED — NOT ACCEPTED (authenticated production acceptance and exact all-site regression outstanding)
 **File type:** Markdown
@@ -86,3 +86,14 @@ Observed six original archives without extraction: five browser-research snapsho
 
 ## Change-control history
 Version 1.0, October 31, 2026: first focused source register, provenance inventory, topic map, existing Tutor citations, assessment-stage safety and Academy source checkpoint release. **No SQL migrations, private answer keys, membership pricing, LIVE charges, paid AI services or new Tutor architecture.**
+
+## Version 1.1 acceptance addendum — protected assessment and exact-commit checks
+- `0f85ef4fc8ba960ceaec9a56351262218c99efb5`: removed the raw source-evidence object from public `labContext` JSON. Source references remain narrowed to a reviewed public link, and no protected answers or fictional worked case scaffolds are returned in that field.
+- `e93f61d4cc459106e73c584ac22edaabff27ac2c`: assessment-stage test inspects the **entire JSON response**, not just the rendered text. Original worked/counterexample/transfer fields are excluded when `Learning Journey stage: Assess`.
+- `56a7d08b713bb73ad6223bbdfe51a3c9383a6b63`: corrected Academy source-status label to explicit `topic-level reference only`, never day-level or editorial acceptance.
+- Tutor Trust `first-party-tutor-contract` job `124524270915` passed on `56a7d08b713bb73ad6223bbdfe51a3c9383a6b63`; logged **PASS 21 synthetic Talia source-evidence cases** and **PASS seven Academy program public-reference checks**. The related 419-Lab, 30-competency, no-external-provider, member-scoped history and safe-browser-source tests also passed.
+- Other exact-commit checks: `source-and-build` and Cloudflare Pages passed, but three unrelated site-level checks failed: `source-and-curriculum-contract` job `124524270622` (Lab Pack purchase-route assertion); `contract-regression` job `124524270398` (unexpected `/rest/v1/platform_plans` in entitlement fixture); and `live-public-browser` job `124524271005` (owner-removed homepage example membership statistics).
+- Cloudflare Pages production deployment `135fd865-e0fd-4118-8097-32d7b32fb924` explicitly confirmed `success` for commit `56a7d08b713bb73ad6223bbdfe51a3c9383a6b63`, branch `main`.
+- These results do not establish authenticated browser acceptance, live-model availability, third-party rights clearance or 671-unit editorial acceptance. This document-only addendum commit has its own subsequent CI/deployment result and is not represented by the above SHA.
+
+**Release determination:** PARTIALLY IMPLEMENTED — NOT ACCEPTED. Actual source links, seven Academy source-quality checkpoints, stricter protected assessment responses, source-quality registers and evaluations are implemented and individually tested. Full production acceptance remains blocked by unrelated CI failures, unverified live authenticated operation, unavailable provider configuration evidence and unresolved curriculum/license research.
