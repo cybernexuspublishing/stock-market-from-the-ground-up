@@ -1,0 +1,145 @@
+{
+  "kind": "smfgu_free_foundations_claim_specific_evidence_v1",
+  "version": "1.0",
+  "reviewDate": "2026-10-31",
+  "status": "SOURCE_CLAIMS_CHECKED_LESSONS_EDITORIAL_PENDING",
+  "policy": "Third-party educational context is not an independently validated trading edge. No external research is a substitute for the protected assessment or actual historical market data.",
+  "records": [
+    {
+      "day": 1,
+      "title": "What is a stock, and what does the market do?",
+      "objective": "Explain the difference between a share of ownership, a stock quote, and a request to buy or sell.",
+      "claim": "An ownership share, a displayed bid/ask quote, a last completed trade and a new broker order represent different things. Displayed or last-trade prices cannot guarantee a new fill.",
+      "claimStatus": "primary_educational_claim_reviewed",
+      "worked": "FICTIONAL: 100 shares out of 1,000,000 outstanding is (100 / 1,000,000) × 100 = 0.01% of the shares. At a hypothetical $10/share, simple market capitalization is 1,000,000 × $10 = $10,000,000; this is not company cash or a sale valuation.",
+      "calculation": "100 / 1000000 × 100 = 0.01%; 1000000 × $10 = $10000000.",
+      "counterexample": "A screen shows a prior last trade of $10.00; a new buy order may face a different ask, limited size, delays and price changes. Do not infer a $10.00 fill.",
+      "transfer": "Explain what a current quote, earlier last trade, issuer identity, order instructions and execution record each establish for a new fictional security. Choose NO TRADE when executable information is absent.",
+      "limit": "SEC sources establish general order and share concepts, not a verified HBLT issuer, real quote, guaranteed order fill or actual trade history.",
+      "sources": [
+        {
+          "id": "SEC-STOCK-QUOTES",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/stock-quotes",
+          "claim": "Bid/ask quotations are distinct from opening/closing historical observations."
+        },
+        {
+          "id": "SEC-EXEC-001",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/executing-order",
+          "claim": "Quotes apply to specific available share quantities; later order execution prices can change."
+        },
+        {
+          "id": "SEC-MARKETCAP-001",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+          "claim": "Market capitalization equals per-share price times outstanding shares."
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "title": "How to read a five-minute candlestick",
+      "objective": "Label open, high, low and close, calculate real body versus full range, and recognize an undefined range percentage.",
+      "claim": "A candlestick represents open, high, low and close over a defined interval. Its body spans open and close, while its shadows extend to high and low; it does not disclose the intrabar event order.",
+      "claimStatus": "publisher_technical_definition_reviewed_and_math_independently_checked",
+      "worked": "FICTIONAL completed bar: O=20.00, H=22.00, L=19.00, C=21.20. Real body=|21.20−20.00|=$1.20. Range=22.00−19.00=$3.00. Upper wick=22.00−21.20=$0.80; lower wick=20.00−19.00=$1.00. Body/range=1.20/3.00 × 100=40%.",
+      "calculation": "|21.20−20.00|/(22.00−19.00) × 100=40%; $0.80 + $1.20 + $1.00 = $3.00.",
+      "counterexample": "When high equals low, the range denominator is zero, so the body percentage is undefined; never force it to 0% or 100%. A bullish body alone is not a reliable forecast.",
+      "transfer": "For an original fictional bearish candle O=24.00, H=24.50, L=22.50, C=23.00, calculate body=$1.00, range=$2.00 and body %=50%. State one reason for NO TRADE without future bars.",
+      "limit": "StockCharts is a technical education publisher rather than a regulator. These original numerical OHLC examples are synthetic and do not verify an exchange print, future direction, intrabar chronology or historical chart license.",
+      "sources": [
+        {
+          "id": "STOCKCHARTS-CANDLE-001",
+          "authority": "StockCharts ChartSchool (technical publisher)",
+          "url": "https://chartschool.stockcharts.com/table-of-contents/chart-analysis/candlestick-charts/introduction-to-candlesticks",
+          "claim": "Definition of candle real body, shadows, high/low and OHLC construction."
+        },
+        {
+          "id": "SEC-STOCK-QUOTES",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/glossary/stock-quotes",
+          "claim": "Distinction between historical daily OHLC and contemporaneous bid/ask stock quotes."
+        }
+      ]
+    },
+    {
+      "day": 3,
+      "title": "Claims, catalysts and what was actually known",
+      "objective": "Separate an original source and its publication time from a social repost, marketing claim or later price observation.",
+      "claim": "SEC EDGAR is an appropriate primary record for issuer filing statements, but filing period, EDGAR acceptance and actual public dissemination are separate timing facts. An after-pause repost or price move cannot justify an earlier decision.",
+      "claimStatus": "primary_educational_claim_reviewed",
+      "worked": "FICTIONAL: a claim is posted at 08:10 ET; the learner pauses at 08:12; a newsletter at 08:17 and screenshot at 08:21 are later than the pause and cannot be prior evidence. A claimed 08:03 original document still needs authenticated identity and availability.",
+      "calculation": "At an 08:12 ET pause: 08:17 is 5 minutes later; 08:21 is 9 minutes later. Both are inadmissible as earlier decision evidence.",
+      "counterexample": "An SEC filing accepted at 08:03 does not establish that a given browser or trader could read its contents at 08:03. SEC notes typical public posting delays of 1–3 minutes and possible longer delays; independently verify availability.",
+      "transfer": "Use a real publicly accessible 8-K to record issuer name, form type, reporting period, acceptance time and separately available publication/dissemination evidence; state what cannot be proven at a selected historical pause.",
+      "limit": "A filing validates only what it disclosed, not whether any historical stock move was caused by it. No case price or trader-knowledge chronology is verified in this fictional lesson.",
+      "sources": [
+        {
+          "id": "SEC-EDGAR-RESEARCH-001",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
+          "claim": "EDGAR search and distinctions among Form 10-K, 10-Q and 8-K."
+        },
+        {
+          "id": "SEC-EDGAR-FAQ-001",
+          "authority": "U.S. Securities and Exchange Commission",
+          "url": "https://www.sec.gov/about/webmaster-frequently-asked-questions",
+          "claim": "EDGAR acceptance timestamp is not the same as verified web-publication time; usual 1–3-minute lag may grow."
+        }
+      ]
+    },
+    {
+      "day": 4,
+      "title": "Make a watchlist, not a list of trade signals",
+      "objective": "Organize a small research watchlist with stated purpose, dated evidence, uncertainty and an explicit removal/no-trade rule.",
+      "claim": "A research watchlist is an organizational method, not an order or verified trading signal. Primary issuer/SEC records can establish particular dated disclosures, but cannot by themselves establish liquidity, execution conditions or future returns.",
+      "claimStatus": "primary_disclosure_lookup_reviewed_original_watchlist_method_not_strategy_validated",
+      "worked": "FICTIONAL: label GUSIM as SIMULATED STUDY with original exercise provenance; label Candidate A as INVESTIGATE with a dated issuer disclosure and unknown liquidity; reject Candidate B if it has only an unattributed repost. None is a buy recommendation.",
+      "calculation": "No numeric calculation is required by this objective. The independent operation is a three-way provenance classification: verified dated source, original fictional exercise, or unverified claim.",
+      "counterexample": "A candidate trending on social media or ranking first in a scanner is not a verified issuer disclosure or proof of a tradable setup. Even a genuine issuer disclosure does not establish executable order depth.",
+      "transfer": "Build a fictional watchlist with purpose, source URL/issuer, source date, last reviewed, evidence status, uncertainty, next verification action and a specific removal/NO TRADE rule for every row.",
+      "limit": "SEC guidance supports research and source verification, not the profitability, completeness or regulatory approval of this original watchlist framework.",
+      "sources": [
+        {
+          "id": "SEC-RESEARCH-001",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments",
+          "claim": "Investment research and checking company disclosures are part of due diligence."
+        },
+        {
+          "id": "SEC-EDGAR-RESEARCH-001",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/getting-started/researching-investments/using-edgar-research-investments",
+          "claim": "Search for issuer filings via SEC EDGAR to establish documented disclosures."
+        }
+      ]
+    },
+    {
+      "day": 5,
+      "title": "Plan risk, choose NO TRADE and review your work",
+      "objective": "Use a hypothetical share-risk calculation, explain execution uncertainty and write a defensible independent NO TRADE decision.",
+      "claim": "Risk-per-share arithmetic estimates a planned exposure from an assumed entry and stop reference. SEC order guidance establishes that a stop may trigger a market order with a price different from its trigger; a limit order may remain unfilled.",
+      "claimStatus": "primary_order_claim_reviewed_and_math_independently_checked",
+      "worked": "FICTIONAL: assumed entry $10.00, stop reference $9.80 and planned risk budget $20. Risk/share=$0.20; floor(20/0.20)=100 shares. Notional exposure=100 × $10.00=$1,000. This is not a guaranteed $20 maximum loss.",
+      "calculation": "$10.00−$9.80=$0.20; floor($20/$0.20)=100 shares; 100 × $10=$1000 notional exposure.",
+      "counterexample": "If a hypothetical exit executes at $9.60 rather than the $9.80 stop reference, price-only loss on 100 shares is ($10−$9.60)×100=$40 before fees, not $20. If liquidity inputs are missing, choose NO TRADE.",
+      "transfer": "Recalculate the hypothetical risk using an entry of $10.00, stop reference $9.75 and $20 planned budget (80 shares before fees/slippage). State why a limit order may not fill and why no market order should be sent from a teaching exercise.",
+      "limit": "These are user-independent fictional arithmetic and SEC general education. Actual fills, gaps, fees, slippage, buying power, short availability and broker-specific stop handling remain unverified.",
+      "sources": [
+        {
+          "id": "SEC-ORDER-001",
+          "authority": "SEC Investor.gov",
+          "url": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders",
+          "claim": "Market, limit and stop order definitions; market/stop prices can differ from expectations and limit fills are not guaranteed."
+        },
+        {
+          "id": "SEC-STOP-20260818",
+          "authority": "SEC Investor.gov (updated 2026-08-18)",
+          "url": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-15",
+          "claim": "Stop price is a trigger rather than a guaranteed execution price; brokerage order handling differs."
+        }
+      ]
+    }
+  ]
+}

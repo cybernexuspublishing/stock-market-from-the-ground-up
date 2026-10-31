@@ -30,6 +30,61 @@
    filterAcademyCatalog();
   }catch{ /* Titles, IDs and topic search remain usable if enrichment fails. */ }
  }
+ const freeEvidence=new Map();
+ const evidenceUrlAllowed=/^https:\/\/(?:www\.)?(?:investor\.gov|sec\.gov|chartschool\.stockcharts\.com)\//i;
+ async function loadFreeEvidence(){
+  if(freeEvidence.size===5)return;
+  try{
+   const response=await fetch('/data/free-foundations-evidence-v1.json',{credentials:'same-origin',cache:'no-store'});
+   if(!response.ok)throw Error('Public research document unavailable');
+   const payload=await response.json(),rows=payload?.records;
+   if(payload?.kind!=='smfgu_free_foundations_claim_specific_evidence_v1'||!Array.isArray(rows)||rows.length!==5)
+    throw Error('Unexpected Free Foundations research register');
+   const checked=new Map();
+   for(const r of rows){
+    if(!Number.isInteger(r.day)||r.day<1||r.day>5||checked.has(r.day)||
+     !['primary_educational_claim_reviewed','publisher_technical_definition_reviewed_and_math_independently_checked',
+       'primary_disclosure_lookup_reviewed_original_watchlist_method_not_strategy_validated',
+       'primary_order_claim_reviewed_and_math_independently_checked'].includes(r.claimStatus)||
+     ['title','objective','claim','worked','calculation','counterexample','transfer','limit'].some(k=>typeof r[k]!=='string'||r[k].trim().length<25)||
+     !Array.isArray(r.sources)||!r.sources.length||r.sources.length>4||
+     !r.sources.every(s=>evidenceUrlAllowed.test(s.url)&&typeof s.claim==='string'&&s.claim.length>20))
+     throw Error('An evidence record failed claim-level source validation');
+    checked.set(r.day,r);
+   }
+   if(checked.size!==5)throw Error('Missing exact Free Foundations research days');
+   for(const [day,row] of checked)freeEvidence.set(day,row);
+  }catch{freeEvidence.clear()}
+ }
+ function showFreeEvidence(d,mount){
+  if(d.programCode!=='free5')return;
+  const x=freeEvidence.get(d.day),section=node('section');
+  section.className='academy-beta-daily-coach';
+  section.setAttribute('aria-label','Evidence verification for Free Foundations lesson '+d.day);
+  if(!x||x.title!==d.title||x.objective!==d.objective){
+   section.append(node('h4','Research verification pending'),node('p',
+    'This lesson remains unapproved at the claim-evidence level. The original fictional teaching stays available, but no source association will be invented.'));
+   mount.append(section);return;
+  }
+  section.append(node('p','SOURCE-RESEARCHED · ORIGINAL UNGRADED TEACHING · WHOLE-LESSON EDITORIAL ACCEPTANCE PENDING'),
+   node('h4','Learning objective and verified claim'),node('p',x.objective),
+   node('p',x.claim),node('h4','Worked original example'),node('p',x.worked),
+   node('h4','Calculation or evidence procedure'),node('p',x.calculation),
+   node('h4','Counterexample and common failure'),node('p',x.counterexample),
+   node('h4','Independent transfer exercise'),node('p',x.transfer),
+   node('h4','What these sources do not establish'),node('p',x.limit),
+   node('h4','Original references and exact supporting claims'));
+  const list=node('ul');
+  for(const source of x.sources){
+   if(!evidenceUrlAllowed.test(source.url))continue;
+   const li=node('li'),a=node('a',source.authority+' — '+source.id);
+   a.href=source.url;a.target='_blank';a.rel='noopener noreferrer';
+   li.append(a,node('p',source.claim));list.append(li);
+  }
+  section.append(list,node('p','Reference status: '+x.claimStatus.replaceAll('_',' ')+
+   '. Individual source claims were researched; protected answer keys, historical replay verification, member mastery and full editorial approval are NOT certified.'));
+  mount.append(section);
+ }
  let client=null,userId='',activeCode='',program=null,days=[],dayIndex=1,enrolled=false,
   progress=new Map(),drafts=new Map(),selfCheckDrafts=new Map(),progressAvailable=false,busy=false,sessionSerial=0,renderSerial=0,authListenerAttached=false;
  const status=message=>{get('academy-status').textContent=message};
@@ -247,6 +302,7 @@
   mount.replaceChildren();mount.hidden=false;
   showTruth5SourceAudit(d,mount);
   showProgramResearchProtocol(d,mount);
+  showFreeEvidence(d,mount);
   // Research augmentation is formative and never changes assessment, member
   // progress or saved reflections. It uses original source-informed teaching.
   if(d.researchEnrichment){
@@ -698,6 +754,9 @@
    if(!member)throw Error('Sign in to open your Boot Camp.');
    userId=member.id;
    const data=await request('program',code);
+   // Public educational research is optional. If unavailable, never infer or
+   // display a verified source and never block authorized member instruction.
+   if(code==='free5')await loadFreeEvidence();
    if(epoch!==sessionSerial)return;
    const loaded=data.curriculum;
    if(data.version!==VERSION||!Array.isArray(loaded)||loaded.length!==expected.get(code)||
