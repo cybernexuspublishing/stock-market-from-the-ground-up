@@ -52,6 +52,28 @@ window.__GU_BC_SWITCH=(id)=>{window.__GU_BC_TEST_MEMBER=id;window.__GU_BC_TEST_C
   assert.equal(response?.status(),200);
   await page.locator('#gu-bc-shell:not([hidden])').waitFor({timeout:20000});
   assert.equal(await page.locator('.gu-bc-day').count(),30,'All thirty days must be interactive');
+  const layout=await page.evaluate(()=>{
+   const area=document.querySelector('#gu-bc-shell');
+   const nav=area.querySelector(':scope>.gu-bc-index');
+   const lesson=area.querySelector(':scope>.gu-bc-lesson');
+   const row=document.querySelector('#gu-bc-days');
+   const r=e=>e.getBoundingClientRect();
+   return {scoped:document.body.classList.contains('gu-teaching-wide'),
+    viewport:innerWidth,columns:getComputedStyle(area).gridTemplateColumns.split(' ').filter(Boolean).length,
+    width:r(area).width,navEnd:r(nav).bottom,lessonStart:r(lesson).top,
+    scroller:getComputedStyle(row).overflowX,documentWidth:document.documentElement.scrollWidth};
+  });
+  assert(layout.scoped&&layout.columns===1,
+    '30-day Boot Camp must use full-width single teaching column: '+JSON.stringify(layout));
+  assert(layout.width>=width*.82,
+    '30-day Boot Camp layout does not occupy the page: '+JSON.stringify(layout));
+  assert(layout.navEnd<=layout.lessonStart+3,
+    '30-day navigation must be above the lesson, not alongside it: '+JSON.stringify(layout));
+  assert(['auto','scroll'].includes(layout.scroller),
+    'Long 30-day navigation must remain scrollable: '+JSON.stringify(layout));
+  assert(layout.documentWidth<=width+4,
+    'Boot Camp layout cannot create horizontal viewport overflow: '+JSON.stringify(layout));
+
   assert.equal((await page.locator('#gu-bc-title').innerText()).trim(),bootcampCurriculumV014144.days[0].title);
   await page.locator('.gu-bc-day').nth(29).focus();
   await page.keyboard.press('Enter');
