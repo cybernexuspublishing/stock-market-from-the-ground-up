@@ -83,7 +83,7 @@
   const panel=document.createElement('aside');panel.id='v1353-member-stats';
   panel.className='v1353-member-stats';panel.setAttribute('aria-label','Member statistics');
   panel.setAttribute('role','region');
-  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><span class="gu-stat-mode" data-mode>LIVE DATA</span><span class="gu-stat-provenance" data-source-info tabindex="0" hidden title="Illustrative Owner-configured values; not verified member counts" aria-label="Illustrative Owner-configured values; not verified member counts">ⓘ</span></div>'+
+  panel.innerHTML='<div class="gu-stats-head"><div><span class="eyebrow">OUR LEARNING COMMUNITY</span><h2>Member Statistics</h2></div><div class="gu-stat-status"><span class="gu-stat-mode" data-mode>LIVE DATA</span><span class="gu-stat-provenance" data-source-info tabindex="0" hidden title="Illustrative Owner-configured values; not verified member counts" aria-label="Illustrative Owner-configured values; not verified member counts">ⓘ</span></div></div>'+
    '<div class="gu-home-stats-layout"><div class="gu-stats-hero"><div class="v1353-stats-graph" data-stats-chart role="img" aria-label="Member activity"></div></div>'+
    '<dl class="gu-stats-metrics"><div class="v1353-stat-row"><dt data-online-label>Activity in the last 60 minutes</dt><dd data-online>—</dd></div>'+
    '<div class="v1353-stat-row"><dt data-registered-label>Member accounts</dt><dd data-registered>—</dd></div></dl></div>'+
