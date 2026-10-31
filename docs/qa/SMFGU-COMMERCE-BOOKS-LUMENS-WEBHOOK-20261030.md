@@ -5,8 +5,8 @@
 **Project:** The Stock Market: From the Ground Up  
 **Location:** GitHub `cybernexuspublishing/stock-market-from-the-ground-up` / `main` / `docs/qa/SMFGU-COMMERCE-BOOKS-LUMENS-WEBHOOK-20261030.md`  
 **Google Drive location and file ID:** Not assigned; no duplicate file created  
-**Version:** 1.4  
-**Status:** PARTIAL ACCEPTANCE; paid purchases, signed LIVE delivery, and Lumens package purchases not accepted end-to-end  
+**Version:** 1.5  
+**Status:** PARTIAL ACCEPTANCE; Book I TEST payment, signed webhook, refund and reversal accepted; LIVE paid-book entitlement and signed LIVE webhook delivery not yet accepted; Lumens TEST Checkout human verification outstanding  
 **Date:** October 30, 2026 (some evidence on October 31 UTC)  
 **Dependencies:** Primary SMFGU Stripe TEST/LIVE, Supabase, Cloudflare Pages, secure member session, real provider event delivery.  
 **Purpose:** Record precise verified controls, changes, gaps, and cleanup.
@@ -136,6 +136,58 @@ The new genuine LIVE `checkout.session.completed` event is `evt_1UWRaCJL0O4GGVBH
 
 **Do not close** book paid-fulfillment, original/new LIVE webhook delivery, purchased-Lumens credit, or refund acceptance on the evidence available.
 
+
+## October 30 continuation — first successful TEST settlement and refund
+
+**No real money, no third-party service charges, no LIVE nonzero payment.** All current nonzero card actions took place on the dedicated SMFGU Stripe TEST account `acct_1URGkDJY9FI7byHB`. Work remained on GitHub `main`; existing free GitHub Actions/Playwright, Cloudflare, Supabase, and Stripe connections were used.
+
+### Investigated Checkout validation defect and corrected the free test runner
+
+[Network diagnostic run 41159035159](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41159035159) proved both TEST forms remained unpaid and had a client-side invalid field without a Stripe HTTP failure. [Field diagnostic run 41159152335](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41159152335) identified the exact invalid field as Stripe-hosted `input[name="phoneNumber"]` (`autocomplete=tel`). The initial QA runner had omitted a required phone number.
+
+A production-safe QA-only code correction on `main`, commit `c6a45a9aa0ca4a10a43bae3592737c961e298b4e`, supplied fictional U.S. 555-0123 TEST phone data, never real customer details, and never modified LIVE checkout. [Execution run 41159278690](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41159278690) successfully returned from the official Stripe TEST payment page to the SMFGU website for Book I. It then failed only because the separate Lumen Checkout exposed its phone field dynamically. This overall workflow failure **does not negate the successful provider-verified Book I purchase**.
+
+### Book I $10.99 — exact provider and database proof
+
+- TEST Checkout Session: `cs_test_a1tsiNURFRBqSvHKPUN0EO5X5jpQoYeO0zaZ3ijKPzP0xHTpOMcrSUIBtg`; provider `status=complete`, `payment_status=paid`.
+- PaymentIntent: `pi_3UWRrPJY9FI7byHB0NQy2ibn`; `status=succeeded`, `livemode=false`, `amount_received=1099` cents USD.
+- Genuine Stripe `checkout.session.completed` event: `evt_1UWRrQJY9FI7byHBioAAY1YE`, `pending_webhooks=0` after destination processing.
+- Supabase `gu_book_test_intents_v1` transitioned to `paid` at 2026-10-31 02:17:37 UTC. `gu_book_test_events_v1` has matching signed `paid` event.
+- A **full TEST refund**, `re_3UWRrPJY9FI7byHB0i0fi6XZ`, succeeded for 1,099 cents against that exact PaymentIntent; `charge.refunded` event `evt_3UWRrPJY9FI7byHB0MP6m2SB` has `pending_webhooks=0`.
+- Supabase `gu_book_test_intents_v1.status` became `refunded` at 2026-10-31 02:19:05 UTC. The two signed TEST payment/refund webhook delivery and ledger transitions are **accepted**.
+
+**Important access limitation:** The verified database routine `gu_book_test_apply_v1` only updates the isolated `gu_book_test_intents_v1` / `gu_book_test_events_v1` QA ledgers. It does **not** create a production `entitlements` grant or prove permanent customer My Books acquisition from a genuine paid LIVE book purchase. Previously verified temporary QA EPUB downloads must not be relabeled as LIVE paid purchase fulfillment. Actual LIVE paid-book fulfillment stays **OPEN** under the $0 authorization policy.
+
+### 25 Crownlight Lumens $5.00 — official Stripe interactive verification blocker
+
+- TEST Session `cs_test_a1tG0MwYBq3apx6SDRz1kuUGrKHg91hxyCrztFfphBsP5gMOQWKZgmKebB` remains `open/unpaid` and without a PaymentIntent.
+- [Adaptive phone validation run 41159407229](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41159407229) found the Pay click timed out. [Disabled-state diagnostic run 41159532167](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41159532167) proved the Pay button itself was visible and enabled.
+- [Overlay identification run 41159645469](https://github.com/cybernexuspublishing/stock-market-from-the-ground-up/actions/runs/41159645469) showed `ModalOverlay VerificationModal-modalOverlay ModalOverlay--afterOpen` physically intercepted the legitimate Pay button. This is Stripe's interactive verification layer. No scripted force-click, DOM injection, automation evasion, or CAPTCHA bypass was performed.
+- No TEST Lumens paid event, QA `gu_lumen_bundle_test_shadow_credits_v1` grant, or refund. The program is **OPEN until manual official TEST verification is completed**. The QA shadow-credits route is not a production member purchased-Lumens wallet acceptance test.
+
+### LIVE $0.00 webhook reconciliation
+
+Both `evt_1UVaw9JL0O4GGVBHKjQTd21w` and `evt_1UWRaCJL0O4GGVBHK5A1POGx` continue to report `pending_webhooks=1` on the LIVE account. The latter's genuine completed $0 Session and actual line item were rechecked against the LIVE handler's expected owner reference, SKU marker, zero price ID, product, amount, quantity, and currency; no mismatch was found in these visible provider fields.
+
+Cloudflare production confirms the bound `GU58_STRIPE_LIVE_SECRET_KEY` and `GU58_STRIPE_LIVE_WEBHOOK_SECRET` are encrypted `secret_text`; generic `STRIPE_LIVE_SECRET_KEY` and `STRIPE_LIVE_WEBHOOK_SECRET` overrides are absent, so the code's fallback precedence is not shadowed by plaintext placeholders. `STRIPE_LIVE_ACCOUNT_ID` matches the intended LIVE account. `GU58_LIVE_DB_CONTRACT_APPROVED`, `GU58_LIVE_FULFILLMENT_APPROVED`, `GU58_LIVE_WEBHOOK_ENABLED`, and `GU71_ZERO_LIVE_QA_ENABLED` all equal `true`. The primary LIVE endpoint listens to `checkout.session.completed`. Encrypted secret contents are not readable through the connected Cloudflare plugin, and their matching to Stripe's endpoint-specific `whsec_` cannot be inferred from their mere presence.
+
+**LIVE signed HTTP acknowledgment NOT ACCEPTED.** The available Stripe plugin does not expose authenticated webhook delivery-attempt response bodies or a manual resend operation. No authenticated Stripe Dashboard browser profile or free authorized account key is available in the current execution tools; do not fabricate or replay a provider signature. The one necessary owner-side zero-cost action is to open [Stripe LIVE Webhooks](https://dashboard.stripe.com/webhooks), inspect the HTTP status/body for endpoint `we_1UUZvAJL0O4GGVBH5Tp77DVM` and both event IDs, and resend from Stripe Workbench. Use the actual response to diagnose key mismatch vs provider/database processing, then recheck exact event IDs through the connected plugin.
+
+### Acceptance decisions (Version 1.5)
+
+| Acceptance scope | Result |
+|---|---|
+| Book I genuine TEST card Checkout and PaymentIntent | PASS |
+| Book I provider-signed TEST payment webhooks, deduplication record | PASS for signed payment event; deduplication controls retain prior isolated acceptance |
+| Book I provider full TEST refund and signed refund reversal | PASS |
+| Book I real LIVE paid-customer entitlement and protected My Books acquisition | OPEN; cannot infer from QA-only ledger or $0 diagnostic |
+| 25-Lumens genuine TEST Checkout | BLOCKED by Stripe interactive verification modal |
+| 25-Lumens signed shadow-credit + refund/reversal | OPEN; no paid transaction |
+| Actual production purchased-Lumens member wallet credit/refund | OPEN, separate from shadow ledger |
+| LIVE $0 genuine Checkout | PASS provider checkout |
+| Both LIVE signed webhook acknowledgments | OPEN; pending=1 for each |
+| Additional third-party spending or LIVE nonzero charges | NONE |
+
 ## Revision history
 
 | Version | Date | Change |
@@ -146,3 +198,4 @@ The new genuine LIVE `checkout.session.completed` event is `evt_1UWRaCJL0O4GGVBH
 | 1.2 | 2026-10-30 | Positive five-book EPUB delivery passed; five Stripe TEST Lumens packages, new shadow ledger and refund contracts, authenticated $5 TEST Checkout, comprehensive regression, QA rollback and remaining signed-event gaps recorded. |
 | 1.3 | 2026-10-30 | Independently reverified Stripe sessions, TEST/LIVE endpoint routing, Cloudflare LIVE switches, deployment, Supabase payment ledgers, QA shadow-only boundary and original pending LIVE event. No false acceptance of paid fulfillment. |
 | 1.4 | 2026-10-30 | Executed live Stripe-hosted QA; genuine $0 LIVE Checkout completion, both LIVE events still pending, unsigned route preflight 405/401, no available CI LIVE resend key, two TEST sessions unpaid, no phantom grants/refunds. |
+| 1.5 | 2026-10-30 CDT / 2026-10-31 UTC | Real Stripe TEST Book I charge/refund and signed provider/database events accepted; omitted TEST phone fixed; Lumens blocked by Stripe interactive verification; LIVE event delivery remains pending, encrypted-secret validation bounded; $0 spend. |
