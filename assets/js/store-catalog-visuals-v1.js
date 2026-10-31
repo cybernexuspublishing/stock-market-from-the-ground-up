@@ -17,7 +17,7 @@ const tools=Object.freeze({
  MARKET_SIMULATOR:'assets/img/store-tools/market-simulator.svg',
  MARKET_TUTOR:'assets/img/store-tools/market-tutor.svg'
 });
-const bootCampCovers=Object.freeze({'BC-05-TRUTH':'truth5.webp','BC-07-WATCH':'watchlist7.webp','BC-10-SCAN':'scanners10.webp','BC-30-CORE':'foundations30.webp','BC-45-CHART':'charts45.webp','BC-60-RISK':'risk60.webp','BC-90-PRACT':'practicum90.webp'});
+const bootCampCovers=Object.freeze({'BC-05-TRUTH':'truth5-v2.webp','BC-07-WATCH':'watchlist7-v2.webp','BC-10-SCAN':'scanners10-v2.webp','BC-30-CORE':'foundations30-v2.webp','BC-45-CHART':'charts45-v2.webp','BC-60-RISK':'risk60-v2.webp','BC-90-PRACT':'practicum90-v2.webp'});
 const concepts=Object.freeze({
  'BC-05-TRUTH':'sec-filings','BC-07-WATCH':'candidate-quality',
  'BC-10-SCAN':'catalyst-analysis','BC-30-CORE':'chart-structure',

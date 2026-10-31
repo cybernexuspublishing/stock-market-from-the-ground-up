@@ -97,7 +97,7 @@
    'Courses are shown as locked until training entitlement is verified.')+
    ' Search by title, topic, skill, or ticker. Known program IDs remain searchable.';
  }
- const programCovers=Object.freeze({truth5:'truth5.webp',watchlist7:'watchlist7.webp',scanners10:'scanners10.webp',foundations30:'foundations30.webp',charts45:'charts45.webp',risk60:'risk60.webp',practicum90:'practicum90.webp'});
+ const programCovers=Object.freeze({truth5:'truth5-v2.webp',watchlist7:'watchlist7-v2.webp',scanners10:'scanners10-v2.webp',foundations30:'foundations30-v2.webp',charts45:'charts45-v2.webp',risk60:'risk60-v2.webp',practicum90:'practicum90-v2.webp'});
  function catalog(programs){
   const root=get('academy-programs');root.replaceChildren();
   if(!Array.isArray(programs)||programs.length!==7||

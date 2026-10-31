@@ -11,7 +11,7 @@ const styles=['assets/css/free-foundations-v1.css','assets/css/bootcamp-academy-
 const codes=["truth5","watchlist7","scanners10","foundations30","charts45","risk60","practicum90"];
 const cards=codes.map((name,i)=>'<article class="academy-program academy-program--compact">'+
  '<a class="academy-program-compact-link" href="/bootcamp-academy.html?program='+name+'">'+
- '<span class="academy-program-visual"><img class="academy-program-cover" alt="" src="/assets/images/bootcamp-covers/'+name+'.webp"></span>'+
+ '<span class="academy-program-visual"><img class="academy-program-cover" alt="" src="/assets/images/bootcamp-covers/'+name+'-v2.webp"></span>'+
  '<span class="academy-program-compact-name">Course '+(i+1)+'</span>'+
  '</a></article>').join('');
 const html='<!doctype html><html><head><meta charset="utf-8"><style>'+styles+'</style></head>'+

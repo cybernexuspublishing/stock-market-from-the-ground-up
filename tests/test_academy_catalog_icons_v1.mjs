@@ -6,7 +6,7 @@ const read=p=>readFileSync(new URL('../'+p,import.meta.url),'utf8');
 const js=read('assets/js/bootcamp-academy-v014168.js');
 const html=read('bootcamp-academy.html'),css=read('assets/css/bootcamp-academy-gallery-v2.css');
 const nav=read('assets/js/navigation.js');
-const imgs={"truth5":"truth5.webp","watchlist7":"watchlist7.webp","scanners10":"scanners10.webp","foundations30":"foundations30.webp","charts45":"charts45.webp","risk60":"risk60.webp","practicum90":"practicum90.webp"};
+const imgs={"truth5":"truth5-v2.webp","watchlist7":"watchlist7-v2.webp","scanners10":"scanners10-v2.webp","foundations30":"foundations30-v2.webp","charts45":"charts45-v2.webp","risk60":"risk60-v2.webp","practicum90":"practicum90-v2.webp"};
 for(const [code,file] of Object.entries(imgs)){
  assert(js.includes(code+":'"+file+"'"));
  assert(existsSync(new URL('../assets/images/bootcamp-covers/'+file,import.meta.url)));

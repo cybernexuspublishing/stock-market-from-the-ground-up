@@ -15,7 +15,7 @@ const expected=new Map([
  ['risk60',{days:60,href:'bootcamp-academy.html?program=risk60'}],
  ['practicum90',{days:90,href:'bootcamp-academy.html?program=practicum90'}]
 ]);
-const trainingArtwork=Object.freeze({truth5:'truth5.webp',watchlist7:'watchlist7.webp',scanners10:'scanners10.webp',foundations30:'foundations30.webp',charts45:'charts45.webp',risk60:'risk60.webp',practicum90:'practicum90.webp'});
+const trainingArtwork=Object.freeze({truth5:'truth5-v2.webp',watchlist7:'watchlist7-v2.webp',scanners10:'scanners10-v2.webp',foundations30:'foundations30-v2.webp',charts45:'charts45-v2.webp',risk60:'risk60-v2.webp',practicum90:'practicum90-v2.webp'});
 const make=(tag,value,className)=>{
  const n=document.createElement(tag);
  if(value!==undefined)n.textContent=String(value);
