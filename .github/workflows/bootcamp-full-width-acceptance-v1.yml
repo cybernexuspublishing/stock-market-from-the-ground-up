@@ -1,0 +1,68 @@
+name: Boot Camp Full-Width Teaching Acceptance
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/bootcamp-full-width-acceptance-v1.yml'
+      - 'assets/css/teaching-full-width-v1.css'
+      - 'assets/css/bootcamp.css'
+      - 'assets/css/bootcamp-academy-compact-v2.css'
+      - 'assets/css/learning-workstation-v44.css'
+      - 'bootcamp.html'
+      - 'bootcamp-academy.html'
+      - 'assets/js/bootcamp.js'
+      - 'assets/js/bootcamp-academy-v014168.js'
+      - 'functions/_lib/bootcamp-academy-v014168.js'
+      - 'tests/test_teaching_full_width_v1.mjs'
+      - 'tests/test_v014168_academy_browser.mjs'
+      - 'tests/test_v014144_bootcamp_browser.mjs'
+permissions:
+  contents: read
+jobs:
+  verify-all-bootcamps:
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Verify all seven programs and independent Free Foundations path
+        run: |
+          node tests/test_teaching_full_width_v1.mjs
+          node tests/test_v014168_academy_family.mjs
+          node tests/test_v014144_bootcamp.mjs
+          node tests/test_v014162_bootcamp_v32.mjs
+          node --check tests/test_v014168_academy_browser.mjs
+          node --check tests/test_v014144_bootcamp_browser.mjs
+      - name: Build deployment-equivalent Pages files
+        run: |
+          bash scripts/build-pages.sh
+          test -f public/assets/css/teaching-full-width-v1.css
+          test -f public/bootcamp-academy.html
+          test -f public/bootcamp.html
+          test ! -d public/supabase
+          test ! -d public/functions
+      - name: Install pinned open-source Chromium test runtime
+        run: |
+          npm install --no-save --no-package-lock --ignore-scripts playwright@1.56.1
+          npx playwright install --with-deps chromium
+      - name: Start isolated local static site
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 --directory public >/tmp/gu-bootcamp-layout.log 2>&1 &
+          for attempt in $(seq 1 30); do
+            if curl --fail --silent http://127.0.0.1:8765/bootcamp-academy.html >/dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:8765/bootcamp.html >/dev/null
+      - name: Browser-verify six Academy routes at four viewports, including first and final study day
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014168_academy_browser.mjs
+      - name: Browser-verify canonical 30-day Boot Camp at mobile and desktop widths
+        env:
+          SITEWIDE_TEST_BASE: http://127.0.0.1:8765
+        run: node tests/test_v014144_bootcamp_browser.mjs
