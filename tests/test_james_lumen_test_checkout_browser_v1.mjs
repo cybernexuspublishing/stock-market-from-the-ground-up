@@ -18,7 +18,7 @@ try{
  assert(auth.token.length>30);
  const pre=await page.request.get(site+'/api/lumen-bundle-test-checkout',{timeout:30000});
  const readiness=await pre.json().catch(()=>({}));
- assert(pre.ok()&&readiness.testOnly&&readiness.shadowOnly&&readiness.checkoutEnabled,'Five-bundle TEST provider readiness failed');
+ assert(pre.ok()&&readiness.testOnly&&readiness.shadowOnly&&readiness.checkoutEnabled,'Five-bundle TEST provider readiness failed: '+String(readiness.qaDiagnostic||'UNKNOWN'));
  assert.equal(readiness.offers?.length,5);
  console.log('PASS authenticated James_Test and all five QA-only Stripe TEST product/price preflights');
  const r=await page.request.post(site+'/api/lumen-bundle-test-checkout',{
