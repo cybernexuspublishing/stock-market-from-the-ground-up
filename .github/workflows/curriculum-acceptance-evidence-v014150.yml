@@ -19,6 +19,7 @@ jobs:
           node-version: '22'
       - name: Verify canonical curriculum decisions without awarding completion
         run: |
+          node tests/test_671_mandatory_primary_source_research_v1.mjs
           node tests/test_v014150_curriculum_acceptance.mjs
           node tests/test_v014151_foundations_content_gate.mjs
           node tests/test_v014151_lab_visual_layout.mjs
