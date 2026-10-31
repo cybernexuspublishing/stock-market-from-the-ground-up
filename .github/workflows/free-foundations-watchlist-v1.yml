@@ -22,6 +22,7 @@ on:
       - 'assets/js/bootcamp-academy-v014168.js'
       - 'data/free-foundations-evidence-v1.json'
       - 'tests/test_free_foundations_source_evidence_v1.mjs'
+      - 'tests/test_talia_academy_source_checkpoint_v1.mjs'
       - 'assets/js/free-watchlist-v1.js'
       - 'assets/js/free-watchlist-review-v1.js'
       - 'assets/css/free-watchlist-review-v1.css'
@@ -99,6 +100,7 @@ jobs:
           node --check assets/js/dashboard.js
           node tests/test_free_foundations_shared_v1.mjs
           node tests/test_free_foundations_source_evidence_v1.mjs
+          node tests/test_talia_academy_source_checkpoint_v1.mjs
           node tests/test_free_phase_a_teaching_v1.mjs
           node --check assets/js/free-foundations-formative-v1.js
           node tests/test_free_phase_a_formative_v1.mjs
