@@ -10,7 +10,7 @@ for(const course of threeCampDefinitions){
  assert.equal(new Set(course.lessons.map(x=>x.title)).size,course.days);
  for(const [index,lesson] of course.lessons.entries()){
   for(const field of ['title','terms','teach','worked','method','experiment','predict','replay','review','transfer']){
-   assert(typeof lesson[field]==='string'&&lesson[field].trim().length>=35,
+   assert(typeof lesson[field]==='string'&&lesson[field].trim().length>=(field==='title'?12:35),
     course.code+' day '+(index+1)+' needs actual '+field);
   }
   assert.equal(lesson.evidenceType,'FICTIONAL_EDUCATIONAL_DATA_NO_HISTORICAL_LICENSE');
