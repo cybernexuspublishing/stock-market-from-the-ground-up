@@ -1,11 +1,11 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Free Candlestick Reading Practice | The Stock Market: From the Ground Up</title>
-<meta name="description" content="Try three free beginner candlestick-reading questions with fictional OHLC and volume examples. Get feedback without registration or trading signals.">
+<meta name="description" content="Learn candlesticks in ten stages with guided calculation, ECharts experimentation, replay, review and transfer practice.">
 <link rel="stylesheet" href="/assets/css/styles.css"><link rel="stylesheet" href="/assets/css/member-growth-v1.css">
 <script src="/config.js"></script><script defer src="/assets/js/site.js"></script>
-<script defer src="/assets/js/crownlight-echarts-loader-v1.js"></script><script defer src="/assets/js/public-candle-practice-v1.js"></script><script defer src="/assets/js/public-share-v1.js"></script>
-<link rel="stylesheet" href="/assets/css/public-candle-workstation-v2.css"></head><body>
+<script defer src="/assets/js/crownlight-echarts-loader-v1.js"></script><script defer src="/assets/js/public-candle-learning-journey-v3.js?v=1"></script><script defer src="/assets/js/public-share-v1.js"></script>
+<link rel="stylesheet" href="/assets/css/public-candle-workstation-v2.css?v=3"></head><body>
 <header class="site-header"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"><a href="learn.html">Learning</a><a href="free-foundations-challenge.html">Five-Day Challenge</a><a href="lab-samples.html">Sample Labs</a><a href="signin.html">Sign in</a></nav></div></header>
 <main class="section"><div class="wrap gu-growth-sheet">
 <div class="gu-growth-hero"><p class="eyebrow">FREE INTERACTIVE PRACTICE / NO LOGIN REQUIRED</p>
@@ -13,32 +13,33 @@
 <p class="gu-growth-lead">Learn what open, high, low and close actually tell you. Read three clearly fictional chart examples, make a choice, then inspect feedback. No live prices, orders, predictions or grades.</p>
 </div>
 <section aria-labelledby="gu-growth-instructions"><h2 id="gu-growth-instructions">First, learn what a candle records</h2><p>An open is the first recorded price of an interval; a close is the last. The high and low mark extremes reached during that interval. The body runs from the open to close, while the wicks extend to the high and low when those lie beyond the body. A candle alone does not establish which extreme came first, what caused it, or how a future order would execute.</p></section>
-<section class="gu-growth-practice gu-public-learning-v2" aria-labelledby="gu-practice-heading">
-<p class="eyebrow">PUBLIC ECHARTS LAB · FICTIONAL MARKET DATA · NO LOGIN REQUIRED</p>
-<h2 id="gu-practice-heading">Learn with Talia — Candlestick Observations</h2>
-<p id="gu-practice-step" class="gu-growth-micro" aria-live="polite">Exercise 1 of 3</p>
-<div class="gu-public-classroom">
-<section class="gu-public-evidence" aria-label="Chart and exact candle evidence">
- <h3>Interactive candlestick evidence</h3>
- <div class="gu-public-control"><span id="gu-practice-chart-mode-label">Chart display</span><div id="gu-practice-chart-mode" class="gu-public-chart-tabs" role="group" aria-labelledby="gu-practice-chart-mode-label"><button type="button" data-chart-mode="Price + Volume" aria-pressed="true">Price + Volume</button><button type="button" data-chart-mode="Price Only" aria-pressed="false">Price</button><button type="button" data-chart-mode="Volume Only" aria-pressed="false">Volume</button></div></div>
- <div id="gu-practice-chart" class="gu-growth-chart gu-public-chart" role="img" aria-label="Fictional ECharts candlesticks and volume. Exact values also appear in the table below."></div>
- <p class="gu-growth-chart-note" id="gu-practice-caption">All bars are fictional, not live or historical market data.</p>
- <div class="gu-public-price-card"><h4>Price Measurements <small>· Current fictional candle</small></h4><div id="gu-practice-facts" class="gu-public-facts" aria-label="Most recent candle OHLC and volume"></div></div>
- <details class="gu-public-details" open><summary>Accessible five-bar OHLC and volume table</summary>
- <div class="gu-public-scroll"><table class="lab-table" aria-label="Fictional candles in chart"><thead><tr><th>Bar</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody id="gu-practice-ohlc"></tbody></table></div></details>
+<section class="gu-growth-practice gu-public-learning-v2 gu-learning-journey-v3" aria-labelledby="gu-practice-heading">
+<p class="eyebrow">FREE INTERACTIVE LEARNING · FICTIONAL CANDLES · NO LOGIN REQUIRED</p>
+<h2 id="gu-practice-heading">Build and Understand a Candlestick</h2>
+<p class="gu-growth-micro">Talia Mercer · Ten-stage Learning Journey · Full teaching and free retries</p>
+<div class="gu-journey-head"><strong id="gu-practice-step" aria-live="polite">Stage 1 of 10 · Start</strong><span>Guided study and independent public practice</span></div>
+<progress id="gu-practice-progressbar" max="10" value="0" aria-label="Completed learning stages"></progress>
+<div id="gu-practice-journey" class="gu-journey-grid" aria-label="Ten-stage learning navigator"></div>
+<div class="gu-public-classroom" id="gu-practice-classroom">
+<section class="gu-public-evidence" aria-label="Chart and exact evidence">
+<h3>Interactive Candlestick Workspace</h3>
+<div class="gu-public-control"><span id="gu-practice-chart-mode-label">Chart display</span><div id="gu-practice-chart-mode" class="gu-public-chart-tabs" role="group" aria-labelledby="gu-practice-chart-mode-label"><button type="button" data-chart-mode="Price + Volume" aria-pressed="true">Price + Volume</button><button type="button" data-chart-mode="Price Only" aria-pressed="false">Price</button><button type="button" data-chart-mode="Volume Only" aria-pressed="false">Volume</button></div></div>
+<div id="gu-practice-chart" class="gu-growth-chart gu-public-chart" role="img" aria-label="ECharts fictional candles and volume with exact price guides"></div>
+<p class="gu-growth-chart-note">Fictional five-minute candles. Not live prices or verified historical market data.</p>
+<div class="gu-public-price-card"><h4>Price Measurements <small>· Latest observed candle</small></h4><div id="gu-practice-facts" class="gu-public-facts" aria-label="Open high low close and volume"></div></div>
+<div id="gu-practice-experiment" class="gu-learning-experiment" hidden><h4>Candle experiment</h4><label for="gu-practice-close">Closing price <strong id="gu-practice-close-label">$32.00</strong></label><input id="gu-practice-close" type="range" min="30.50" max="32.50" step=".05" value="32"><output id="gu-practice-experiment-math"></output><p>High, low and open remain fixed while you move the close.</p></div>
+<div id="gu-practice-replay" class="gu-learning-replay" hidden><strong>Concealed-future replay</strong><p id="gu-practice-replay-status">Future bars are hidden.</p></div>
+<details class="gu-public-details" open><summary>Accessible OHLC and volume table</summary><div class="gu-public-scroll"><table class="lab-table" aria-label="Currently revealed fictional candle data"><thead><tr><th>Bar</th><th>Open</th><th>High</th><th>Low</th><th>Close</th><th>Volume</th></tr></thead><tbody id="gu-practice-ohlc"></tbody></table></div></details>
 </section>
-<section class="gu-public-tutor" aria-label="Talia Mercer guided teaching">
- <div class="gu-public-tutor-head"><span class="gu-public-avatar" aria-hidden="true">T</span><div><strong>Talia Mercer</strong><span>Advanced Teaching · Full explanations for every visitor</span></div></div>
- <div class="gu-public-tutor-tools"><button class="btn secondary" id="gu-practice-auto" type="button" aria-pressed="false">Start guided teaching</button><button class="btn secondary" id="gu-practice-next-teaching" type="button">Next explanation</button><button class="btn secondary" id="gu-practice-full" type="button">Show all instruction</button></div>
- <div class="gu-public-narration" id="gu-practice-narration"></div><p class="gu-growth-micro" id="gu-practice-tutor-status" role="status" aria-live="polite"></p>
- <div id="gu-practice-questionbox" class="gu-public-question" hidden>
- <h3 id="gu-practice-question">Practice question</h3>
- <form id="gu-practice-form"><fieldset><legend>Choose the conclusion supported by the evidence</legend><div id="gu-practice-answers" class="gu-growth-answers"></div></fieldset>
- <div class="gu-growth-tools"><button class="btn" type="submit" id="gu-practice-check">Check my answer</button><button class="btn secondary" type="button" id="gu-practice-next" hidden>Continue to next example</button><button class="btn secondary" type="button" id="gu-practice-reset" hidden>Try all three again</button></div></form>
- <div id="gu-practice-feedback" class="gu-growth-feedback" role="status" aria-live="polite" hidden></div></div>
- <details class="gu-public-details"><summary>Teach This in More Depth — Free</summary><p>Use the open, high, low and close values in the chart and table. Compare the question with recorded observations. High and low are interval extremes; their order within the interval is not established by one OHLC candle. Neither a candle's shape nor its volume alone predicts the next trade.</p></details>
- <p id="gu-practice-progress" class="gu-growth-micro" aria-live="polite">Practice is ungraded and temporary.</p>
- </section></div></section>
+<section class="gu-public-tutor" aria-label="Talia Mercer synchronized tutor">
+<div class="gu-public-tutor-head"><span class="gu-public-avatar" aria-hidden="true">T</span><div><strong>Talia Mercer</strong><span>Complete teaching for every learner</span></div></div>
+<h3 id="gu-practice-title">Welcome</h3>
+<div class="gu-public-tutor-tools"><button class="btn secondary" id="gu-practice-auto" type="button" aria-pressed="true">Pause automatic teaching</button><button class="btn secondary" id="gu-practice-next-teaching" type="button">Next explanation</button><button class="btn secondary" id="gu-practice-full" type="button">Show all instruction</button></div>
+<div id="gu-practice-narration" class="gu-public-narration" aria-live="polite"></div><p id="gu-practice-tutor-status" class="gu-growth-micro" role="status" aria-live="polite"></p>
+<div id="gu-practice-questionbox" class="gu-public-question" hidden><h4 id="gu-practice-question">Checkpoint</h4><form id="gu-practice-form"><div id="gu-practice-fields"></div><button class="btn" id="gu-practice-submit" type="submit">Close & Next — Submit answer</button></form><p id="gu-practice-feedback" class="gu-growth-feedback" role="status" aria-live="polite" hidden></p></div>
+<div id="gu-practice-results" class="gu-learning-results" hidden></div>
+<p id="gu-practice-progress" class="gu-growth-micro" aria-live="polite">No official grade or account record.</p>
+</section></div><p class="gu-growth-compact-note">All teaching and retries are free. Public first submissions are temporary; official assessments require authenticated server-protected Labs. All chart values are fictional.</p></section>
 <section class="gu-growth-divider"><h2>Continue your education</h2><p>For more guided explanation from Talia, continue with the five actual Free Foundations lessons. Email verification is required for a member account, and your protected reflections are private. Free instruction does not award official trading proficiency.</p><div class="actions"><a class="btn" href="free-foundations-challenge.html">See the Five-Day Free Foundations Path</a><a class="btn secondary" href="create-account.html">Create a Free Account</a></div></section>
 <section class="gu-growth-divider"><h2>Useful companion reading</h2><nav class="gu-growth-related" aria-label="Continue reading"><a href="how-to-read-candlestick-charts.html">Candlestick open, high, low and close</a><a href="market-vs-limit-orders.html">Market orders versus limit orders</a><a href="support-resistance-basics.html">Support and resistance basics</a><a href="stock-trading-risk-management.html">Risk and position sizing</a></nav></section>
 <div class="gu-growth-tools"><button class="btn secondary" type="button" data-gu-share-title="Free Candlestick Reading Practice" data-gu-share-path="/candle-practice.html">Share the free practice</button><span class="gu-growth-share-status" data-gu-share-status role="status" aria-live="polite"></span></div>
