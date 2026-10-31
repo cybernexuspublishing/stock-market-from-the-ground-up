@@ -127,3 +127,83 @@
 #v1353-member-stats .gu-stat-provenance{font-size:.82rem;line-height:1;cursor:help;color:#d0bb85;outline-offset:3px}
 #v1353-member-stats .gu-stat-provenance[hidden]{display:none!important}
 #v1353-member-stats .gu-stat-provenance:focus-visible{outline:2px solid #efcf89;border-radius:4px}
+
+/* V5 homepage hero: compact stat strip above the entire clickable learning card. */
+.gu-premium-home .gu-home-stage-grid>.gu-home-right-rail{
+ grid-column:2;min-width:0;width:100%;display:flex;flex-direction:column;
+ align-items:stretch;gap:13px;align-self:center;
+}
+.gu-premium-home .gu-home-right-rail>#v1353-member-stats{
+ display:block!important;position:relative;order:0;width:100%!important;
+ min-width:0!important;max-width:none!important;margin:0!important;
+ padding:0 0 10px!important;overflow:hidden;
+ background:transparent!important;border:0!important;
+ border-bottom:1px solid rgba(129,171,198,.25)!important;
+ border-radius:0!important;box-shadow:none!important;
+}
+.gu-premium-home .gu-home-right-rail>#v1353-member-stats[hidden]{display:none!important}
+.gu-premium-home .gu-home-right-rail>#v1353-member-stats:before{display:none!important}
+.gu-premium-home .gu-home-right-rail .gu-stats-head{gap:8px;margin:0 0 2px}
+.gu-premium-home .gu-home-right-rail .gu-stats-head .eyebrow{
+ font-size:.54rem;letter-spacing:.11em;margin:0 0 2px;
+}
+.gu-premium-home .gu-home-right-rail .gu-stats-head h2{font-size:1.05rem;line-height:1.12}
+.gu-premium-home .gu-home-right-rail .gu-stat-mode{font-size:.55rem;padding:5px 8px;white-space:nowrap}
+.gu-premium-home .gu-home-right-rail .gu-home-stats-layout{
+ display:grid!important;grid-template-columns:100px minmax(0,1fr)!important;
+ align-items:center;gap:15px!important;
+}
+.gu-premium-home .gu-home-right-rail .gu-stats-hero{
+ max-width:100px!important;width:100%!important;margin:0!important;
+ background:transparent!important;border:0!important;padding:0!important;
+}
+.gu-premium-home .gu-home-right-rail .v1353-stats-graph{
+ width:100%;height:104px!important;min-height:104px!important;
+ background:transparent!important;border:0!important;
+}
+.gu-premium-home .gu-home-right-rail .gu-stats-metrics{gap:0!important}
+.gu-premium-home .gu-home-right-rail .v1353-stat-row{
+ padding:9px 0!important;gap:8px!important;
+ grid-template-columns:minmax(0,1fr) auto!important;
+}
+.gu-premium-home .gu-home-right-rail .v1353-stat-row dt{
+ font-size:clamp(.69rem,.85vw,.83rem);line-height:1.4;
+}
+.gu-premium-home .gu-home-right-rail .v1353-stat-row dd{
+ font-size:clamp(1.17rem,1.6vw,1.5rem)!important;
+}
+.gu-premium-home .gu-home-right-rail .gu-home-future-modules{margin-top:6px}
+.gu-premium-home .gu-home-right-rail .gu-home-terminal{
+ display:block;order:1;width:100%;min-width:0;cursor:pointer;
+ text-decoration:none!important;color:inherit;
+ transition:border-color .18s ease,box-shadow .18s ease,transform .18s ease;
+}
+.gu-premium-home .gu-home-right-rail .gu-home-terminal:focus-visible{
+ outline:3px solid #79efcf;outline-offset:4px;
+}
+.gu-premium-home .gu-home-right-rail .gu-home-terminal .gu-terminal-open{
+ color:#bcefe3;font-size:.7rem;font-weight:750;letter-spacing:.01em;
+}
+@media(hover:hover){
+ .gu-premium-home .gu-home-right-rail .gu-home-terminal:hover{
+  border-color:#64e6c6;box-shadow:0 20px 65px #0009,0 0 0 1px #64e6c655;
+  transform:translateY(-2px);
+ }
+}
+@media(max-width:1100px){
+ .gu-premium-home .gu-home-stage-grid>.gu-home-right-rail{grid-column:1;max-width:770px}
+}
+@media(max-width:680px){
+ .gu-premium-home .gu-home-right-rail .gu-home-stats-layout{
+  grid-template-columns:88px minmax(0,1fr)!important;gap:12px!important;
+ }
+ .gu-premium-home .gu-home-right-rail .gu-stats-hero{max-width:88px!important;margin:0!important}
+ .gu-premium-home .gu-home-right-rail .v1353-stats-graph{
+  height:92px!important;min-height:92px!important;
+ }
+ .gu-premium-home .gu-home-right-rail .v1353-stat-row dt{font-size:.68rem}
+ .gu-premium-home .gu-home-right-rail .v1353-stat-row dd{font-size:1.14rem!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .gu-premium-home .gu-home-right-rail .gu-home-terminal{transition:none!important;transform:none!important}
+}
