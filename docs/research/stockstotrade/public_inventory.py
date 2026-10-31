@@ -54,10 +54,14 @@ def reconcile(output):
         writer.writeheader()
         writer.writerows(rows)
     counts = Counter(row["kind"] for row in rows)
+    website_index_count = sum(row["canonical_url"] == "https://stockstotrade.com/blog/" for row in rows)
     report = {"method": "offline reconciliation of manually observed source records",
               "input_rows": dict(input_counts), "unique_urls": dict(counts),
+              "website_blog_index_urls": website_index_count,
+              "website_article_candidate_urls": counts["website"] - website_index_count,
               "duplicate_rows": sum(input_counts.values()) - len(rows),
               "youtube_transcripts_verified": sum(row["transcript_verified"] == "true" for row in rows if row["kind"] == "youtube"),
+              "youtube_channel_upload_ownership_verified": False,
               "coverage": "partial; exhaustive site and channel enumeration unverified",
               "wbs_task_count": None,
               "wbs_note": "Source URLs are not research tasks; no canonical research WBS was found."}

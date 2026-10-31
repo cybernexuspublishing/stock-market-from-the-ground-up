@@ -8,8 +8,11 @@
     "website": 13,
     "youtube": 5
   },
+  "website_blog_index_urls": 1,
+  "website_article_candidate_urls": 12,
   "duplicate_rows": 0,
   "youtube_transcripts_verified": 0,
+  "youtube_channel_upload_ownership_verified": false,
   "coverage": "partial; exhaustive site and channel enumeration unverified",
   "wbs_task_count": null,
   "wbs_note": "Source URLs are not research tasks; no canonical research WBS was found."

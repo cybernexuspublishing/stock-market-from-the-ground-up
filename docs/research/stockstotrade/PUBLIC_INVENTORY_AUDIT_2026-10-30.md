@@ -2,7 +2,7 @@
 
 ## Result
 
-The checked source registry and discovery batch contain **13 distinct stockstotrade.com URLs** and **5 distinct YouTube video URLs**. These are observed records, not a complete census of either publisher. No YouTube transcripts were verified. The combined inventory and machine-readable counts are in `public_source_inventory.csv` and `public_inventory_audit.json`.
+The checked source registry and discovery batch contain **13 distinct stockstotrade.com URLs**: **12 article candidates and 1 blog index**. They also contain **5 distinct YouTube video URLs**. These are observed links, not a complete census of either publisher. The existing source files do not independently verify that all five videos were uploaded by `@Stockstotrade`. No YouTube transcripts were verified. The combined inventory and machine-readable counts are in `public_source_inventory.csv` and `public_inventory_audit.json`.
 
 ## Provenance and method
 
@@ -12,8 +12,8 @@ The checked source registry and discovery batch contain **13 distinct stockstotr
 
 | Surface | Current evidence | Exception |
 | --- | --- | --- |
-| stockstotrade.com educational pages | 13 observed URLs | No complete sitemap, archive pagination, category, or canonical census verified. The earlier sitemap index request was reported as 404 and robots.txt was inaccessible in the prior research pass. |
-| @Stockstotrade videos | 5 observed video IDs | No complete uploads-tab enumeration verified. |
+| stockstotrade.com educational pages | 12 article candidate URLs plus 1 blog index | No complete sitemap, archive pagination, category, or canonical census verified. The earlier sitemap index request was reported as 404 and robots.txt was inaccessible in the prior research pass. |
+| YouTube videos linked in the source records | 5 observed video IDs | Uploader/channel ownership has not been independently checked for all five; no complete `@Stockstotrade` uploads-tab enumeration verified. |
 | @Stockstotrade shorts | 0 separately inventoried | Unenumerated, not confirmed empty. |
 | @Stockstotrade streams | 0 separately inventoried | Unenumerated, not confirmed empty. |
 | @Stockstotrade playlists | 0 separately inventoried | Unenumerated, not confirmed empty. Playlist count and contained-video count must be kept separate. |

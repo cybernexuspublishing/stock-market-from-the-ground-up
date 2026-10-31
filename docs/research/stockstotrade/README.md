@@ -8,7 +8,7 @@
 **Purpose:** Audit third-party teaching and independently verify claims to support original instruction, not reproduce proprietary content.
 
 ## Coverage snapshot (2026-10-30)
-- Offline reconciliation of the committed source records: **13 distinct website URLs and 5 distinct YouTube video URLs**; no duplicate URL rows and no verified transcripts. See [the inventory audit](PUBLIC_INVENTORY_AUDIT_2026-10-30.md). These are partial observed counts, not site or channel totals.
+- Offline reconciliation of the committed source records: **12 article candidate URLs, 1 blog index URL, and 5 YouTube video URLs**; no duplicate URL rows and no verified transcripts. Uploader ownership of all five videos has not been confirmed. See [the inventory audit](PUBLIC_INVENTORY_AUDIT_2026-10-30.md). These are partial observed counts, not site or channel totals.
 - The research WBS task count remains undetermined; the earlier 96 figure has no verified task register in this repository. Do not substitute the 18 source URLs for tasks.
 - 5 website articles entered (3 reviewed at article level; 2 only partly reviewed).
 - 2 YouTube video records entered from public video descriptions; **zero complete transcripts reviewed**.
