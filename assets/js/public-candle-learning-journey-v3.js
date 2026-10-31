@@ -230,6 +230,7 @@ function teachNext(){
 }
 function render(){
  cancel();renderToken++;part=0;el('gu-practice-narration').replaceChildren();el('gu-practice-results').hidden=true;
+ if(stage===9)completed.add(stage);
  nav();el('gu-practice-title').textContent=lessons[stage].title;
  el('gu-practice-auto').setAttribute('aria-pressed',String(auto));el('gu-practice-auto').textContent=auto?'Pause automatic teaching':'Play automatic teaching';
  el('gu-practice-next-teaching').disabled=false;
