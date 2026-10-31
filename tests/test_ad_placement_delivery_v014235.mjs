@@ -4,7 +4,7 @@ import {onRequest as adSlot} from '../functions/api/ad-slot.js';
 import fs from 'node:fs';
 const root='https://training.example',session='11111111-1111-4111-8111-111111110355';
 const env={SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',SUPABASE_PUBLISHABLE_KEY:'pub_ci',SUPABASE_SECRET_KEY:'sb_secret_ci'};
-function server({lifetime=false,owner=false,limit=false,delivery=true,carousel=false}={}){
+function server({lifetime=false,owner=false,limit=false,delivery=true,carousel=false,affiliate=false}={}){
  const old=globalThis.fetch,calls=[];
  globalThis.fetch=async(input,opts={})=>{
   const url=new URL(String(input)),p=url.pathname;calls.push({path:p,url:url.toString(),method:opts.method||'GET'});
@@ -12,12 +12,15 @@ function server({lifetime=false,owner=false,limit=false,delivery=true,carousel=f
   if(p==='/auth/v1/user')rows={id:'11111111-1111-4111-8111-111111110006'};
   else if(p.endsWith('/admin_user_roles'))rows=owner?[{role_code:'OWNER',expires_at:null}]:[];
   else if(p.endsWith('/gu_ad_sales_settings_v014226'))rows=[{ad_delivery_enabled:delivery,accepting_payments:delivery}];
-  else if(p.endsWith('/ad_placements'))rows=[{placement_code:'HOME_INLINE',active:true,metadata:{carousel_enabled:carousel}}];
+  else if(p.endsWith('/ad_placements'))rows=[{placement_code:'HOME_INLINE',active:true,metadata:{carousel_enabled:carousel,...(affiliate?{affiliate:true,provider:'TradingView',affiliate_campaign_id:3,affiliate_creative_id:4}:{})}}];
   else if(p.endsWith('/plan_ad_policies'))rows=[{ads_enabled:true,allowed_slots:['HOME_INLINE'],
    max_impressions_per_session:3,max_impressions_per_24h:6,minimum_minutes_between_ads:10}];
   else if(p.endsWith('/user_plan_grants'))rows=lifetime?[{plan_code:'LIFETIME',status:'active',ends_at:null}]:[];
+  else if(p.endsWith('/advertisers'))rows=[{id:3,name:'TradingView',status:'active'}];
+  else if(p.endsWith('/ad_campaigns')&&affiliate&&url.searchParams.get('id')==='eq.3')rows=[{id:3,advertiser_id:3,amount_cents:0}];
   else if(p.endsWith('/ad_campaigns'))rows=[{id:7,last_verified_invoice:'in_abc123ABC',
    amount_cents:12000,impression_limit:limit?2:null,click_limit:null}];
+  else if(p.endsWith('/ad_creatives')&&affiliate&&url.searchParams.get('id')==='eq.4')rows=[{id:4,campaign_id:3,placement_code:'HOME_INLINE',status:'approved',destination_url:'https://www.tradingview.com/?aff_id=1173728&aff_sub=smfgu_website&source=stock-market-from-the-ground-up-d1r.pages.dev',image_url:'data:image/webp;base64,'+'A'.repeat(450),alt_text:'TradingView chart banner'}];
   else if(p.endsWith('/ad_creatives'))rows=[{id:9,campaign_id:7,headline:'Sponsor resources',
    body:'Educational resources available from the advertiser.',
    destination_url:'https://sponsor.example',disclosure_label:'Advertisement'},
@@ -38,6 +41,36 @@ test('approved, paid and disclosed context-only creative renders when explicitly
  const m=server();try{const r=await adSlot({request:new Request(root+url),env}),data=await r.json();
  assert.equal(r.status,200);assert.equal(data.ad.creativeId,9);
  assert.equal(data.ad.label,'Advertisement');assert.equal(data.ad.destinationUrl,'https://sponsor.example');
+ }finally{m.restore()}
+});
+test('TradingView affiliate renders independently of disabled paid ad and checkout gates',async()=>{
+ const m=server({affiliate:true,delivery:false});
+ try{
+  const r=await adSlot({request:new Request(root+url),env}),data=await r.json();
+  assert.equal(r.status,200);
+  assert.equal(data.ad,null);assert.equal(data.affiliate?.type,'affiliate');
+  assert.equal(data.affiliate.creativeId,4);assert.equal(data.nonbillable,true);
+  assert.match(data.affiliate.destinationUrl,/aff_id=1173728/);
+  assert.equal(m.calls.some(x=>x.path.endsWith('/gu_ad_order_evidence_v014226')),false);
+  assert.equal(m.calls.some(x=>x.path.endsWith('/rpc/gu_ad_campaign_counts_v014233')),false);
+ }finally{m.restore()}
+});
+test('Owner sees TradingView affiliate preview but no paid sponsor',async()=>{
+ const m=server({affiliate:true,owner:true,delivery:false});
+ try{
+  const endpoint=root+'/api/ad-slot?slot=HOME_INLINE&page=%2Findex.html&ownerPreview=1';
+  const r=await adSlot({request:new Request(endpoint,{headers:{authorization:'Bearer OWNER_TOKEN'}}),env});
+  const data=await r.json();
+  assert.equal(data.ownerPreview,true);assert.equal(data.affiliate?.creativeId,4);
+  assert.equal(data.ad,null);assert.equal(m.calls.some(x=>x.path.endsWith('/ad_events')),false);
+ }finally{m.restore()}
+});
+test('Ad-free Lifetime member never receives the partner banner',async()=>{
+ const m=server({affiliate:true,lifetime:true,delivery:false});
+ try{
+  const r=await adSlot({request:new Request(root+url,{headers:{authorization:'Bearer MEMBER_TOKEN'}}),env});
+  const data=await r.json();
+  assert.equal(data.placeholderAvailable,false);assert.equal(data.affiliate,undefined);
  }finally{m.restore()}
 });
 test('Lifetime members are ad-free even when they visit the public Home page',async()=>{
@@ -90,6 +123,15 @@ test('misplaced ad slot never displays the inventory placeholder',async()=>{
   const r=await adSlot({request:new Request(root+'/api/ad-slot?slot=HOME_INLINE&page=%2Flab-player.html'),env});
   assert.equal((await r.json()).placeholderAvailable,false);
  }finally{m.restore()}
+});
+test('Affiliate image renderer is not a disguised paid sponsor or house preview',()=>{
+ const ui=fs.readFileSync('assets/js/ad-slots-v014229.js','utf8');
+ const css=fs.readFileSync('assets/css/ad-sales-v014228.css','utf8');
+ assert.match(ui,/if\(delivered\.affiliate\)/);
+ assert.match(ui,/gu-affiliate-promo/);
+ assert.match(ui,/Affiliate advertisement/);
+ assert.match(ui,/rel='sponsored nofollow noopener noreferrer'/);
+ assert.match(css,/gu-ad-slot\.gu-affiliate-promo/);
 });
 test('all twenty-five configured placement mounts are connected without adding sponsors to lessons',()=>{
  const mounted=[
