@@ -1,0 +1,9 @@
+/* Public homepage ECharts statistics — truthful aggregate snapshot. */
+#v1353-member-stats{min-width:0}
+#v1353-member-stats .v1353-stats-graph{grid-column:1/-1;display:block;min-width:0;width:100%;height:206px;min-height:180px;border-radius:11px;overflow:hidden;border:1px solid #3a5b75;background:linear-gradient(145deg,#0c2537,#0d2138);color:#c1d5e2}
+#v1353-member-stats .v1353-chart-description{grid-column:1/-1;margin:0;font-size:.79rem;line-height:1.55;color:#bed3df}
+#v1353-member-stats [data-caption]{grid-column:1/-1}
+#v1353-member-stats .v1353-stat-row strong{font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+@media(max-width:830px){#v1353-member-stats .v1353-stats-graph,#v1353-member-stats .v1353-chart-description{flex:1 1 100%}}
+@media(max-width:480px){#v1353-member-stats .v1353-stats-graph{height:175px;min-height:175px}}
+@media(prefers-reduced-motion:reduce){#v1353-member-stats .v1353-stats-graph *{animation:none!important;transition:none!important}}
