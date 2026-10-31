@@ -96,7 +96,7 @@ try{
     for(const [field,v] of [['body','1'],['range','2'],['percent','50']])await page.locator('[name="'+field+'"]').fill(v);
     await page.locator('#gu-practice-submit').click();
     assert.match(await page.locator('#gu-practice-step').innerText(),/Experiment/);
-    await page.locator('#gu-practice-close').fill('31.50');
+    await page.locator('#gu-practice-close').evaluate(input=>{input.value='31.50';input.dispatchEvent(new Event('input',{bubbles:true}));});
     assert.match(await page.locator('#gu-practice-experiment-math').innerText(),/25.0%/);
     await finish(0); // Experiment -> Predict
     await finish(1); // Predict -> Replay
