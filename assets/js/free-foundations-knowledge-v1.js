@@ -119,7 +119,7 @@ function render(){
  if(!rootNode)return;
  const head=el('div',undefined,'gu-free-reference-head');
  head.append(el('p','FREE MEMBERSHIP · NO UPGRADE REQUIRED','gu-free-reference-eyebrow'),
- el('h2','Stock Market Foundations Knowledge Database'),
+ el('h2','SMF Knowledge Database'),
  el('p','The five guided lessons give you hands-on practice. These additional free, self-paced explanations fill the knowledge gaps a new investor should understand before risking money. Every demonstration is fictional, and every exercise is ungraded.'));
  rootNode.append(head);
  const index=el('p','12 core reference topics · No Lumens, grade, or subscription purchase required. You may study them in any order, but start with the guided Free Foundations lessons.');
