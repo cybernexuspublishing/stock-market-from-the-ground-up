@@ -53,17 +53,34 @@ assert.equal(second.length,2);
 const secondTypical=(5.20+5.01+5.15)/3;
 assert(Math.abs(second[1].vwap-(5.04*2000+secondTypical*3200)/5200)<1e-10);
 assert.equal(workshop.evaluate(8).length,8);
+const firstPlot=workshop.chartSeries(1);
+assert.equal(firstPlot.times.length,8,'Plot must reserve all eight time slots from first reveal');
+assert.equal(firstPlot.candles.length,8);
+assert.equal(firstPlot.candles[0][1],5.08);
+assert(firstPlot.candles.slice(1).every(x=>x==='-'),'Unrevealed candles must remain missing');
+assert(firstPlot.vwap.slice(1).every(x=>x===null),'Unrevealed VWAP must not leak');
+assert(firstPlot.volume.slice(1).every(x=>x===null),'Unrevealed volume must not leak');
+assert.equal(firstPlot.volume[0],2000);
+const fullPlot=workshop.chartSeries(8);
+assert.equal(fullPlot.candles.length,8);
+assert(fullPlot.candles.every(Array.isArray));
+assert.deepEqual([...firstPlot.times],[...fullPlot.times],'Horizontal time positions must not jump on reveal');
 assert(workshop.bars.every(x=>x.h>=Math.max(x.o,x.c)&&x.l<=Math.min(x.o,x.c)&&x.v>0),'Invalid fictional candle');
 const html=read('knowledge-database.html');
+const practice=read('chart-reveal-practice.html');
+for(const p of ['assets/css/knowledge-database-expanded-v2.css','assets/js/knowledge-database-expanded-v2.js'])
+ assert(html.includes(p)&&existsSync(new URL('../'+p,import.meta.url)),p+' required in the Knowledge Database');
 for(const p of ['assets/css/knowledge-database-expanded-v2.css',
- 'assets/js/knowledge-database-expanded-v2.js',
- 'assets/js/knowledge-database-workshop-v1.js',
- 'assets/js/crownlight-echarts-loader-v1.js'])
- assert(html.includes(p)&&existsSync(new URL('../'+p,import.meta.url)),p+' must be bundled locally');
+ 'assets/js/knowledge-database-workshop-v1.js','assets/js/crownlight-echarts-loader-v1.js'])
+ assert(practice.includes(p)&&existsSync(new URL('../'+p,import.meta.url)),p+' required in the separate free chart workshop');
+assert(html.includes('href="chart-reveal-practice.html">Interactive Chart Workshop</a>'));
+assert(!html.includes('id="kd-workshop"'),'Reference page must not contain the full chart exercise');
+assert(!html.includes('knowledge-database-workshop-v1.js'),'Reference page must not load the interactive workshop engine');
+assert(practice.includes('id="kd-workshop"'),'Separate workshop must mount the eight-candle practice');
 assert(html.indexOf('free-foundations-knowledge-v1.js')<html.indexOf('knowledge-database-expanded-v2.js'),
  'Original Foundations topics must initialize before the additional filter');
 assert(html.includes('Explore 38 free, independent educational references'));
-for(const id of ['academy-free-knowledge','knowledge-expansion','kd-workshop'])assert(html.includes('id="'+id+'"'));
+for(const id of ['academy-free-knowledge','knowledge-expansion'])assert(html.includes('id="'+id+'"'));
 assert(html.includes('aff_id=1173728'),'Previously approved affiliate banner must be preserved');
 const expandedSource=read('assets/js/knowledge-database-expanded-v2.js');
 assert(expandedSource.includes('t.source'),'Public research provenance must be visible');
