@@ -19,8 +19,9 @@ export async function onRequestGet({request,env}){
   const buckets=await db(c,'groundup_question_pass_buckets?select=remaining_credits&user_id=eq.'+uid+'&remaining_credits=gt.0&expires_at=is.null&limit=1000');
   if(!Array.isArray(buckets)||buckets.length===1000)return respond({ok:false,error:'BALANCE_UNAVAILABLE'},503);
   const balance=buckets.reduce((sum,b)=>sum+Number(b.remaining_credits),0);
-  if(!Number.isSafeInteger(balance)||selected>balance)return respond({ok:false,error:'INSUFFICIENT_LUMENS'},409);
+  if(!Number.isSafeInteger(balance)||balance<0||selected>balance)return respond({ok:false,error:'INSUFFICIENT_LUMENS'},409);
   const applied=Math.min(offer.amountCents,selected*7),cashDue=offer.amountCents-applied;
+  if(selected>Math.ceil(offer.amountCents/7))return respond({ok:false,error:'EXCEEDS_PRODUCT_PRICE'},409);
   if(cashDue>0&&cashDue<50)return respond({ok:false,error:'BELOW_CARD_MINIMUM'},409);
   return respond({ok:true,testOnly:true,checkoutActive:false,sku,originalCents:offer.amountCents,
    lumenUnitCents:7,availableLumens:balance,selectedLumens:selected,discountCents:applied,
