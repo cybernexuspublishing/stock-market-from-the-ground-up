@@ -18,7 +18,7 @@ try{
    window.__guided?.dispose?.();
    window.__guided=window.GroundUpAcademyGuidedV1.mount(host,{day:{
     day:1,programCode:code,title:'Research and Source Verification',
-    objective:'Identify the source, interval, and relevant chart facts.',
+    objective:'Identify the source, publication time, and relevant issuer evidence.',
     observe:'Record the dated source and OHLC values from the available record.',
     practice:'Compare two observations without predicting the next candle.',
     method:['Check original source','Record the decision'],limitation:'No future market result is established.',
