@@ -38,6 +38,23 @@ function options(select,data,valueOf,labelOf){
 }
 function render(){
  renderSandbox();
+ const ad=model.adsense||{enabled:false,approved:false,pages:{}};
+ const status=e('gu-adsense-status');
+ if(status){
+  status.textContent='Google approval: '+(ad.approved?'Confirmed by Owner':'Pending')+
+   ' · AdSense: '+(ad.enabled?'Enabled':'Disabled')+' · Publisher: ca-pub-6531971840615114';
+  e('gu-adsense-approval').textContent=ad.approved?'Revoke approval confirmation':'Confirm Google approval';
+  e('gu-adsense-toggle').textContent=ad.enabled?'Disable Google AdSense':'Enable Google AdSense';
+  e('gu-adsense-toggle').disabled=!ad.approved&&!ad.enabled;
+  const pages=e('gu-adsense-pages');pages.replaceChildren();
+  for(const [path,title] of [['/index.html','Homepage'],['/knowledge-database.html','Knowledge Database'],['/store.html','Store'],['/advertise.html','Advertise']]){
+   const label=n('label',undefined,'gu-ad-carousel-control');
+   const input=n('input');input.type='checkbox';input.checked=ad.pages?.[path]===true;
+   input.addEventListener('change',()=>act({action:'set_adsense_controls',page:path,pageEnabled:input.checked},
+     'AdSense '+title+' page setting updated.').catch(err=>{status.textContent=err.message;input.checked=!input.checked}));
+   label.append(input,n('span',title));pages.append(label);
+  }
+ }
  const gates=model.settings||{},gate=e('gu-ad-gate-state');
  gate.textContent='New quote inquiries: '+(gates.accepting_inquiries?'Open':'Paused')+
   ' · Online ad payments: '+(gates.accepting_payments?'Enabled':'Disabled')+
@@ -416,6 +433,18 @@ async function start(){
     await refresh();
    }catch(err){e('gu-ad-sandbox-feedback').textContent=err.message}
    finally{btn.disabled=false}
+  });
+  e('gu-adsense-approval').addEventListener('click',async()=>{
+   const approved=model.adsense?.approved!==true;
+   if(approved&&!confirm('Has Google AdSense approved this exact website for ad serving?'))return;
+   await act({action:'set_adsense_controls',approved},approved?'Google approval recorded.':'AdSense approval revoked and ads disabled.')
+    .catch(err=>e('gu-adsense-status').textContent=err.message);
+  });
+  e('gu-adsense-toggle').addEventListener('click',async()=>{
+   const enabled=model.adsense?.enabled!==true;
+   await act({action:'set_adsense_controls',enabled},
+    enabled?'Google AdSense master setting enabled.':'Google AdSense master setting disabled.')
+    .catch(err=>e('gu-adsense-status').textContent=err.message);
   });
   e('gu-ad-toggle-paid-billing').addEventListener('click',async()=>{
    const enabled=model.settings?.accepting_payments!==true,btn=e('gu-ad-toggle-paid-billing');
