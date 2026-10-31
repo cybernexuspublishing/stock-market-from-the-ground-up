@@ -12,6 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 3
     steps:
+      - name: Resend original genuine Stripe LIVE zero-dollar event if CI key is configured
+        env:
+          STRIPE_KEY_A: ${{ secrets.STRIPE_LIVE_SECRET_KEY }}
+          STRIPE_KEY_B: ${{ secrets.GU58_STRIPE_LIVE_SECRET_KEY }}
+        shell: bash
+        run: |
+          key="${STRIPE_KEY_A:-$STRIPE_KEY_B}"
+          if [[ "$key" != sk_live_* ]]; then
+            echo "RESEND_NOT_RUN: GitHub Actions does not expose an authorized LIVE Stripe key."
+            exit 0
+          fi
+          echo "Authorized LIVE Stripe API key present; initiating provider resend of existing zero-dollar diagnostic event."
+          npx --yes @stripe/cli@1.55.3 events resend evt_1UVaw9JL0O4GGVBHKjQTd21w --webhook-endpoint we_1UUZvAJL0O4GGVBH5Tp77DVM --api-key "$key"
+          echo "CLI resubmission issued; delivery acknowledgment requires separate Stripe provider verification."
       - name: Verify LIVE webhook route and fail-closed configuration without a valid signature
         shell: bash
         run: |
