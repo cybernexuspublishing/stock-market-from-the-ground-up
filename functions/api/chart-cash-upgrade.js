@@ -89,7 +89,7 @@ export async function onRequestPost({request,env}){
    const params=new URLSearchParams({mode:'payment',
     'line_items[0][price]':item.price_id,'line_items[0][quantity]':'1',
     client_reference_id:pending.id,
-    success_url:url.origin+'/purchase-thank-you.html?sku='+encodeURIComponent(input.sku),
+    success_url:url.origin+'/purchase-thank-you.html?session_id={CHECKOUT_SESSION_ID}',
     cancel_url:url.origin+'/store.html?chart_test_cancel=1',
     'metadata[chart_cash_test_id]':pending.id,
     'metadata[chart_cash_test_user]':identity.userId,
