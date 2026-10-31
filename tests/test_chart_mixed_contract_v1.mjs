@@ -39,7 +39,7 @@ assert.match(handler,/amount_total!==o.cash_cents/);
 assert.match(handler,/charge.amount_refunded<charge.amount/);
 assert.match(handler,/chart_mixed_test_apply_v1/);
 assert.match(unified,/acceptChartMixedTestEvent\(event,env\)/);
-assert.match(store,/Lumens \+ card/);
+assert.match(store,/Use Crownlight Lumens \+ credit card/);
 assert.match(store,/remainingLumens/);
 assert.match(store,/crypto.randomUUID/);
 console.log('Chart mixed checkout: default-closed, math, security and source-contract checks passed (30+ assertions). Genuine Stripe TEST payment remains separate acceptance.');
