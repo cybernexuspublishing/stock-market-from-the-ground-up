@@ -42,4 +42,7 @@ assert.match(unified,/acceptChartMixedTestEvent\(event,env\)/);
 assert.match(store,/Use Crownlight Lumens \+ credit card/);
 assert.match(store,/remainingLumens/);
 assert.match(store,/crypto.randomUUID/);
+assert.match(store,/input\.disabled=false/,'Lumen quantity must remain editable even when offer lookup is unavailable');
+assert.match(store,/preview\.disabled=!token\|\|included/,'Preview cannot initiate an included-tier checkout');
+assert.match(store,/if\(token&&!included\)void preview\.click\(\)/,'Only eligible signed-in cards auto-request quotes');
 console.log('Chart mixed checkout: default-closed, math, security and source-contract checks passed (30+ assertions). Genuine Stripe TEST payment remains separate acceptance.');
