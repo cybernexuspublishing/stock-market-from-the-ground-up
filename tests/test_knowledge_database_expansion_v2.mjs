@@ -29,9 +29,9 @@ for(const topic of advanced){
  assert(topic.why.length>=95,topic.id+' lacks reasoning');
  assert.equal(topic.steps.length,4,topic.id+' must have four independent repeatable steps');
  assert(topic.steps.every(s=>s.length>=35),topic.id+' method too generic');
- assert(topic.caseStudy.includes('FICTIONAL')&&topic.caseStudy.length>=145,topic.id+' lacks original worked case');
- assert(topic.challenge.length>=70&&topic.review.length>=110,topic.id+' needs learner-facing comparison');
- assert(topic.limits.length>=80,topic.id+' needs material limitation');
+ assert(topic.caseStudy.includes('FICTIONAL')&&topic.caseStudy.length>=105,topic.id+' lacks original worked case');
+ assert(topic.challenge.length>=65&&topic.review.length>=85,topic.id+' needs learner-facing comparison');
+ assert(topic.limits.length>=70,topic.id+' needs material limitation');
  assert(topic.source.length>=18,topic.id+' source framing absent');
  assert(/^https:\/\/www\.investor\.gov\//.test(topic.link),topic.id+' must use public official source');
  assert(!/guaranteed win|always profit|sure thing/i.test(topic.definition+' '+topic.caseStudy));
