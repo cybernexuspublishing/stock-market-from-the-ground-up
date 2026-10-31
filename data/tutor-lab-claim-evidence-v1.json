@@ -1,0 +1,95 @@
+{
+  "kind": "public_tutor_lab_claim_bridges_v1",
+  "version": "1.0",
+  "registeredLabsUnaffected": 419,
+  "records": [
+    {
+      "id": "F1-C08-L01",
+      "title": "Share Price Versus Company Size — Mega-Cap Example",
+      "claim": "Share price alone cannot identify total issuer size.",
+      "worked": "FICTIONAL 100 million shares × $10 = $1 billion market cap.",
+      "counterexample": "A company trading at $500 with only 100,000 shares has $50 million capitalization, not more than $1 billion.",
+      "transfer": "Compute 40 million shares × $8; explain why $320 million is not corporate cash.",
+      "sourceId": "SEC_MARKETCAP",
+      "sourceUrl": "https://www.investor.gov/introduction-investing/investing-basics/glossary/market-capitalization",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "F1-C07-L02",
+      "title": "ETF Versus Index",
+      "claim": "An index measures a basket; an ETF is a separately traded fund.",
+      "worked": "FICTIONAL: index 100 to 102 represents 2% index change, not guaranteed matching ETF return.",
+      "counterexample": "A market index value is not directly a tradable security; ETF shares incur trading spreads and costs.",
+      "transfer": "Name differences among an ETF's NAV, market price, benchmark and the fund's prospectus.",
+      "sourceId": "SEC_ETF",
+      "sourceUrl": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/characteristics-mutual-funds-exchange-traded-funds",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "F2-C04-L01",
+      "title": "Bid, Ask, Last, Spread, and Midpoint in a Frequently Updating Quote",
+      "claim": "Bid, ask, last transaction, midpoint and spread describe distinct measurements.",
+      "worked": "FICTIONAL bid $10.00, ask $10.08, last $10.03: spread=$0.08; midpoint=$10.04.",
+      "counterexample": "Neither midpoint nor last trade is a guaranteed price for a new order.",
+      "transfer": "Recalculate bid $19.95, ask $20.10: spread=$0.15 and midpoint=$20.025; discuss missing size.",
+      "sourceId": "SEC_BIDASK",
+      "sourceUrl": "https://www.investor.gov/introduction-investing/investing-basics/glossary/ask-price",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "F2-C04-L02",
+      "title": "Compare Quote Width Without Jumping Ahead to Liquidity Analysis",
+      "claim": "Spread width is not by itself reliable evidence of executable depth.",
+      "worked": "FICTIONAL spreads: $20.00/$20.05 has $0.05 width; $20.00/$20.30 has $0.30 width.",
+      "counterexample": "A narrow spread for ten displayed shares cannot guarantee a 1,000-share fill.",
+      "transfer": "Compare $8.40/$8.48 with $8.40/$8.56 and name unknown size, time and venue.",
+      "sourceId": "FINRA_LIQ",
+      "sourceUrl": "https://syndication.finra.org/content/understanding-disclosure-documents",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "DT-C41-L01",
+      "title": "Order Selection, Fills, Partial Fills, and Execution Control — Market Orders",
+      "claim": "A market order does not guarantee the last reported execution price.",
+      "worked": "FICTIONAL: buy 100 shares when displayed ask is $5.08 with only 20 shares; full fill at $5.08 is unproven.",
+      "counterexample": "A past $5.00 last trade cannot promise the next 100-share buy at $5.00.",
+      "transfer": "Describe the actual order confirmation, clock, route and size needed to verify a fill.",
+      "sourceId": "SEC_ORDER",
+      "sourceUrl": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "DT-C41-L02",
+      "title": "Order Selection, Fills, Partial Fills, and Execution Control — Marketable Limit Orders",
+      "claim": "Buy limits constrain price but do not guarantee order execution.",
+      "worked": "FICTIONAL 100-share buy limit $5.06 sees 30 offered shares at $5.06; the rest might not fill.",
+      "counterexample": "Merely touching a buy limit in past prices does not establish that the whole order executed.",
+      "transfer": "Compare a $6.10 buy limit against an ask of $6.08 with 10 shown shares for a 100-share order.",
+      "sourceId": "SEC_ORDER",
+      "sourceUrl": "https://www.investor.gov/introduction-investing/investing-basics/how-stock-markets-work/types-orders",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "DT-C42-L02",
+      "title": "Stops and Invalidation — Slippage and gaps",
+      "claim": "Stop trigger is not the guaranteed exit price.",
+      "worked": "FICTIONAL entry $10.00, stop $9.80; 100 shares filled on exit at $9.50 lose $50, not the planned $20.",
+      "counterexample": "Confusing a planned stop with an enforceable loss ceiling hides gap and slippage risks.",
+      "transfer": "At $10 entry and $9.40 exit, compute 80-share loss $48, then explain the stop-price caveat.",
+      "sourceId": "SEC_STOP",
+      "sourceUrl": "https://www.investor.gov/introduction-investing/general-resources/news-alerts/alerts-bulletins/investor-bulletins-15",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    },
+    {
+      "id": "DT-C11-L01",
+      "title": "VWAP and Moving Averages in Intraday Trading — VWAP as a session reference",
+      "claim": "VWAP requires defined bar/tick input scope and session boundary.",
+      "worked": "FICTIONAL HLC3 bar proxy: $9.50 at volume 100 and $10.50 at volume 200 gives (950+2100)/300=$10.1667.",
+      "counterexample": "A bar typical-price proxy is not a tick-accurate VWAP or buy signal.",
+      "transfer": "Use two fresh fictional bar prices $10 at 100 units and $12 at 300 units; calculate $11.50 proxy.",
+      "sourceId": "CHART_VWAP",
+      "sourceUrl": "https://chartschool.stockcharts.com/table-of-contents/technical-indicators-and-overlays/technical-overlays/volume-weighted-average-price-vwap",
+      "reviewStatus": "source_specific_general_claim_checked_ungraded_not_independently_approved"
+    }
+  ]
+}
