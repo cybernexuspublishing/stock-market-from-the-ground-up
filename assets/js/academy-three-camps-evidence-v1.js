@@ -8,7 +8,8 @@ function mount(host,{day,stage}={}){
  const lesson=day?.lesson;
  if(!host||!lesson||lesson.evidenceType!=='FICTIONAL_EDUCATIONAL_DATA_NO_HISTORICAL_LICENSE')return null;
  host.replaceChildren();
- const kind=category(String(lesson.visual||'')),head=element('div',undefined,'academy-evidence-head');
+ const kind=day.programCode==='filings7'?'filings':day.programCode==='tape10'?'microstructure':day.programCode==='indicators10'?'indicators':category(String(lesson.visual||''));
+ const head=element('div',undefined,'academy-evidence-head');
  const label=kind==='microstructure'?'Quote, depth and execution evidence':
   kind==='indicators'?'Indicator calculation and chart evidence':'SEC filing and issuer-source evidence';
  head.append(element('strong',label),element('small','FICTIONAL TEACHING CASE · ONLY CURRENT STAGE'));
@@ -45,6 +46,15 @@ function mount(host,{day,stage}={}){
   const callout=element('div',undefined,'academy-evidence-levels');
   callout.append(element('span','INPUTS → FORMULA → VALUE'),element('span','COMPLETED OBSERVATIONS ONLY'),element('span','INDICATOR ≠ PRICE FORECAST'));
   host.append(callout);
+  if(stage>=2&&stage<=6&&root.CrownlightLearningEChartsV1?.mount){
+   const chartHost=element('div',undefined,'academy-evidence-indicator-chart');
+   chartHost.setAttribute('aria-label','Supplementary fictional ECharts visualization; mathematical proof remains in the written worked example');
+   host.append(chartHost);
+   const chart=root.CrownlightLearningEChartsV1.mount(chartHost,{
+    kind:/vwap/.test(String(lesson.visual||''))?'vwap':'candle',interactive:true
+   });
+   return Object.freeze({dispose(){chart?.dispose?.();host.replaceChildren()}});
+  }
  }else{
   const callout=element('div',undefined,'academy-evidence-levels');
   callout.append(element('span','FILER IDENTITY'),element('span','PUBLICATION TIME'),element('span','PERIOD & DENOMINATOR'),element('span','UNRESOLVED CONDITIONS'));
