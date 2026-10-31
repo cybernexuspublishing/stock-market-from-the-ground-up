@@ -36,14 +36,14 @@
 <div id="gu-ad-packages" class="gu-ad-control-list"></div></section>
 <section class="gu-ad-panel"><h2>Advertiser inquiries</h2><p>New inquiries are private. Review them before creating an advertiser; never publish a contact email on the website.</p>
 <div id="gu-ad-inquiries" class="gu-ad-control-list"></div></section>
-<section class="gu-ad-panel"><h2>Register a qualified advertiser</h2>
+<section class="gu-ad-panel"><h2>Advertisers</h2>
 <form id="gu-ad-advertiser-form" class="gu-ad-form">
 <label>Organization <input name="name" required minlength="2" maxlength="160"></label>
 <label>Business email <input name="email" type="email" required></label>
 <label>Verified HTTPS website <input name="website" type="url" required placeholder="https://business.example"></label>
 <button class="btn" type="submit">Create advertiser prospect</button><p role="status" id="gu-ad-advertiser-result"></p></form>
 <div id="gu-ad-advertisers" class="gu-ad-control-list"></div></section>
-<section class="gu-ad-panel"><h2>Create draft campaign</h2>
+<section class="gu-ad-panel"><h2>Campaigns — create draft</h2>
 <p class="gu-ad-note">The contract amount must be agreed with the advertiser. No creative is publicly served and no money is charged by creating a draft.</p>
 <form id="gu-ad-campaign-form" class="gu-ad-form">
 <label>Qualified advertiser <select name="advertiserId" id="gu-ad-campaign-advertiser" required></select></label>
@@ -53,7 +53,7 @@
 <label>Flight begins <input name="startsAt" type="datetime-local" required></label>
 <label>Flight ends <input name="endsAt" type="datetime-local" required></label>
 <button class="btn" type="submit">Save campaign as draft</button><p role="status" id="gu-ad-campaign-result"></p></form></section>
-<section class="gu-ad-panel"><h2>Submit creative for Owner review</h2>
+<section class="gu-ad-panel"><h2>Placements &amp; Creatives</h2>
 <p>No remote tracking pixel or third-party embedded script is allowed. Only text and an explicitly reviewed HTTPS destination are accepted.</p>
 <form id="gu-ad-creative-form" class="gu-ad-form">
 <label>Draft campaign <select name="campaignId" id="gu-ad-creative-campaign" required></select></label>
