@@ -12,7 +12,7 @@ const env={GU58_LIVE_WEBHOOK_ENABLED:'true',GU58_LIVE_FULFILLMENT_APPROVED:'true
  GU58_LIVE_DB_CONTRACT_APPROVED:'true',GU58_STRIPE_LIVE_SECRET_KEY:'sk_live_ciMock',
  GU58_STRIPE_LIVE_ACCOUNT_ID:merchant,GU58_STRIPE_LIVE_WEBHOOK_SECRET:secret,
  SUPABASE_URL:'https://oxihglyfgzywsupnyicb.supabase.co',SUPABASE_SECRET_KEY:'sb_secret_ciMock'};
-const invoice={id:invoiceId,livemode:true,status:'paid',paid:true,amount_paid:25000,
+const invoice={id:invoiceId,livemode:true,status:'paid',amount_remaining:0,amount_paid:25000,
  customer:customerId,currency:'usd',collection_method:'send_invoice',metadata:{
  ad_campaign_id:'42',advertiser_id:'8',approved_quote_cents:'25000'}};
 const campaign={id:42,advertiser_id:8,amount_cents:25000,approval_state:'approved',
