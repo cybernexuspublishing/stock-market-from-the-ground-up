@@ -9,7 +9,8 @@
 <script defer src="assets/js/commerce-common.js"></script><script defer src="assets/js/store-product-detail-v01484.js"></script><script defer src="assets/js/store-interactive-learning-v1.js"></script>
 </head><body>
 <header class="site-header"><div class="wrap nav"><a class="brand" href="index.html">THE STOCK MARKET: <span>FROM THE GROUND UP</span></a><nav class="navlinks"></nav></div></header>
-<main class="section"><div class="wrap"><div id="store-product-root" class="store-product-detail" data-product-type="tool" data-product-code="INTERACTIVE_LEARNING">
+<main class="section"><div class="wrap"><div id="gu-locked-selection" role="status" aria-live="polite" hidden style="margin:0 0 16px;padding:12px 16px;border:1px solid #526276;border-radius:8px"></div>
+<div id="store-product-root" class="store-product-detail" data-product-type="tool" data-product-code="INTERACTIVE_LEARNING">
 <h1>Interactive Learning &amp; Historical Labs</h1><p role="status">Loading product coverage and current availability…</p>
 <noscript>JavaScript is required to verify current pricing and purchase availability. <a href="store.html">Return to the Store</a>.</noscript>
 </div>
@@ -70,4 +71,11 @@
 <footer class="footer"><div class="wrap footer-grid"><div><strong>The Stock Market: From the Ground Up</strong><p>Books teach. The platform trains application.</p></div>
 <div><strong>Shop</strong><br><a href="store.html#memberships">Memberships</a><br><a href="store.html#books">Books</a><br><a href="store.html#tools">À-la-Carte Tools</a></div>
 <div><strong>Information</strong><br><a href="membership.html">Membership comparison</a><br><a href="subscription-terms.html">Billing Terms</a><br><a href="refund-policy.html">Refund Policy</a><br><a href="privacy.html">Privacy</a></div></div></footer>
+<script>
+(()=>{'use strict';const q=new URLSearchParams(location.search),source=q.get('source'),item=q.get('item')||'';
+ if(!((source==='lab'&&/^(?:F[123]|DT|TAPE|SITE)-[A-Z0-9-]{3,45}$/i.test(item))||(source==='bootcamp'&&/^[a-z0-9-]{3,32}$/i.test(item))))return;
+ const box=document.getElementById('gu-locked-selection');if(!box)return;
+ box.hidden=false;box.textContent='Selected '+(source==='lab'?'Lab':'Boot Camp')+': '+item+'. Access is restricted. This page describes a possible access product, not confirmation that it unlocks this specific item. Verify included entitlements, release status, price, and checkout availability below before purchasing. If no eligible purchase option is available, this item is currently unavailable for purchase.';
+})();
+</script>
 </body></html>
