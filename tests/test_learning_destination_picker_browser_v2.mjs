@@ -45,7 +45,7 @@ try{
   assert(n>=17,'VWAP search must find all matching Labs');
   assert.equal(await page.locator('.gu-picker-locked').count(),n,'Unverified access remains locked');
   assert.equal(await result.filter({hasText:'F3-C06-L01'}).locator('a').first().getAttribute('href'),
-   'store-book-foundation-3.html','Matching book product link is required');
+   'store.html','Unverified Lab Pack must not redirect to a book product');
   await page.locator('#player-catalog-search').press('Escape');
   assert.equal(await page.locator('#player-catalog-browser').isVisible(),false,
    'Escape collapses the dropdown without discarding the search');
